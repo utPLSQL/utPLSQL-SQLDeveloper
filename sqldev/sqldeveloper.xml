@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<updates version="2.0"
+  xmlns="http://xmlns.oracle.com/jdeveloper/updatecenter"
+  xmlns:u="http://xmlns.oracle.com/jdeveloper/update">
+    <u:update id="org.utplsql.sqldev">
+        <u:name>#EXTENSION_NAME#</u:name>
+        <u:version>#EXTENSION_VERSION#</u:version>
+        <u:author>#EXTENSION_OWNER#</u:author>
+        <u:author-url>http://utplsql.org/</u:author-url>
+		<u:description><![CDATA[#EXTENSION_DESCRIPTION#]]></u:description>
+		<u:requirements>
+			<u:requires-extension id="oracle.sqldeveloper" minVersion="#MIN_SQLDEV_VERSION#"/>
+			<u:requires-agreement url="#EXTENSION_LICENSE_URL#"/>
+		</u:requirements>
+        <u:bundle-url>https://github.com/utPLSQL/utPLSQL-SQLDeveloper/releases/download/v#EXTENSION_SHORT_VERSION#/#EXTENSION_DEPLOYABLE#</u:bundle-url>
+    </u:update>
+</updates>

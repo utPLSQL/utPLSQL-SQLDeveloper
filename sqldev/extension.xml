@@ -1,0 +1,57 @@
+<extension id="org.utplsql.sqldev" version="#EXTENSION_VERSION#"
+	esdk-version="2.0" xmlns="http://jcp.org/jsr/198/extension-manifest"
+	rsbundle-class="org.utplsql.sqldev.resources.UtplsqlResources">
+	<name rskey="EXTENSION_NAME" />
+	<owner rskey="EXTENSION_OWNER" />
+
+	<feature id="org.utplsql.sqldev" xmlns="http://xmlns.oracle.com/ide/extension">
+		<category-id>db-category</category-id>
+		<name>#EXTENSION_NAME#</name>
+		<description><![CDATA[#EXTENSION_DESCRIPTION#]]></description>
+		<type>
+			<service can-user-disable="true" reload-if-used="true" />
+		</type>
+	</feature>
+
+	<trigger-hooks xmlns="http://xmlns.oracle.com/ide/extension">
+		<triggers>
+			<actions xmlns="http://xmlns.oracle.com/jdeveloper/1013/extension">
+				<action id="utplsql.editor.test">
+					<properties>
+						<property name="Name">${MENU_RUN_TEST_LABEL}</property>
+						<property name="SmallIcon">res:/org/utplsql/sqldev/resources/images/utPLSQL.png</property>
+						<property name="Category">Code-Editor</property>
+					</properties>
+				</action>
+			</actions>
+			<controllers xmlns="http://xmlns.oracle.com/ide/extension">
+				<controller class="org.utplsql.sqldev.editor.menu.UtplsqlEditorController">
+					<update-rules>
+						<update-rule rule="always-enabled">
+							<action id="utplsql.editor.test"/>
+						</update-rule>
+					</update-rules>
+				</controller>
+			</controllers>
+			<context-menu-hook rule="always-enabled">
+				<site idref="editor" />
+				<menu>
+					<section xmlns="http://jcp.org/jsr/198/extension-manifest"
+						id="UTPLSQL_EDITOR_MENU" weight="2.0">
+						<item action-ref="utplsql.editor.test" weight="1.0"/>
+					</section>
+				</menu>
+			</context-menu-hook>
+			<accelerator-hook>
+				<file>org/utplsql/sqldev/resources/accelerators.xml</file>
+			</accelerator-hook>
+			<settings-ui-hook>
+				<page id="UTPLSQL_PREFERENCES_PAGE" parent-idref="/preferences">
+					<label>${PREF_LABEL}</label>
+					<traversable-class>org.utplsql.sqldev.PreferencePanel
+					</traversable-class>
+				</page>
+			</settings-ui-hook>
+		</triggers>
+	</trigger-hooks>
+</extension>
