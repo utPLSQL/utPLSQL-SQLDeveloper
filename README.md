@@ -1,2 +1,2 @@
-# SQLDeveloper-plugin
-Plugin for running unit tests straigt from SQLDeveloper
+# SQLDeveloper Extension
+Extension for running unit tests from SQLDeveloper
