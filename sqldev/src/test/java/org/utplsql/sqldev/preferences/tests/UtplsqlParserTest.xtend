@@ -24,8 +24,17 @@ class UtplsqlParserTest {
 	@Test
 	def testPackage() {
 		val plsql = '''
-			--
+			PROMPT
+			PROMPT Install utPLSQL test package
+			PROMPT
+			
+			/*
+			 * some comment
+			 */
+			-- %suite
+			-- %rollback(manual)
 			CREATE OR REPLACE PACKAGE pkg IS
+			   -- %test
 			   PROCEDURE p (in_p1 INTEGER);
 			   FUNCTION f (in_p1 INTEGER) RETURN INTEGER;
 			END pkg;
@@ -37,6 +46,12 @@ class UtplsqlParserTest {
 			   BEGIN
 			      NULL;
 			   END p;
+			
+			   /* comment 1 */
+			   -- comment 2
+			   /* comment 3 */
+			   -- comment 4
+			
 			   FUNCTION "F" (in_p1 INTEGER) RETURN INTEGER IS
 			   BEGIN
 			      RETURN 1;
@@ -60,11 +75,14 @@ class UtplsqlParserTest {
 		Assert.assertTrue(units.get(0).position < units.get(1).position)
 		Assert.assertTrue(units.get(1).position < units.get(2).position)
 		Assert.assertTrue(units.get(2).position < units.get(3).position)
-		Assert.assertEquals("", parser.getUtPlsqlCall(0))
-		Assert.assertEquals("ut.run('pkg');", parser.getUtPlsqlCall(4))
-		Assert.assertEquals("ut.run('pkg.p');", parser.getUtPlsqlCall(66))
-		Assert.assertEquals("ut.run('pkg.f');", parser.getUtPlsqlCall(67))
-		Assert.assertEquals('''ut.run('SCOTT.PKG.P');'''.toString, parser.getUtPlsqlCall(185))
-		Assert.assertEquals('''ut.run('SCOTT.PKG.F');'''.toString, parser.getUtPlsqlCall(260))
+		Assert.assertEquals("", parser.getPathAt(0))
+		Assert.assertEquals("", parser.getPathAt(3,6))
+		Assert.assertEquals("pkg", parser.getPathAt(4,1))
+		Assert.assertEquals("pkg.p", parser.getPathAt(10,33))
+		Assert.assertEquals("pkg.f", parser.getPathAt(13,1))
+		Assert.assertEquals("SCOTT.PKG.P", parser.getPathAt(19,1))
+		Assert.assertEquals("SCOTT.PKG.P", parser.getPathAt(22,9))
+		Assert.assertEquals("SCOTT.PKG.F", parser.getPathAt(22,10))
+		Assert.assertEquals("SCOTT.PKG.F", parser.getPathAt(29,1))
 	}	
 }

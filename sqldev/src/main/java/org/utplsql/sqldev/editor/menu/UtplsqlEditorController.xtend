@@ -45,7 +45,7 @@ class UtplsqlEditorController implements Controller {
 				val component = view.defaultFocusComponent
 				if (component instanceof JEditorPane) {
 					val parser = new UtplsqlParser(component.text)
-					if (!parser.getUtPlsqlCall(component.caretPosition).empty) {
+					if (!parser.getPathAt(component.caretPosition).empty) {
 						action.enabled = true
 					}
 				}
@@ -64,7 +64,7 @@ class UtplsqlEditorController implements Controller {
 				val parser = new UtplsqlParser(component.text)
 				val position = component.caretPosition
 				// TODO: open new worksheet and call utPLSQL
-				logger.fine('''Cursor is at «position». Calling «parser.getUtPlsqlCall(position)»''')
+				logger.fine('''Cursor is at «position». Calling «parser.getPathAt(position)»''')
 			}
 		}
 		logger.fine ("utPLSQL test started successfully.")
