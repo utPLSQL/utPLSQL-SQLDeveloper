@@ -103,8 +103,8 @@ class UtplsqlParser {
 		return name
 	}
 	
-	private def removeQuotes(String name) {
-		return name.replace("\"", "")
+	private def fixName(String name) {
+		return name.replace("\"", "").replace(";", "")
 	}
 	
 	def getObjects() {
@@ -126,9 +126,9 @@ class UtplsqlParser {
 		if (!objectName.empty) {
 			var unitName = getUnitNameAt(position)
 			if (unitName.empty) {
-				return objectName.removeQuotes
+				return objectName.fixName
 			} else {
-				return '''«objectName.removeQuotes».«unitName.removeQuotes»'''
+				return '''«objectName.fixName».«unitName.fixName»'''
 			}
 		}
 		return ""

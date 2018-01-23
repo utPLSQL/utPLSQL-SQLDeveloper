@@ -116,6 +116,20 @@
 			<scope>system</scope>
 			<systemPath>${sqldev.basedir}/ide/lib/dbapi.jar</systemPath>
 		</dependency>
+		<dependency>
+			<groupId>oracle</groupId>
+			<artifactId>oracle.ide.db</artifactId>
+			<version>12.2.1</version>
+			<scope>system</scope>
+			<systemPath>${sqldev.basedir}/ide/extensions/oracle.ide.db.jar</systemPath>
+		</dependency>
+		<dependency>
+			<groupId>oracle</groupId>
+			<artifactId>oracle.jdeveloper.db.connection</artifactId>
+			<version>12.2.1</version>
+			<scope>system</scope>
+			<systemPath>${sqldev.basedir}/jdev/extensions/oracle.jdeveloper.db.connection.jar</systemPath>
+		</dependency>
 		<!-- SQL Developer specific dependencies part 2 (available in public maven repositories) -->
 		<dependency>
 			<!-- SQL Developer is using this older version -->
@@ -388,10 +402,12 @@
 						</_exportcontents>
 						<Require-Bundle>
 							oracle.javatools-nodeps,
+							oracle.jdeveloper.db.connection,
 							oracle.idert,
 							oracle.ide,
 							oracle.ide.db,
 							oracle.sqldeveloper,
+							oracle.sqldeveloper.worksheet,
 							oracle.uic
 						</Require-Bundle>
 						<Import-Package>!*</Import-Package>
