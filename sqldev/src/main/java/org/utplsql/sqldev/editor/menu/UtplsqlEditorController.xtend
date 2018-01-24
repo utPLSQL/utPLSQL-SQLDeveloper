@@ -14,12 +14,16 @@
  */
 package org.utplsql.sqldev.editor.menu
 
+import java.awt.Dimension
 import java.util.logging.Logger
 import javax.swing.JEditorPane
+import javax.swing.JSplitPane
 import oracle.dbtools.raptor.navigator.impl.DatabaseSourceNode
 import oracle.dbtools.raptor.utils.Connections
 import oracle.dbtools.worksheet.editor.OpenWorksheetWizard
 import oracle.dbtools.worksheet.editor.Worksheet
+import oracle.dbtools.worksheet.editor.WorksheetGUI
+import oracle.dbtools.worksheet.utils.WorksheetUtil
 import oracle.ide.Context
 import oracle.ide.Ide
 import oracle.ide.config.Preferences
@@ -88,26 +92,31 @@ class UtplsqlEditorController implements Controller {
 					connectionName = Connections.instance.createPrivateConnection(connectionName)
 				}
 				val code = '''
-					SET SERVEROUTPUT ON SIZE 1000000
 					«IF preferences.resetPackage»
-						BEGIN
-						   dbms_session.reset_package;
-						END;
-						/
+						EXECUTE dbms_session.reset_package;
 					«ENDIF»
-					BEGIN
-					   ut.run('«parser.getPathAt(position)»');
-					END;
-					/
+					SET SERVEROUTPUT ON SIZE 1000000
+					CLEAR SCREEN
+					EXECUTE ut.run('«parser.getPathAt(position)»');
 				'''
 				val worksheet = OpenWorksheetWizard.openNewTempWorksheet(connectionName, code) as Worksheet
 				if (connectionName === null) {
 					worksheet.comboConnection = null
 				}
-				// TODO make update Title work
-				worksheet.updateTitle(UtplsqlResources.getString("WORKSHEET_TITLE"))
-				// TODO exeucte code in worksheet when preferences.autoExecute		
-				logger.fine('''Cursor is at «position». Calling «parser.getPathAt(position)»''')
+				WorksheetUtil.setWorksheetTabName(worksheet.context.node.URL, UtplsqlResources.getString("WORKSHEET_TITLE"));
+				if (preferences.autoExecute) {
+					Thread.sleep(100) // give worksheet time to initialize
+					val action = Ide.getIdeActionMap.get(Ide.findCmdID("Worksheet.RunScript")) as IdeAction
+					action.performAction(worksheet.context)
+					Thread.sleep(200) // give script runner time to initiate result panel
+					val splitPane = worksheet.selectedResultPanel?.GUI?.parent?.parent?.parent as JSplitPane
+					if (splitPane === null) {
+						logger.severe("Could not adjust size of worksheet.")
+					} else {
+						splitPane.dividerLocation = 0.15 // 15% for Worksheet, 85% for Script Output 
+					}
+				}
+				logger.fine('''utPLSQL test called for code at cursor position «position».»''')
 			}
 		}
 	}
