@@ -26,6 +26,7 @@ import org.utplsql.sqldev.resources.UtplsqlResources
 class PreferencePanel extends DefaultTraversablePanel {
 	val JCheckBox unsharedWorksheetCheckBox = new JCheckBox
 	val JCheckBox resetPackageCheckBox = new JCheckBox
+	val JCheckBox clearScreenCheckBox = new JCheckBox
 	val JCheckBox autoExecuteCheckBox = new JCheckBox
 
 	new() {
@@ -42,6 +43,9 @@ class PreferencePanel extends DefaultTraversablePanel {
 			builder.field.label.withText(UtplsqlResources.getString("PREF_RESET_PACKAGE_LABEL")).component(
 				resetPackageCheckBox))
 		builder.add(
+			builder.field.label.withText(UtplsqlResources.getString("PREF_CLEAR_SCREEN_LABEL")).component(
+				clearScreenCheckBox))
+		builder.add(
 			builder.field.label.withText(UtplsqlResources.getString("PREF_AUTO_EXECUTE_LABEL")).component(
 				autoExecuteCheckBox))
 		builder.addVerticalSpring
@@ -51,6 +55,7 @@ class PreferencePanel extends DefaultTraversablePanel {
 		var PreferenceModel info = traversableContext.userInformation
 		unsharedWorksheetCheckBox.selected = info.unsharedWorksheet
 		resetPackageCheckBox.selected = info.resetPackage
+		clearScreenCheckBox.selected = info.clearScreen
 		autoExecuteCheckBox.selected = info.autoExecute
 		super.onEntry(traversableContext)
 	}
@@ -59,6 +64,7 @@ class PreferencePanel extends DefaultTraversablePanel {
 		var PreferenceModel info = traversableContext.userInformation
 		info.unsharedWorksheet = unsharedWorksheetCheckBox.selected
 		info.resetPackage = resetPackageCheckBox.selected
+		info.clearScreen = clearScreenCheckBox.selected
 		info.autoExecute = autoExecuteCheckBox.selected
 		super.onExit(traversableContext)
 	}

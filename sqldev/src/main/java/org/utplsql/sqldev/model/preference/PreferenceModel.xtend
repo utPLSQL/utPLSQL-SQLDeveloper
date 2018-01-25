@@ -33,6 +33,7 @@ class PreferenceModel extends HashStructureAdapter {
 
 	static final String KEY_UNSHARED_WORKSHEET = "unsharedWorksheet"
 	static final String KEY_RESET_PACKAGE = "resetPackage"
+	static final String KEY_CLEAR_SCREEN = "clearScreen"
 	static final String KEY_AUTO_EXECUTE = "autoExecute"
 
 	def isUnsharedWorksheet() {
@@ -49,6 +50,14 @@ class PreferenceModel extends HashStructureAdapter {
 
 	def setResetPackage(boolean resetPackage) {
 		getHashStructure.putBoolean(PreferenceModel.KEY_RESET_PACKAGE, resetPackage)
+	}
+	
+	def isClearScreen() {
+		return getHashStructure.getBoolean(PreferenceModel.KEY_CLEAR_SCREEN, false)
+	}
+
+	def setClearScreen(boolean clearScreen) {
+		getHashStructure.putBoolean(PreferenceModel.KEY_CLEAR_SCREEN, clearScreen)
 	}
 
 	def isAutoExecute() {

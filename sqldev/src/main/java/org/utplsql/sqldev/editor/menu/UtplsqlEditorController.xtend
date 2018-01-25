@@ -14,7 +14,6 @@
  */
 package org.utplsql.sqldev.editor.menu
 
-import java.awt.Dimension
 import java.util.logging.Logger
 import javax.swing.JEditorPane
 import javax.swing.JSplitPane
@@ -22,7 +21,6 @@ import oracle.dbtools.raptor.navigator.impl.DatabaseSourceNode
 import oracle.dbtools.raptor.utils.Connections
 import oracle.dbtools.worksheet.editor.OpenWorksheetWizard
 import oracle.dbtools.worksheet.editor.Worksheet
-import oracle.dbtools.worksheet.editor.WorksheetGUI
 import oracle.dbtools.worksheet.utils.WorksheetUtil
 import oracle.ide.Context
 import oracle.ide.Ide
@@ -96,7 +94,9 @@ class UtplsqlEditorController implements Controller {
 						EXECUTE dbms_session.reset_package;
 					«ENDIF»
 					SET SERVEROUTPUT ON SIZE 1000000
-					CLEAR SCREEN
+					«IF preferences.clearScreen»
+						CLEAR SCREEN
+					«ENDIF»
 					EXECUTE ut.run('«parser.getPathAt(position)»');
 				'''
 				val worksheet = OpenWorksheetWizard.openNewTempWorksheet(connectionName, code) as Worksheet
@@ -104,6 +104,7 @@ class UtplsqlEditorController implements Controller {
 					worksheet.comboConnection = null
 				}
 				WorksheetUtil.setWorksheetTabName(worksheet.context.node.URL, UtplsqlResources.getString("WORKSHEET_TITLE"));
+				worksheet.context.node.markDirty(false);
 				if (preferences.autoExecute) {
 					Thread.sleep(100) // give worksheet time to initialize
 					val action = Ide.getIdeActionMap.get(Ide.findCmdID("Worksheet.RunScript")) as IdeAction
