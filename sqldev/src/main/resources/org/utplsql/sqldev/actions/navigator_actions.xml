@@ -4,8 +4,28 @@
                         http://xmlns.oracle.com/sqldeveloper/3_1/dialogs.xsd"
 	xmlns="http://xmlns.oracle.com/sqldeveloper/3_1/dialogs">
 
-	<item connType="Oracle" type="CONNECTION" className="org.utplsql.sqldev.navigator.menu.RunFromConnection">
+	<item connType="Oracle" type="CONNECTION" className="org.utplsql.sqldev.navigator.menu.UtplsqlNavigatorAction">
 		<title>Run utPLSQL test</title>
-		<iconName/>
+	</item>
+	<item connType="Oracle" type="PACKAGE_FOLDER" className="org.utplsql.sqldev.navigator.menu.UtplsqlNavigatorAction">
+		<title>Run utPLSQL test</title>
+	</item>
+	<item connType="Oracle" type="PACKAGE" className="org.utplsql.sqldev.navigator.menu.UtplsqlNavigatorAction">
+		<title>Run utPLSQL test</title>
+	</item>
+	<item connType="Oracle" type="PACKAGE BODY" className="org.utplsql.sqldev.navigator.menu.UtplsqlNavigatorAction">
+		<title>Run utPLSQL test</title>
+	</item>
+	<item connType="Oracle" type="TYPE_FOLDER" className="org.utplsql.sqldev.navigator.menu.UtplsqlNavigatorAction">
+		<title>Run utPLSQL test</title>
+	</item>
+	<item connType="Oracle" type="TYPE" className="org.utplsql.sqldev.navigator.menu.UtplsqlNavigatorAction">
+		<title>Run utPLSQL test</title>
+	</item>
+	<item connType="Oracle" type="TYPE BODY" className="org.utplsql.sqldev.navigator.menu.UtplsqlNavigatorAction">
+		<title>Run utPLSQL test</title>
+	</item>
+	<item connType="Oracle" type="MEMBER" className="org.utplsql.sqldev.navigator.menu.UtplsqlNavigatorAction">
+		<title>Run utPLSQL test</title>
 	</item>
 </items>
