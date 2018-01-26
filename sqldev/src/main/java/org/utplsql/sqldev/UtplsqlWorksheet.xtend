@@ -76,7 +76,7 @@ class UtplsqlWorksheet {
 		}
 	}
 
-	def runTest() {
+	private def runTest() {
 		val worksheet = openWorksheet
 		worksheet.runScript
 		logger.fine('''utPLSQL test called for «path» in «connectionName».''')

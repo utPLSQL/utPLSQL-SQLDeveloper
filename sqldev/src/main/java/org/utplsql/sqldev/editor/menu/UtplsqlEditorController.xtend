@@ -34,10 +34,7 @@ class UtplsqlEditorController implements Controller {
 
 	override handleEvent(IdeAction action, Context context) {
 		if (action.commandId === UTLPLSQL_EDITOR_TEST_CMD_ID) {
-			val Runnable runnable = [|runTest(context)]
-			val thread = new Thread(runnable)
-			thread.name = "utPLSQL run test"
-			thread.start
+			runTest(context)
 			return true
 		}
 		return false
@@ -78,7 +75,7 @@ class UtplsqlEditorController implements Controller {
 					connectionName = view.connectionName
 				}
 				val utPlsqlWorksheet = new UtplsqlWorksheet(path, connectionName)
-				utPlsqlWorksheet.runTest
+				utPlsqlWorksheet.runTestAsync
 			}
 		}
 	}
