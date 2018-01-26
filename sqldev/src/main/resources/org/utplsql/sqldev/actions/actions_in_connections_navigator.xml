@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<items xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://xmlns.oracle.com/sqldeveloper/3_1/dialogs
+                        http://xmlns.oracle.com/sqldeveloper/3_1/dialogs.xsd"
+	xmlns="http://xmlns.oracle.com/sqldeveloper/3_1/dialogs">
+
+	<item connType="Oracle" type="CONNECTION" className="org.utplsql.sqldev.navigator.menu.RunFromConnection">
+		<title>Run utPLSQL test</title>
+		<iconName/>
+	</item>
+</items>

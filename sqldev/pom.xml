@@ -391,6 +391,8 @@
 							org.utplsql.sqldev,
 							org.utplsql.sqldev.editor.menu,
 							org.utplsql.sqldev.model.preference,
+							org.utplsql.sqldev.navigator.menu,
+							org.utplsql.sqldev.actions,
 							org.utplsql.sqldev.resources
 						</Export-Package>
 						<_exportcontents>

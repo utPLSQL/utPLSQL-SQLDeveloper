@@ -15,6 +15,9 @@
 
 	<trigger-hooks xmlns="http://xmlns.oracle.com/ide/extension">
 		<triggers>
+			<sqldev-action-hook xmlns="http://xmlns.oracle.com/sqldeveloper/sqldev-actions">
+				<actionDescriptor package="org.utplsql.sqldev.actions" />
+			</sqldev-action-hook>
 			<actions xmlns="http://xmlns.oracle.com/jdeveloper/1013/extension">
 				<action id="utplsql.editor.test">
 					<properties>

@@ -1,0 +1,11 @@
+<?xml version = '1.0' encoding = 'utf-8'?>
+<xliff version="1.1">
+   <file original="actions_in_connections_navigator.xml" source-language="en-US" datatype="SQLDeveloper" target-language="de-DE">
+      <body>
+         <trans-unit id="items_item_title_1">
+            <source>Run utPLSQL test</source>
+            <target>utPLSQL Test ausführen</target>
+         </trans-unit>
+      </body>
+   </file>
+</xliff>
