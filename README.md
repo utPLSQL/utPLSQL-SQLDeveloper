@@ -4,7 +4,7 @@
 
 utPLSQL for SQL Developer extends Oracle's SQL Developer by context menu entries and keyboard shortcuts for running utPLSQL unit tests from the Connections window or the PL/SQL editor.
 
-![Alt Text](utPLSQL.gif)
+![utPLSQL for Developer Demo](utPLSQL.gif)
 
 ## Releases
 
@@ -16,7 +16,7 @@ Binary releases are published [here](https://github.com/utPLSQL/utPLSQL-SQLDevel
 
 1. Start SQL Developer
 
-2. Select ```Check for Updates…``` in thehe help menu.
+2. Select ```Check for Updates…``` in the help menu.
 
 3. Use the ```Install From Local File``` option to install the previously downloaded ```utplsql_for_SQLDev_*.zip``` file.
 
