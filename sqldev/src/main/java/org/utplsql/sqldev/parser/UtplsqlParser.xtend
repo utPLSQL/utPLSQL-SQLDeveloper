@@ -22,24 +22,45 @@ import org.utplsql.sqldev.model.parser.Unit
 
 class UtplsqlParser {
 	private String plsql
-	private String plsqlWithoutComments
+	private String plsqlReduced
 	private ArrayList<PlsqlObject> objects = new ArrayList<PlsqlObject>
 	private ArrayList<Unit> units = new ArrayList<Unit>
 	
 	new(String plsql) {
-		this.plsql = plsql
-		setPlsqlWithoutComments
+		setPlsql(plsql)
+		setPlsqlReduced
 		populateObjects
 		populateUnits
 	}
 	
 	/**
-	 * replace multi-line and single-line PL/SQL comments with space
-	 * to simplify and improve performance of subsequent regex expressions 
+	 * JTextComponents uses one position for EOL (end-of-line),
+	 * even on Windows platforms were it is two characters (CR/LF).
+	 * To simplify position calculations and subsequent regular expressions
+	 * all new lines are replaced with LF on Windows platforms.
 	 */
-	private def setPlsqlWithoutComments() {
+	private def setPlsql(String plsql) {
+		val lineSep = System.getProperty("line.separator")
+		if (lineSep.length > 0) {
+			// replace CR/LF with LF on Windows platforms
+			this.plsql = plsql.replace(lineSep, "\n")
+		} else {
+			this.plsql = plsql
+		}
+	}
+	
+	/**
+	 * replace the following expressions with space to simplify 
+	 * and improve performance of subsequent regular expressions:
+	 * - multi-line PL/SQL comments
+	 * - single-line PL/SQL comments
+	 * - string literals
+	 * the result is not valid PL/SQL anymore, but good enough
+	 * to find PL/SQL objects and units
+	 */
+	private def setPlsqlReduced() {
 		val sb = new StringBuffer
-		val p = Pattern.compile("(/\\*(.|[\\r\\n])*?\\*/)|(--.*\\r?\\n)")
+		val p = Pattern.compile("(/\\*(.|[\\n])*?\\*/)|(--[^\\n]*\\n)|('([^']|[\\n])*?')")
 		val m = p.matcher(plsql)
 		var pos = 0
 		while (m.find) {
@@ -59,12 +80,12 @@ class UtplsqlParser {
 		if (plsql.length > pos) {
 			sb.append(plsql.substring(pos, plsql.length))
 		}
-		plsqlWithoutComments=sb.toString
+		plsqlReduced=sb.toString
 	}
 	
 	private def populateObjects() {
-		val p = Pattern.compile("(?i)(\\s*)(create(\\s+or\\s+replace)?\\s+(package|type)\\s+(body\\s+)?)(.+?)(\\s+)")
-		val m = p.matcher(plsqlWithoutComments)
+		val p = Pattern.compile("(?i)(\\s*)(create(\\s+or\\s+replace)?\\s+(package|type)\\s+(body\\s+)?)([^\\s]+)(\\s+)")
+		val m = p.matcher(plsqlReduced)
 		while (m.find) {
 			val o = new PlsqlObject
 			o.name = m.group(6)
@@ -73,8 +94,8 @@ class UtplsqlParser {
 		}
 	}
 	private def populateUnits() {
-		val p = Pattern.compile("(?i)(\\s*)(function|procedure)(\\s+)(.+?)(\\s+)")
-		val m = p.matcher(plsqlWithoutComments)
+		val p = Pattern.compile("(?i)(\\s*)(function|procedure)(\\s+)([^\\s\\(;]+)")
+		val m = p.matcher(plsqlReduced)
 		while (m.find) {
 			val u = new Unit
 			u.name = m.group(4)
@@ -104,7 +125,7 @@ class UtplsqlParser {
 	}
 	
 	private def fixName(String name) {
-		return name.replace("\"", "").replace(";", "")
+		return name.replace("\"", "")
 	}
 	
 	def getObjects() {
