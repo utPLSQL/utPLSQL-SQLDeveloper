@@ -52,7 +52,7 @@ class UtplsqlWorksheet {
 		«IF preferences.resetPackage»
 			EXECUTE dbms_session.reset_package;
 		«ENDIF»
-		SET SERVEROUTPUT ON SIZE 1000000
+		SET SERVEROUTPUT ON SIZE UNLIMITED
 		«IF preferences.clearScreen»
 			CLEAR SCREEN
 		«ENDIF»
