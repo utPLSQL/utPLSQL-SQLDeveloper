@@ -23,6 +23,7 @@ import oracle.dbtools.raptor.navigator.impl.ChildObjectElement
 import oracle.dbtools.raptor.navigator.impl.DatabaseSourceNode
 import oracle.dbtools.raptor.navigator.impl.ObjectFolder
 import oracle.dbtools.raptor.navigator.plsql.PlSqlNode
+import oracle.dbtools.raptor.utils.Connections
 import oracle.dbtools.worksheet.editor.Worksheet
 import oracle.ide.Context
 import oracle.ide.Ide
@@ -30,6 +31,7 @@ import oracle.ide.controller.Controller
 import oracle.ide.controller.IdeAction
 import oracle.ide.editor.Editor
 import org.utplsql.sqldev.UtplsqlWorksheet
+import org.utplsql.sqldev.dal.UtplsqlDao
 import org.utplsql.sqldev.model.URLTools
 import org.utplsql.sqldev.parser.UtplsqlParser
 
@@ -62,7 +64,21 @@ class UtplsqlController implements Controller {
 				}
 			} else if (view instanceof DBNavigatorWindow) {
 				if (context.selection.length == 1) {
-					action.enabled = true
+					val element = context.selection.get(0)
+					val dao = new UtplsqlDao(Connections.instance.getConnection(context.URL.connectionName))
+					if (dao.utAnnotationManagerInstalled) {
+						if (element instanceof DatabaseConnection) {
+							action.enabled = dao.containsUtplsqlTest(element.connection.schema)
+						} else if (element instanceof ObjectFolder) {
+							action.enabled = dao.containsUtplsqlTest(element.URL.schema)
+						} else if (element instanceof PlSqlNode) {
+							action.enabled = dao.containsUtplsqlTest(element.owner, element.objectName)
+						} else if (element instanceof ChildObjectElement) {
+							action.enabled = dao.containsUtplsqlTest(element.URL.schema, element.URL.memberObject, element.shortLabel)
+						}
+					} else {
+						action.enabled = true
+					}
 				}
 			}
 			return true

@@ -67,23 +67,19 @@ class UtplsqlParserTest {
 		Assert.assertEquals('''"SCOTT"."PKG"'''.toString, objects.get(1).name)
 		Assert.assertTrue(objects.get(0).position < objects.get(1).position)
 		val units = parser.getUnits
-		Assert.assertEquals(4, units.size)
+		Assert.assertEquals(2, units.size)
 		Assert.assertEquals("p", units.get(0).name)
-		Assert.assertEquals("f", units.get(1).name)
-		Assert.assertEquals('''"P"'''.toString, units.get(2).name)
-		Assert.assertEquals('''"F"'''.toString, units.get(3).name)
+		Assert.assertEquals('''"P"'''.toString, units.get(1).name)
 		Assert.assertTrue(units.get(0).position < units.get(1).position)
-		Assert.assertTrue(units.get(1).position < units.get(2).position)
-		Assert.assertTrue(units.get(2).position < units.get(3).position)
 		Assert.assertEquals("", parser.getPathAt(0))
 		Assert.assertEquals("", parser.getPathAt(3,6))
 		Assert.assertEquals("pkg", parser.getPathAt(4,1))
 		Assert.assertEquals("pkg.p", parser.getPathAt(10,33))
-		Assert.assertEquals("pkg.f", parser.getPathAt(13,1))
+		Assert.assertEquals("pkg.p", parser.getPathAt(13,1))
 		Assert.assertEquals("SCOTT.PKG.P", parser.getPathAt(19,1))
 		Assert.assertEquals("SCOTT.PKG.P", parser.getPathAt(22,9))
-		Assert.assertEquals("SCOTT.PKG.F", parser.getPathAt(22,10))
-		Assert.assertEquals("SCOTT.PKG.F", parser.getPathAt(29,1))
+		Assert.assertEquals("SCOTT.PKG.P", parser.getPathAt(22,10))
+		Assert.assertEquals("SCOTT.PKG.P", parser.getPathAt(29,1))
 	}
 	
 	@Test

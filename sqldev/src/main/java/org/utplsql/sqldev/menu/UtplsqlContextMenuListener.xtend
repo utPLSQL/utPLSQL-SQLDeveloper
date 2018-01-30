@@ -43,16 +43,15 @@ class UtplsqlContextMenuListener implements ContextMenuListener {
 		if (element instanceof DatabaseConnection) {
 			showMenu = true
 		} else if (element instanceof ObjectFolder) {
-			if (element.objectType == "PACKAGE" || element.objectType == "TYPE") {
+			if (element.objectType == "PACKAGE") {
 				showMenu = true
 			}
 		} else if (element instanceof PlSqlNode) {
-			if (element.objectType == "PACKAGE" || element.objectType == "PACKAGE BODY" ||
-				element.objectType == "TYPE" || element.objectType == "TYPE BODY") {
+			if (element.objectType == "PACKAGE" || element.objectType == "PACKAGE BODY") {
 				showMenu = true
 			}
 		} else if (element instanceof ChildObjectElement) {
-			if (element.URL.objectType == "PACKAGE" || element.URL.objectType == "TYPE") {
+			if (element.URL.objectType == "PACKAGE") {
 				showMenu = true
 			}
 		}

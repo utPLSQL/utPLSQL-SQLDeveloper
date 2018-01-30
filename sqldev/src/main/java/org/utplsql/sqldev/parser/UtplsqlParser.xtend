@@ -84,7 +84,7 @@ class UtplsqlParser {
 	}
 	
 	private def populateObjects() {
-		val p = Pattern.compile("(?i)(\\s*)(create(\\s+or\\s+replace)?\\s+(package|type)\\s+(body\\s+)?)([^\\s]+)(\\s+)")
+		val p = Pattern.compile("(?i)(\\s*)(create(\\s+or\\s+replace)?\\s+(package)\\s+(body\\s+)?)([^\\s]+)(\\s+)")
 		val m = p.matcher(plsqlReduced)
 		while (m.find) {
 			val o = new PlsqlObject
@@ -94,7 +94,7 @@ class UtplsqlParser {
 		}
 	}
 	private def populateUnits() {
-		val p = Pattern.compile("(?i)(\\s*)(function|procedure)(\\s+)([^\\s\\(;]+)")
+		val p = Pattern.compile("(?i)(\\s*)(procedure)(\\s+)([^\\s\\(;]+)")
 		val m = p.matcher(plsqlReduced)
 		while (m.find) {
 			val u = new Unit
