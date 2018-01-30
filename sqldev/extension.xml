@@ -15,11 +15,8 @@
 
 	<trigger-hooks xmlns="http://xmlns.oracle.com/ide/extension">
 		<triggers>
-			<sqldev-action-hook xmlns="http://xmlns.oracle.com/sqldeveloper/sqldev-actions">
-				<actionDescriptor package="org.utplsql.sqldev.actions" />
-			</sqldev-action-hook>
 			<actions xmlns="http://xmlns.oracle.com/jdeveloper/1013/extension">
-				<action id="utplsql.editor.test">
+				<action id="utplsql.test">
 					<properties>
 						<property name="Name">${MENU_RUN_TEST_LABEL}</property>
 						<property name="SmallIcon">res:/org/utplsql/sqldev/resources/images/utPLSQL.png</property>
@@ -28,10 +25,10 @@
 				</action>
 			</actions>
 			<controllers xmlns="http://xmlns.oracle.com/ide/extension">
-				<controller class="org.utplsql.sqldev.editor.menu.UtplsqlEditorController">
+				<controller class="org.utplsql.sqldev.menu.UtplsqlController">
 					<update-rules>
 						<update-rule rule="always-enabled">
-							<action id="utplsql.editor.test"/>
+							<action id="utplsql.test"/>
 						</update-rule>
 					</update-rules>
 				</controller>
@@ -40,8 +37,8 @@
 				<site idref="editor" />
 				<menu>
 					<section xmlns="http://jcp.org/jsr/198/extension-manifest"
-						id="UTPLSQL_EDITOR_MENU" weight="2.0">
-						<item action-ref="utplsql.editor.test" weight="1.0"/>
+						id="UTPLSQL_MENU" weight="2.0">
+						<item action-ref="utplsql.test" weight="1.0"/>
 					</section>
 				</menu>
 			</context-menu-hook>
@@ -57,4 +54,13 @@
 			</settings-ui-hook>
 		</triggers>
 	</trigger-hooks>
+	<hooks xmlns:c="http://xmlns.oracle.com/ide/customization">
+		<jdeveloper-hook xmlns="http://xmlns.oracle.com/jdeveloper/1013/extension">
+			<context-menu-listeners>
+				<site idref="db_nav">
+					<listener-class>org.utplsql.sqldev.menu.UtplsqlContextMenuListener</listener-class>
+				</site>
+			</context-menu-listeners>
+		</jdeveloper-hook>	
+ 	</hooks>
 </extension>

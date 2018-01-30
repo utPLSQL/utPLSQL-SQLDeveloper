@@ -1,11 +1,11 @@
 <context scope="global">
      <preset name="Default">
-          <map action="utplsql.editor.test">
+          <map action="utplsql.test">
                <accel>alt shift T</accel>
           </map>
      </preset>
      <preset name="Default MacOS X">
-          <map action="utplsql.editor.test">
+          <map action="utplsql.test">
                <accel>alt shift T</accel>
           </map>
      </preset>

@@ -12,28 +12,36 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.utplsql.sqldev.editor.menu
+package org.utplsql.sqldev.menu
 
+import java.net.URL
 import java.util.logging.Logger
 import javax.swing.JEditorPane
+import oracle.dbtools.raptor.navigator.db.DBNavigatorWindow
+import oracle.dbtools.raptor.navigator.db.DatabaseConnection
+import oracle.dbtools.raptor.navigator.impl.ChildObjectElement
 import oracle.dbtools.raptor.navigator.impl.DatabaseSourceNode
+import oracle.dbtools.raptor.navigator.impl.ObjectFolder
+import oracle.dbtools.raptor.navigator.plsql.PlSqlNode
 import oracle.dbtools.worksheet.editor.Worksheet
 import oracle.ide.Context
 import oracle.ide.Ide
 import oracle.ide.controller.Controller
 import oracle.ide.controller.IdeAction
 import oracle.ide.editor.Editor
-import oracle.ide.^extension.RegisteredByExtension
 import org.utplsql.sqldev.UtplsqlWorksheet
+import org.utplsql.sqldev.model.URLTools
 import org.utplsql.sqldev.parser.UtplsqlParser
 
-@RegisteredByExtension("org.utplsql.sqldev")
-class UtplsqlEditorController implements Controller {
-	public static int UTLPLSQL_EDITOR_TEST_CMD_ID = Ide.findCmdID("utplsql.editor.test")
-	private static final Logger logger = Logger.getLogger(UtplsqlEditorController.name);
+class UtplsqlController implements Controller {
+	private static final Logger logger = Logger.getLogger(UtplsqlController.name);
+	private val extension URLTools urlTools = new URLTools
+
+	public static int UTLPLSQL_TEST_CMD_ID = Ide.findCmdID("utplsql.test")
+	public static final IdeAction UTLPLSQL_TEST_ACTION = IdeAction.get(UtplsqlController.UTLPLSQL_TEST_CMD_ID)
 
 	override handleEvent(IdeAction action, Context context) {
-		if (action.commandId === UTLPLSQL_EDITOR_TEST_CMD_ID) {
+		if (action.commandId === UtplsqlController.UTLPLSQL_TEST_CMD_ID) {
 			runTest(context)
 			return true
 		}
@@ -41,7 +49,7 @@ class UtplsqlEditorController implements Controller {
 	}
 
 	override update(IdeAction action, Context context) {
-		if (action.commandId === UTLPLSQL_EDITOR_TEST_CMD_ID) {
+		if (action.commandId === UTLPLSQL_TEST_CMD_ID) {
 			action.enabled = false
 			val view = context.view
 			if (view instanceof Editor) {
@@ -52,16 +60,54 @@ class UtplsqlEditorController implements Controller {
 						action.enabled = true
 					}
 				}
+			} else if (view instanceof DBNavigatorWindow) {
+				if (context.selection.length == 1) {
+					action.enabled = true
+				}
 			}
 			return true
 		}
 		return false
 	}
+	
+	private def getPath(Context context) {
+		var String path
+		val element = context.selection.get(0)
+		if (element instanceof DatabaseConnection) {
+			path = element.connection.schema
+		} else if (element instanceof ObjectFolder) {
+			path = element.URL.schema
+		} else if (element instanceof PlSqlNode) {
+			path = '''«element.owner».«element.objectName»'''
+		} else if (element instanceof ChildObjectElement) {
+			path = '''«element.URL.schema».«element.URL.memberObject».«element.shortLabel»'''
+		} else {
+			path = ""
+		}
+		logger.fine('''path: «path»''')
+		return path
+	}
+
+	private def getURL(Context context) {
+		var URL url
+		val element = context.selection.get(0)
+		if (element instanceof DatabaseConnection) {
+			url = element.URL
+		} else if (element instanceof ObjectFolder) {
+			url = element.URL
+		} else if (element instanceof PlSqlNode) {
+			url = element.URL
+		} else if (element instanceof ChildObjectElement) {
+			url = element.URL
+		}
+		logger.fine('''url: «url»''')
+		return url
+	}
 
 	def runTest(Context context) {
 		val view = context.view
 		val node = context.node
-		logger.finer('''Run utPLSQL from editor with view «view.class.name» and node «node.class.name».''')		
+		logger.finer('''Run utPLSQL from view «view?.class?.name» and node «node?.class?.name».''')		
 		if (view instanceof Editor) {
 			val component = view.defaultFocusComponent
 			if (component instanceof JEditorPane) {
@@ -74,6 +120,16 @@ class UtplsqlEditorController implements Controller {
 				} else if (view instanceof Worksheet) {
 					connectionName = view.connectionName
 				}
+				logger.fine('''connectionName: «connectionName»''')
+				val utPlsqlWorksheet = new UtplsqlWorksheet(path, connectionName)
+				utPlsqlWorksheet.runTestAsync
+			}
+		} else if (view instanceof DBNavigatorWindow) {
+			val url=context.URL
+			if (url !== null) {
+				val connectionName = url.connectionName
+				logger.fine('''connectionName: «connectionName»''')
+				val path=context.path
 				val utPlsqlWorksheet = new UtplsqlWorksheet(path, connectionName)
 				utPlsqlWorksheet.runTestAsync
 			}

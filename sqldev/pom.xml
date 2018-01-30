@@ -130,6 +130,13 @@
 			<scope>system</scope>
 			<systemPath>${sqldev.basedir}/jdev/extensions/oracle.jdeveloper.db.connection.jar</systemPath>
 		</dependency>
+		<dependency>
+			<groupId>oracle</groupId>
+			<artifactId>oracle.jdeveloper.java.core.jar</artifactId>
+			<version>12.2.1</version>
+			<scope>system</scope>
+			<systemPath>${sqldev.basedir}/jdev/extensions/oracle.jdeveloper.java.core.jar</systemPath>
+		</dependency>
 		<!-- SQL Developer specific dependencies part 2 (available in public maven repositories) -->
 		<dependency>
 			<!-- SQL Developer is using this older version -->
@@ -389,9 +396,8 @@
 						</Include-Resource>
 						<Export-Package>
 							org.utplsql.sqldev,
-							org.utplsql.sqldev.editor.menu,
+							org.utplsql.sqldev.menu,
 							org.utplsql.sqldev.model.preference,
-							org.utplsql.sqldev.navigator.menu,
 							org.utplsql.sqldev.actions,
 							org.utplsql.sqldev.resources
 						</Export-Package>
