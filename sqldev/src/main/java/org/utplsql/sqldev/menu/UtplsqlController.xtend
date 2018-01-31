@@ -73,19 +73,21 @@ class UtplsqlController implements Controller {
 			} else if (view instanceof DBNavigatorWindow) {
 				if (context.selection.length == 1) {
 					val element = context.selection.get(0)
-					val dao = new UtplsqlDao(Connections.instance.getConnection(context.URL.connectionName))
-					if (dao.utAnnotationManagerInstalled) {
-						if (element instanceof DatabaseConnection) {
-							action.enabled = dao.containsUtplsqlTest(element.connection.schema)
-						} else if (element instanceof ObjectFolder) {
-							action.enabled = dao.containsUtplsqlTest(element.URL.schema)
-						} else if (element instanceof PlSqlNode) {
-							action.enabled = dao.containsUtplsqlTest(element.owner, element.objectName)
-						} else if (element instanceof ChildObjectElement) {
-							action.enabled = dao.containsUtplsqlTest(element.URL.schema, element.URL.memberObject, element.shortLabel)
+					if (Connections.instance.isConnectionOpen(context.URL.connectionName)) {
+						val dao = new UtplsqlDao(Connections.instance.getConnection(context.URL.connectionName))
+						if (dao.utAnnotationManagerInstalled) {
+							if (element instanceof DatabaseConnection) {
+								action.enabled = dao.containsUtplsqlTest(element.connection.schema)
+							} else if (element instanceof ObjectFolder) {
+								action.enabled = dao.containsUtplsqlTest(element.URL.schema)
+							} else if (element instanceof PlSqlNode) {
+								action.enabled = dao.containsUtplsqlTest(element.owner, element.objectName)
+							} else if (element instanceof ChildObjectElement) {
+								action.enabled = dao.containsUtplsqlTest(element.URL.schema, element.URL.memberObject, element.shortLabel)
+							}
+						} else {
+							action.enabled = true
 						}
-					} else {
-						action.enabled = true
 					}
 				}
 			}
