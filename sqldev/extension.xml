@@ -14,6 +14,13 @@
 	</feature>
 
 	<trigger-hooks xmlns="http://xmlns.oracle.com/ide/extension">
+		<rules>
+			<rule-type class="org.utplsql.sqldev.menu.UtplsqlNavigatorRule"
+				id="utplsql-navigator-rule">
+				<supported-parameters />
+			</rule-type>
+			<rule id="dbnode-is-utplsql-ready" type="utplsql-navigator-rule" />
+		</rules>
 		<triggers>
 			<actions xmlns="http://xmlns.oracle.com/jdeveloper/1013/extension">
 				<action id="utplsql.test">
@@ -28,7 +35,7 @@
 				<controller class="org.utplsql.sqldev.menu.UtplsqlController">
 					<update-rules>
 						<update-rule rule="always-enabled">
-							<action id="utplsql.test"/>
+							<action id="utplsql.test" />
 						</update-rule>
 					</update-rules>
 				</controller>
@@ -38,7 +45,16 @@
 				<menu>
 					<section xmlns="http://jcp.org/jsr/198/extension-manifest"
 						id="UTPLSQL_MENU" weight="2.0">
-						<item action-ref="utplsql.test" weight="1.0"/>
+						<item action-ref="utplsql.test" weight="1.0" />
+					</section>
+				</menu>
+			</context-menu-hook>
+			<context-menu-hook rule="dbnode-is-utplsql-ready">
+				<site idref="db_nav" />
+				<menu>
+					<section xmlns="http://jcp.org/jsr/198/extension-manifest"
+						id="UTPLSQL_MENU" weight="2.0">
+						<item action-ref="utplsql.test" weight="12.1" />
 					</section>
 				</menu>
 			</context-menu-hook>
@@ -54,13 +70,4 @@
 			</settings-ui-hook>
 		</triggers>
 	</trigger-hooks>
-	<hooks xmlns:c="http://xmlns.oracle.com/ide/customization">
-		<jdeveloper-hook xmlns="http://xmlns.oracle.com/jdeveloper/1013/extension">
-			<context-menu-listeners>
-				<site idref="db_nav">
-					<listener-class>org.utplsql.sqldev.menu.UtplsqlContextMenuListener</listener-class>
-				</site>
-			</context-menu-listeners>
-		</jdeveloper-hook>	
- 	</hooks>
 </extension>

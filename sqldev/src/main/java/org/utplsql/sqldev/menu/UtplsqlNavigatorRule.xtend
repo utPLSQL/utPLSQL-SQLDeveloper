@@ -14,51 +14,42 @@
  */
 package org.utplsql.sqldev.menu
 
+import java.util.Map
 import java.util.logging.Logger
 import oracle.dbtools.raptor.navigator.db.DatabaseConnection
 import oracle.dbtools.raptor.navigator.impl.ChildObjectElement
 import oracle.dbtools.raptor.navigator.impl.ObjectFolder
 import oracle.dbtools.raptor.navigator.plsql.PlSqlNode
-import oracle.ide.Context
-import oracle.ide.controller.ContextMenu
-import oracle.ide.controller.ContextMenuListener
+import oracle.ide.^extension.rules.RuleEvaluationContext
+import oracle.ide.^extension.rules.RuleEvaluationException
+import oracle.ide.^extension.rules.RuleFunction
+import oracle.ide.^extension.rules.RuleFunctionParameter
 import org.utplsql.sqldev.model.URLTools
 
-class UtplsqlContextMenuListener implements ContextMenuListener {
-	private static final Logger logger = Logger.getLogger(UtplsqlContextMenuListener.name);
+class UtplsqlNavigatorRule extends RuleFunction {
+	private static final Logger logger = Logger.getLogger(UtplsqlNavigatorRule.name);
 	private val extension URLTools urlTools = new URLTools
 
-
-	override handleDefaultAction(Context context) {
-		return false
-	}
-	
-	override menuWillHide(ContextMenu contextMenu) {
-	}
-	
-	override menuWillShow(ContextMenu contextMenu) {
-		val element = contextMenu.context.selection.get(0)
-		var boolean showMenu = false
+	override evaluate(RuleEvaluationContext ruleContext,
+		Map<String, RuleFunctionParameter> parameters) throws RuleEvaluationException {
+		val element = ruleContext.ideContext.selection.get(0)
+		var boolean enable = false
 		logger.fine('''selected object is of type «element.class.name»''')
 		if (element instanceof DatabaseConnection) {
-			showMenu = true
+			enable = true
 		} else if (element instanceof ObjectFolder) {
 			if (element.objectType == "PACKAGE") {
-				showMenu = true
+				enable = true
 			}
 		} else if (element instanceof PlSqlNode) {
 			if (element.objectType == "PACKAGE" || element.objectType == "PACKAGE BODY") {
-				showMenu = true
+				enable = true
 			}
 		} else if (element instanceof ChildObjectElement) {
 			if (element.URL.objectType == "PACKAGE") {
-				showMenu = true
+				enable = true
 			}
 		}
-		if (showMenu) {
-			val menuItem = contextMenu.createMenuItem(UtplsqlController.UTLPLSQL_TEST_ACTION, 1.0f)
-			contextMenu.add(menuItem, 12.1f)
-			logger.finer("context menu created.")
-		}
+		return enable
 	}
 }
