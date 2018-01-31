@@ -14,9 +14,12 @@
  */
 package org.utplsql.sqldev.parser
 
+import java.sql.Connection
 import java.util.ArrayList
+import java.util.Arrays
 import java.util.regex.Pattern
 import javax.swing.text.JTextComponent
+import org.utplsql.sqldev.dal.UtplsqlDao
 import org.utplsql.sqldev.model.parser.PlsqlObject
 import org.utplsql.sqldev.model.parser.Unit
 
@@ -26,11 +29,16 @@ class UtplsqlParser {
 	private ArrayList<PlsqlObject> objects = new ArrayList<PlsqlObject>
 	private ArrayList<Unit> units = new ArrayList<Unit>
 	
-	new(String plsql) {
+	new(String plsql, Connection conn) {
 		setPlsql(plsql)
 		setPlsqlReduced
 		populateObjects
 		populateUnits
+		processAnnotations(conn)
+	}
+	
+	new(String plsql) {
+		this(plsql, null)
 	}
 	
 	/**
@@ -104,14 +112,51 @@ class UtplsqlParser {
 		}
 	}
 	
-	private def getObjectNameAt(int position) {
-		var name = ""
-		for (o : objects) {
-			if (o.position <= position) {
-				name = o.name
+	private def processAnnotations(Connection conn) {
+		if (conn !== null) {
+			val dao = new UtplsqlDao(conn)
+			if (dao.utAnnotationManagerInstalled) {
+				for (o : objects) {
+					val segments = Arrays.asList(o.name.fixName.split("\\."))			
+					val annotations = dao.annotations(conn.schema, segments.last.toUpperCase)
+					if (annotations.findFirst[it.name == "suite"] !== null) {
+						o.annotations = annotations
+					}
+				}
+				val fixedUnits = new ArrayList<Unit>
+				for (u : units) {
+					val o = getObjectAt(u.position)
+					if (o?.annotations !== null && o.annotations.findFirst [
+						it.name == "test" && it.subobjectName.equalsIgnoreCase(u.name.fixName)
+					] !== null) {
+						fixedUnits.add(u)
+					}
+				}
+				units = fixedUnits
+				val fixedObjects = new ArrayList<PlsqlObject>
+				for (o : objects) {
+					if (o.annotations !== null) {
+						fixedObjects.add(o)
+					}
+				}
+				objects = fixedObjects
 			}
 		}
-		return name
+	}
+	
+	private def getObjectAt(int position) {
+		var PlsqlObject obj
+		for (o : objects) {
+			if (o.position <= position) {
+				obj = o
+			}
+		}
+		return obj
+	}	
+	
+	private def getObjectNameAt(int position) {
+		val o = getObjectAt(position)
+		return if (o !== null) {o.name} else {""}
 	}
 	
 	private def getUnitNameAt(int position) {

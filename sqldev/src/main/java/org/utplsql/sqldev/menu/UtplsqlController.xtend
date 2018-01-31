@@ -57,7 +57,15 @@ class UtplsqlController implements Controller {
 			if (view instanceof Editor) {
 				val component = view.defaultFocusComponent
 				if (component instanceof JEditorPane) {
-					val parser = new UtplsqlParser(component.text)
+					val node = context.node
+					var String connectionName = null;
+					if (node instanceof DatabaseSourceNode) {
+						connectionName = node.connectionName
+					} else if (view instanceof Worksheet) {
+						connectionName = view.connectionName
+					}
+					logger.fine('''connectionName: «connectionName»''')
+					val parser = new UtplsqlParser(component.text, Connections.instance.getConnection(connectionName))
 					if (!parser.getPathAt(component.caretPosition).empty) {
 						action.enabled = true
 					}
@@ -127,16 +135,16 @@ class UtplsqlController implements Controller {
 		if (view instanceof Editor) {
 			val component = view.defaultFocusComponent
 			if (component instanceof JEditorPane) {
-				val parser = new UtplsqlParser(component.text)
-				val position = component.caretPosition
-				val path = parser.getPathAt(position)
-				var String connectionName = null;				
+				var String connectionName = null;
 				if (node instanceof DatabaseSourceNode) {
 					connectionName = node.connectionName
 				} else if (view instanceof Worksheet) {
 					connectionName = view.connectionName
 				}
 				logger.fine('''connectionName: «connectionName»''')
+				val parser = new UtplsqlParser(component.text, Connections.instance.getConnection(connectionName))
+				val position = component.caretPosition
+				val path = parser.getPathAt(position)
 				val utPlsqlWorksheet = new UtplsqlWorksheet(path, connectionName)
 				utPlsqlWorksheet.runTestAsync
 			}

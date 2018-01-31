@@ -15,11 +15,14 @@
  */
 package org.utplsql.sqldev.model.parser
 
+import java.util.List
 import org.eclipse.xtend.lib.annotations.Accessors
 import org.utplsql.sqldev.model.AbstractModel
+import org.utplsql.sqldev.model.ut.Annotation
 
 @Accessors
 class PlsqlObject extends AbstractModel {
 	String name
 	Integer position
+	List<Annotation> annotations
 }

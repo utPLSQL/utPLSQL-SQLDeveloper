@@ -15,7 +15,11 @@
  */
 package org.utplsql.sqldev.tests
 
+import java.io.StringReader
+import java.util.ArrayList
 import java.util.Properties
+import oracle.dbtools.raptor.newscriptrunner.SQLCommand.StmtType
+import oracle.dbtools.worksheet.scriptparser.sqlplus.SQLPlusScriptParser
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.jdbc.datasource.SingleConnectionDataSource
 
@@ -42,5 +46,18 @@ abstract class AbstractJdbcTest {
 		sysDataSource.username = p.getProperty("sys_username")
 		sysDataSource.password = p.getProperty("sys_password")
 		sysJdbcTemplate = new JdbcTemplate(AbstractJdbcTest.sysDataSource)
+	}
+
+	def static getStatements(String sqlplusScript) {
+		var SQLPlusScriptParser p = new SQLPlusScriptParser(new StringReader(sqlplusScript))
+		val stmts = new ArrayList<String>
+		while (p.hasNext) {
+			val stmt = p.next
+			if ((stmt.executable || stmt.runnable) && stmt.stmtType != StmtType.G_C_COMMENT &&
+				stmt.stmtType != StmtType.G_C_MULTILINECOMMENT && stmt.stmtType != StmtType.G_C_SQLPLUS) {
+				stmts.add(stmt.sql)
+			}
+		}
+		return stmts;
 	}
 }

@@ -15,52 +15,66 @@
  */
 package org.utplsql.sqldev.tests
 
+import org.junit.AfterClass
 import org.junit.Assert
+import org.junit.BeforeClass
 import org.junit.Test
+import org.springframework.jdbc.BadSqlGrammarException
 import org.utplsql.sqldev.parser.UtplsqlParser
 
-class UtplsqlParserTest {
+class UtplsqlParserTest extends AbstractJdbcTest {
+	
+	private static val sqlScript = '''
+		PROMPT
+		PROMPT Install utPLSQL test package
+		PROMPT
+		
+		/*
+		 * some comment
+		 */
+		CREATE OR REPLACE PACKAGE pkg IS
+		   -- %suite
+		   -- %rollback(manual)
+		   -- %test
+		   PROCEDURE p (in_p1 INTEGER);
+		   FUNCTION f (in_p1 INTEGER) RETURN INTEGER;
+		END pkg;
+		/
+		SHOW ERRORS
+		
+		CREATE OR REPLACE PACKAGE BODY "SCOTT"."PKG" IS
+		   PROCEDURE "P" (in_p1 INTEGER) IS
+		   BEGIN
+		      NULL;
+		   END p;
+		
+		   /* comment 1 */
+		   -- comment 2
+		   /* comment 3 */
+		   -- comment 4
+		
+		   FUNCTION "F" (in_p1 INTEGER) RETURN INTEGER IS
+		   BEGIN
+		      RETURN 1;
+		   END f;
+		END pkg;
+		/
+		SHOW ERRORS
+	'''
+
+	@BeforeClass
+	@AfterClass
+	def static void setupAndTeardown() {
+		try {
+			jdbcTemplate.execute("DROP PACKAGE pkg")
+		} catch (BadSqlGrammarException e) {
+			// ignore
+		}
+	} 
 
 	@Test
 	def testPackage() {
-		val plsql = '''
-			PROMPT
-			PROMPT Install utPLSQL test package
-			PROMPT
-			
-			/*
-			 * some comment
-			 */
-			-- %suite
-			-- %rollback(manual)
-			CREATE OR REPLACE PACKAGE pkg IS
-			   -- %test
-			   PROCEDURE p (in_p1 INTEGER);
-			   FUNCTION f (in_p1 INTEGER) RETURN INTEGER;
-			END pkg;
-			/
-			SHOW ERRORS
-			
-			CREATE OR REPLACE PACKAGE BODY "SCOTT"."PKG" IS
-			   PROCEDURE "P" (in_p1 INTEGER) IS
-			   BEGIN
-			      NULL;
-			   END p;
-			
-			   /* comment 1 */
-			   -- comment 2
-			   /* comment 3 */
-			   -- comment 4
-			
-			   FUNCTION "F" (in_p1 INTEGER) RETURN INTEGER IS
-			   BEGIN
-			      RETURN 1;
-			   END f;
-			END pkg;
-			/
-			SHOW ERRORS
-		'''
-		val parser = new UtplsqlParser(plsql)
+		val parser = new UtplsqlParser(sqlScript)
 		val objects = parser.getObjects
 		Assert.assertEquals(2, objects.size)
 		Assert.assertEquals("pkg", objects.get(0).name)
@@ -80,6 +94,39 @@ class UtplsqlParserTest {
 		Assert.assertEquals("SCOTT.PKG.P", parser.getPathAt(22,9))
 		Assert.assertEquals("SCOTT.PKG.P", parser.getPathAt(22,10))
 		Assert.assertEquals("SCOTT.PKG.P", parser.getPathAt(29,1))
+	}
+
+	@Test
+	def testPackageWithConnection() {
+		val plsql = '''
+			/*
+			 * some comment
+			 */
+			CREATE OR REPLACE PACKAGE pkg IS
+			   -- %suite
+			   -- %rollback(manual)
+
+			   -- %test
+			   PROCEDURE p (in_p1 INTEGER);
+			   FUNCTION f (in_p1 INTEGER) RETURN INTEGER;
+			END pkg;
+		'''
+		var parser = new UtplsqlParser(plsql, dataSource.connection)
+		Assert.assertEquals(0, parser.getObjects.size)
+		Assert.assertEquals(0, parser.getUnits.size)
+		jdbcTemplate.execute(plsql)
+		parser = new UtplsqlParser(plsql, dataSource.connection)
+		Assert.assertEquals(1, parser.getObjects.size)
+		Assert.assertEquals(1, parser.getUnits.size)
+		for (stmt : getStatements(sqlScript)) {
+			jdbcTemplate.execute(stmt)
+		}
+		parser = new UtplsqlParser(sqlScript, dataSource.connection)
+		Assert.assertEquals(2, parser.getObjects.size)
+		Assert.assertEquals(2, parser.getUnits.size)
+		Assert.assertEquals("pkg.p", parser.getPathAt(13,1))
+		Assert.assertEquals("SCOTT.PKG.P", parser.getPathAt(19,1))
+		setupAndTeardown
 	}
 	
 	@Test
@@ -170,6 +217,5 @@ class UtplsqlParserTest {
 		// was: test_expect_not_to_be_null.create_types
 		Assert.assertEquals("test_expect_not_to_be_null.blob_not_null", parser.getPathAt(13,26))
 	}
-
 
 }
