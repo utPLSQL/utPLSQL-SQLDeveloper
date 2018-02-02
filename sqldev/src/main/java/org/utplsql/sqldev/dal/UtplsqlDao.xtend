@@ -17,6 +17,7 @@
 
 import java.sql.Connection
 import java.util.List
+import org.springframework.dao.DataAccessException
 import org.springframework.dao.EmptyResultDataAccessException
 import org.springframework.jdbc.core.BeanPropertyRowMapper
 import org.springframework.jdbc.core.JdbcTemplate
@@ -33,6 +34,20 @@ class UtplsqlDao {
 		this.jdbcTemplate = new JdbcTemplate(new SingleConnectionDataSource(conn, true))
 	}
 	
+	def boolean isDbaViewAccessible() {
+		try {
+			val sql = '''
+				SELECT 1
+				  FROM dba_objects
+				 WHERE 1=2
+			'''
+			jdbcTemplate.execute(sql)
+			return true
+		} catch (DataAccessException e) {
+			return false
+		}
+	}
+	
 	/**
 	 * Gets the schema name of the utPLSQL installation.
 	 * 
@@ -42,7 +57,7 @@ class UtplsqlDao {
 	def String getUtplsqlSchema() {
 		val sql = '''
 			SELECT table_owner
-			  FROM all_synonyms
+			  FROM «IF dbaViewAccessible»dba«ELSE»all«ENDIF»_synonyms
 			 WHERE owner = 'PUBLIC'
 			   AND synonym_name = '«UTPLSQL_PACKAGE_NAME»'
 			   AND table_name = '«UTPLSQL_PACKAGE_NAME»'

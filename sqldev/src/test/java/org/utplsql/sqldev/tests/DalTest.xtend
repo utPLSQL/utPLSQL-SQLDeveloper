@@ -35,7 +35,15 @@ class DalTest extends AbstractJdbcTest {
 		} catch (BadSqlGrammarException e) {
 			// ignore
 		}
-	} 
+	}
+	
+	@Test 
+	def void isDbaViewAccessible() {
+		val dao = new UtplsqlDao(dataSource.connection)
+		Assert.assertFalse(dao.dbaViewAccessible)
+		val sysDao = new UtplsqlDao(sysDataSource.connection)
+		Assert.assertTrue(sysDao.dbaViewAccessible)
+	}
 	
 	@Test
 	def void utplsqlSchema() {
