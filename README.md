@@ -4,7 +4,7 @@
 
 utPLSQL for SQL Developer extends Oracle's SQL Developer by context menu entries and keyboard shortcuts for running utPLSQL unit tests from the Connections window or the PL/SQL editor.
 
-[![utPLSQL for SQL Developer Demo](utPLSQL.png)](utPLSQL.gif)
+[![utPLSQL for SQL Developer Demo](utPLSQL.png)](https://raw.githubusercontent.com/utPLSQL/utPLSQL-SQLDeveloper/master/utPLSQL.gif)
 
 ## Releases
 
