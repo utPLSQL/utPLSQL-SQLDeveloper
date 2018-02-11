@@ -28,6 +28,7 @@ class PreferencePanel extends DefaultTraversablePanel {
 	val JCheckBox resetPackageCheckBox = new JCheckBox
 	val JCheckBox clearScreenCheckBox = new JCheckBox
 	val JCheckBox autoExecuteCheckBox = new JCheckBox
+	val JCheckBox checkRunUtplsqlTestCheckBox = new JCheckBox
 
 	new() {
 		layoutControls()
@@ -48,6 +49,9 @@ class PreferencePanel extends DefaultTraversablePanel {
 		builder.add(
 			builder.field.label.withText(UtplsqlResources.getString("PREF_AUTO_EXECUTE_LABEL")).component(
 				autoExecuteCheckBox))
+		builder.add(
+			builder.field.label.withText(UtplsqlResources.getString("PREF_CHECK_RUN_UTPLSQL_TEST_LABEL")).component(
+				checkRunUtplsqlTestCheckBox))
 		builder.addVerticalSpring
 	}
 
@@ -57,6 +61,7 @@ class PreferencePanel extends DefaultTraversablePanel {
 		resetPackageCheckBox.selected = info.resetPackage
 		clearScreenCheckBox.selected = info.clearScreen
 		autoExecuteCheckBox.selected = info.autoExecute
+		checkRunUtplsqlTestCheckBox.selected = info.checkRunUtplsqlTest
 		super.onEntry(traversableContext)
 	}
 
@@ -66,6 +71,7 @@ class PreferencePanel extends DefaultTraversablePanel {
 		info.resetPackage = resetPackageCheckBox.selected
 		info.clearScreen = clearScreenCheckBox.selected
 		info.autoExecute = autoExecuteCheckBox.selected
+		info.checkRunUtplsqlTest = checkRunUtplsqlTestCheckBox.selected
 		super.onExit(traversableContext)
 	}
 

@@ -27,12 +27,14 @@ import oracle.dbtools.raptor.utils.Connections
 import oracle.dbtools.worksheet.editor.Worksheet
 import oracle.ide.Context
 import oracle.ide.Ide
+import oracle.ide.config.Preferences
 import oracle.ide.controller.Controller
 import oracle.ide.controller.IdeAction
 import oracle.ide.editor.Editor
 import org.utplsql.sqldev.UtplsqlWorksheet
 import org.utplsql.sqldev.dal.UtplsqlDao
 import org.utplsql.sqldev.model.URLTools
+import org.utplsql.sqldev.model.preference.PreferenceModel
 import org.utplsql.sqldev.parser.UtplsqlParser
 
 class UtplsqlController implements Controller {
@@ -52,21 +54,26 @@ class UtplsqlController implements Controller {
 
 	override update(IdeAction action, Context context) {
 		if (action.commandId === UTLPLSQL_TEST_CMD_ID) {
+			val preferences = PreferenceModel.getInstance(Preferences.preferences)
 			action.enabled = false
 			val view = context.view
 			if (view instanceof Editor) {
 				val component = view.defaultFocusComponent
 				if (component instanceof JEditorPane) {
-					val node = context.node
-					var String connectionName = null;
-					if (node instanceof DatabaseSourceNode) {
-						connectionName = node.connectionName
-					} else if (view instanceof Worksheet) {
-						connectionName = view.connectionName
-					}
-					logger.fine('''connectionName: «connectionName»''')
-					val parser = new UtplsqlParser(component.text, Connections.instance.getConnection(connectionName))
-					if (!parser.getPathAt(component.caretPosition).empty) {
+					if (preferences.checkRunUtplsqlTest) {
+						val node = context.node
+						var String connectionName = null;
+						if (node instanceof DatabaseSourceNode) {
+							connectionName = node.connectionName
+						} else if (view instanceof Worksheet) {
+							connectionName = view.connectionName
+						}
+						logger.fine('''connectionName: «connectionName»''')
+						val parser = new UtplsqlParser(component.text, Connections.instance.getConnection(connectionName))
+						if (!parser.getPathAt(component.caretPosition).empty) {
+							action.enabled = true
+						}
+					} else {
 						action.enabled = true
 					}
 				}
@@ -75,7 +82,7 @@ class UtplsqlController implements Controller {
 					val element = context.selection.get(0)
 					if (Connections.instance.isConnectionOpen(context.URL.connectionName)) {
 						val dao = new UtplsqlDao(Connections.instance.getConnection(context.URL.connectionName))
-						if (dao.utAnnotationManagerInstalled) {
+						if (preferences.checkRunUtplsqlTest && dao.utAnnotationManagerInstalled) {
 							if (element instanceof DatabaseConnection) {
 								action.enabled = dao.containsUtplsqlTest(element.connection.schema)
 							} else if (element instanceof ObjectFolder) {
@@ -133,7 +140,7 @@ class UtplsqlController implements Controller {
 	def runTest(Context context) {
 		val view = context.view
 		val node = context.node
-		logger.finer('''Run utPLSQL from view «view?.class?.name» and node «node?.class?.name».''')		
+		logger.finer('''Run utPLSQL from view «view?.class?.name» and node «node?.class?.name».''')
 		if (view instanceof Editor) {
 			val component = view.defaultFocusComponent
 			if (component instanceof JEditorPane) {
@@ -144,7 +151,8 @@ class UtplsqlController implements Controller {
 					connectionName = view.connectionName
 				}
 				logger.fine('''connectionName: «connectionName»''')
-				val parser = new UtplsqlParser(component.text, Connections.instance.getConnection(connectionName))
+				val preferences = PreferenceModel.getInstance(Preferences.preferences)
+				val parser = new UtplsqlParser(component.text, if (preferences.checkRunUtplsqlTest) {Connections.instance.getConnection(connectionName)} else {null})
 				val position = component.caretPosition
 				val path = parser.getPathAt(position)
 				val utPlsqlWorksheet = new UtplsqlWorksheet(path, connectionName)

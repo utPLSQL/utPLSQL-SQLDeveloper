@@ -28,5 +28,6 @@ class PreferenceModelTest {
 		Assert.assertFalse(model.resetPackage)
 		Assert.assertFalse(model.clearScreen)
 		Assert.assertTrue(model.autoExecute)
+		Assert.assertFalse(model.checkRunUtplsqlTest)
 	}	
 }
