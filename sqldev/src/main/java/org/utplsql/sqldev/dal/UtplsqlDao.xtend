@@ -28,24 +28,37 @@ class UtplsqlDao {
 	public static val UTPLSQL_PACKAGE_NAME = "UT" 
 	private var Connection conn
 	private var JdbcTemplate jdbcTemplate
+	// cache fields
+	private Boolean cachedDbaViewAccessible
+	private String cachedUtplsqlSchema
+	private Boolean cachedUtAnnotationManagerInstalled
 
 	new(Connection conn) {
 		this.conn = conn
 		this.jdbcTemplate = new JdbcTemplate(new SingleConnectionDataSource(conn, true))
 	}
 	
+	def void resetCache() {
+		cachedDbaViewAccessible = null
+		cachedUtplsqlSchema = null
+		cachedUtAnnotationManagerInstalled = null
+	}
+	
 	def boolean isDbaViewAccessible() {
-		try {
-			val sql = '''
-				SELECT 1
-				  FROM dba_objects
-				 WHERE 1=2
-			'''
-			jdbcTemplate.execute(sql)
-			return true
-		} catch (DataAccessException e) {
-			return false
+		if (cachedDbaViewAccessible === null) {
+			try {
+				val sql = '''
+					SELECT 1
+					  FROM dba_objects
+					 WHERE 1=2
+				'''
+				jdbcTemplate.execute(sql)
+				cachedDbaViewAccessible = true
+			} catch (DataAccessException e) {
+				cachedDbaViewAccessible = false
+			}
 		}
+		return cachedDbaViewAccessible.booleanValue
 	}
 	
 	/**
@@ -55,19 +68,22 @@ class UtplsqlDao {
 	 * @throws DataAccessException if there is a problem
 	 */
 	def String getUtplsqlSchema() {
-		val sql = '''
-			SELECT table_owner
-			  FROM «IF dbaViewAccessible»dba«ELSE»all«ENDIF»_synonyms
-			 WHERE owner = 'PUBLIC'
-			   AND synonym_name = '«UTPLSQL_PACKAGE_NAME»'
-			   AND table_name = '«UTPLSQL_PACKAGE_NAME»'
-		'''
-		try {
-			val schema = jdbcTemplate.queryForObject(sql, String)
-			return schema
-		} catch (EmptyResultDataAccessException e) {
-			return null	
+		if (cachedUtplsqlSchema === null) {
+			val sql = '''
+				SELECT table_owner
+				  FROM «IF dbaViewAccessible»dba«ELSE»all«ENDIF»_synonyms
+				 WHERE owner = 'PUBLIC'
+				   AND synonym_name = '«UTPLSQL_PACKAGE_NAME»'
+				   AND table_name = '«UTPLSQL_PACKAGE_NAME»'
+			'''
+			try {
+				val schema = jdbcTemplate.queryForObject(sql, String)
+				cachedUtplsqlSchema = schema
+			} catch (EmptyResultDataAccessException e) {
+				cachedUtplsqlSchema = null	
+			}
 		}
+		return cachedUtplsqlSchema
 	}
 	
 	/**
@@ -80,18 +96,21 @@ class UtplsqlDao {
 	 * @throws DataAccessException if there is a problem
 	 */
 	def boolean isUtAnnotationManagerInstalled() {
-		if (utplsqlSchema !== null) {
-			val sql = '''
-				SELECT count(*)
-				  FROM all_objects
-				 WHERE owner = '«utplsqlSchema»'
-				   AND object_type = 'PACKAGE'
-				   AND object_name = 'UT_ANNOTATION_MANAGER'
-			'''
-			val found = jdbcTemplate.queryForObject(sql, Integer)
-			return found == 1
+		if (cachedUtAnnotationManagerInstalled === null) {
+			cachedUtAnnotationManagerInstalled = false
+			if (utplsqlSchema !== null) {
+				val sql = '''
+					SELECT count(*)
+					  FROM «IF dbaViewAccessible»dba«ELSE»all«ENDIF»_objects
+					 WHERE owner = '«utplsqlSchema»'
+					   AND object_type = 'PACKAGE'
+					   AND object_name = 'UT_ANNOTATION_MANAGER'
+				'''
+				val found = jdbcTemplate.queryForObject(sql, Integer)
+				cachedUtAnnotationManagerInstalled = found == 1
+			}
 		}
-		return false
+		return cachedUtAnnotationManagerInstalled
 	}
 	
 	/**
