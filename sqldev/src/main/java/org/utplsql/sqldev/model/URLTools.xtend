@@ -22,7 +22,7 @@ class URLTools {
 		val p = Pattern.compile("(sqldev.nav:)([^/]+)(//)?")
 		val m = p.matcher(url.toString)
 		if (m.find) {
-			return m.group(2).replace("IdeConnections%2523", "IdeConnections%23")
+			return m.group(2).replace("IdeConnections%2523", "IdeConnections%23").replace("%2B", "+")
 		} else {
 			return ""
 		}		
