@@ -10,7 +10,6 @@
 		<u:description><![CDATA[#EXTENSION_DESCRIPTION#]]></u:description>
 		<u:requirements>
 			<u:requires-extension id="oracle.sqldeveloper" minVersion="#MIN_SQLDEV_VERSION#"/>
-			<u:requires-agreement url="#EXTENSION_LICENSE_URL#"/>
 		</u:requirements>
         <u:bundle-url>https://github.com/utPLSQL/utPLSQL-SQLDeveloper/releases/download/v#EXTENSION_SHORT_VERSION#/#EXTENSION_DEPLOYABLE#</u:bundle-url>
     </u:update>
