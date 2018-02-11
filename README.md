@@ -4,7 +4,15 @@
 
 utPLSQL for SQL Developer extends Oracle's SQL Developer by context menu entries and keyboard shortcuts for running utPLSQL unit tests from the Connections window or the PL/SQL editor.
 
-[![utPLSQL for SQL Developer Demo](utPLSQL.png)](https://raw.githubusercontent.com/utPLSQL/utPLSQL-SQLDeveloper/master/utPLSQL.gif)
+### Run utPLSQL test
+
+[![Run utPLSQL test](images/run_utplsql_test.png)](https://raw.githubusercontent.com/utPLSQL/utPLSQL-SQLDeveloper/master/images/run_utplsql_test.gif)
+
+### Preferences
+
+Set your preferences to change the behaviour of utPLSQL within SQL Developer. 
+
+[![Install utPLSQL for SQL Developer](images/preferences.png)](https://raw.githubusercontent.com/utPLSQL/utPLSQL-SQLDeveloper/master/images/preferences.gif)
 
 ## Releases
 
@@ -19,6 +27,8 @@ Binary releases are published [here](https://github.com/utPLSQL/utPLSQL-SQLDevel
 2. Select ```Check for Updates…``` in the help menu.
 
 3. Use the ```Install From Local File``` option to install the previously downloaded ```utplsql_for_SQLDev_*.zip``` file.
+
+[![Install utPLSQL for SQL Developer](images/install_utplsql.png)](https://raw.githubusercontent.com/utPLSQL/utPLSQL-SQLDeveloper/master/images/install_utplsql.gif)
 
 ## Issues
 Please file your bug reports, enhancement requests, questions and other support requests within [Github's issue tracker](https://help.github.com/articles/about-issues/).
