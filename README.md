@@ -12,7 +12,7 @@ utPLSQL for SQL Developer extends Oracle's SQL Developer by context menu entries
 
 Set your preferences to change the behaviour of utPLSQL within SQL Developer. 
 
-[![Install utPLSQL for SQL Developer](images/preferences.png)](https://raw.githubusercontent.com/utPLSQL/utPLSQL-SQLDeveloper/master/images/preferences.gif)
+[![Preferences](images/preferences.png)](https://raw.githubusercontent.com/utPLSQL/utPLSQL-SQLDeveloper/master/images/preferences.gif)
 
 ## Releases
 
