@@ -38,12 +38,6 @@ class UtplsqlDao {
 		this.jdbcTemplate = new JdbcTemplate(new SingleConnectionDataSource(conn, true))
 	}
 	
-	def void resetCache() {
-		cachedDbaViewAccessible = null
-		cachedUtplsqlSchema = null
-		cachedUtAnnotationManagerInstalled = null
-	}
-	
 	def boolean isDbaViewAccessible() {
 		if (cachedDbaViewAccessible === null) {
 			try {
