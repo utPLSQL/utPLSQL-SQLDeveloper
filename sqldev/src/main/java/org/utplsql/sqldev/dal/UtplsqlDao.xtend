@@ -159,8 +159,8 @@ class UtplsqlDao {
 		return containsUtplsqlTest(owner, null, null)
 	}
 	
-	def boolean containsUtplsqlTest(String owner, String objectType) {
-		return containsUtplsqlTest(owner, objectType, null)
+	def boolean containsUtplsqlTest(String owner, String objectName) {
+		return containsUtplsqlTest(owner, objectName, null)
 	}
 	
 	/**
