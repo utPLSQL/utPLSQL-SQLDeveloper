@@ -15,11 +15,42 @@
 
 	<trigger-hooks xmlns="http://xmlns.oracle.com/ide/extension">
 		<rules>
-			<rule-type class="org.utplsql.sqldev.menu.UtplsqlNavigatorRule"
-				id="utplsql-navigator-rule">
-				<supported-parameters />
-			</rule-type>
-			<rule id="dbnode-is-utplsql-ready" type="utplsql-navigator-rule" />
+			<rule id="dbnode-is-db-connection" type="context-has-element">
+				<parameters>
+					<param name="element-class" value="oracle.dbtools.raptor.navigator.db.DatabaseConnection" />
+				</parameters>
+			</rule>
+
+			<rule id="dbnode-is-package-folder" type="context-has-db-object-type-impl">
+				<parameters>
+					<param name="object-types" value="PACKAGE" />
+					<param name="restrict-to" value="FOLDER" />
+				</parameters>
+			</rule>
+			<rule id="dbnode-is-package" type="dbnode-has-object-type">
+				<parameters>
+					<param name="ObjectType" value="PACKAGE" />
+				</parameters>
+			</rule>
+			<rule id="dbnode-is-package-body" type="dbnode-has-object-type">
+				<parameters>
+					<param name="ObjectType" value="PACKAGE BODY" />
+				</parameters>
+			</rule>
+			<rule id="dbnode-is-member" type="context-has-element">
+				<parameters>
+					<param name="element-class" value="oracle.dbtools.raptor.navigator.impl.ChildObjectElement" />
+				</parameters>
+			</rule>
+			<composite-rule id="dbnode-is-utplsql-ready">
+				<or>
+					<rule-reference id="dbnode-is-db-connection" />
+					<rule-reference id="dbnode-is-package-folder" />
+					<rule-reference id="dbnode-is-package" />
+					<rule-reference id="dbnode-is-package-body" />
+					<rule-reference id="dbnode-is-member" />
+				</or>
+			</composite-rule>
 		</rules>
 		<triggers>
 			<actions xmlns="http://xmlns.oracle.com/jdeveloper/1013/extension">
