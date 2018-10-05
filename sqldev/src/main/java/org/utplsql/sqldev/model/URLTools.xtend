@@ -18,11 +18,24 @@ import java.net.URL
 import java.util.regex.Pattern
 
 class URLTools {
+	def replaceHexChars(String input) {
+		var String output = input;
+		val p = Pattern.compile("%([0-9A-F]{2})")
+		val m = p.matcher(input)
+		while (m.find) {
+			val what = m.group(0);
+			val decimal = Integer.parseInt(m.group(1), 16)
+			val with = String.valueOf(decimal as char)
+			output = output.replace(what, with)
+		}
+		return output
+	}
+	
 	def getConnectionName(URL url) {
 		val p = Pattern.compile("(sqldev.nav:)([^/]+)(//)?")
 		val m = p.matcher(url.toString)
 		if (m.find) {
-			return m.group(2).replace("IdeConnections%2523", "IdeConnections%23").replace("%2B", "+")
+			return m.group(2).replace("IdeConnections%2523", "IdeConnections%23").replaceHexChars
 		} else {
 			return ""
 		}		
