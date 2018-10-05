@@ -111,17 +111,17 @@ class UtplsqlParserTest extends AbstractJdbcTest {
 			   FUNCTION f (in_p1 INTEGER) RETURN INTEGER;
 			END pkg;
 		'''
-		var parser = new UtplsqlParser(plsql, dataSource.connection)
+		var parser = new UtplsqlParser(plsql, dataSource.connection, null)
 		Assert.assertEquals(0, parser.getObjects.size)
 		Assert.assertEquals(0, parser.getUnits.size)
 		jdbcTemplate.execute(plsql)
-		parser = new UtplsqlParser(plsql, dataSource.connection)
+		parser = new UtplsqlParser(plsql, dataSource.connection, null)
 		Assert.assertEquals(1, parser.getObjects.size)
 		Assert.assertEquals(1, parser.getUnits.size)
 		for (stmt : getStatements(sqlScript)) {
 			jdbcTemplate.execute(stmt)
 		}
-		parser = new UtplsqlParser(sqlScript, dataSource.connection)
+		parser = new UtplsqlParser(sqlScript, dataSource.connection, null)
 		Assert.assertEquals(2, parser.getObjects.size)
 		Assert.assertEquals(2, parser.getUnits.size)
 		Assert.assertEquals("pkg.p", parser.getPathAt(13,1))

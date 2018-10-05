@@ -24,21 +24,22 @@ import org.utplsql.sqldev.model.parser.PlsqlObject
 import org.utplsql.sqldev.model.parser.Unit
 
 class UtplsqlParser {
+	private String owner
 	private String plsql
 	private String plsqlReduced
 	private ArrayList<PlsqlObject> objects = new ArrayList<PlsqlObject>
 	private ArrayList<Unit> units = new ArrayList<Unit>
 	
-	new(String plsql, Connection conn) {
+	new(String plsql, Connection conn, String owner) {
 		setPlsql(plsql)
 		setPlsqlReduced
 		populateObjects
 		populateUnits
-		processAnnotations(conn)
+		processAnnotations(conn, owner)
 	}
 	
 	new(String plsql) {
-		this(plsql, null)
+		this(plsql, null, null)
 	}
 	
 	/**
@@ -112,13 +113,14 @@ class UtplsqlParser {
 		}
 	}
 	
-	private def processAnnotations(Connection conn) {
+	private def processAnnotations(Connection conn, String owner) {
+		this.owner = owner
 		if (conn !== null) {
 			val dao = new UtplsqlDao(conn)
 			if (dao.utAnnotationManagerInstalled) {
 				for (o : objects) {
-					val segments = Arrays.asList(o.name.fixName.split("\\."))			
-					val annotations = dao.annotations(conn.schema, segments.last.toUpperCase)
+					val segments = Arrays.asList(o.name.fixName.split("\\."))	
+					val annotations = dao.annotations(if (owner !== null) {owner} else {conn.schema}, segments.last.toUpperCase)
 					if (annotations.findFirst[it.name == "suite"] !== null) {
 						o.annotations = annotations
 					}
@@ -191,11 +193,8 @@ class UtplsqlParser {
 		var objectName = getObjectNameAt(position)
 		if (!objectName.empty) {
 			var unitName = getUnitNameAt(position)
-			if (unitName.empty) {
-				return objectName.fixName
-			} else {
-				return '''«objectName.fixName».«unitName.fixName»'''
-			}
+			val path = '''«IF owner !== null»«owner».«ENDIF»«objectName.fixName»«IF !unitName.empty».«unitName.fixName»«ENDIF»'''
+			return path
 		}
 		return ""
 	}
