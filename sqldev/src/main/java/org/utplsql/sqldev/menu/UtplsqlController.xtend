@@ -15,6 +15,7 @@
 package org.utplsql.sqldev.menu
 
 import java.net.URL
+import java.util.ArrayList
 import java.util.logging.Logger
 import javax.swing.JEditorPane
 import oracle.dbtools.raptor.navigator.db.DBNavigatorWindow
@@ -31,6 +32,7 @@ import oracle.ide.config.Preferences
 import oracle.ide.controller.Controller
 import oracle.ide.controller.IdeAction
 import oracle.ide.editor.Editor
+import oracle.ide.model.Element
 import org.utplsql.sqldev.UtplsqlWorksheet
 import org.utplsql.sqldev.dal.UtplsqlDao
 import org.utplsql.sqldev.model.URLTools
@@ -80,22 +82,26 @@ class UtplsqlController implements Controller {
 					}
 				}
 			} else if (view instanceof DBNavigatorWindow) {
-				if (context.selection.length == 1) {
-					val element = context.selection.get(0)
-					if (Connections.instance.isConnectionOpen(context.URL.connectionName)) {
-						val dao = new UtplsqlDao(Connections.instance.getConnection(context.URL.connectionName))
-						if (preferences.checkRunUtplsqlTest && dao.utAnnotationManagerInstalled) {
-							if (element instanceof DatabaseConnection) {
-								action.enabled = dao.containsUtplsqlTest(element.connection.schema)
-							} else if (element instanceof ObjectFolder) {
-								action.enabled = dao.containsUtplsqlTest(element.URL.schema)
-							} else if (element instanceof PlSqlNode) {
-								action.enabled = dao.containsUtplsqlTest(element.owner, element.objectName)
-							} else if (element instanceof ChildObjectElement) {
-								action.enabled = dao.containsUtplsqlTest(element.URL.schema, element.URL.memberObject, element.shortLabel)
+				action.enabled = true
+				// disable action if a node in the selection is not runnable
+				for (i : 0 ..< context.selection.length) {
+					if (action.enabled) {
+						val element = context.selection.get(i)
+						if (Connections.instance.isConnectionOpen(context.URL.connectionName)) {
+							val dao = new UtplsqlDao(Connections.instance.getConnection(context.URL.connectionName))
+							if (preferences.checkRunUtplsqlTest && dao.utAnnotationManagerInstalled) {
+								if (element instanceof DatabaseConnection) {
+									action.enabled = dao.containsUtplsqlTest(element.connection.schema)
+								} else if (element instanceof ObjectFolder) {
+									action.enabled = dao.containsUtplsqlTest(element.URL.schema)
+								} else if (element instanceof PlSqlNode) {
+									action.enabled = dao.containsUtplsqlTest(element.owner, element.objectName)
+								} else if (element instanceof ChildObjectElement) {
+									action.enabled = dao.containsUtplsqlTest(element.URL.schema, element.URL.memberObject, element.shortLabel)
+								}
 							}
 						} else {
-							action.enabled = true
+							action.enabled = false
 						}
 					}
 				}
@@ -104,10 +110,9 @@ class UtplsqlController implements Controller {
 		}
 		return false
 	}
-	
-	private def getPath(Context context) {
+
+	private def getPath(Object element) {
 		var String path
-		val element = context.selection.get(0)
 		if (element instanceof DatabaseConnection) {
 			path = element.connection.schema
 		} else if (element instanceof ObjectFolder) {
@@ -120,7 +125,16 @@ class UtplsqlController implements Controller {
 			path = ""
 		}
 		logger.fine('''path: «path»''')
-		return path
+		return path		
+	}
+	
+	private def getPathList(Context context) {
+		val pathList = new ArrayList<String>()
+		for (i : 0 ..< context.selection.length) {
+			val element = context.selection.get(i)
+			pathList.add(element.path)
+		}
+		return pathList
 	}
 
 	private def getURL(Context context) {
@@ -167,8 +181,8 @@ class UtplsqlController implements Controller {
 			if (url !== null) {
 				val connectionName = url.connectionName
 				logger.fine('''connectionName: «connectionName»''')
-				val path=context.path
-				val utPlsqlWorksheet = new UtplsqlWorksheet(path, connectionName)
+				val pathList=context.pathList
+				val utPlsqlWorksheet = new UtplsqlWorksheet(pathList, connectionName)
 				utPlsqlWorksheet.runTestAsync
 			}
 		}

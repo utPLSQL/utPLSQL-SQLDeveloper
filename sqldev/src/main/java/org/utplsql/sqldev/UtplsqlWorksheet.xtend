@@ -15,6 +15,8 @@
  */
 package org.utplsql.sqldev
 
+import java.util.ArrayList
+import java.util.List
 import java.util.logging.Logger
 import javax.swing.JSplitPane
 import oracle.dbtools.raptor.utils.Connections
@@ -32,11 +34,18 @@ class UtplsqlWorksheet {
 
 	private var PreferenceModel preferences
 	private var String connectionName
-	private var String path
+	private var List<String> pathList
+
+	new(List<String> pathList, String connectionName) {
+		this.pathList = pathList
+		this.preferences = PreferenceModel.getInstance(Preferences.preferences);
+		setConnection(connectionName)
+	}
 
 	new(String path, String connectionName) {
+		this.pathList = new ArrayList<String>()
+		this.pathList.add(path)
 		this.preferences = PreferenceModel.getInstance(Preferences.preferences);
-		this.path = path
 		setConnection(connectionName)
 	}
 
@@ -56,7 +65,11 @@ class UtplsqlWorksheet {
 		«IF preferences.clearScreen»
 			CLEAR SCREEN
 		«ENDIF»
-		EXECUTE ut.run('«path»');
+		«IF pathList.size == 1»
+			EXECUTE ut.run('«pathList.get(0)»');
+		«ELSE»
+			EXECUTE ut.run(ut_varchar2_list(«FOR path : pathList SEPARATOR ', '»'«path»'«ENDFOR»));
+		«ENDIF»
 	'''
 
 	private def openWorksheet() {
@@ -94,7 +107,7 @@ class UtplsqlWorksheet {
 	private def runTest() {
 		val worksheet = openWorksheet
 		worksheet.runScript
-		logger.fine('''utPLSQL test called for «path» in «connectionName».''')
+		logger.fine('''utPLSQL test called for «pathList» in «connectionName».''')
 	}
 
 	def runTestAsync() {
@@ -103,6 +116,5 @@ class UtplsqlWorksheet {
 		thread.name = "utPLSQL run test"
 		thread.start
 	}
-
 
 }
