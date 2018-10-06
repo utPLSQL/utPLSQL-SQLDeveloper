@@ -20,7 +20,11 @@
 					<param name="element-class" value="oracle.dbtools.raptor.navigator.db.DatabaseConnection" />
 				</parameters>
 			</rule>
-
+			<rule id="dbnode-is-otheruser" type="context-has-element">
+				<parameters>
+					<param name="element-class" value="oracle.dbtools.raptor.navigator.impl.SchemaFolder" />
+				</parameters>
+			</rule>
 			<rule id="dbnode-is-package-folder" type="context-has-db-object-type-impl">
 				<parameters>
 					<param name="object-types" value="PACKAGE" />
@@ -45,6 +49,7 @@
 			<composite-rule id="dbnode-is-utplsql-ready">
 				<or>
 					<rule-reference id="dbnode-is-db-connection" />
+					<rule-reference id="dbnode-is-otheruser" />
 					<rule-reference id="dbnode-is-package-folder" />
 					<rule-reference id="dbnode-is-package" />
 					<rule-reference id="dbnode-is-package-body" />
