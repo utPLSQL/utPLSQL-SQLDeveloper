@@ -32,7 +32,6 @@ import oracle.ide.config.Preferences
 import oracle.ide.controller.Controller
 import oracle.ide.controller.IdeAction
 import oracle.ide.editor.Editor
-import oracle.ide.model.Element
 import org.utplsql.sqldev.UtplsqlWorksheet
 import org.utplsql.sqldev.dal.UtplsqlDao
 import org.utplsql.sqldev.model.URLTools
