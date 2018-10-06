@@ -23,6 +23,7 @@ import oracle.dbtools.raptor.navigator.db.DatabaseConnection
 import oracle.dbtools.raptor.navigator.impl.ChildObjectElement
 import oracle.dbtools.raptor.navigator.impl.DatabaseSourceNode
 import oracle.dbtools.raptor.navigator.impl.ObjectFolder
+import oracle.dbtools.raptor.navigator.impl.SchemaFolder
 import oracle.dbtools.raptor.navigator.plsql.PlSqlNode
 import oracle.dbtools.raptor.utils.Connections
 import oracle.dbtools.worksheet.editor.Worksheet
@@ -84,6 +85,7 @@ class UtplsqlController implements Controller {
 				action.enabled = true
 				// disable action if a node in the selection is not runnable
 				for (i : 0 ..< context.selection.length) {
+					logger.fine('''section «i» is «context.selection.get(i).toString» of class «context.selection.get(i).class.name»''')
 					if (action.enabled) {
 						val element = context.selection.get(i)
 						if (Connections.instance.isConnectionOpen(context.URL.connectionName)) {
@@ -91,6 +93,8 @@ class UtplsqlController implements Controller {
 							if (preferences.checkRunUtplsqlTest && dao.utAnnotationManagerInstalled) {
 								if (element instanceof DatabaseConnection) {
 									action.enabled = dao.containsUtplsqlTest(element.connection.schema)
+								} else if (element instanceof SchemaFolder) {
+									action.enabled = dao.containsUtplsqlTest(element.schemaName)
 								} else if (element instanceof ObjectFolder) {
 									action.enabled = dao.containsUtplsqlTest(element.URL.schema)
 								} else if (element instanceof PlSqlNode) {
@@ -114,6 +118,8 @@ class UtplsqlController implements Controller {
 		var String path
 		if (element instanceof DatabaseConnection) {
 			path = element.connection.schema
+		} else if (element instanceof SchemaFolder) {
+			path = element.schemaName
 		} else if (element instanceof ObjectFolder) {
 			path = element.URL.schema
 		} else if (element instanceof PlSqlNode) {
@@ -141,6 +147,8 @@ class UtplsqlController implements Controller {
 		val element = context.selection.get(0)
 		if (element instanceof DatabaseConnection) {
 			url = element.URL
+		} else if (element instanceof SchemaFolder) {
+			url = element.URL  
 		} else if (element instanceof ObjectFolder) {
 			url = element.URL
 		} else if (element instanceof PlSqlNode) {
