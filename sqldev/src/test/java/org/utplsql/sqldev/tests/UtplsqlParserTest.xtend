@@ -86,14 +86,14 @@ class UtplsqlParserTest extends AbstractJdbcTest {
 		Assert.assertEquals('''"P"'''.toString, units.get(1).name)
 		Assert.assertTrue(units.get(0).position < units.get(1).position)
 		Assert.assertEquals("", parser.getPathAt(0))
-		Assert.assertEquals("", parser.getPathAt(3,6))
-		Assert.assertEquals("pkg", parser.getPathAt(4,1))
-		Assert.assertEquals("pkg.p", parser.getPathAt(10,33))
-		Assert.assertEquals("pkg.p", parser.getPathAt(13,1))
-		Assert.assertEquals("SCOTT.PKG.P", parser.getPathAt(19,1))
-		Assert.assertEquals("SCOTT.PKG.P", parser.getPathAt(22,9))
-		Assert.assertEquals("SCOTT.PKG.P", parser.getPathAt(22,10))
-		Assert.assertEquals("SCOTT.PKG.P", parser.getPathAt(29,1))
+		Assert.assertEquals("", parser.getPathAt(parser.toPosition(3,6)))
+		Assert.assertEquals("pkg", parser.getPathAt(parser.toPosition(4,1)))
+		Assert.assertEquals("pkg.p", parser.getPathAt(parser.toPosition(10,33)))
+		Assert.assertEquals("pkg.p", parser.getPathAt(parser.toPosition(13,1)))
+		Assert.assertEquals("SCOTT.PKG.P", parser.getPathAt(parser.toPosition(19,1)))
+		Assert.assertEquals("SCOTT.PKG.P", parser.getPathAt(parser.toPosition(22,9)))
+		Assert.assertEquals("SCOTT.PKG.P", parser.getPathAt(parser.toPosition(22,10)))
+		Assert.assertEquals("SCOTT.PKG.P", parser.getPathAt(parser.toPosition(29,1)))
 	}
 
 	@Test
@@ -124,8 +124,8 @@ class UtplsqlParserTest extends AbstractJdbcTest {
 		parser = new UtplsqlParser(sqlScript, dataSource.connection, null)
 		Assert.assertEquals(2, parser.getObjects.size)
 		Assert.assertEquals(2, parser.getUnits.size)
-		Assert.assertEquals("pkg.p", parser.getPathAt(13,1))
-		Assert.assertEquals("SCOTT.PKG.P", parser.getPathAt(19,1))
+		Assert.assertEquals("pkg.p", parser.getPathAt(parser.toPosition(13,1)))
+		Assert.assertEquals("SCOTT.PKG.P", parser.getPathAt(parser.toPosition(19,1)))
 		setupAndTeardown
 	}
 	
@@ -178,12 +178,12 @@ class UtplsqlParserTest extends AbstractJdbcTest {
 			end;
 		'''
 		val parser = new UtplsqlParser(plsql)
-		Assert.assertEquals("test_expect_not_to_be_null.cleanup_expectations", parser.getPathAt(7,1))
-		Assert.assertEquals("test_expect_not_to_be_null.create_types", parser.getPathAt(13,1))
+		Assert.assertEquals("test_expect_not_to_be_null.cleanup_expectations", parser.getPathAt(parser.toPosition(7,1)))
+		Assert.assertEquals("test_expect_not_to_be_null.create_types", parser.getPathAt(parser.toPosition(13,1)))
 		// was: '||gc_varray_name||'.drop_types
-		Assert.assertEquals("test_expect_not_to_be_null.drop_types", parser.getPathAt(23,1))
+		Assert.assertEquals("test_expect_not_to_be_null.drop_types", parser.getPathAt(parser.toPosition(23,1)))
 		// was: '||gc_varray_name||'.blob_not_null
-		Assert.assertEquals("test_expect_not_to_be_null.blob_not_null", parser.getPathAt(33,1))
+		Assert.assertEquals("test_expect_not_to_be_null.blob_not_null", parser.getPathAt(parser.toPosition(33,1)))
 	}
 
 	@Test
@@ -215,7 +215,89 @@ class UtplsqlParserTest extends AbstractJdbcTest {
 		'''
 		val parser = new UtplsqlParser(plsql)
 		// was: test_expect_not_to_be_null.create_types
-		Assert.assertEquals("test_expect_not_to_be_null.blob_not_null", parser.getPathAt(13,26))
+		Assert.assertEquals("test_expect_not_to_be_null.blob_not_null", parser.getPathAt(parser.toPosition(13,26)))
 	}
+
+	@Test
+	def testProcedure() {
+		val plsql = '''
+			create or replace procedure z
+			is
+			    null;
+			end;
+			/
+		'''
+		val parser = new UtplsqlParser(plsql)
+		Assert.assertEquals("z", parser.getObjectAt(0).name)
+		Assert.assertEquals("PROCEDURE", parser.getObjectAt(0).type)
+	}
+
+	@Test
+	def testFunction() {
+		val plsql = '''
+			create or replace procedure z
+			is
+			    null;
+			end;
+			/
+			
+			create or replace function f return number is
+			begin
+			   null;
+			end;
+			/
+		'''
+		val parser = new UtplsqlParser(plsql)
+		Assert.assertEquals("f", parser.getObjectAt(parser.toPosition(8,1)).name)
+		Assert.assertEquals("FUNCTION", parser.getObjectAt(parser.toPosition(8,1)).type)
+	}
+
+	@Test
+	def testType() {
+		val plsql = '''
+			create or replace type t force is
+			    object (
+			      a number,
+			      b number,
+			      c varchar2(10),
+			      member procedure p(self in t)
+			    )
+			end;
+			/
+		'''
+		val parser = new UtplsqlParser(plsql)
+		Assert.assertEquals("t", parser.getObjectAt(0).name)
+		Assert.assertEquals("TYPE", parser.getObjectAt(0).type)
+	}
+
+	@Test
+	def testTypeBody() {
+		val plsql = '''
+			create or replace type body t force is
+			   member procedure p(self in t) is
+			   begin
+			      null;
+			   end;
+			end;
+			/
+		'''
+		val parser = new UtplsqlParser(plsql)
+		Assert.assertEquals("t", parser.getObjectAt(0).name)
+		Assert.assertEquals("TYPE", parser.getObjectAt(0).type)
+	}
+
+	@Test
+	def testUnknown() {
+		val plsql = '''
+			create or replace unknown u is
+			begin
+			   null;
+			end;
+			/
+		'''
+		val parser = new UtplsqlParser(plsql)
+		Assert.assertEquals(null, parser.getObjectAt(0))
+	}
+
 
 }

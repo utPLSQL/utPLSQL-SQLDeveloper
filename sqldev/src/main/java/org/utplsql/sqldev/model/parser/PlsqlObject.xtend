@@ -23,6 +23,7 @@ import org.utplsql.sqldev.model.ut.Annotation
 @Accessors
 class PlsqlObject extends AbstractModel {
 	String name
+	String type
 	Integer position
 	List<Annotation> annotations
 }
