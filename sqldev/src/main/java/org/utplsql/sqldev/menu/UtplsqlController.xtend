@@ -44,7 +44,9 @@ class UtplsqlController implements Controller {
 	val extension URLTools urlTools = new URLTools
 
 	public static int UTLPLSQL_TEST_CMD_ID = Ide.findCmdID("utplsql.test")
+	public static int UTLPLSQL_GENERATE_CMD_ID = Ide.findCmdID("utplsql.generate")
 	public static final IdeAction UTLPLSQL_TEST_ACTION = IdeAction.get(UtplsqlController.UTLPLSQL_TEST_CMD_ID)
+	public static final IdeAction UTLPLSQL_GENERATE_ACTION = IdeAction.get(UtplsqlController.UTLPLSQL_GENERATE_CMD_ID)
 
 	override handleEvent(IdeAction action, Context context) {
 		if (action.commandId === UtplsqlController.UTLPLSQL_TEST_CMD_ID) {
@@ -110,6 +112,28 @@ class UtplsqlController implements Controller {
 				}
 			}
 			return true
+		} else if (action.commandId === UTLPLSQL_GENERATE_CMD_ID) {
+			action.enabled = false
+			// enable if generation is possible
+			val view = context.view
+			if (view instanceof Editor) {
+				val component = view.defaultFocusComponent
+				if (component instanceof JEditorPane) {
+					val parser = new UtplsqlParser(component.text)
+					action.enabled = parser.getObjectAt(component.caretPosition) !== null
+				}
+			} else if  (view instanceof DBNavigatorWindow) {
+				// multiselection is not supported, use oddgen to generte tests for multiple objects
+				if (context.selection.length == 1) {
+					val element = context.selection.get(0)
+					if (element instanceof PlSqlNode) {
+						val ot = element.objectType 
+						if (ot.startsWith("PACKAGE") || ot.startsWith("TYPE")  || ot == "FUNCTION" || ot == "PROCEDURE") {
+							action.enabled = true
+						}
+					}
+				}
+			}
 		}
 		return false
 	}
