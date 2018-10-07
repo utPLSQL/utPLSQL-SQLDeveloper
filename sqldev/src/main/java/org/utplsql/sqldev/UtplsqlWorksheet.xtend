@@ -30,11 +30,11 @@ import org.utplsql.sqldev.model.preference.PreferenceModel
 import org.utplsql.sqldev.resources.UtplsqlResources
 
 class UtplsqlWorksheet {
-	private static val Logger logger = Logger.getLogger(UtplsqlWorksheet.name);
+	static val Logger logger = Logger.getLogger(UtplsqlWorksheet.name);
 
-	private var PreferenceModel preferences
-	private var String connectionName
-	private var List<String> pathList
+	var PreferenceModel preferences
+	var String connectionName
+	var List<String> pathList
 
 	new(List<String> pathList, String connectionName) {
 		this.pathList = pathList

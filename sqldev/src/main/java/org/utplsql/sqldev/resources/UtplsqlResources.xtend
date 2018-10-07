@@ -18,9 +18,9 @@ package org.utplsql.sqldev.resources
 import oracle.dbtools.raptor.utils.MessagesBase
 
 class UtplsqlResources extends MessagesBase {
-	private static final ClassLoader CLASS_LOADER = UtplsqlResources.classLoader
-	private static final String CLASS_NAME = UtplsqlResources.canonicalName
-	private static final UtplsqlResources INSTANCE = new UtplsqlResources()
+	static final ClassLoader CLASS_LOADER = UtplsqlResources.classLoader
+	static final String CLASS_NAME = UtplsqlResources.canonicalName
+	static final UtplsqlResources INSTANCE = new UtplsqlResources()
 
 	private new() {
 		super(CLASS_NAME, CLASS_LOADER)
