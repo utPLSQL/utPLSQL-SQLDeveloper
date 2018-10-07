@@ -46,7 +46,7 @@
 					<param name="element-class" value="oracle.dbtools.raptor.navigator.impl.ChildObjectElement" />
 				</parameters>
 			</rule>
-			<composite-rule id="dbnode-is-utplsql-ready">
+			<composite-rule id="dbnode-is-test-ready">
 				<or>
 					<rule-reference id="dbnode-is-db-connection" />
 					<rule-reference id="dbnode-is-otheruser" />
@@ -54,6 +54,36 @@
 					<rule-reference id="dbnode-is-package" />
 					<rule-reference id="dbnode-is-package-body" />
 					<rule-reference id="dbnode-is-member" />
+				</or>
+			</composite-rule>
+			<rule id="dbnode-is-type" type="dbnode-has-object-type">
+				<parameters>
+					<param name="ObjectType" value="TYPE" />
+				</parameters>
+			</rule>
+			<rule id="dbnode-is-type-body" type="dbnode-has-object-type">
+				<parameters>
+					<param name="ObjectType" value="TYPE BODY" />
+				</parameters>
+			</rule>
+			<rule id="dbnode-is-function" type="dbnode-has-object-type">
+				<parameters>
+					<param name="ObjectType" value="FUNCTION" />
+				</parameters>
+			</rule>
+			<rule id="dbnode-is-procedure" type="dbnode-has-object-type">
+				<parameters>
+					<param name="ObjectType" value="PROCEDURE" />
+				</parameters>
+			</rule>
+			<composite-rule id="dbnode-is-generate-ready">
+				<or>
+					<rule-reference id="dbnode-is-package" />
+					<rule-reference id="dbnode-is-package-body" />
+					<rule-reference id="dbnode-is-type" />
+					<rule-reference id="dbnode-is-type-body" />
+					<rule-reference id="dbnode-is-function" />
+					<rule-reference id="dbnode-is-procedure" />
 				</or>
 			</composite-rule>
 		</rules>
@@ -66,12 +96,20 @@
 						<property name="Category">Code-Editor</property>
 					</properties>
 				</action>
+				<action id="utplsql.generate">
+					<properties>
+						<property name="Name">${MENU_RUN_GENERATE_LABEL}</property>
+						<property name="SmallIcon">res:/org/utplsql/sqldev/resources/images/oddgen.png</property>
+						<property name="Category">Code-Editor</property>
+					</properties>
+				</action>
 			</actions>
 			<controllers xmlns="http://xmlns.oracle.com/ide/extension">
 				<controller class="org.utplsql.sqldev.menu.UtplsqlController">
 					<update-rules>
 						<update-rule rule="always-enabled">
 							<action id="utplsql.test" />
+							<action id="utplsql.generate" />
 						</update-rule>
 					</update-rules>
 				</controller>
@@ -82,15 +120,25 @@
 					<section xmlns="http://jcp.org/jsr/198/extension-manifest"
 						id="UTPLSQL_MENU" weight="2.0">
 						<item action-ref="utplsql.test" weight="1.0" />
+						<item action-ref="utplsql.generate" weight="1.1" />
 					</section>
 				</menu>
 			</context-menu-hook>
-			<context-menu-hook rule="dbnode-is-utplsql-ready">
+			<context-menu-hook rule="dbnode-is-test-ready">
 				<site idref="db_nav" />
 				<menu>
 					<section xmlns="http://jcp.org/jsr/198/extension-manifest"
 						id="UTPLSQL_MENU" weight="2.0">
 						<item action-ref="utplsql.test" weight="12.1" />
+					</section>
+				</menu>
+			</context-menu-hook>
+			<context-menu-hook rule="dbnode-is-generate-ready">
+				<site idref="db_nav" />
+				<menu>
+					<section xmlns="http://jcp.org/jsr/198/extension-manifest"
+						id="UTPLSQL_MENU" weight="2.0">
+						<item action-ref="utplsql.generate" weight="12.2" />
 					</section>
 				</menu>
 			</context-menu-hook>
