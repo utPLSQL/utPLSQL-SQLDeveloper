@@ -36,6 +36,11 @@ class PreferenceModel extends HashStructureAdapter {
 	static final String KEY_CLEAR_SCREEN = "clearScreen"
 	static final String KEY_AUTO_EXECUTE = "autoExecute"
 	static final String KEY_CHECK_RUN_UTPLSQL_TEST = "checkRunUtplsqlTest"
+	static final String KEY_TEST_PACKAGE_PREFIX = "testPackagePrefix"
+	static final String KEY_TEST_PACKAGE_SUFFIX = "testPackageSuffix"
+	static final String KEY_TEST_UNIT_PREFIX = "testUnitPrefix"
+	static final String KEY_TEST_UNIT_SUFFIX = "testUnitSuffix"
+	static final String KEY_NUMBER_OF_TESTS_PER_UNIT = "numberOfTestsPerUnit"
 
 	def isUnsharedWorksheet() {
 		return getHashStructure.getBoolean(PreferenceModel.KEY_UNSHARED_WORKSHEET, true)
@@ -77,7 +82,45 @@ class PreferenceModel extends HashStructureAdapter {
 		getHashStructure.putBoolean(PreferenceModel.KEY_CHECK_RUN_UTPLSQL_TEST, autoExecute)
 	}
 
+	def getTestPackagePrefix() {
+		return getHashStructure.getString(PreferenceModel.KEY_TEST_PACKAGE_PREFIX, "test_")
+	}
+	
+	def setTestPackagePrefix(String testPackagePrefix) {
+		getHashStructure.putString(PreferenceModel.KEY_TEST_PACKAGE_PREFIX, testPackagePrefix)
+	}
 
+	def getTestPackageSuffix() {
+		return getHashStructure.getString(PreferenceModel.KEY_TEST_PACKAGE_SUFFIX, "")
+	}
+	
+	def setTestPackageSuffix(String testPackageSuffix) {
+		getHashStructure.putString(PreferenceModel.KEY_TEST_PACKAGE_SUFFIX, testPackageSuffix)
+	}
+
+	def getTestUnitPrefix() {
+		return getHashStructure.getString(PreferenceModel.KEY_TEST_UNIT_PREFIX, "")
+	}
+	
+	def setTestUnitPrefix(String testUnitPrefix) {
+		getHashStructure.putString(PreferenceModel.KEY_TEST_UNIT_PREFIX, testUnitPrefix)
+	}
+
+	def getTestUnitSuffix() {
+		return getHashStructure.getString(PreferenceModel.KEY_TEST_UNIT_SUFFIX, "")
+	}
+	
+	def setTestUnitSuffix(String testUnitSuffix) {
+		getHashStructure.putString(PreferenceModel.KEY_TEST_UNIT_SUFFIX, testUnitSuffix)
+	}
+
+	def getNumberOfTestsPerUnit() {
+		return getHashStructure.getInt(PreferenceModel.KEY_NUMBER_OF_TESTS_PER_UNIT, 1)
+	}
+
+	def setNumberOfTestsPerUnit(int numberOfTestsPerUnit) {
+		getHashStructure.putInt(PreferenceModel.KEY_NUMBER_OF_TESTS_PER_UNIT, numberOfTestsPerUnit)
+	}
 
 	override toString() {
 		new ToStringBuilder(this).addAllFields.toString

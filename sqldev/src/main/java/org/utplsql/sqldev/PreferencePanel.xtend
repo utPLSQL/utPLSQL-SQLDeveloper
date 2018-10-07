@@ -16,6 +16,9 @@
 package org.utplsql.sqldev
 
 import javax.swing.JCheckBox
+import javax.swing.JSpinner
+import javax.swing.JTextField
+import javax.swing.SpinnerNumberModel
 import oracle.ide.panels.DefaultTraversablePanel
 import oracle.ide.panels.TraversableContext
 import oracle.ide.panels.TraversalException
@@ -29,6 +32,12 @@ class PreferencePanel extends DefaultTraversablePanel {
 	val JCheckBox clearScreenCheckBox = new JCheckBox
 	val JCheckBox autoExecuteCheckBox = new JCheckBox
 	val JCheckBox checkRunUtplsqlTestCheckBox = new JCheckBox
+	val JTextField testPackagePrefixTextField = new JTextField
+	val JTextField testPackageSuffixTextField = new JTextField
+	val JTextField testUnitPrefixTextField = new JTextField
+	val JTextField testUnitSuffixTextField = new JTextField
+	val SpinnerNumberModel numberOfTestsPerUnitModel = new SpinnerNumberModel(1, 1, 10, 1);
+	val JSpinner numberOfTestsPerUnitSpinner = new JSpinner(numberOfTestsPerUnitModel);
 
 	new() {
 		layoutControls()
@@ -52,6 +61,21 @@ class PreferencePanel extends DefaultTraversablePanel {
 		builder.add(
 			builder.field.label.withText(UtplsqlResources.getString("PREF_CHECK_RUN_UTPLSQL_TEST_LABEL")).component(
 				checkRunUtplsqlTestCheckBox))
+		builder.add(
+			builder.field.label.withText(UtplsqlResources.getString("PREF_TEST_PACKAGE_PREFIX_LABEL")).component(
+				testPackagePrefixTextField))
+		builder.add(
+			builder.field.label.withText(UtplsqlResources.getString("PREF_TEST_PACKAGE_SUFFIX_LABEL")).component(
+				testPackageSuffixTextField))
+		builder.add(
+			builder.field.label.withText(UtplsqlResources.getString("PREF_TEST_UNIT_PREFIX_LABEL")).component(
+				testUnitPrefixTextField))
+		builder.add(
+			builder.field.label.withText(UtplsqlResources.getString("PREF_TEST_UNIT_SUFFIX_LABEL")).component(
+				testUnitSuffixTextField))
+		builder.add(
+			builder.field.label.withText(UtplsqlResources.getString("PREF_NUMBER_OF_TESTS_PER_UNIT")).component(
+				numberOfTestsPerUnitSpinner))
 		builder.addVerticalSpring
 	}
 
@@ -62,6 +86,11 @@ class PreferencePanel extends DefaultTraversablePanel {
 		clearScreenCheckBox.selected = info.clearScreen
 		autoExecuteCheckBox.selected = info.autoExecute
 		checkRunUtplsqlTestCheckBox.selected = info.checkRunUtplsqlTest
+		testPackagePrefixTextField.text = info.testPackagePrefix
+		testPackageSuffixTextField.text = info.testPackageSuffix
+		testUnitPrefixTextField.text = info.testUnitPrefix
+		testUnitSuffixTextField.text = info.testUnitSuffix
+		numberOfTestsPerUnitSpinner.value = info.numberOfTestsPerUnit
 		super.onEntry(traversableContext)
 	}
 
@@ -72,6 +101,11 @@ class PreferencePanel extends DefaultTraversablePanel {
 		info.clearScreen = clearScreenCheckBox.selected
 		info.autoExecute = autoExecuteCheckBox.selected
 		info.checkRunUtplsqlTest = checkRunUtplsqlTestCheckBox.selected
+		info.testPackagePrefix = testPackagePrefixTextField.text
+		info.testPackageSuffix = testPackageSuffixTextField.text
+		info.testUnitPrefix = testUnitPrefixTextField.text
+		info.testUnitSuffix = testUnitSuffixTextField.text
+		info.numberOfTestsPerUnit = numberOfTestsPerUnitSpinner.value as Integer
 		super.onExit(traversableContext)
 	}
 
