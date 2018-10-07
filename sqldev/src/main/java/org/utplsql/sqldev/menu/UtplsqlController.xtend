@@ -40,8 +40,8 @@ import org.utplsql.sqldev.model.preference.PreferenceModel
 import org.utplsql.sqldev.parser.UtplsqlParser
 
 class UtplsqlController implements Controller {
-	private static final Logger logger = Logger.getLogger(UtplsqlController.name);
-	private val extension URLTools urlTools = new URLTools
+	static final Logger logger = Logger.getLogger(UtplsqlController.name);
+	val extension URLTools urlTools = new URLTools
 
 	public static int UTLPLSQL_TEST_CMD_ID = Ide.findCmdID("utplsql.test")
 	public static final IdeAction UTLPLSQL_TEST_ACTION = IdeAction.get(UtplsqlController.UTLPLSQL_TEST_CMD_ID)

@@ -24,7 +24,7 @@ import org.utplsql.sqldev.parser.UtplsqlParser
 
 class UtplsqlParserTest extends AbstractJdbcTest {
 	
-	private static val sqlScript = '''
+	static val sqlScript = '''
 		PROMPT
 		PROMPT Install utPLSQL test package
 		PROMPT

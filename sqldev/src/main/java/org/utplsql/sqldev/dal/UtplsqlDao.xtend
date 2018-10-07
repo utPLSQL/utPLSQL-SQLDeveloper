@@ -26,16 +26,16 @@ import org.utplsql.sqldev.model.ut.Annotation
 
 class UtplsqlDao {
 	public static val UTPLSQL_PACKAGE_NAME = "UT" 
-	private var Connection conn
-	private var JdbcTemplate jdbcTemplate
+	var Connection conn
+	var JdbcTemplate jdbcTemplate
 	// cache fields
-	private Boolean cachedDbaViewAccessible
-	private String cachedUtplsqlSchema
-	private Boolean cachedUtAnnotationManagerInstalled
+	Boolean cachedDbaViewAccessible
+	String cachedUtplsqlSchema
+	Boolean cachedUtAnnotationManagerInstalled
 
-	new(Connection conn) {
-		this.conn = conn
-		this.jdbcTemplate = new JdbcTemplate(new SingleConnectionDataSource(conn, true))
+	new(Connection connection) {
+		conn = connection
+		jdbcTemplate = new JdbcTemplate(new SingleConnectionDataSource(conn, true))
 	}
 	
 	def boolean isDbaViewAccessible() {

@@ -5,7 +5,7 @@ import org.junit.Test
 import org.utplsql.sqldev.model.URLTools
 
 class UrlToolsTest {
-	private val extension URLTools urlTools = new URLTools
+	val extension URLTools urlTools = new URLTools
 
 	@Test
 	def void testReplacePlusSign() {

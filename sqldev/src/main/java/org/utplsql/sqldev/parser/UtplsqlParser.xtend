@@ -24,11 +24,11 @@ import org.utplsql.sqldev.model.parser.PlsqlObject
 import org.utplsql.sqldev.model.parser.Unit
 
 class UtplsqlParser {
-	private String owner
-	private String plsql
-	private String plsqlReduced
-	private ArrayList<PlsqlObject> objects = new ArrayList<PlsqlObject>
-	private ArrayList<Unit> units = new ArrayList<Unit>
+	String owner
+	String plsql
+	String plsqlReduced
+	ArrayList<PlsqlObject> objects = new ArrayList<PlsqlObject>
+	ArrayList<Unit> units = new ArrayList<Unit>
 	
 	new(String plsql, Connection conn, String owner) {
 		setPlsql(plsql)
