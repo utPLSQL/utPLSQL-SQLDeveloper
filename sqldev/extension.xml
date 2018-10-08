@@ -98,7 +98,7 @@
 				</action>
 				<action id="utplsql.generate">
 					<properties>
-						<property name="Name">${MENU_RUN_GENERATE_LABEL}</property>
+						<property name="Name">${MENU_GENERATE_TEST_LABEL}</property>
 						<property name="SmallIcon">res:/org/utplsql/sqldev/resources/images/oddgen.png</property>
 						<property name="Category">Code-Editor</property>
 					</properties>
