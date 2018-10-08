@@ -119,8 +119,13 @@ class UtplsqlController implements Controller {
 			if (view instanceof Editor) {
 				val component = view.defaultFocusComponent
 				if (component instanceof JEditorPane) {
-					val parser = new UtplsqlParser(component.text)
-					action.enabled = parser.getObjectAt(component.caretPosition) !== null
+					val preferences = PreferenceModel.getInstance(Preferences.preferences)
+					if (preferences.checkGenerateUtplsqlTest) {
+						val parser = new UtplsqlParser(component.text)
+						action.enabled = parser.getObjectAt(component.caretPosition) !== null
+					} else {
+						action.enabled = true
+					}
 				}
 			} else if  (view instanceof DBNavigatorWindow) {
 				// multiselection is not supported, use oddgen to generte tests for multiple objects
