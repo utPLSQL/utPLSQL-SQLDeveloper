@@ -29,5 +29,10 @@ class PreferenceModelTest {
 		Assert.assertFalse(model.clearScreen)
 		Assert.assertTrue(model.autoExecute)
 		Assert.assertFalse(model.checkRunUtplsqlTest)
+		Assert.assertEquals("test_", model.testPackagePrefix)
+		Assert.assertEquals("", model.testPackageSuffix)
+		Assert.assertEquals("", model.testUnitPrefix)
+		Assert.assertEquals("", model.testUnitSuffix)
+		Assert.assertFalse(model.checkGenerateUtplsqlTest)
 	}	
 }

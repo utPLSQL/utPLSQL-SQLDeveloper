@@ -41,6 +41,7 @@ class PreferenceModel extends HashStructureAdapter {
 	static final String KEY_TEST_UNIT_PREFIX = "testUnitPrefix"
 	static final String KEY_TEST_UNIT_SUFFIX = "testUnitSuffix"
 	static final String KEY_NUMBER_OF_TESTS_PER_UNIT = "numberOfTestsPerUnit"
+	static final String KEY_CHECK_GENERATE_UTPLSQL_TEST = "checkGenerateUtplsqlTest"
 
 	def isUnsharedWorksheet() {
 		return getHashStructure.getBoolean(PreferenceModel.KEY_UNSHARED_WORKSHEET, true)
@@ -78,8 +79,8 @@ class PreferenceModel extends HashStructureAdapter {
 		return getHashStructure.getBoolean(PreferenceModel.KEY_CHECK_RUN_UTPLSQL_TEST, false)
 	}
 
-	def setCheckRunUtplsqlTest(boolean autoExecute) {
-		getHashStructure.putBoolean(PreferenceModel.KEY_CHECK_RUN_UTPLSQL_TEST, autoExecute)
+	def setCheckRunUtplsqlTest(boolean checkRunUtplsqlTest) {
+		getHashStructure.putBoolean(PreferenceModel.KEY_CHECK_RUN_UTPLSQL_TEST, checkRunUtplsqlTest)
 	}
 
 	def getTestPackagePrefix() {
@@ -120,6 +121,14 @@ class PreferenceModel extends HashStructureAdapter {
 
 	def setNumberOfTestsPerUnit(int numberOfTestsPerUnit) {
 		getHashStructure.putInt(PreferenceModel.KEY_NUMBER_OF_TESTS_PER_UNIT, numberOfTestsPerUnit)
+	}
+
+	def isCheckGenerateUtplsqlTest() {
+		return getHashStructure.getBoolean(PreferenceModel.KEY_CHECK_GENERATE_UTPLSQL_TEST, false)
+	}
+
+	def setCheckGenerateUtplsqlTest(boolean checkGenerateUtplsqlTest) {
+		getHashStructure.putBoolean(PreferenceModel.KEY_CHECK_GENERATE_UTPLSQL_TEST, checkGenerateUtplsqlTest)
 	}
 
 	override toString() {
