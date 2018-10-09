@@ -19,7 +19,7 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.List
 import org.utplsql.sqldev.dal.UtplsqlDao
-import org.utplsql.sqldev.oddgen.model.GenContext
+import org.utplsql.sqldev.model.oddgen.GenContext
 
 class TestTemplate {
 	var GenContext context

@@ -45,7 +45,7 @@ class PreferenceModel extends HashStructureAdapter {
 	static final String KEY_NUMBER_OF_TESTS_PER_UNIT = "numberOfTestsPerUnit"
 	static final String KEY_CHECK_GENERATE_UTPLSQL_TEST = "checkGenerateUtplsqlTest"
 	static final String KEY_GENERATE_COMMENTS = "generateComments"
-    static final String KEY_DISABLE_TESTS = "disableTests"
+	static final String KEY_DISABLE_TESTS = "disableTests"
 	static final String KEY_SUITE_PATH="suitePath"
 	static final String KEY_INDENT_SPACES="indentSpaces"
 	static final String KEY_GENERATE_FILES="generateFiles"

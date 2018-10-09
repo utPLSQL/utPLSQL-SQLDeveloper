@@ -1,18 +1,18 @@
 <context scope="global">
-     <preset name="Default">
-          <map action="utplsql.test">
-               <accel>alt shift T</accel>
-          </map>
-          <map action="utplsql.generate">
-               <accel>alt shift G</accel>
-          </map>
-     </preset>
-     <preset name="Default MacOS X">
-          <map action="utplsql.test">
-               <accel>alt shift T</accel>
-          </map>
-          <map action="utplsql.generate">
-               <accel>alt shift G</accel>
-          </map>
-     </preset>
+	<preset name="Default">
+		<map action="utplsql.test">
+			<accel>alt shift T</accel>
+		</map>
+		<map action="utplsql.generate">
+			<accel>alt shift G</accel>
+		</map>
+	</preset>
+	<preset name="Default MacOS X">
+		<map action="utplsql.test">
+			<accel>alt shift T</accel>
+		</map>
+		<map action="utplsql.generate">
+			<accel>alt shift G</accel>
+		</map>
+	</preset>
 </context>
