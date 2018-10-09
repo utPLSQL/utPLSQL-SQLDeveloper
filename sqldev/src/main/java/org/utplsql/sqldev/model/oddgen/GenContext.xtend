@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.utplsql.sqldev.oddgen.model
+package org.utplsql.sqldev.model.oddgen
 
 import java.sql.Connection
 import org.eclipse.xtend.lib.annotations.Accessors

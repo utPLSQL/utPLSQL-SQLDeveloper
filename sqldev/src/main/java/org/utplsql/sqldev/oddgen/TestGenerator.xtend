@@ -27,9 +27,9 @@ import org.oddgen.sqldev.generators.model.Node
 import org.oddgen.sqldev.generators.model.NodeTools
 import org.oddgen.sqldev.plugin.templates.TemplateTools
 import org.utplsql.sqldev.dal.UtplsqlDao
+import org.utplsql.sqldev.model.oddgen.GenContext
 import org.utplsql.sqldev.model.preference.PreferenceModel
 import org.utplsql.sqldev.resources.UtplsqlResources
-import org.utplsql.sqldev.oddgen.model.GenContext
 
 class TestGenerator implements OddgenGenerator2 {
 
@@ -56,17 +56,17 @@ class TestGenerator implements OddgenGenerator2 {
 		val context = new GenContext()
 		context.objectType = node.toObjectType
 		context.objectName = node.toObjectName
-        context.generateFiles = node.params.get(GENERATE_FILES) == YES
-        context.outputDirectory = node.params.get(OUTPUT_DIRECTORY)
+		context.generateFiles = node.params.get(GENERATE_FILES) == YES
+		context.outputDirectory = node.params.get(OUTPUT_DIRECTORY)
 		context.testPackagePrefix = node.params.get(TEST_PACKAGE_PREFIX).toLowerCase
 		context.testPackageSuffix = node.params.get(TEST_PACKAGE_SUFFIX).toLowerCase
 		context.testUnitPrefix = node.params.get(TEST_UNIT_PREFIX).toLowerCase
 		context.testUnitSuffix = node.params.get(TEST_UNIT_SUFFIX).toLowerCase
-        context.numberOfTestsPerUnit = Integer.valueOf(node.params.get(NUMBER_OF_TESTS_PER_UNIT))
-        context.generateComments = node.params.get(GENERATE_COMMENTS) == YES
-        context.disableTests = node.params.get(DISABLE_TESTS) == YES
-        context.suitePath = node.params.get(SUITE_PATH).toLowerCase
-        context.indentSpaces = Integer.valueOf(node.params.get(INDENT_SPACES))
+		context.numberOfTestsPerUnit = Integer.valueOf(node.params.get(NUMBER_OF_TESTS_PER_UNIT))
+		context.generateComments = node.params.get(GENERATE_COMMENTS) == YES
+		context.disableTests = node.params.get(DISABLE_TESTS) == YES
+		context.suitePath = node.params.get(SUITE_PATH).toLowerCase
+		context.indentSpaces = Integer.valueOf(node.params.get(INDENT_SPACES))
 		return context
 	}
 
@@ -101,7 +101,7 @@ class TestGenerator implements OddgenGenerator2 {
 				«ENDIF»
 			«ENDIF»
 		«ENDFOR»
-    '''
+	'''
 
 	override isSupported(Connection conn) {
 		var ret = false

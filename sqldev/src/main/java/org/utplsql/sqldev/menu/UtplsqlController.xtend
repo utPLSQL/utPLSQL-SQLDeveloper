@@ -36,9 +36,9 @@ import oracle.ide.editor.Editor
 import org.utplsql.sqldev.UtplsqlWorksheet
 import org.utplsql.sqldev.dal.UtplsqlDao
 import org.utplsql.sqldev.model.URLTools
+import org.utplsql.sqldev.model.oddgen.GenContext
 import org.utplsql.sqldev.model.preference.PreferenceModel
 import org.utplsql.sqldev.oddgen.TestTemplate
-import org.utplsql.sqldev.oddgen.model.GenContext
 import org.utplsql.sqldev.parser.UtplsqlParser
 
 class UtplsqlController implements Controller {
@@ -196,16 +196,16 @@ class UtplsqlController implements Controller {
 	
 	private def void populateGenContext(GenContext genContext, PreferenceModel preferences) {
 		genContext.generateFiles = preferences.generateFiles
-        genContext.outputDirectory = preferences.outputDirectory
+		genContext.outputDirectory = preferences.outputDirectory
 		genContext.testPackagePrefix = preferences.testPackagePrefix.toLowerCase
 		genContext.testPackageSuffix = preferences.testPackageSuffix.toLowerCase
 		genContext.testUnitPrefix = preferences.testUnitPrefix.toLowerCase
 		genContext.testUnitSuffix = preferences.testUnitSuffix.toLowerCase
-        genContext.numberOfTestsPerUnit = preferences.numberOfTestsPerUnit
-        genContext.generateComments = preferences.generateComments
-        genContext.disableTests = preferences.disableTests
-        genContext.suitePath = preferences.suitePath.toLowerCase
-        genContext.indentSpaces = preferences.indentSpaces
+		genContext.numberOfTestsPerUnit = preferences.numberOfTestsPerUnit
+		genContext.generateComments = preferences.generateComments
+		genContext.disableTests = preferences.disableTests
+		genContext.suitePath = preferences.suitePath.toLowerCase
+		genContext.indentSpaces = preferences.indentSpaces
 	}
 	
 	private def getGenContext(Context context) {
