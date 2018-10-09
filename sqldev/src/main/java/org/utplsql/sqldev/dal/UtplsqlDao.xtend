@@ -17,6 +17,7 @@
 
 import java.sql.Connection
 import java.util.List
+import org.oddgen.sqldev.generators.model.Node
 import org.springframework.dao.DataAccessException
 import org.springframework.dao.EmptyResultDataAccessException
 import org.springframework.jdbc.core.BeanPropertyRowMapper
@@ -175,5 +176,90 @@ class UtplsqlDao {
 		val result = jdbcTemplate.query(sql, new BeanPropertyRowMapper<Annotation>(Annotation), #[owner, objectName])
 		return result
 	}
+
+	/**
+	 * Gets a list of public units in the object type 
+	 * 
+	 * @param objectType expected object types are PACKAGE, TYPE, FUNCTION, PROCEDURE
+	 * @param objectName name of the object
+	 * @return list of the public units in the object type
+	 * @throws DataAccessException if there is a problem
+	 */
+	def List<String> units(String objectType, String objectName) {
+		if (objectType == "PACKAGE" || objectType == "TYPE") {
+			val sql = '''
+				SELECT procedure_name
+				  FROM user_procedures
+				 WHERE object_type = ?
+				   AND object_name = ?
+				   AND procedure_name IS NOT NULL
+				 GROUP BY procedure_name
+				 ORDER BY min(subprogram_id)
+			'''
+			val result = jdbcTemplate.queryForList(sql, String, #[objectType, objectName])
+			return result
+		} else {
+			return #[objectName]
+		}
+	}
 	
+	/**
+	 * Gets a list of oddgen's nodes as candidates to create utPLSQL test packages.
+	 * Candidates are packages, types, functions and procedures in the current user.
+	 * 
+	 * This functions must be called from an oddgen generator only, since the Node is not
+	 * defined in the utPLSQL extension.
+	 * 
+	 * @param objectType expected object types are PACKAGE, TYPE, FUNCTION, PROCEDURE
+	 * @return list of the oddgen nodes for the requested object type
+	 * @throws DataAccessException if there is a problem
+	 */
+	def List<Node> testables(String objectType) {
+		var String sql;
+		if (objectType == "PACKAGE") {
+			sql = '''
+				SELECT DISTINCT 
+				       object_type || '.' || object_name AS id,
+				       object_type AS parent_id,
+				       1 AS leaf,
+				       1 AS generatable,
+				       1 AS multiselectable
+				  FROM user_procedures
+				 WHERE object_type = ?
+				   AND procedure_name IS NOT NULL
+				   AND object_name NOT IN (
+				          SELECT object_name
+					        FROM TABLE(«utplsqlSchema».ut_annotation_manager.get_annotated_objects(USER, 'PACKAGE'))
+				       )
+			'''
+		}
+		else if (objectType == "TYPE") {
+			sql = '''
+				SELECT DISTINCT 
+				       object_type || '.' || object_name AS id,
+				       object_type AS parent_id,
+				       1 AS leaf,
+				       1 AS generatable,
+				       1 AS multiselectable
+				  FROM user_procedures
+				 WHERE object_type = ?
+				   AND procedure_name IS NOT NULL
+			'''
+		}
+		else  {
+			sql = '''
+				SELECT object_type || '.' || object_name AS id,
+				       object_type AS parent_id,
+				       1 AS leaf,
+				       1 AS generatable,
+				       1 AS multiselectable
+				  FROM user_objects
+				 WHERE object_type = ?
+				   AND generated = 'N'
+			'''
+		}
+		val jdbcTemplate = new JdbcTemplate(new SingleConnectionDataSource(conn, true))
+		val nodes = jdbcTemplate.query(sql, new BeanPropertyRowMapper<Node>(Node), #[objectType])
+		return nodes		
+	}
 }

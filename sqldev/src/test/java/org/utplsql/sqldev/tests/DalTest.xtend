@@ -35,6 +35,31 @@ class DalTest extends AbstractJdbcTest {
 		} catch (BadSqlGrammarException e) {
 			// ignore
 		}
+		try {
+			jdbcTemplate.execute("DROP PACKAGE junit_no_test_pkg")
+		} catch (BadSqlGrammarException e) {
+			// ignore
+		}
+		try {
+			jdbcTemplate.execute("DROP TYPE junit_tab1_ot")
+		} catch (BadSqlGrammarException e) {
+			// ignore
+		}
+		try {
+			jdbcTemplate.execute("DROP TYPE junit_tab2_ot")
+		} catch (BadSqlGrammarException e) {
+			// ignore
+		}
+		try {
+			jdbcTemplate.execute("DROP FUNCTION junit_f")
+		} catch (BadSqlGrammarException e) {
+			// ignore
+		}
+		try {
+			jdbcTemplate.execute("DROP PROCEDURE junit_p")
+		} catch (BadSqlGrammarException e) {
+			// ignore
+		}
 	}
 	
 	@Test 
@@ -63,7 +88,6 @@ class DalTest extends AbstractJdbcTest {
 	@Test
 	def void containsUtplsqlTest() {
 		val dao = new UtplsqlDao(dataSource.connection)
-		Assert.assertFalse(dao.containsUtplsqlTest("scott"))
 		jdbcTemplate.execute('''
 			CREATE OR REPLACE PACKAGE junit_utplsql_test_pkg IS
 			   -- %suite
@@ -104,7 +128,6 @@ class DalTest extends AbstractJdbcTest {
 	@Test
 	def void annotations() {
 		val dao = new UtplsqlDao(dataSource.connection)
-		Assert.assertEquals(new ArrayList<Annotation>, dao.annotations("scott", "junit_utplsql_test_pkg"))
 		jdbcTemplate.execute('''
 			CREATE OR REPLACE PACKAGE junit_utplsql_test_pkg IS
 			   -- %suite
@@ -143,4 +166,82 @@ class DalTest extends AbstractJdbcTest {
 		Assert.assertEquals(expected.toString, effective.toString)
 		jdbcTemplate.execute("DROP PACKAGE junit_utplsql_test_pkg")
 	}
+	
+	@Test
+	def void testablesPackages() {
+		val dao = new UtplsqlDao(dataSource.connection)
+		jdbcTemplate.execute('''
+			CREATE OR REPLACE PACKAGE junit_utplsql_test_pkg IS
+			   -- %suite
+
+			   -- %test
+			   PROCEDURE t1;
+
+			   -- %Test
+			   PROCEDURE t2;
+
+			   PROCEDURE t3;
+			END junit_utplsql_test_pkg;
+		''')
+		jdbcTemplate.execute('''
+			CREATE OR REPLACE PACKAGE junit_no_test_pkg IS
+			   PROCEDURE p1;
+
+			   PROCEDURE p2;
+			END junit_no_test_pkg;
+		''')
+		val effective = dao.testables('PACKAGE')
+		Assert.assertEquals(1, effective.size)
+		Assert.assertEquals("PACKAGE.JUNIT_NO_TEST_PKG", effective.get(0).id)
+	}
+
+	@Test
+	def void testablesTypes() {
+		val dao = new UtplsqlDao(dataSource.connection)
+		jdbcTemplate.execute('''
+			CREATE OR REPLACE TYPE junit_tab1_ot IS object (a integer, b integer);
+		''')
+		jdbcTemplate.execute('''
+			CREATE OR REPLACE TYPE junit_tab2_ot IS object (
+			   a integer, 
+			   b integer, 
+			   member procedure c(
+			      self in out nocopy junit_tab2_ot, 
+			      p integer
+			   )
+			);
+		''')
+		val effective = dao.testables('TYPE')
+		Assert.assertEquals(1, effective.size)
+		Assert.assertEquals("TYPE.JUNIT_TAB2_OT", effective.get(0).id)
+	}
+
+	@Test
+	def void testablesFunctions() {
+		val dao = new UtplsqlDao(dataSource.connection)
+		jdbcTemplate.execute('''
+			CREATE OR REPLACE FUNCTION junit_f RETURN INTEGER IS 
+			BEGIN
+			   RETURN 1;
+			END;
+		''')
+		val effective = dao.testables('FUNCTION')
+		Assert.assertEquals(1, effective.size)
+		Assert.assertEquals("FUNCTION.JUNIT_F", effective.get(0).id)
+	}
+
+	@Test
+	def void testablesProcedures() {
+		val dao = new UtplsqlDao(dataSource.connection)
+		jdbcTemplate.execute('''
+			CREATE OR REPLACE PROCEDURE junit_p RETURN INTEGER IS 
+			BEGIN
+			   NULL;
+			END;
+		''')
+		val effective = dao.testables('PROCEDURE')
+		Assert.assertEquals(1, effective.size)
+		Assert.assertEquals("PROCEDURE.JUNIT_P", effective.get(0).id)
+	}
+
 }
