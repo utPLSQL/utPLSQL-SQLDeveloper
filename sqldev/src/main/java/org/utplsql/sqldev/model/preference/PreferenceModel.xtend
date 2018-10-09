@@ -15,12 +15,14 @@
  */
 package org.utplsql.sqldev.model.preference
 
+import java.io.File
 import oracle.javatools.data.HashStructure
 import oracle.javatools.data.HashStructureAdapter
 import oracle.javatools.data.PropertyStorage
 import org.eclipse.xtext.xbase.lib.util.ToStringBuilder
 
 class PreferenceModel extends HashStructureAdapter {
+	public static final String DEFAULT_OUTPUT_DIRECTORY = '''«System.getProperty("user.home")»«File.separator»utplsql«File.separator»generated'''
 	static final String DATA_KEY = "utplsql"
 
 	private new(HashStructure hash) {
@@ -42,7 +44,14 @@ class PreferenceModel extends HashStructureAdapter {
 	static final String KEY_TEST_UNIT_SUFFIX = "testUnitSuffix"
 	static final String KEY_NUMBER_OF_TESTS_PER_UNIT = "numberOfTestsPerUnit"
 	static final String KEY_CHECK_GENERATE_UTPLSQL_TEST = "checkGenerateUtplsqlTest"
-
+	static final String KEY_GENERATE_COMMENTS = "generateComments"
+    static final String KEY_DISABLE_TESTS = "disableTests"
+	static final String KEY_SUITE_PATH="suitePath"
+	static final String KEY_INDENT_SPACES="indentSpaces"
+	static final String KEY_GENERATE_FILES="generateFiles"
+	static final String KEY_OUTPUT_DIRECTORY = "outputDirectory"
+	static final String KEY_ROOT_FOLDER_IN_ODDGEN_VIEW = "rootFolderInOddgenView"
+	
 	def isUnsharedWorksheet() {
 		return getHashStructure.getBoolean(PreferenceModel.KEY_UNSHARED_WORKSHEET, true)
 	}
@@ -129,6 +138,64 @@ class PreferenceModel extends HashStructureAdapter {
 
 	def setCheckGenerateUtplsqlTest(boolean checkGenerateUtplsqlTest) {
 		getHashStructure.putBoolean(PreferenceModel.KEY_CHECK_GENERATE_UTPLSQL_TEST, checkGenerateUtplsqlTest)
+	}
+
+	def isGenerateComments() {
+		return getHashStructure.getBoolean(PreferenceModel.KEY_GENERATE_COMMENTS, true)
+	}
+
+	def setGenerateComments(boolean generateComments) {
+		getHashStructure.putBoolean(PreferenceModel.KEY_GENERATE_COMMENTS, generateComments)
+	}
+
+	def isDisableTests() {
+		return getHashStructure.getBoolean(PreferenceModel.KEY_DISABLE_TESTS, false)
+	}
+
+	def setDisableTests(boolean disableTests) {
+		getHashStructure.putBoolean(PreferenceModel.KEY_DISABLE_TESTS, disableTests)
+	}
+
+	def getSuitePath() {
+		return getHashStructure.getString(PreferenceModel.KEY_SUITE_PATH, "alltests")
+	}
+	
+	def setSuitePath(String suitePath) {
+		getHashStructure.putString(PreferenceModel.KEY_SUITE_PATH, suitePath)
+	}
+
+	def getIndentSpaces() {
+		return getHashStructure.getInt(PreferenceModel.KEY_INDENT_SPACES, 3)
+	}
+
+	def setIndentSpaces(int indentSpaces) {
+		getHashStructure.putInt(PreferenceModel.KEY_INDENT_SPACES, indentSpaces)
+	}
+
+	def isGenerateFiles() {
+		return getHashStructure.getBoolean(PreferenceModel.KEY_GENERATE_FILES, true)
+	}
+
+	def setGenerateFiles(boolean generateFiles) {
+		getHashStructure.putBoolean(PreferenceModel.KEY_GENERATE_FILES, generateFiles)
+	}
+
+	def getOutputDirectory() {
+		return getHashStructure.getString(PreferenceModel.KEY_OUTPUT_DIRECTORY, DEFAULT_OUTPUT_DIRECTORY)
+	}
+	
+	def setOutputDirectory(String outputDirectory) {
+		val dir = if (outputDirectory.empty) {DEFAULT_OUTPUT_DIRECTORY} else {outputDirectory}
+		getHashStructure.putString(PreferenceModel.KEY_OUTPUT_DIRECTORY, dir)
+	}
+
+	def getRootFolderInOddgenView() {
+		return getHashStructure.getString(PreferenceModel.KEY_ROOT_FOLDER_IN_ODDGEN_VIEW, "utPLSQL")
+	}
+	
+	def setRootFolderInOddgenView(String rootFolder) {
+		val folder = if (rootFolder.empty) {"utPLSQL"} else {rootFolder}
+		getHashStructure.putString(PreferenceModel.KEY_ROOT_FOLDER_IN_ODDGEN_VIEW, folder)
 	}
 
 	override toString() {
