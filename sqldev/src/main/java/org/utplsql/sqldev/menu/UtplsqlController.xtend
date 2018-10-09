@@ -37,6 +37,8 @@ import org.utplsql.sqldev.UtplsqlWorksheet
 import org.utplsql.sqldev.dal.UtplsqlDao
 import org.utplsql.sqldev.model.URLTools
 import org.utplsql.sqldev.model.preference.PreferenceModel
+import org.utplsql.sqldev.oddgen.TestTemplate
+import org.utplsql.sqldev.oddgen.model.GenContext
 import org.utplsql.sqldev.parser.UtplsqlParser
 
 class UtplsqlController implements Controller {
@@ -51,6 +53,9 @@ class UtplsqlController implements Controller {
 	override handleEvent(IdeAction action, Context context) {
 		if (action.commandId === UtplsqlController.UTLPLSQL_TEST_CMD_ID) {
 			runTest(context)
+			return true
+		} else if (action.commandId === UtplsqlController.UTLPLSQL_GENERATE_CMD_ID) {
+			generateTest(context)
 			return true
 		}
 		return false
@@ -188,6 +193,36 @@ class UtplsqlController implements Controller {
 		logger.fine('''url: «url»''')
 		return url
 	}
+	
+	private def void populateGenContext(GenContext genContext, PreferenceModel preferences) {
+		genContext.generateFiles = preferences.generateFiles
+        genContext.outputDirectory = preferences.outputDirectory
+		genContext.testPackagePrefix = preferences.testPackagePrefix.toLowerCase
+		genContext.testPackageSuffix = preferences.testPackageSuffix.toLowerCase
+		genContext.testUnitPrefix = preferences.testUnitPrefix.toLowerCase
+		genContext.testUnitSuffix = preferences.testUnitSuffix.toLowerCase
+        genContext.numberOfTestsPerUnit = preferences.numberOfTestsPerUnit
+        genContext.generateComments = preferences.generateComments
+        genContext.disableTests = preferences.disableTests
+        genContext.suitePath = preferences.suitePath.toLowerCase
+        genContext.indentSpaces = preferences.indentSpaces
+	}
+	
+	private def getGenContext(Context context) {
+		val connectionName = context.URL.connectionName
+		val genContext = new GenContext
+		if (Connections.instance.isConnectionOpen(connectionName)) {
+			genContext.conn = Connections.instance.getConnection(connectionName)
+			val element = context.selection.get(0)
+			if (element instanceof PlSqlNode) {
+				genContext.objectType = element.objectType.replace(" BODY", "")
+				genContext.objectName = element.objectName
+				val preferences = PreferenceModel.getInstance(Preferences.preferences)
+				populateGenContext(genContext, preferences)
+			}
+		}
+		return genContext
+	}
 
 	def runTest(Context context) {
 		val view = context.view
@@ -220,6 +255,50 @@ class UtplsqlController implements Controller {
 				val pathList=context.pathList
 				val utPlsqlWorksheet = new UtplsqlWorksheet(pathList, connectionName)
 				utPlsqlWorksheet.runTestAsync
+			}
+		}
+	}
+
+	def generateTest(Context context) {
+		val view = context.view
+		val node = context.node
+		logger.finer('''Generate utPLSQL test from view «view?.class?.name» and node «node?.class?.name».''')
+		if (view instanceof Editor) {
+			val component = view.defaultFocusComponent
+			if (component instanceof JEditorPane) {
+				var String connectionName = null;
+				if (node instanceof DatabaseSourceNode) {
+					connectionName = node.connectionName
+				} else if (view instanceof Worksheet) {
+					connectionName = view.connectionName
+				}
+				if (connectionName !== null) {
+					if (Connections.instance.isConnectionOpen(connectionName)) {
+						val genContext = new GenContext
+						genContext.conn = Connections.instance.getConnection(connectionName)
+						val parser = new UtplsqlParser(component.text)
+						val position = component.caretPosition
+						val obj = parser.getObjectAt(position)
+						if (obj !== null) {
+							genContext.objectType = obj.type.toUpperCase
+							genContext.objectName = obj.name.toUpperCase
+							val preferences = PreferenceModel.getInstance(Preferences.preferences)
+							populateGenContext(genContext, preferences)
+							val testTemplate = new TestTemplate(genContext)
+							val code = testTemplate.generate.toString
+							UtplsqlWorksheet.openWithCode(code, connectionName)
+						}
+					}
+				}
+			}
+
+		} else if (view instanceof DBNavigatorWindow) {
+			val url=context.URL
+			if (url !== null) {
+				val connectionName = url.connectionName
+				val testTemplate = new TestTemplate(context.genContext)
+				val code = testTemplate.generate.toString
+				UtplsqlWorksheet.openWithCode(code, connectionName)
 			}
 		}
 	}

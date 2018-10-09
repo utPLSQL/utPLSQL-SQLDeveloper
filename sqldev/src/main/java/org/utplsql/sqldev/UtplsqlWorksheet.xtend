@@ -117,4 +117,12 @@ class UtplsqlWorksheet {
 		thread.start
 	}
 
+	def static void openWithCode(String code, String connectionName) {
+		val worksheet = OpenWorksheetWizard.openNewTempWorksheet(connectionName, code) as Worksheet
+		if (connectionName === null) {
+			worksheet.comboConnection = null
+		}
+		WorksheetUtil.setWorksheetTabName(worksheet.context.node.URL, UtplsqlResources.getString("WORKSHEET_TITLE"))
+	}
+
 }
