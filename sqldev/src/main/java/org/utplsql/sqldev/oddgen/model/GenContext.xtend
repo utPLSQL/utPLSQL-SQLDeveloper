@@ -13,17 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.utplsql.sqldev.model.parser
+package org.utplsql.sqldev.oddgen.model
 
-import java.util.List
+import java.sql.Connection
 import org.eclipse.xtend.lib.annotations.Accessors
 import org.utplsql.sqldev.model.AbstractModel
-import org.utplsql.sqldev.model.ut.Annotation
 
 @Accessors
-class PlsqlObject extends AbstractModel {
-	String name
-	String type
-	Integer position
-	List<Annotation> annotations
+class GenContext extends AbstractModel {
+	Connection conn
+	String objectType
+	String objectName
+	boolean generateFiles
+	String outputDirectory
+	String testPackagePrefix
+	String testPackageSuffix
+	String testUnitPrefix
+	String testUnitSuffix
+	int numberOfTestsPerUnit
+	boolean generateComments
+	boolean disableTests
+	String suitePath
+	int indentSpaces
 }

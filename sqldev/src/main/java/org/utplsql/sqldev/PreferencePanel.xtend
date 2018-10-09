@@ -15,44 +15,136 @@
  */
 package org.utplsql.sqldev
 
+import javax.swing.BorderFactory
 import javax.swing.JCheckBox
+import javax.swing.JPanel
+import javax.swing.JSpinner
+import javax.swing.JTextField
+import javax.swing.SpinnerNumberModel
 import oracle.ide.panels.DefaultTraversablePanel
 import oracle.ide.panels.TraversableContext
 import oracle.ide.panels.TraversalException
 import oracle.javatools.ui.layout.FieldLayoutBuilder
 import org.utplsql.sqldev.model.preference.PreferenceModel
 import org.utplsql.sqldev.resources.UtplsqlResources
+import javax.swing.JButton
+import java.awt.event.ActionEvent
+import java.awt.event.ActionListener
 
 class PreferencePanel extends DefaultTraversablePanel {
+	val JPanel runTestPanel = new JPanel();
 	val JCheckBox unsharedWorksheetCheckBox = new JCheckBox
 	val JCheckBox resetPackageCheckBox = new JCheckBox
 	val JCheckBox clearScreenCheckBox = new JCheckBox
 	val JCheckBox autoExecuteCheckBox = new JCheckBox
 	val JCheckBox checkRunUtplsqlTestCheckBox = new JCheckBox
+	val JPanel generateTestPanel = new JPanel();
+	val JTextField testPackagePrefixTextField = new JTextField
+	val JTextField testPackageSuffixTextField = new JTextField
+	val JTextField testUnitPrefixTextField = new JTextField
+	val JTextField testUnitSuffixTextField = new JTextField
+	val SpinnerNumberModel numberOfTestsPerUnitModel = new SpinnerNumberModel(1, 1, 10, 1);
+	val JSpinner numberOfTestsPerUnitSpinner = new JSpinner(numberOfTestsPerUnitModel);
+	val JCheckBox checkGenerateUtplsqlTestCheckBox = new JCheckBox
+	val JCheckBox generateCommentsCheckBox = new JCheckBox
+	val JCheckBox disableTestsCheckBox = new JCheckBox
+	val JTextField suitePathTextField = new JTextField
+	val SpinnerNumberModel indentSpacesModel = new SpinnerNumberModel(1, 1, 8, 1);
+	val JSpinner indentSpacesSpinner = new JSpinner(indentSpacesModel);
+	val JPanel oddgenPanel = new JPanel();
+	val JTextField rootFolderInOddgenViewTextField = new JTextField
+	val JCheckBox generateFilesCheckBox = new JCheckBox
+	val JTextField outputDirectoryTextField = new JTextField
+	val JButton outputDirectoryBrowse = new JButton();
 
 	new() {
 		layoutControls()
 	}
 
 	def private layoutControls() {
+		// run test group
+		runTestPanel.border = BorderFactory.createTitledBorder(UtplsqlResources.getString("MENU_RUN_TEST_LABEL"))
+		val FieldLayoutBuilder b1 = new FieldLayoutBuilder(runTestPanel)
+		b1.alignLabelsLeft = true
+		b1.add(
+			b1.field.label.withText(UtplsqlResources.getString("PREF_UNSHARED_WORKSHEET_LABEL")).component(
+				unsharedWorksheetCheckBox))
+		b1.add(
+			b1.field.label.withText(UtplsqlResources.getString("PREF_RESET_PACKAGE_LABEL")).component(
+				resetPackageCheckBox))
+		b1.add(
+			b1.field.label.withText(UtplsqlResources.getString("PREF_CLEAR_SCREEN_LABEL")).component(
+				clearScreenCheckBox))
+		b1.add(
+			b1.field.label.withText(UtplsqlResources.getString("PREF_AUTO_EXECUTE_LABEL")).component(
+				autoExecuteCheckBox))
+		b1.add(
+			b1.field.label.withText(UtplsqlResources.getString("PREF_CHECK_RUN_UTPLSQL_TEST_LABEL")).component(
+				checkRunUtplsqlTestCheckBox))
+		// generate test group
+		generateTestPanel.border = BorderFactory.createTitledBorder(UtplsqlResources.getString("MENU_GENERATE_TEST_LABEL"))
+		val FieldLayoutBuilder b2 = new FieldLayoutBuilder(generateTestPanel)
+		b2.alignLabelsLeft = true
+		b2.add(
+			b2.field.label.withText(UtplsqlResources.getString("PREF_TEST_PACKAGE_PREFIX_LABEL")).component(
+				testPackagePrefixTextField))
+		b2.add(
+			b2.field.label.withText(UtplsqlResources.getString("PREF_TEST_PACKAGE_SUFFIX_LABEL")).component(
+				testPackageSuffixTextField))
+		b2.add(
+			b2.field.label.withText(UtplsqlResources.getString("PREF_TEST_UNIT_PREFIX_LABEL")).component(
+				testUnitPrefixTextField))
+		b2.add(
+			b2.field.label.withText(UtplsqlResources.getString("PREF_TEST_UNIT_SUFFIX_LABEL")).component(
+				testUnitSuffixTextField))
+		b2.add(
+			b2.field.label.withText(UtplsqlResources.getString("PREF_NUMBER_OF_TESTS_PER_UNIT_LABEL")).component(
+				numberOfTestsPerUnitSpinner))
+		b2.add(
+			b2.field.label.withText(UtplsqlResources.getString("PREF_GENERATE_COMMENTS_LABEL")).component(
+				generateCommentsCheckBox))
+		b2.add(
+			b2.field.label.withText(UtplsqlResources.getString("PREF_DISABLE_TESTS_LABEL")).component(
+				disableTestsCheckBox))
+		b2.add(
+			b2.field.label.withText(UtplsqlResources.getString("PREF_SUITE_PATH_LABEL")).component(
+				suitePathTextField))
+		b2.add(
+			b2.field.label.withText(UtplsqlResources.getString("PREF_INDENT_SPACES_LABEL")).component(
+				indentSpacesSpinner))
+		b2.add(
+			b2.field.label.withText(UtplsqlResources.getString("PREF_CHECK_GENERATE_UTPLSQL_TEST_LABEL")).component(
+				checkGenerateUtplsqlTestCheckBox))
+		// oddgen group
+		oddgenPanel.border = BorderFactory.createTitledBorder("oddgen")
+		val FieldLayoutBuilder b3 = new FieldLayoutBuilder(oddgenPanel)
+		b3.alignLabelsLeft = true
+		b3.stretchComponentsWithNoButton = true
+		b3.add(
+			b3.field.label.withText(UtplsqlResources.getString("PREF_ROOT_FOLDER_IN_ODDGEN_VIEW_LABEL")).component(
+				rootFolderInOddgenViewTextField))
+		b3.add(
+			b3.field.label.withText(UtplsqlResources.getString("PREF_GENERATE_FILES_LABEL")).component(
+				generateFilesCheckBox))
+		b3.add(
+			b3.field.label.withText(UtplsqlResources.getString("PREF_OUTPUT_DIRECTORY_LABEL")).component(
+				outputDirectoryTextField).button(outputDirectoryBrowse).withText("Bro&wse"))
+		
+		// putting everything together
 		val FieldLayoutBuilder builder = new FieldLayoutBuilder(this)
 		builder.alignLabelsLeft = true
-		builder.add(
-			builder.field.label.withText(UtplsqlResources.getString("PREF_UNSHARED_WORKSHEET_LABEL")).component(
-				unsharedWorksheetCheckBox))
-		builder.add(
-			builder.field.label.withText(UtplsqlResources.getString("PREF_RESET_PACKAGE_LABEL")).component(
-				resetPackageCheckBox))
-		builder.add(
-			builder.field.label.withText(UtplsqlResources.getString("PREF_CLEAR_SCREEN_LABEL")).component(
-				clearScreenCheckBox))
-		builder.add(
-			builder.field.label.withText(UtplsqlResources.getString("PREF_AUTO_EXECUTE_LABEL")).component(
-				autoExecuteCheckBox))
-		builder.add(
-			builder.field.label.withText(UtplsqlResources.getString("PREF_CHECK_RUN_UTPLSQL_TEST_LABEL")).component(
-				checkRunUtplsqlTestCheckBox))
+		builder.addVerticalField("", runTestPanel)
+		builder.addVerticalField("", generateTestPanel)
+		builder.addVerticalField("", oddgenPanel)
 		builder.addVerticalSpring
+		
+		// register action listener for directory chooser
+		outputDirectoryBrowse.addActionListener(new ActionListener() {
+			override actionPerformed(ActionEvent event) {
+				DirectoryChooser.choose(null, UtplsqlResources.getString("PREF_OUTPUT_DIRECTORY_LABEL"),
+					outputDirectoryTextField)
+			}
+		})		
 	}
 
 	override onEntry(TraversableContext traversableContext) {
@@ -62,6 +154,19 @@ class PreferencePanel extends DefaultTraversablePanel {
 		clearScreenCheckBox.selected = info.clearScreen
 		autoExecuteCheckBox.selected = info.autoExecute
 		checkRunUtplsqlTestCheckBox.selected = info.checkRunUtplsqlTest
+		testPackagePrefixTextField.text = info.testPackagePrefix
+		testPackageSuffixTextField.text = info.testPackageSuffix
+		testUnitPrefixTextField.text = info.testUnitPrefix
+		testUnitSuffixTextField.text = info.testUnitSuffix
+		numberOfTestsPerUnitSpinner.value = info.numberOfTestsPerUnit
+		checkGenerateUtplsqlTestCheckBox.selected = info.checkGenerateUtplsqlTest
+		generateCommentsCheckBox.selected = info.generateComments
+		disableTestsCheckBox.selected = info.disableTests
+		suitePathTextField.text = info.suitePath
+		indentSpacesSpinner.value = info.indentSpaces
+		rootFolderInOddgenViewTextField.text = info.rootFolderInOddgenView
+		generateFilesCheckBox.selected = info.generateFiles
+		outputDirectoryTextField.text = info.outputDirectory
 		super.onEntry(traversableContext)
 	}
 
@@ -72,6 +177,19 @@ class PreferencePanel extends DefaultTraversablePanel {
 		info.clearScreen = clearScreenCheckBox.selected
 		info.autoExecute = autoExecuteCheckBox.selected
 		info.checkRunUtplsqlTest = checkRunUtplsqlTestCheckBox.selected
+		info.testPackagePrefix = testPackagePrefixTextField.text
+		info.testPackageSuffix = testPackageSuffixTextField.text
+		info.testUnitPrefix = testUnitPrefixTextField.text
+		info.testUnitSuffix = testUnitSuffixTextField.text
+		info.numberOfTestsPerUnit = numberOfTestsPerUnitSpinner.value as Integer
+		info.checkGenerateUtplsqlTest = checkGenerateUtplsqlTestCheckBox.selected
+		info.generateComments = generateCommentsCheckBox.selected
+		info.disableTests = disableTestsCheckBox.selected
+		info.suitePath = suitePathTextField.text
+		info.indentSpaces = indentSpacesSpinner.value as Integer
+		info.rootFolderInOddgenView = rootFolderInOddgenViewTextField.text
+		info.generateFiles = generateFilesCheckBox.selected
+		info.outputDirectory = outputDirectoryTextField.text
 		super.onExit(traversableContext)
 	}
 

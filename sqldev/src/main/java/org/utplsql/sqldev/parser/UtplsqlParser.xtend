@@ -93,10 +93,11 @@ class UtplsqlParser {
 	}
 	
 	private def populateObjects() {
-		val p = Pattern.compile("(?i)(\\s*)(create(\\s+or\\s+replace)?\\s+(package)\\s+(body\\s+)?)([^\\s]+)(\\s+)")
+		val p = Pattern.compile("(?i)(\\s*)(create(\\s+or\\s+replace)?\\s+(package|type|function|procedure)\\s+(body\\s+)?)([^\\s]+)(\\s+)")
 		val m = p.matcher(plsqlReduced)
 		while (m.find) {
 			val o = new PlsqlObject
+			o.type = m.group(4).toUpperCase
 			o.name = m.group(6)
 			o.position = m.start
 			objects.add(o)
@@ -145,8 +146,14 @@ class UtplsqlParser {
 			}
 		}
 	}
-	
-	private def getObjectAt(int position) {
+
+	/**
+	 * gets the PL/SQL object based on the current editor position
+	 * 
+	 * @param position the absolute position as used in {@link JTextComponent#getCaretPosition()}
+	 * @return the PL/SQL object
+	 */
+	def getObjectAt(int position) {
 		var PlsqlObject obj
 		for (o : objects) {
 			if (o.position <= position) {
@@ -154,12 +161,28 @@ class UtplsqlParser {
 			}
 		}
 		return obj
-	}	
-	
-	private def getObjectNameAt(int position) {
-		val o = getObjectAt(position)
-		return if (o !== null) {o.name} else {""}
 	}
+	
+	/**
+	 * converts a line and column to a postion as used in as used in {@link JTextComponent#getCaretPosition()}
+	 * used for testing purposes only
+	 *
+	 * @param line the line as used in SQL Developer, starting with 1
+	 * @param column the column as used in SQL Developer, starting with 1
+	 * @return the position
+	 */	
+	def toPosition(int line, int column) {
+		var lines=0
+		for (var i=0; i<plsql.length; i++) {
+			if (plsql.substring(i,i+1) == "\n") {
+				lines++
+				if (lines == line - 1) {
+					return (i + column)
+				}
+			}
+		}
+		throw new RuntimeException('''Line «line» not found.''')
+	}	
 	
 	private def getUnitNameAt(int position) {
 		var name = ""
@@ -190,33 +213,13 @@ class UtplsqlParser {
 	 * @return the utPLSQL path
 	 */
 	def getPathAt(int position) {
-		var objectName = getObjectNameAt(position)
-		if (!objectName.empty) {
+		var object = getObjectAt(position)
+		if (object !== null && object.type == "PACKAGE") {
 			var unitName = getUnitNameAt(position)
-			val path = '''«IF owner !== null»«owner».«ENDIF»«objectName.fixName»«IF !unitName.empty».«unitName.fixName»«ENDIF»'''
+			val path = '''«IF owner !== null»«owner».«ENDIF»«object.name.fixName»«IF !unitName.empty».«unitName.fixName»«ENDIF»'''
 			return path
 		}
 		return ""
-	}
-	
-	/**
-	 * gets the utPLSQL path based on the current editor position
-	 *
-	 * @param line the line as used in SQL Developer, starting with 1
-	 * @param column the column as used in SQL Developer, starting with 1
-	 * @return the utPLSQL path
-	 */
-	def getPathAt(int line, int column) {
-		var lines=0
-		for (var i=0; i<plsql.length; i++) {
-			if (plsql.substring(i,i+1) == "\n") {
-				lines++
-				if (lines == line - 1) {
-					return getPathAt(i + column)
-				}
-			}
-		}
-		throw new RuntimeException('''Line «line» not found.''')
 	}
 
 }
