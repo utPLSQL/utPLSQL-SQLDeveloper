@@ -27,6 +27,9 @@ import oracle.ide.panels.TraversalException
 import oracle.javatools.ui.layout.FieldLayoutBuilder
 import org.utplsql.sqldev.model.preference.PreferenceModel
 import org.utplsql.sqldev.resources.UtplsqlResources
+import javax.swing.JButton
+import java.awt.event.ActionEvent
+import java.awt.event.ActionListener
 
 class PreferencePanel extends DefaultTraversablePanel {
 	val JPanel runTestPanel = new JPanel();
@@ -43,12 +46,23 @@ class PreferencePanel extends DefaultTraversablePanel {
 	val SpinnerNumberModel numberOfTestsPerUnitModel = new SpinnerNumberModel(1, 1, 10, 1);
 	val JSpinner numberOfTestsPerUnitSpinner = new JSpinner(numberOfTestsPerUnitModel);
 	val JCheckBox checkGenerateUtplsqlTestCheckBox = new JCheckBox
+	val JCheckBox generateCommentsCheckBox = new JCheckBox
+	val JCheckBox disableTestsCheckBox = new JCheckBox
+	val JTextField suitePathTextField = new JTextField
+	val SpinnerNumberModel indentSpacesModel = new SpinnerNumberModel(1, 1, 8, 1);
+	val JSpinner indentSpacesSpinner = new JSpinner(indentSpacesModel);
+	val JPanel oddgenPanel = new JPanel();
+	val JTextField rootFolderInOddgenViewTextField = new JTextField
+	val JCheckBox generateFilesCheckBox = new JCheckBox
+	val JTextField outputDirectoryTextField = new JTextField
+	val JButton outputDirectoryBrowse = new JButton();
 
 	new() {
 		layoutControls()
 	}
 
 	def private layoutControls() {
+		// run test group
 		runTestPanel.border = BorderFactory.createTitledBorder(UtplsqlResources.getString("MENU_RUN_TEST_LABEL"))
 		val FieldLayoutBuilder b1 = new FieldLayoutBuilder(runTestPanel)
 		b1.alignLabelsLeft = true
@@ -67,6 +81,7 @@ class PreferencePanel extends DefaultTraversablePanel {
 		b1.add(
 			b1.field.label.withText(UtplsqlResources.getString("PREF_CHECK_RUN_UTPLSQL_TEST_LABEL")).component(
 				checkRunUtplsqlTestCheckBox))
+		// generate test group
 		generateTestPanel.border = BorderFactory.createTitledBorder(UtplsqlResources.getString("MENU_GENERATE_TEST_LABEL"))
 		val FieldLayoutBuilder b2 = new FieldLayoutBuilder(generateTestPanel)
 		b2.alignLabelsLeft = true
@@ -83,16 +98,53 @@ class PreferencePanel extends DefaultTraversablePanel {
 			b2.field.label.withText(UtplsqlResources.getString("PREF_TEST_UNIT_SUFFIX_LABEL")).component(
 				testUnitSuffixTextField))
 		b2.add(
-			b2.field.label.withText(UtplsqlResources.getString("PREF_NUMBER_OF_TESTS_PER_UNIT")).component(
+			b2.field.label.withText(UtplsqlResources.getString("PREF_NUMBER_OF_TESTS_PER_UNIT_LABEL")).component(
 				numberOfTestsPerUnitSpinner))
+		b2.add(
+			b2.field.label.withText(UtplsqlResources.getString("PREF_GENERATE_COMMENTS_LABEL")).component(
+				generateCommentsCheckBox))
+		b2.add(
+			b2.field.label.withText(UtplsqlResources.getString("PREF_DISABLE_TESTS_LABEL")).component(
+				disableTestsCheckBox))
+		b2.add(
+			b2.field.label.withText(UtplsqlResources.getString("PREF_SUITE_PATH_LABEL")).component(
+				suitePathTextField))
+		b2.add(
+			b2.field.label.withText(UtplsqlResources.getString("PREF_INDENT_SPACES_LABEL")).component(
+				indentSpacesSpinner))
 		b2.add(
 			b2.field.label.withText(UtplsqlResources.getString("PREF_CHECK_GENERATE_UTPLSQL_TEST_LABEL")).component(
 				checkGenerateUtplsqlTestCheckBox))
+		// oddgen group
+		oddgenPanel.border = BorderFactory.createTitledBorder("oddgen")
+		val FieldLayoutBuilder b3 = new FieldLayoutBuilder(oddgenPanel)
+		b3.alignLabelsLeft = true
+		b3.stretchComponentsWithNoButton = true
+		b3.add(
+			b3.field.label.withText(UtplsqlResources.getString("PREF_ROOT_FOLDER_IN_ODDGEN_VIEW_LABEL")).component(
+				rootFolderInOddgenViewTextField))
+		b3.add(
+			b3.field.label.withText(UtplsqlResources.getString("PREF_GENERATE_FILES_LABEL")).component(
+				generateFilesCheckBox))
+		b3.add(
+			b3.field.label.withText(UtplsqlResources.getString("PREF_OUTPUT_DIRECTORY_LABEL")).component(
+				outputDirectoryTextField).button(outputDirectoryBrowse).withText("Bro&wse"))
+		
+		// putting everything together
 		val FieldLayoutBuilder builder = new FieldLayoutBuilder(this)
 		builder.alignLabelsLeft = true
 		builder.addVerticalField("", runTestPanel)
 		builder.addVerticalField("", generateTestPanel)
+		builder.addVerticalField("", oddgenPanel)
 		builder.addVerticalSpring
+		
+		// register action listener for directory chooser
+		outputDirectoryBrowse.addActionListener(new ActionListener() {
+			override actionPerformed(ActionEvent event) {
+				DirectoryChooser.choose(null, UtplsqlResources.getString("PREF_OUTPUT_DIRECTORY_LABEL"),
+					outputDirectoryTextField)
+			}
+		})		
 	}
 
 	override onEntry(TraversableContext traversableContext) {
@@ -108,6 +160,13 @@ class PreferencePanel extends DefaultTraversablePanel {
 		testUnitSuffixTextField.text = info.testUnitSuffix
 		numberOfTestsPerUnitSpinner.value = info.numberOfTestsPerUnit
 		checkGenerateUtplsqlTestCheckBox.selected = info.checkGenerateUtplsqlTest
+		generateCommentsCheckBox.selected = info.generateComments
+		disableTestsCheckBox.selected = info.disableTests
+		suitePathTextField.text = info.suitePath
+		indentSpacesSpinner.value = info.indentSpaces
+		rootFolderInOddgenViewTextField.text = info.rootFolderInOddgenView
+		generateFilesCheckBox.selected = info.generateFiles
+		outputDirectoryTextField.text = info.outputDirectory
 		super.onEntry(traversableContext)
 	}
 
@@ -124,6 +183,13 @@ class PreferencePanel extends DefaultTraversablePanel {
 		info.testUnitSuffix = testUnitSuffixTextField.text
 		info.numberOfTestsPerUnit = numberOfTestsPerUnitSpinner.value as Integer
 		info.checkGenerateUtplsqlTest = checkGenerateUtplsqlTestCheckBox.selected
+		info.generateComments = generateCommentsCheckBox.selected
+		info.disableTests = disableTestsCheckBox.selected
+		info.suitePath = suitePathTextField.text
+		info.indentSpaces = indentSpacesSpinner.value as Integer
+		info.rootFolderInOddgenView = rootFolderInOddgenViewTextField.text
+		info.generateFiles = generateFilesCheckBox.selected
+		info.outputDirectory = outputDirectoryTextField.text
 		super.onExit(traversableContext)
 	}
 
