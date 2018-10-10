@@ -36,17 +36,17 @@ class TestGenerator implements OddgenGenerator2 {
 	public static val YES = "Yes"
 	public static val NO = "No"
 	
-	public static var GENERATE_FILES = "Generate files?"
-	public static var OUTPUT_DIRECTORY = "Output directory"
+	public static var GENERATE_FILES = UtplsqlResources.getString("PREF_GENERATE_FILES_LABEL")
+	public static var OUTPUT_DIRECTORY = UtplsqlResources.getString("PREF_OUTPUT_DIRECTORY_LABEL")
 	public static var TEST_PACKAGE_PREFIX = UtplsqlResources.getString("PREF_TEST_PACKAGE_PREFIX_LABEL")
 	public static var TEST_PACKAGE_SUFFIX = UtplsqlResources.getString("PREF_TEST_PACKAGE_SUFFIX_LABEL")
 	public static var TEST_UNIT_PREFIX = UtplsqlResources.getString("PREF_TEST_UNIT_PREFIX_LABEL")
 	public static var TEST_UNIT_SUFFIX = UtplsqlResources.getString("PREF_TEST_UNIT_SUFFIX_LABEL")
 	public static var NUMBER_OF_TESTS_PER_UNIT = UtplsqlResources.getString("PREF_NUMBER_OF_TESTS_PER_UNIT_LABEL")
-	public static var GENERATE_COMMENTS = "Generate comments?"
-	public static var DISABLE_TESTS = "Disable tests?"
-	public static var SUITE_PATH = "Suite Path"
-	public static var INDENT_SPACES = "Indent Spaces"
+	public static var GENERATE_COMMENTS = UtplsqlResources.getString("PREF_GENERATE_COMMENTS_LABEL")
+	public static var DISABLE_TESTS = UtplsqlResources.getString("PREF_DISABLE_TESTS_LABEL")
+	public static var SUITE_PATH = UtplsqlResources.getString("PREF_SUITE_PATH_LABEL")
+	public static var INDENT_SPACES = UtplsqlResources.getString("PREF_INDENT_SPACES_LABEL")
 	
 	val extension NodeTools nodeTools = new NodeTools
 	val extension TemplateTools templateTools = new TemplateTools
