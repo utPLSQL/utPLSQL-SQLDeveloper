@@ -47,7 +47,7 @@ Please file your bug reports, enhancement requests, questions and other support 
 
 ## How to Build
 
-1. [Download](http://www.oracle.com/technetwork/developer-tools/sql-developer/downloads/index.html) and install SQL Developer 18.2.0
+1. [Download](http://www.oracle.com/technetwork/developer-tools/sql-developer/downloads/index.html) and install SQL Developer 18.3.0
 2. [Download](https://maven.apache.org/download.cgi) and install Apache Maven 3.5.4
 3. [Download](https://git-scm.com/downloads) and install a git command line client
 4. Clone the utPLSQL-SQLDeveloper repository
@@ -57,7 +57,7 @@ Please file your bug reports, enhancement requests, questions and other support 
 
 6. Run maven build by the following command
 
-		mvn -Dsqldev.basedir=/Applications/SQLDeveloper18.2.0.app/Contents/Resources/sqldeveloper -DskipTests=true clean package
+		mvn -Dsqldev.basedir=/Applications/SQLDeveloper18.3.0.app/Contents/Resources/sqldeveloper -DskipTests=true clean package
 
 	Amend the parameter sqldev.basedir to match the path of your SQL Developer installation. This folder is used to reference Oracle jar files which are not available in public Maven repositories
 7. The resulting file ```utplsql_for_SQLDev_x.x.x-SNAPSHOT.zip``` in the ```target``` directory can be installed within SQL Developer

@@ -100,7 +100,7 @@ class RunGenerator implements OddgenGenerator2 {
 		return new HashMap<String, Boolean>
 	}
 	
-	def private getPath(Node node, Connection conn) {
+	private def getPath(Node node, Connection conn) {
 		if (node.id == "SUITE" || node.id == "SUITEPATH") {
 			return conn.metaData.userName
 		} else {
@@ -108,7 +108,7 @@ class RunGenerator implements OddgenGenerator2 {
 		}
 	}
 
-	def replaceTabsWithSpaces(CharSequence input, int indentSpaces) {
+	private def replaceTabsWithSpaces(CharSequence input, int indentSpaces) {
 		val spaces = String.format("%1$"+indentSpaces+"s", "")
 		return input.toString.replace("\t", spaces)
 	}

@@ -16,8 +16,10 @@
 package org.utplsql.sqldev
 
 import java.util.ArrayList
+import java.util.HashSet
 import java.util.List
 import java.util.logging.Logger
+import java.util.regex.Pattern
 import javax.swing.JSplitPane
 import oracle.dbtools.raptor.utils.Connections
 import oracle.dbtools.worksheet.editor.OpenWorksheetWizard
@@ -57,6 +59,30 @@ class UtplsqlWorksheet {
 		}
 	}
 
+	private def dedupPathList() {
+		val set = new HashSet<String>
+		for (path : pathList) {
+			set.add(path)
+		}
+		val ret = new ArrayList<String>
+		val p = Pattern.compile("((((\\w+)\\.)?\\w+)\\.)?\\w+")
+		for (path : set) {
+			val m = p.matcher(path)
+			if (m.matches()) {
+				val parent1 = m.group(4) // user
+				val parent2 = m.group(2) // user.package
+				if (parent1 === null || !set.contains(parent1)) {
+					if (parent2 === null || !set.contains(parent2)) {
+						ret.add(path)
+					}
+				}
+			} else {
+				logger.severe('''path: «path» did not pattern «p.toString», this is unexected!''')
+			}
+		}
+		return ret
+	}	
+	
 	private def getCode() '''
 		«IF preferences.resetPackage»
 			EXECUTE dbms_session.reset_package;
@@ -65,10 +91,11 @@ class UtplsqlWorksheet {
 		«IF preferences.clearScreen»
 			CLEAR SCREEN
 		«ENDIF»
-		«IF pathList.size == 1»
-			EXECUTE ut.run('«pathList.get(0)»');
+		«val paths = dedupPathList»
+		«IF paths.size == 1»
+			EXECUTE ut.run('«paths.get(0)»');
 		«ELSE»
-			EXECUTE ut.run(ut_varchar2_list(«FOR path : pathList SEPARATOR ', '»'«path»'«ENDFOR»));
+			EXECUTE ut.run(ut_varchar2_list(«FOR path : paths SEPARATOR ', '»'«path»'«ENDFOR»));
 		«ENDIF»
 	'''
 
@@ -117,7 +144,7 @@ class UtplsqlWorksheet {
 		thread.start
 	}
 
-	def static void openWithCode(String code, String connectionName) {
+	static def void openWithCode(String code, String connectionName) {
 		val worksheet = OpenWorksheetWizard.openNewTempWorksheet(connectionName, code) as Worksheet
 		if (connectionName === null) {
 			worksheet.comboConnection = null

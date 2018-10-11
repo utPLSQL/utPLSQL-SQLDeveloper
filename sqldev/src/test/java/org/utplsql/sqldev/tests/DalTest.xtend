@@ -16,6 +16,7 @@
  package org.utplsql.sqldev.tests
 
 import java.util.ArrayList
+import java.util.HashMap
 import org.junit.AfterClass
 import org.junit.Assert
 import org.junit.BeforeClass
@@ -242,6 +243,55 @@ class DalTest extends AbstractJdbcTest {
 		val effective = dao.testables('PROCEDURE')
 		Assert.assertEquals(1, effective.size)
 		Assert.assertEquals("PROCEDURE.JUNIT_P", effective.get(0).id)
+	}
+
+	@Test
+	def void runnables() {
+		val dao = new UtplsqlDao(dataSource.connection)
+		jdbcTemplate.execute('''
+			CREATE OR REPLACE PACKAGE junit_utplsql_test_pkg IS
+			   -- %suite
+			   -- %suitepath(a.b.c)
+
+			   -- %test
+			   PROCEDURE t0;
+
+			   -- %context(mycontext)
+
+			   -- %test
+			   PROCEDURE t1;
+
+			   -- %test
+			   PROCEDURE t2;
+
+			   -- %endcontext
+
+			   -- %test
+			   PROCEDURE t3;
+			END junit_utplsql_test_pkg;
+		''')
+		val effectiveNodes = dao.runnables()		
+		Assert.assertEquals(16, effectiveNodes.size)
+		val effective = new HashMap<String, String>
+		for (node : effectiveNodes) {
+			effective.put(node.id, node.parentId)
+		}
+		Assert.assertEquals(null, effective.get("SUITE"))
+		Assert.assertEquals("SUITE", effective.get("SCOTT.JUNIT_UTPLSQL_TEST_PKG"))
+		Assert.assertEquals("SCOTT.JUNIT_UTPLSQL_TEST_PKG", effective.get("SCOTT.JUNIT_UTPLSQL_TEST_PKG.t0"))
+		Assert.assertEquals("SCOTT.JUNIT_UTPLSQL_TEST_PKG", effective.get("SCOTT.JUNIT_UTPLSQL_TEST_PKG.t1"))
+		Assert.assertEquals("SCOTT.JUNIT_UTPLSQL_TEST_PKG", effective.get("SCOTT.JUNIT_UTPLSQL_TEST_PKG.t2"))
+		Assert.assertEquals("SCOTT.JUNIT_UTPLSQL_TEST_PKG", effective.get("SCOTT.JUNIT_UTPLSQL_TEST_PKG.t3"))
+		Assert.assertEquals(null, effective.get("SUITEPATH"))
+		Assert.assertEquals("SUITEPATH", effective.get("SCOTT:a"))
+		Assert.assertEquals("SCOTT:a", effective.get("SCOTT:a.b"))
+		Assert.assertEquals("SCOTT:a.b", effective.get("SCOTT:a.b.c"))
+		Assert.assertEquals("SCOTT:a.b.c", effective.get("SCOTT:a.b.c.JUNIT_UTPLSQL_TEST_PKG"))
+		Assert.assertEquals("SCOTT:a.b.c.JUNIT_UTPLSQL_TEST_PKG", effective.get("SCOTT:a.b.c.JUNIT_UTPLSQL_TEST_PKG.mycontext"))
+		Assert.assertEquals("SCOTT:a.b.c.JUNIT_UTPLSQL_TEST_PKG", effective.get("SCOTT:a.b.c.JUNIT_UTPLSQL_TEST_PKG.t0"))
+		Assert.assertEquals("SCOTT:a.b.c.JUNIT_UTPLSQL_TEST_PKG", effective.get("SCOTT:a.b.c.JUNIT_UTPLSQL_TEST_PKG.t3"))
+		Assert.assertEquals("SCOTT:a.b.c.JUNIT_UTPLSQL_TEST_PKG.mycontext", effective.get("SCOTT:a.b.c.JUNIT_UTPLSQL_TEST_PKG.mycontext.t1"))
+		Assert.assertEquals("SCOTT:a.b.c.JUNIT_UTPLSQL_TEST_PKG.mycontext", effective.get("SCOTT:a.b.c.JUNIT_UTPLSQL_TEST_PKG.mycontext.t2"))
 	}
 
 }
