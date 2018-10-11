@@ -13,7 +13,7 @@
 		<jdk.version.test>1.8</jdk.version.test>
 		<xtend.version>2.15.0</xtend.version>
 		<!-- requires SQL Developer 4.1.0 or higher (first version based on JDK 1.8) -->
-		<sqldev.basedir>/Applications/SQLDeveloper18.2.0.app/Contents/Resources/sqldeveloper</sqldev.basedir>
+		<sqldev.basedir>/Applications/SQLDeveloper18.3.0.app/Contents/Resources/sqldeveloper</sqldev.basedir>
 		<final.name>utplsql_for_SQLDev_${project.version}</final.name>
 	</properties>
 	<dependencies>
