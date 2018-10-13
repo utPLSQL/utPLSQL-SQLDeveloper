@@ -50,6 +50,7 @@ class PreferenceModel extends HashStructureAdapter {
 	static final String KEY_INDENT_SPACES="indentSpaces"
 	static final String KEY_GENERATE_FILES="generateFiles"
 	static final String KEY_OUTPUT_DIRECTORY = "outputDirectory"
+	static final String KEY_DELETE_EXISTING_FILES="deleteExistingFiles"
 	static final String KEY_ROOT_FOLDER_IN_ODDGEN_VIEW = "rootFolderInOddgenView"
 	
 	def isUnsharedWorksheet() {
@@ -187,6 +188,14 @@ class PreferenceModel extends HashStructureAdapter {
 	def setOutputDirectory(String outputDirectory) {
 		val dir = if (outputDirectory.empty) {DEFAULT_OUTPUT_DIRECTORY} else {outputDirectory}
 		getHashStructure.putString(PreferenceModel.KEY_OUTPUT_DIRECTORY, dir)
+	}
+
+	def isDeleteExistingFiles() {
+		return getHashStructure.getBoolean(PreferenceModel.KEY_DELETE_EXISTING_FILES, false)
+	}
+
+	def setDeleteExistingFiles(boolean deleteExistingFiles) {
+		getHashStructure.putBoolean(PreferenceModel.KEY_DELETE_EXISTING_FILES, deleteExistingFiles)
 	}
 
 	def getRootFolderInOddgenView() {
