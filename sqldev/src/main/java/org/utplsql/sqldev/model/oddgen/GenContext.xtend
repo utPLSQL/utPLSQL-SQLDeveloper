@@ -24,8 +24,6 @@ class GenContext extends AbstractModel {
 	Connection conn
 	String objectType
 	String objectName
-	boolean generateFiles
-	String outputDirectory
 	String testPackagePrefix
 	String testPackageSuffix
 	String testUnitPrefix

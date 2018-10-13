@@ -195,8 +195,6 @@ class UtplsqlController implements Controller {
 	}
 	
 	private def void populateGenContext(GenContext genContext, PreferenceModel preferences) {
-		genContext.generateFiles = preferences.generateFiles
-		genContext.outputDirectory = preferences.outputDirectory
 		genContext.testPackagePrefix = preferences.testPackagePrefix.toLowerCase
 		genContext.testPackageSuffix = preferences.testPackageSuffix.toLowerCase
 		genContext.testUnitPrefix = preferences.testUnitPrefix.toLowerCase
