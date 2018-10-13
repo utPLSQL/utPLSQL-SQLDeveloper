@@ -276,16 +276,16 @@ class UtplsqlDao {
 		var sql = '''
 			WITH 
 			   base AS (
-			      SELECT rownum AS an_id, 
-			             o.object_owner, 
-			             o.object_type, 
-			             o.object_name, 
-			             lower(a.name) AS name, 
-			             a.text, 
+			      SELECT rownum AS an_id,
+			             o.object_owner,
+			             o.object_type,
+			             o.object_name,
+			             lower(a.name) AS name,
+			             a.text,
 			             a.subobject_name
 			        FROM table(ut3.ut_annotation_manager.get_annotated_objects(user, 'PACKAGE')) o
 			       CROSS JOIN table(o.annotations) a
-			       WHERE lower(a.name) in ('suite','suitepath', 'endcontext','test')
+			       WHERE lower(a.name) in ('suite', 'suitepath', 'endcontext', 'test')
 			          OR lower(a.name) = 'context' AND regexp_like(text, '(\w+)(\.\w+)*')
 			   ),
 			   suite AS (
@@ -294,18 +294,18 @@ class UtplsqlDao {
 			       WHERE name = 'suite'
 			   ),
 			   suitepath as (
-			      SELECT object_owner, object_type, object_name, text as suitepath 
+			      SELECT object_owner, object_type, object_name, text AS suitepath 
 			        FROM base
 			       WHERE name = 'suitepath'
 			   ),
 			   context_base AS (
 			      SELECT an_id,
-			             lead(an_id) over (partition by object_owner, object_type, object_name order by an_id) an_id_end,
+			             lead(an_id) over (partition by object_owner, object_type, object_name order by an_id) AS an_id_end,
 			             object_owner,
 			             object_type,
 			             object_name,
 			             name,
-			             lead(name) over (partition by object_owner, object_type, object_name order by an_id) name_end,             
+			             lead(name) over (partition by object_owner, object_type, object_name order by an_id) AS name_end,
 			             text as context
 			        FROM base
 			       WHERE name IN ('context', 'endcontext')
@@ -317,14 +317,14 @@ class UtplsqlDao {
 			         AND name_end = 'endcontext'
 			   ),
 			   test AS (
-			      SELECT b.an_id, 
-			             b.object_owner, 
-			             b.object_type, 
+			      SELECT b.an_id,
+			             b.object_owner,
+			             b.object_type,
 			             b.object_name,
 			             p.suitepath,
-			             c.context, 
-			             b.subobject_name, 
-			             b.text AS test_description 
+			             c.context,
+			             b.subobject_name,
+			             b.text AS test_description
 			        FROM base b
 			        LEFT JOIN suitepath p
 			          ON p.object_owner = b.object_owner
@@ -334,11 +334,11 @@ class UtplsqlDao {
 			          ON c.object_owner = b.object_owner
 			             AND c.object_type = b.object_type
 			             AND c.object_name = b.object_name
-			             AND b.an_id BETWEEN c.an_id AND c.an_id_end  
+			             AND b.an_id BETWEEN c.an_id AND c.an_id_end
 			       WHERE name = 'test'
 			         AND (b.object_owner, b.object_type, b.object_name) IN (
-			                select object_owner, object_type, object_name
-			                  from suite
+			                SELECT object_owner, object_type, object_name
+			                  FROM suite
 			             )
 			   ),
 			   suite_tree AS (
@@ -390,7 +390,7 @@ class UtplsqlDao {
 			             substr(suitepath, 1, instr(suitepath || '.', '.', 1, g.pos) -1) AS suitepath
 			        FROM suitepath_base b
 			        JOIN gen g
-			          On g.pos <= regexp_count(suitepath, '\w+')
+			          ON g.pos <= regexp_count(suitepath, '\w+')
 			   ),
 			   suitepath_tree AS (
 			      SELECT NULL AS parent_id,
