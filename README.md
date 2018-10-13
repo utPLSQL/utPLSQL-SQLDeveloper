@@ -2,17 +2,48 @@
 
 ## Introduction
 
-utPLSQL for SQL Developer extends Oracle's SQL Developer by context menu entries and keyboard shortcuts for running utPLSQL unit tests from the Connections window or the PL/SQL editor.
+utPLSQL for SQL Developer extends Oracle's SQL Developer to 
+
+* run existing utPLSQL unit tests
+* generate new utPLSQL unit tests (skeletons)
 
 ### Run utPLSQL test
 
-[![Run utPLSQL test](images/run_utplsql_test.png)](https://raw.githubusercontent.com/utPLSQL/utPLSQL-SQLDeveloper/master/images/run_utplsql_test.gif)
+In the Connections window, select a connection or one or more packages or package procedures to run utPLSQL tests. Or you can run utPLSQL tests directly from the PL/SQL editor. The test procedures are determined according to the cursor position in the PL/SQL editor.
+
+![Run utPLSQL test](images/run_utplsql_test.png)
+### Generate utPLSQL test
+
+Select a package, type, function or procedure to build a utPLSQL test package skeleton. The generated package compiles and executes, but still needs some rework.
+
+![Generate utPLSQL test](images/generate_utplsql_test.png)
 
 ### Preferences
 
-Set your preferences to change the behaviour of utPLSQL within SQL Developer. 
+Set your preferences to change the behaviour of utPLSQL within SQL Developer.
 
-[![Preferences](images/preferences.png)](https://raw.githubusercontent.com/utPLSQL/utPLSQL-SQLDeveloper/master/images/preferences.gif)
+![Preferences](images/preferences.png)
+
+### oddgen integration
+
+utPLSQL for SQL Developer implements the [OddgenGenerator2 interface](https://www.oddgen.org/java-interface/) to
+
+* run existing utPLSQL test suitepaths and test suites
+* bulk generate new utPLSQL unit tests into dedicated files
+
+The use of [oddgen for SQL Developer](https://www.oddgen.org/) is optional. 
+
+#### Run utPLSQL test
+
+utPLSQL can run tests based on suitepaths and suites. The next screenshot shows the generated run command for two selected suitepaths.
+
+![Generate utPLSQL test](images/oddgen_run_utplsql_test.png)
+
+#### Generate utPLSQL test
+
+Use oddgen to generate utPLSQL test package skeletons. When generating to files, a file for each package specification and package body is created.
+
+![Generate utPLSQL test](images/oddgen_generate_utplsql_test.png)
 
 ## Releases
 
@@ -28,7 +59,15 @@ Binary releases are published [here](https://github.com/utPLSQL/utPLSQL-SQLDevel
 
 3. Use the ```Install From Local File``` option to install the previously downloaded ```utplsql_for_SQLDev_*.zip``` file.
 
-[![Install utPLSQL for SQL Developer](images/install_utplsql.png)](https://raw.githubusercontent.com/utPLSQL/utPLSQL-SQLDeveloper/master/images/install_utplsql.gif)
+### Via Update Center
+
+1. Start SQL Developer
+
+2. Select ```Check for Updates…``` in the help menu.
+
+3. Press ```Add…``` to register the ```salvis.com``` update site ```http://update.salvis.com/```.
+
+4. Use the ```Search Update Center``` option and select the ```salvis.com``` update center to install the lastest version of ```utPLSQL for SQL Developer```.
 
 ## Issues
 Please file your bug reports, enhancement requests, questions and other support requests within [Github's issue tracker](https://help.github.com/articles/about-issues/).
