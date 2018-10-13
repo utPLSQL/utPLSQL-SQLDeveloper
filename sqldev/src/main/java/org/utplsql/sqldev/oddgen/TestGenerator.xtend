@@ -21,6 +21,7 @@ import java.util.ArrayList
 import java.util.HashMap
 import java.util.LinkedHashMap
 import java.util.List
+import java.util.logging.Logger
 import oracle.ide.config.Preferences
 import org.oddgen.sqldev.generators.OddgenGenerator2
 import org.oddgen.sqldev.generators.model.Node
@@ -32,12 +33,14 @@ import org.utplsql.sqldev.model.preference.PreferenceModel
 import org.utplsql.sqldev.resources.UtplsqlResources
 
 class TestGenerator implements OddgenGenerator2 {
+	static final Logger logger = Logger.getLogger(TestGenerator.name);
 
 	public static val YES = "Yes"
 	public static val NO = "No"
 	
 	public static var GENERATE_FILES = UtplsqlResources.getString("PREF_GENERATE_FILES_LABEL")
 	public static var OUTPUT_DIRECTORY = UtplsqlResources.getString("PREF_OUTPUT_DIRECTORY_LABEL")
+	public static var DELETE_EXISTING_FILES = UtplsqlResources.getString("PREF_DELETE_EXISTING_FILES_LABEL")
 	public static var TEST_PACKAGE_PREFIX = UtplsqlResources.getString("PREF_TEST_PACKAGE_PREFIX_LABEL")
 	public static var TEST_PACKAGE_SUFFIX = UtplsqlResources.getString("PREF_TEST_PACKAGE_SUFFIX_LABEL")
 	public static var TEST_UNIT_PREFIX = UtplsqlResources.getString("PREF_TEST_UNIT_PREFIX_LABEL")
@@ -56,8 +59,6 @@ class TestGenerator implements OddgenGenerator2 {
 		val context = new GenContext()
 		context.objectType = node.toObjectType
 		context.objectName = node.toObjectName
-		context.generateFiles = node.params.get(GENERATE_FILES) == YES
-		context.outputDirectory = node.params.get(OUTPUT_DIRECTORY)
 		context.testPackagePrefix = node.params.get(TEST_PACKAGE_PREFIX).toLowerCase
 		context.testPackageSuffix = node.params.get(TEST_PACKAGE_SUFFIX).toLowerCase
 		context.testUnitPrefix = node.params.get(TEST_UNIT_PREFIX).toLowerCase
@@ -75,7 +76,21 @@ class TestGenerator implements OddgenGenerator2 {
 	}
 
 	private def void saveConsoleOutput(String s) {
-		consoleOutput.add(s)
+		if (s !== null) {
+			for (line : s.split("[\\n\\r]+")) {
+				consoleOutput.add(line)
+			}
+		}
+	}
+	
+	private def void logConsoleOutput() {
+		for (line : consoleOutput) {
+			if (line.contains("error") || line.startsWith("Cannot")) {
+				logger.severe(line)
+			} else {
+				logger.fine(line)
+			}
+		}
 	}
 	
 	private def String deleteFile(File file) {
@@ -145,6 +160,7 @@ class TestGenerator implements OddgenGenerator2 {
 		val params = new LinkedHashMap<String, String>()
 		params.put(GENERATE_FILES, if (preferences.generateFiles) {YES} else {NO})
 		params.put(OUTPUT_DIRECTORY, preferences.outputDirectory)
+		params.put(DELETE_EXISTING_FILES, if (preferences.deleteExistingFiles) {YES} else {NO})
 		params.put(TEST_PACKAGE_PREFIX, preferences.testPackagePrefix)
 		params.put(TEST_PACKAGE_SUFFIX, preferences.testPackageSuffix)
 		params.put(TEST_UNIT_PREFIX, preferences.testUnitPrefix)
@@ -197,22 +213,27 @@ class TestGenerator implements OddgenGenerator2 {
 		lov.put(GENERATE_COMMENTS, #[YES, NO])
 		lov.put(DISABLE_TESTS, #[YES, NO])
 		lov.put(GENERATE_FILES, #[YES, NO])
+		lov.put(DELETE_EXISTING_FILES, #[YES, NO])
 		return lov
 	}
 
 	override getParamStates(Connection conn, LinkedHashMap<String, String> params, List<Node> nodes) {
 		val paramStates = new HashMap<String, Boolean>
 		paramStates.put(OUTPUT_DIRECTORY, params.get(GENERATE_FILES) == YES)
+		paramStates.put(DELETE_EXISTING_FILES, params.get(GENERATE_FILES) == YES)
 		return paramStates
 	}
 	
 	override generateProlog(Connection conn, List<Node> nodes) '''
 		«val generateFiles = nodes.get(0).params.get(GENERATE_FILES) == YES»
 		«val outputDirectory = nodes.get(0).params.get(OUTPUT_DIRECTORY)»
+		«val deleteExistingfiles = nodes.get(0).params.get(DELETE_EXISTING_FILES) == YES»
 		«IF generateFiles»
 			«resetConsoleOutput»
 			«outputDirectory.mkdirs.saveConsoleOutput»
-			«deleteFiles(outputDirectory).toString.saveConsoleOutput»
+			«IF deleteExistingfiles»
+				«deleteFiles(outputDirectory).toString.saveConsoleOutput»
+			«ENDIF»
 			--
 			-- install generated utPLSQL test packages
 			--
@@ -232,10 +253,11 @@ class TestGenerator implements OddgenGenerator2 {
 
 			«ENDIF»
 		«ENDFOR»
-		«IF generateFiles && consoleOutput.size > 0»
+		«logConsoleOutput»
+		«IF generateFiles && consoleOutput.findFirst[it.contains("error")] !== null»
 
 			--
-			-- console output produced during the generation of this script
+			-- console output produced during the generation of this script (errors found)
 			--
 			/*
 			
