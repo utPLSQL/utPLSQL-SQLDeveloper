@@ -56,6 +56,7 @@ class PreferencePanel extends DefaultTraversablePanel {
 	val JCheckBox generateFilesCheckBox = new JCheckBox
 	val JTextField outputDirectoryTextField = new JTextField
 	val JButton outputDirectoryBrowse = new JButton();
+	val JCheckBox deleteExistingFilesCheckBox = new JCheckBox
 
 	new() {
 		layoutControls()
@@ -129,6 +130,9 @@ class PreferencePanel extends DefaultTraversablePanel {
 		b3.add(
 			b3.field.label.withText(UtplsqlResources.getString("PREF_OUTPUT_DIRECTORY_LABEL")).component(
 				outputDirectoryTextField).button(outputDirectoryBrowse).withText("Bro&wse"))
+		b3.add(
+			b3.field.label.withText(UtplsqlResources.getString("PREF_DELETE_EXISTING_FILES_LABEL")).component(
+				deleteExistingFilesCheckBox))
 		
 		// putting everything together
 		val FieldLayoutBuilder builder = new FieldLayoutBuilder(this)
@@ -167,6 +171,7 @@ class PreferencePanel extends DefaultTraversablePanel {
 		rootFolderInOddgenViewTextField.text = info.rootFolderInOddgenView
 		generateFilesCheckBox.selected = info.generateFiles
 		outputDirectoryTextField.text = info.outputDirectory
+		deleteExistingFilesCheckBox.selected = info.deleteExistingFiles
 		super.onEntry(traversableContext)
 	}
 
@@ -190,6 +195,7 @@ class PreferencePanel extends DefaultTraversablePanel {
 		info.rootFolderInOddgenView = rootFolderInOddgenViewTextField.text
 		info.generateFiles = generateFilesCheckBox.selected
 		info.outputDirectory = outputDirectoryTextField.text
+		info.deleteExistingFiles = deleteExistingFilesCheckBox.selected
 		super.onExit(traversableContext)
 	}
 
