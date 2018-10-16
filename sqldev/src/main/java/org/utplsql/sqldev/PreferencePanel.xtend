@@ -15,21 +15,24 @@
  */
 package org.utplsql.sqldev
 
+import java.awt.event.ActionEvent
+import java.awt.event.ActionListener
+import java.util.Map
 import javax.swing.BorderFactory
+import javax.swing.JButton
 import javax.swing.JCheckBox
 import javax.swing.JPanel
 import javax.swing.JSpinner
 import javax.swing.JTextField
 import javax.swing.SpinnerNumberModel
+import javax.swing.table.DefaultTableModel
+import oracle.dbtools.raptor.templates.CodeTemplateUtil
 import oracle.ide.panels.DefaultTraversablePanel
 import oracle.ide.panels.TraversableContext
 import oracle.ide.panels.TraversalException
 import oracle.javatools.ui.layout.FieldLayoutBuilder
 import org.utplsql.sqldev.model.preference.PreferenceModel
 import org.utplsql.sqldev.resources.UtplsqlResources
-import javax.swing.JButton
-import java.awt.event.ActionEvent
-import java.awt.event.ActionListener
 
 class PreferencePanel extends DefaultTraversablePanel {
 	val JPanel runTestPanel = new JPanel();
@@ -46,6 +49,8 @@ class PreferencePanel extends DefaultTraversablePanel {
 	val SpinnerNumberModel numberOfTestsPerUnitModel = new SpinnerNumberModel(1, 1, 10, 1);
 	val JSpinner numberOfTestsPerUnitSpinner = new JSpinner(numberOfTestsPerUnitModel);
 	val JCheckBox checkGenerateUtplsqlTestCheckBox = new JCheckBox
+	val DefaultTableModel codeTemplatesModel = new DefaultTableModel(#["Id", "Template"], 0);
+	val JButton createCodeTemplatesButton = new JButton()
 	val JCheckBox generateCommentsCheckBox = new JCheckBox
 	val JCheckBox disableTestsCheckBox = new JCheckBox
 	val JTextField suitePathTextField = new JTextField
@@ -55,7 +60,7 @@ class PreferencePanel extends DefaultTraversablePanel {
 	val JTextField rootFolderInOddgenViewTextField = new JTextField
 	val JCheckBox generateFilesCheckBox = new JCheckBox
 	val JTextField outputDirectoryTextField = new JTextField
-	val JButton outputDirectoryBrowse = new JButton();
+	val JButton outputDirectoryBrowse = new JButton()
 	val JCheckBox deleteExistingFilesCheckBox = new JCheckBox
 
 	new() {
@@ -86,6 +91,7 @@ class PreferencePanel extends DefaultTraversablePanel {
 		generateTestPanel.border = BorderFactory.createTitledBorder(UtplsqlResources.getString("MENU_GENERATE_TEST_LABEL"))
 		val FieldLayoutBuilder b2 = new FieldLayoutBuilder(generateTestPanel)
 		b2.alignLabelsLeft = true
+		b2.stretchComponentsWithNoButton = true
 		b2.add(
 			b2.field.label.withText(UtplsqlResources.getString("PREF_TEST_PACKAGE_PREFIX_LABEL")).component(
 				testPackagePrefixTextField))
@@ -115,7 +121,8 @@ class PreferencePanel extends DefaultTraversablePanel {
 				indentSpacesSpinner))
 		b2.add(
 			b2.field.label.withText(UtplsqlResources.getString("PREF_CHECK_GENERATE_UTPLSQL_TEST_LABEL")).component(
-				checkGenerateUtplsqlTestCheckBox))
+				checkGenerateUtplsqlTestCheckBox).button(createCodeTemplatesButton).withText(
+				UtplsqlResources.getString("PREF_CREATE_CODE_TEMPLATES_BUTTON_LABEL")))
 		// oddgen group
 		oddgenPanel.border = BorderFactory.createTitledBorder("oddgen")
 		val FieldLayoutBuilder b3 = new FieldLayoutBuilder(oddgenPanel)
@@ -129,7 +136,8 @@ class PreferencePanel extends DefaultTraversablePanel {
 				generateFilesCheckBox))
 		b3.add(
 			b3.field.label.withText(UtplsqlResources.getString("PREF_OUTPUT_DIRECTORY_LABEL")).component(
-				outputDirectoryTextField).button(outputDirectoryBrowse).withText("Bro&wse"))
+				outputDirectoryTextField).button(outputDirectoryBrowse).withText(
+				UtplsqlResources.getString("PREF_OUTPUT_DIRECTORY_BUTTON_LABEL")))
 		b3.add(
 			b3.field.label.withText(UtplsqlResources.getString("PREF_DELETE_EXISTING_FILES_LABEL")).component(
 				deleteExistingFilesCheckBox))
@@ -142,6 +150,14 @@ class PreferencePanel extends DefaultTraversablePanel {
 		builder.addVerticalField("", oddgenPanel)
 		builder.addVerticalSpring
 		
+		// register action listener for create code template button 
+		createCodeTemplatesButton.addActionListener(new ActionListener() {
+			override actionPerformed(ActionEvent event) {
+				saveCodeTemplates
+			}
+			
+		})
+		
 		// register action listener for directory chooser
 		outputDirectoryBrowse.addActionListener(new ActionListener() {
 			override actionPerformed(ActionEvent event) {
@@ -150,6 +166,98 @@ class PreferencePanel extends DefaultTraversablePanel {
 			}
 		})		
 	}
+	
+	private def loadCodeTemplates() {
+		val Map<String, String> map = CodeTemplateUtil.loadFiles()
+		for (key : map.keySet) {
+			codeTemplatesModel.addRow(#[key, map.get(key)])
+		}
+	}
+	
+	private def saveCodeTemplates() {
+		codeTemplatesModel.addRow(#["ut_spec", utSpecTemplate.replaceTabsWithSpaces])
+		codeTemplatesModel.addRow(#["ut_spec_proc", utSpecProcTemplate.replaceTabsWithSpaces.trimPlusNewLine])
+		codeTemplatesModel.addRow(#["ut_body", utBodyTemplate.replaceTabsWithSpaces])
+		codeTemplatesModel.addRow(#["ut_body_proc", utBodyProcTemplate.replaceTabsWithSpaces.trimPlusNewLine])
+		CodeTemplateUtil.save(codeTemplatesModel)
+	}
+
+	private def replaceTabsWithSpaces(CharSequence input) {
+		val spaces = String.format("%1$"+indentSpacesSpinner.value+"s", "")
+		return input.toString.replace("\t", spaces)
+	}
+	
+	private def trimPlusNewLine(String input) {
+		input.trim + System.lineSeparator
+	}
+	
+	private def utSpecTemplate() '''
+		CREATE OR REPLACE PACKAGE «testPackagePrefixTextField.text»[package_name]«testPackageSuffixTextField.text» IS
+		
+			--%suite
+			«IF !suitePathTextField.text.empty»
+				--%suitepath(«suitePathTextField.text»)
+			«ENDIF»
+		
+			«utSpecProcTemplate»
+		END «testPackagePrefixTextField.text»[package_name]«testPackageSuffixTextField.text»;
+		/
+	'''
+
+	private def utSpecProcTemplate() '''
+		«val withContext = numberOfTestsPerUnitModel.value as Integer > 1»
+		«IF withContext»
+			--%context([procedure_name])
+
+		«ENDIF»
+		«FOR i : 1 .. numberOfTestsPerUnitModel.value as Integer»
+			--%test
+			«IF disableTestsCheckBox.selected»
+				--%disabled
+			«ENDIF»
+			PROCEDURE «testUnitPrefixTextField.text»[procedure_name]«testUnitSuffixTextField.text»«IF withContext»«i»«ENDIF»;
+
+		«ENDFOR»
+		«IF withContext»
+			--%endcontext
+
+		«ENDIF»
+	'''
+
+	private def utBodyTemplate() '''
+		CREATE OR REPLACE PACKAGE BODY «testPackagePrefixTextField.text»[package_name]«testPackageSuffixTextField.text» IS
+		
+			«utBodyProcTemplate»
+		END «testPackagePrefixTextField.text»[package_name]«testPackageSuffixTextField.text»;
+		/
+	'''
+
+	private def utBodyProcTemplate() '''
+		«val withContext = numberOfTestsPerUnitModel.value as Integer > 1»
+		«FOR i : 1 .. numberOfTestsPerUnitModel.value as Integer»
+			«IF generateCommentsCheckBox.selected»
+				--
+				-- test«IF withContext» [procedure_name] case «i»: ...«ENDIF»
+				--
+			«ENDIF»
+			PROCEDURE «testUnitPrefixTextField.text»[procedure_name]«testUnitSuffixTextField.text»«IF withContext»«i»«ENDIF» IS
+				l_actual   INTEGER := 0;
+				l_expected INTEGER := 1;
+			BEGIN
+				«IF generateCommentsCheckBox.selected»
+					-- populate actual
+					-- ...
+
+					-- populate expected
+					-- ...
+
+				-- assert
+				«ENDIF»
+				ut.expect(l_actual).to_equal(l_expected);
+			END «testUnitPrefixTextField.text»[procedure_name]«testUnitSuffixTextField.text»«IF withContext»«i»«ENDIF»;
+
+		«ENDFOR»
+	'''
 
 	override onEntry(TraversableContext traversableContext) {
 		var PreferenceModel info = traversableContext.userInformation
@@ -164,6 +272,7 @@ class PreferencePanel extends DefaultTraversablePanel {
 		testUnitSuffixTextField.text = info.testUnitSuffix
 		numberOfTestsPerUnitSpinner.value = info.numberOfTestsPerUnit
 		checkGenerateUtplsqlTestCheckBox.selected = info.checkGenerateUtplsqlTest
+		loadCodeTemplates
 		generateCommentsCheckBox.selected = info.generateComments
 		disableTestsCheckBox.selected = info.disableTests
 		suitePathTextField.text = info.suitePath
