@@ -14,9 +14,19 @@ In the Connections window, select a connection or one or more packages or packag
 ![Run utPLSQL test](images/run_utplsql_test.png)
 ### Generate utPLSQL test
 
+#### Based on existing code
+
 Select a package, type, function or procedure to build a utPLSQL test package skeleton. The generated package compiles and executes, but still needs some rework.
 
 ![Generate utPLSQL test](images/generate_utplsql_test.png)
+
+#### From scratch
+
+1. Press the button `Create code templates` in the preferences
+2. Type `ut_` in the Worksheet or a PL/SQL editor and press `Ctrl-Space` to get the list of a utPLSQL code templates
+3. Press `Return` to paste a code template at the current cursor position
+
+![Generate utPLSQL test](images/generate_utplsql_test_from_template.png)
 
 ### Preferences
 
