@@ -15,11 +15,8 @@
  */
 package org.utplsql.sqldev
 
-import java.util.ArrayList
-import java.util.HashSet
 import java.util.List
 import java.util.logging.Logger
-import java.util.regex.Pattern
 import javax.swing.JSplitPane
 import oracle.dbtools.raptor.utils.Connections
 import oracle.dbtools.worksheet.editor.OpenWorksheetWizard
@@ -44,13 +41,6 @@ class UtplsqlWorksheet {
 		setConnection(connectionName)
 	}
 
-	new(String path, String connectionName) {
-		this.pathList = new ArrayList<String>()
-		this.pathList.add(path)
-		this.preferences = PreferenceModel.getInstance(Preferences.preferences);
-		setConnection(connectionName)
-	}
-
 	private def setConnection(String connectionName) {
 		if (connectionName !== null && preferences.unsharedWorksheet) {
 			this.connectionName = Connections.instance.createPrivateConnection(connectionName)
@@ -58,30 +48,6 @@ class UtplsqlWorksheet {
 			this.connectionName = connectionName;
 		}
 	}
-
-	private def dedupPathList() {
-		val set = new HashSet<String>
-		for (path : pathList) {
-			set.add(path)
-		}
-		val ret = new ArrayList<String>
-		val p = Pattern.compile("((((\\w+)\\.)?\\w+)\\.)?\\w+")
-		for (path : set) {
-			val m = p.matcher(path)
-			if (m.matches()) {
-				val parent1 = m.group(4) // user
-				val parent2 = m.group(2) // user.package
-				if (parent1 === null || !set.contains(parent1)) {
-					if (parent2 === null || !set.contains(parent2)) {
-						ret.add(path)
-					}
-				}
-			} else {
-				logger.severe('''path: «path» did not pattern «p.toString», this is unexected!''')
-			}
-		}
-		return ret
-	}	
 	
 	private def getCode() '''
 		«IF preferences.resetPackage»
@@ -91,7 +57,7 @@ class UtplsqlWorksheet {
 		«IF preferences.clearScreen»
 			CLEAR SCREEN
 		«ENDIF»
-		«val paths = dedupPathList»
+		«val paths = pathList»
 		«IF paths.size == 1»
 			EXECUTE ut.run('«paths.get(0)»');
 		«ELSE»
