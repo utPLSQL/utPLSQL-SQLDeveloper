@@ -294,4 +294,37 @@ class DalTest extends AbstractJdbcTest {
 		Assert.assertEquals("SCOTT:a.b.c.JUNIT_UTPLSQL_TEST_PKG.mycontext", effective.get("SCOTT:a.b.c.JUNIT_UTPLSQL_TEST_PKG.mycontext.t2"))
 	}
 
+	@Test
+	def void dbmsOutput() {
+		val dao = new UtplsqlDao(dataSource.connection)
+		dao.enableDbmsOutput
+		jdbcTemplate.execute('''
+			BEGIN
+			   sys.dbms_output.put_line('line1');
+			   sys.dbms_output.put_line('line2');
+			   sys.dbms_output.put_line(null);
+			   sys.dbms_output.put_line('line4');
+			   sys.dbms_output.put_line('line5');
+			END;
+		''')
+		val effective = dao.getDbmsOutput(2)
+		val expected = '''
+			line1
+			line2
+
+			line4
+			line5
+		'''
+		Assert.assertEquals(expected, effective)
+	}
+	
+	@Test
+	def void htmlCodeCoverage() {
+		setupAndTeardown
+		val dao = new UtplsqlDao(dataSource.connection)
+		val effective = dao.htmlCodeCoverage(#["SCOTT"])
+		Assert.assertTrue(effective.startsWith("<!DOCTYPE html>"))
+		Assert.assertTrue(effective.trim.endsWith("</html>"))
+	}
+
 }

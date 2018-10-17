@@ -15,15 +15,20 @@
  */
  package org.utplsql.sqldev.dal
 
+import java.sql.CallableStatement
 import java.sql.Connection
+import java.sql.SQLException
+import java.sql.Types
 import java.util.List
 import org.oddgen.sqldev.generators.model.Node
 import org.springframework.dao.DataAccessException
 import org.springframework.dao.EmptyResultDataAccessException
 import org.springframework.jdbc.core.BeanPropertyRowMapper
+import org.springframework.jdbc.core.CallableStatementCallback
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.jdbc.datasource.SingleConnectionDataSource
 import org.utplsql.sqldev.model.ut.Annotation
+import org.utplsql.sqldev.model.ut.OutputLines
 
 class UtplsqlDao {
 	public static val UTPLSQL_PACKAGE_NAME = "UT" 
@@ -472,6 +477,79 @@ class UtplsqlDao {
 		val jdbcTemplate = new JdbcTemplate(new SingleConnectionDataSource(conn, true))
 		val nodes = jdbcTemplate.query(sql, new BeanPropertyRowMapper<Node>(Node))
 		return nodes		
-	}	 
+	}
+	
+	def void enableDbmsOutput() {
+		// equivalent to "set serveroutput on size unlimited"
+		jdbcTemplate.update('''
+			BEGIN
+				sys.dbms_output.enable(NULL);
+			END;
+		''')
+	}
+	
+	def void disableDbmsOutput() {
+		jdbcTemplate.update('''
+			BEGIN
+				sys.dbms_output.disable;
+			END;
+		''')
+	}
+
+	def String getDbmsOutput() {
+		return getDbmsOutput(1000)
+	}
+	
+	def String getDbmsOutput(int bufferSize) {
+		val sb = new StringBuffer
+		val sql = '''
+			BEGIN
+				sys.dbms_output.get_lines(?, ?);
+			END;
+		'''
+		var OutputLines ret 
+		do {
+			ret = jdbcTemplate.execute(sql, new CallableStatementCallback<OutputLines>() {
+				override OutputLines doInCallableStatement(CallableStatement cs) throws SQLException, DataAccessException {
+					cs.registerOutParameter(1, Types.ARRAY, "DBMSOUTPUT_LINESARRAY");
+					cs.registerOutParameter(2, Types.INTEGER)
+					cs.setInt(2, bufferSize)
+					cs.execute
+					val out = new OutputLines
+					out.lines = cs.getArray(1).array as String[]
+					out.numlines = cs.getInt(2)
+					return out
+				}
+			})
+			for (i : 0 ..< ret.numlines) {
+				val line = ret.lines.get(i)
+				if (line !== null) {
+					sb.append(ret.lines.get(i))
+				}
+				sb.append(System.lineSeparator)
+			}
+		} while (ret.numlines > 0)
+		return sb.toString
+	}	
+	
+	def String htmlCodeCoverage(List<String> pathList) {
+		enableDbmsOutput
+		val sql = '''
+			BEGIN
+				ut.run(
+					ut_varchar2_list(
+						«FOR path : pathList SEPARATOR ","»
+							'«path»'
+						«ENDFOR»
+					),
+					ut_coverage_html_reporter()
+				);
+			END;
+		'''
+		jdbcTemplate.update(sql)
+		val ret = getDbmsOutput
+		disableDbmsOutput
+		return ret
+	} 
 
 }
