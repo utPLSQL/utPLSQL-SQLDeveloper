@@ -296,6 +296,34 @@ class UtplsqlController implements Controller {
 		}
 	}
 	
+	def List<String> dependencies(String name, String connectionName) {
+		var List<String> ret = null
+		if (connectionName !== null) {
+			val dao = new UtplsqlDao(Connections.instance.getConnection(connectionName))
+			ret = dao.includes(name)
+		}
+		return ret
+	}
+	
+	def List<String> dependencies(Context context, String connectionName) {
+		val HashSet<String> ret = new HashSet<String>
+		for (i : 0 ..< context.selection.length) {
+			val element = context.selection.get(i)
+			if (element instanceof PlSqlNode) {
+				val dep = dependencies(element.objectName, connectionName)
+				for (d : dep) {
+					ret.add(d)
+				}
+			} else if (element instanceof ChildObjectElement) {
+				val dep = dependencies(element.URL.memberObject, connectionName)
+				for (d : dep) {
+					ret.add(d)
+				}
+			}
+		}
+		return ret.toList.sortBy[it]
+	}
+	
 	def codeCoverage(Context context) {
 		val view = context.view
 		val node = context.node
@@ -307,7 +335,6 @@ class UtplsqlController implements Controller {
 				var String owner = null;
 				if (node instanceof DatabaseSourceNode) {
 					connectionName = node.connectionName
-					owner = node.owner
 				} else if (view instanceof Worksheet) {
 					connectionName = view.connectionName
 				}
@@ -316,8 +343,10 @@ class UtplsqlController implements Controller {
 				val parser = new UtplsqlParser(component.text, if (preferences.checkRunUtplsqlTest) {Connections.instance.getConnection(connectionName)} else {null}, owner)
 				val position = component.caretPosition
 				val path = parser.getPathAt(position)
-				val reporter = new CodeCoverageReporter(path.pathList, connectionName)
-				reporter.runAsync
+				val object = parser.getObjectAt(position)
+				val includeObjectList = dependencies(object.name, connectionName)
+				val reporter = new CodeCoverageReporter(path.pathList, includeObjectList, connectionName)
+				reporter.showParameterWindow
 			}
 		} else if (view instanceof DBNavigatorWindow) {
 			val url=context.URL
@@ -325,8 +354,9 @@ class UtplsqlController implements Controller {
 				val connectionName = url.connectionName
 				logger.fine('''connectionName: «connectionName»''')
 				val pathList=context.pathList.dedupPathList
-				val reporter = new CodeCoverageReporter(pathList, connectionName)
-				reporter.runAsync
+				val includeObjectList = dependencies(context, connectionName)
+				val reporter = new CodeCoverageReporter(pathList, includeObjectList, connectionName)
+				reporter.showParameterWindow
 			}
 		}
 	}
