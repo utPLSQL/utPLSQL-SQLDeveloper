@@ -609,8 +609,17 @@ class UtplsqlDao {
 	 * gets dependencies of a given object. 
 	 * 
 	 * The result can be used as input for the includeObjectList in htmlCodeCoverage
-	 * The scope is reduced to the current schema.
-	 * This is useful when test packages are installed in the code schema.
+	 * The scope is reduced to non-oracle maintained schemas.
+	 * 
+	 * Oracle introduced the column ORACLE_MAINTAINED in 12.1.
+	 * To simplify the query and compatibility the result of the following 
+	 * query is included
+	 * 
+	 * SELECT '''' || listagg(username, ''', ''') || '''' AS oracle_maintained_users 
+     *  FROM dba_users 
+     * WHERE oracle_maintained = 'Y'
+     * ORDER BY username;
+	 * 
 	 * The result may include test packages
 	 * 
 	 * @param name test package name
@@ -622,7 +631,15 @@ class UtplsqlDao {
 			  from «IF dbaViewAccessible»dba«ELSE»all«ENDIF»_dependencies
 			  WHERE owner = user
 			    AND name = upper(?)
-			    AND referenced_owner = user
+			    AND referenced_owner NOT IN (
+			           'SYS', 'SYSTEM', 'XS$NULL', 'OJVMSYS', 'LBACSYS', 'OUTLN', 'SYS$UMF', 
+			           'DBSNMP', 'APPQOSSYS', 'DBSFWUSER', 'GGSYS', 'ANONYMOUS', 'CTXSYS', 
+			           'SI_INFORMTN_SCHEMA', 'DVF', 'DVSYS', 'GSMADMIN_INTERNAL', 'ORDPLUGINS', 
+			           'MDSYS', 'OLAPSYS', 'ORDDATA', 'XDB', 'WMSYS', 'ORDSYS', 'GSMCATUSER', 
+			           'MDDATA', 'REMOTE_SCHEDULER_AGENT', 'SYSBACKUP', 'GSMUSER', 'APEX_PUBLIC_USER', 
+			           'SYSRAC', 'AUDSYS', 'DIP', 'SYSKM', 'ORACLE_OCM', 'APEX_INSTANCE_ADMIN_USER', 
+			           'SYSDG', 'FLOWS_FILES', 'ORDS_METADATA', 'ORDS_PUBLIC_USER', 'APEX_180100'
+			        )
 			    AND referenced_type IN ('PACKAGE', 'TYPE', 'PROCEDURE', 'FUNCTION', 'TRIGGER')
 		'''
 		val jdbcTemplate = new JdbcTemplate(new SingleConnectionDataSource(conn, true))

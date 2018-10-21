@@ -359,7 +359,7 @@ class DalTest extends AbstractJdbcTest {
 		val actualEmpty = dao.includes('TEST_F1')
 		Assert.assertEquals(#[], actualEmpty)
 		val actual = dao.includes('junit_utplsql_test_pkg')
-		Assert.assertEquals(#['JUNIT_UTPLSQL_TEST_PKG','JUNIT_F'], actual)
+		Assert.assertEquals(#['JUNIT_UTPLSQL_TEST_PKG','JUNIT_F','UT_EXPECTATION'], actual)
 	}
 
 }
