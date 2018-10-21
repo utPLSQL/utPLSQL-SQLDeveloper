@@ -5,6 +5,7 @@
 utPLSQL for SQL Developer extends Oracle's SQL Developer to 
 
 * run existing utPLSQL unit tests
+* run utPLSQL code coverage reports 
 * generate new utPLSQL unit tests (skeletons)
 
 ### Run utPLSQL test
@@ -12,6 +13,21 @@ utPLSQL for SQL Developer extends Oracle's SQL Developer to
 In the Connections window, select a connection or one or more packages or package procedures to run utPLSQL tests. Or you can run utPLSQL tests directly from the PL/SQL editor. The test procedures are determined according to the cursor position in the PL/SQL editor.
 
 ![Run utPLSQL test](images/run_utplsql_test.png)
+
+### Code coverage...
+
+In the Connections window, select a connection or one or more packages for a code coverage report.
+
+In the dialog you can set some parameters. If you run code coverage for a few chosen packages or from the PL/SQL editor the objects to be included are determined according the object dependencies in the Oracle data dictionary. 
+
+![Code coverage dialog](images/code_coverage_dialog.png)
+
+Press `Run` to produce the code coverage process in the background. You may minimize or close the dialog. To abort the process, press `Cancel`. 
+
+The HTML report is shown in your default browser.
+
+![Code coverage report](images/code_coverage_report_all_files.png)
+
 ### Generate utPLSQL test
 
 #### Based on existing code
