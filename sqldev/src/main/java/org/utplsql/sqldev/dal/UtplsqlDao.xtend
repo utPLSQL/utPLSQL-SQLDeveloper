@@ -479,6 +479,11 @@ class UtplsqlDao {
 		return nodes		
 	}
 	
+	/**
+	 * enable DBMS_OUTPUT
+	 * 
+	 * @throws DataAccessException if there is a problem
+	 */
 	def void enableDbmsOutput() {
 		// equivalent to "set serveroutput on size unlimited"
 		jdbcTemplate.update('''
@@ -487,7 +492,12 @@ class UtplsqlDao {
 			END;
 		''')
 	}
-	
+
+	/**
+	 * disable DBMS_OUTPUT
+	 * 
+	 * @throws DataAccessException if there is a problem
+	 */	
 	def void disableDbmsOutput() {
 		jdbcTemplate.update('''
 			BEGIN
@@ -496,10 +506,22 @@ class UtplsqlDao {
 		''')
 	}
 
+	/**
+	 * return the content of DBMS_OUTPUT as String
+	 * 
+	 * @throws DataAccessException if there is a problem
+	 */
 	def String getDbmsOutput() {
 		return getDbmsOutput(1000)
 	}
 	
+	/**
+	 * return the content of DBMS_OUTPUT as String
+
+	 * @param bufferSize maximum number of rows to be read from the DBMS_OUTPUT buffer in one network round trip
+	 * @return content of DBMS_OUTPUT as String
+	 * @throws DataAccessException if there is a problem
+	 */
 	def String getDbmsOutput(int bufferSize) {
 		val sb = new StringBuffer
 		val sql = '''
@@ -531,18 +553,49 @@ class UtplsqlDao {
 		} while (ret.numlines > 0)
 		return sb.toString
 	}	
-	
-	def String htmlCodeCoverage(List<String> pathList) {
+
+	/**
+	 * gets the HTML code coverage report as String
+	 * 
+	 * @param pathList utPLSQL path list
+	 * @param schemaList list of schemas under tests. Current schema, if empty
+	 * @param includeObjectList list of objects to be included for coverage analysis. All, if empty
+	 * @param excludeObjectList list of objects to be excluded from coverage analysis. None, if empty
+	 * @return HTML code coverage report in HTML format 
+	 * @throws DataAccessException if there is a problem
+	 */	
+	def String htmlCodeCoverage(List<String> pathList, List<String> schemaList, List<String> includeObjectList, List<String> excludeObjectList) {
 		enableDbmsOutput
 		val sql = '''
 			BEGIN
 				ut.run(
-					ut_varchar2_list(
-						«FOR path : pathList SEPARATOR ","»
+					a_paths => ut_varchar2_list(
+						«FOR path : pathList SEPARATOR ", "»
 							'«path»'
 						«ENDFOR»
 					),
-					ut_coverage_html_reporter()
+					«IF schemaList.size > 0»
+						a_coverage_schemes =>  ut_varchar2_list(
+							«FOR schema : schemaList SEPARATOR ", "»
+								'«schema»'
+							«ENDFOR»
+						),
+					«ENDIF»
+					«IF includeObjectList.size > 0»
+						a_include_objects =>  ut_varchar2_list(
+							«FOR includeObject : includeObjectList SEPARATOR ", "»
+								'«includeObject»'
+							«ENDFOR»
+						),
+					«ENDIF»
+					«IF excludeObjectList.size > 0»
+						a_exclude_objects =>  ut_varchar2_list(
+							«FOR excludeObject : excludeObjectList SEPARATOR ", "»
+								'«excludeObject»'
+							«ENDFOR»
+						),
+					«ENDIF»
+					a_reporter => ut_coverage_html_reporter()
 				);
 			END;
 		'''
@@ -551,5 +604,30 @@ class UtplsqlDao {
 		disableDbmsOutput
 		return ret
 	} 
+
+	/**
+	 * gets dependencies of a given object. 
+	 * 
+	 * The result can be used as input for the includeObjectList in htmlCodeCoverage
+	 * The scope is reduced to the current schema.
+	 * This is useful when test packages are installed in the code schema.
+	 * The result may include test packages
+	 * 
+	 * @param name test package name
+	 * @return list of dependencies in the current schema
+	 */
+	def List<String> includes(String name) {
+		val sql = '''
+			select referenced_name
+			  from «IF dbaViewAccessible»dba«ELSE»all«ENDIF»_dependencies
+			  WHERE owner = user
+			    AND name = upper(?)
+			    AND referenced_owner = user
+			    AND referenced_type IN ('PACKAGE', 'TYPE', 'PROCEDURE', 'FUNCTION', 'TRIGGER')
+		'''
+		val jdbcTemplate = new JdbcTemplate(new SingleConnectionDataSource(conn, true))
+		val deps = jdbcTemplate.queryForList(sql, String, #[name])
+		return deps
+	}
 
 }
