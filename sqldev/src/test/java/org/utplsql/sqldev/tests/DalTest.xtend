@@ -30,7 +30,7 @@ class DalTest extends AbstractJdbcTest {
 	@BeforeClass
 	@AfterClass
 	def static void setupAndTeardown() {
-		sysJdbcTemplate.execute("CREATE OR REPLACE PUBLIC SYNONYM ut FOR ut3.ut")
+		sysJdbcTemplate.execute("CREATE OR REPLACE PUBLIC SYNONYM ut FOR ut3_latest_release.ut")
 		try {
 			jdbcTemplate.execute("DROP PACKAGE junit_utplsql_test_pkg")
 		} catch (BadSqlGrammarException e) {
@@ -77,7 +77,7 @@ class DalTest extends AbstractJdbcTest {
 		val dao = new UtplsqlDao(dataSource.connection)
 		Assert.assertEquals(null, dao.utplsqlSchema)
 		setupAndTeardown
-		Assert.assertEquals("UT3", dao.utplsqlSchema)
+		Assert.assertEquals("UT3_LATEST_RELEASE", dao.utplsqlSchema)
 	}
 	
 	@Test
@@ -142,7 +142,7 @@ class DalTest extends AbstractJdbcTest {
 			   PROCEDURE t3;
 			END junit_utplsql_test_pkg;
 		''')
-		val effective = dao.annotations("scott", "junit_utplsql_test_pkg")
+		val actual = dao.annotations("scott", "junit_utplsql_test_pkg")
 		val expected = new ArrayList<Annotation>
 		val suite = new Annotation
 		suite.objectOwner = "SCOTT"
@@ -164,7 +164,7 @@ class DalTest extends AbstractJdbcTest {
 		t2.name = 'test'
 		t2.subobjectName = 't2'
 		expected.add(t2)
-		Assert.assertEquals(expected.toString, effective.toString)
+		Assert.assertEquals(expected.toString, actual.toString)
 		jdbcTemplate.execute("DROP PACKAGE junit_utplsql_test_pkg")
 	}
 	
@@ -191,9 +191,9 @@ class DalTest extends AbstractJdbcTest {
 			   PROCEDURE p2;
 			END junit_no_test_pkg;
 		''')
-		val effective = dao.testables('PACKAGE')
-		Assert.assertEquals(1, effective.size)
-		Assert.assertEquals("PACKAGE.JUNIT_NO_TEST_PKG", effective.get(0).id)
+		val actual = dao.testables('PACKAGE')
+		Assert.assertEquals(1, actual.size)
+		Assert.assertEquals("PACKAGE.JUNIT_NO_TEST_PKG", actual.get(0).id)
 	}
 
 	@Test
@@ -212,9 +212,9 @@ class DalTest extends AbstractJdbcTest {
 			   )
 			);
 		''')
-		val effective = dao.testables('TYPE')
-		Assert.assertEquals(1, effective.size)
-		Assert.assertEquals("TYPE.JUNIT_TAB2_OT", effective.get(0).id)
+		val actual = dao.testables('TYPE')
+		Assert.assertEquals(1, actual.size)
+		Assert.assertEquals("TYPE.JUNIT_TAB2_OT", actual.get(0).id)
 	}
 
 	@Test
@@ -226,9 +226,9 @@ class DalTest extends AbstractJdbcTest {
 			   RETURN 1;
 			END;
 		''')
-		val effective = dao.testables('FUNCTION')
-		Assert.assertEquals(1, effective.size)
-		Assert.assertEquals("FUNCTION.JUNIT_F", effective.get(0).id)
+		val actual = dao.testables('FUNCTION')
+		Assert.assertEquals(1, actual.size)
+		Assert.assertEquals("FUNCTION.JUNIT_F", actual.get(0).id)
 	}
 
 	@Test
@@ -240,9 +240,9 @@ class DalTest extends AbstractJdbcTest {
 			   NULL;
 			END;
 		''')
-		val effective = dao.testables('PROCEDURE')
-		Assert.assertEquals(1, effective.size)
-		Assert.assertEquals("PROCEDURE.JUNIT_P", effective.get(0).id)
+		val actual = dao.testables('PROCEDURE')
+		Assert.assertEquals(1, actual.size)
+		Assert.assertEquals("PROCEDURE.JUNIT_P", actual.get(0).id)
 	}
 
 	@Test
@@ -270,28 +270,96 @@ class DalTest extends AbstractJdbcTest {
 			   PROCEDURE t3;
 			END junit_utplsql_test_pkg;
 		''')
-		val effectiveNodes = dao.runnables()		
-		Assert.assertEquals(16, effectiveNodes.size)
-		val effective = new HashMap<String, String>
-		for (node : effectiveNodes) {
-			effective.put(node.id, node.parentId)
+		val actualNodes = dao.runnables()		
+		Assert.assertEquals(16, actualNodes.size)
+		val actual = new HashMap<String, String>
+		for (node : actualNodes) {
+			actual.put(node.id, node.parentId)
 		}
-		Assert.assertEquals(null, effective.get("SUITE"))
-		Assert.assertEquals("SUITE", effective.get("SCOTT.JUNIT_UTPLSQL_TEST_PKG"))
-		Assert.assertEquals("SCOTT.JUNIT_UTPLSQL_TEST_PKG", effective.get("SCOTT.JUNIT_UTPLSQL_TEST_PKG.t0"))
-		Assert.assertEquals("SCOTT.JUNIT_UTPLSQL_TEST_PKG", effective.get("SCOTT.JUNIT_UTPLSQL_TEST_PKG.t1"))
-		Assert.assertEquals("SCOTT.JUNIT_UTPLSQL_TEST_PKG", effective.get("SCOTT.JUNIT_UTPLSQL_TEST_PKG.t2"))
-		Assert.assertEquals("SCOTT.JUNIT_UTPLSQL_TEST_PKG", effective.get("SCOTT.JUNIT_UTPLSQL_TEST_PKG.t3"))
-		Assert.assertEquals(null, effective.get("SUITEPATH"))
-		Assert.assertEquals("SUITEPATH", effective.get("SCOTT:a"))
-		Assert.assertEquals("SCOTT:a", effective.get("SCOTT:a.b"))
-		Assert.assertEquals("SCOTT:a.b", effective.get("SCOTT:a.b.c"))
-		Assert.assertEquals("SCOTT:a.b.c", effective.get("SCOTT:a.b.c.JUNIT_UTPLSQL_TEST_PKG"))
-		Assert.assertEquals("SCOTT:a.b.c.JUNIT_UTPLSQL_TEST_PKG", effective.get("SCOTT:a.b.c.JUNIT_UTPLSQL_TEST_PKG.mycontext"))
-		Assert.assertEquals("SCOTT:a.b.c.JUNIT_UTPLSQL_TEST_PKG", effective.get("SCOTT:a.b.c.JUNIT_UTPLSQL_TEST_PKG.t0"))
-		Assert.assertEquals("SCOTT:a.b.c.JUNIT_UTPLSQL_TEST_PKG", effective.get("SCOTT:a.b.c.JUNIT_UTPLSQL_TEST_PKG.t3"))
-		Assert.assertEquals("SCOTT:a.b.c.JUNIT_UTPLSQL_TEST_PKG.mycontext", effective.get("SCOTT:a.b.c.JUNIT_UTPLSQL_TEST_PKG.mycontext.t1"))
-		Assert.assertEquals("SCOTT:a.b.c.JUNIT_UTPLSQL_TEST_PKG.mycontext", effective.get("SCOTT:a.b.c.JUNIT_UTPLSQL_TEST_PKG.mycontext.t2"))
+		Assert.assertEquals(null, actual.get("SUITE"))
+		Assert.assertEquals("SUITE", actual.get("SCOTT.JUNIT_UTPLSQL_TEST_PKG"))
+		Assert.assertEquals("SCOTT.JUNIT_UTPLSQL_TEST_PKG", actual.get("SCOTT.JUNIT_UTPLSQL_TEST_PKG.t0"))
+		Assert.assertEquals("SCOTT.JUNIT_UTPLSQL_TEST_PKG", actual.get("SCOTT.JUNIT_UTPLSQL_TEST_PKG.t1"))
+		Assert.assertEquals("SCOTT.JUNIT_UTPLSQL_TEST_PKG", actual.get("SCOTT.JUNIT_UTPLSQL_TEST_PKG.t2"))
+		Assert.assertEquals("SCOTT.JUNIT_UTPLSQL_TEST_PKG", actual.get("SCOTT.JUNIT_UTPLSQL_TEST_PKG.t3"))
+		Assert.assertEquals(null, actual.get("SUITEPATH"))
+		Assert.assertEquals("SUITEPATH", actual.get("SCOTT:a"))
+		Assert.assertEquals("SCOTT:a", actual.get("SCOTT:a.b"))
+		Assert.assertEquals("SCOTT:a.b", actual.get("SCOTT:a.b.c"))
+		Assert.assertEquals("SCOTT:a.b.c", actual.get("SCOTT:a.b.c.JUNIT_UTPLSQL_TEST_PKG"))
+		Assert.assertEquals("SCOTT:a.b.c.JUNIT_UTPLSQL_TEST_PKG", actual.get("SCOTT:a.b.c.JUNIT_UTPLSQL_TEST_PKG.mycontext"))
+		Assert.assertEquals("SCOTT:a.b.c.JUNIT_UTPLSQL_TEST_PKG", actual.get("SCOTT:a.b.c.JUNIT_UTPLSQL_TEST_PKG.t0"))
+		Assert.assertEquals("SCOTT:a.b.c.JUNIT_UTPLSQL_TEST_PKG", actual.get("SCOTT:a.b.c.JUNIT_UTPLSQL_TEST_PKG.t3"))
+		Assert.assertEquals("SCOTT:a.b.c.JUNIT_UTPLSQL_TEST_PKG.mycontext", actual.get("SCOTT:a.b.c.JUNIT_UTPLSQL_TEST_PKG.mycontext.t1"))
+		Assert.assertEquals("SCOTT:a.b.c.JUNIT_UTPLSQL_TEST_PKG.mycontext", actual.get("SCOTT:a.b.c.JUNIT_UTPLSQL_TEST_PKG.mycontext.t2"))
+	}
+
+	@Test
+	def void dbmsOutput() {
+		val dao = new UtplsqlDao(dataSource.connection)
+		dao.enableDbmsOutput
+		jdbcTemplate.execute('''
+			BEGIN
+			   sys.dbms_output.put_line('line1');
+			   sys.dbms_output.put_line('line2');
+			   sys.dbms_output.put_line(null);
+			   sys.dbms_output.put_line('line4');
+			   sys.dbms_output.put_line('line5');
+			END;
+		''')
+		val actual = dao.getDbmsOutput(2)
+		val expected = '''
+			line1
+			line2
+
+			line4
+			line5
+		'''
+		Assert.assertEquals(expected, actual)
+	}
+	
+	@Test
+	def void htmlCodeCoverage() {
+		setupAndTeardown
+		val dao = new UtplsqlDao(dataSource.connection)
+		val actual = dao.htmlCodeCoverage(#["SCOTT"], #['scott'], #[], #[])
+		Assert.assertTrue(actual.startsWith("<!DOCTYPE html>"))
+		Assert.assertTrue(actual.trim.endsWith("</html>"))
+	}
+	
+	@Test
+	def void includes() {
+		setupAndTeardown
+		jdbcTemplate.execute('''
+			CREATE OR REPLACE FUNCTION junit_f RETURN INTEGER IS
+			BEGIN
+			   RETURN 1;
+			END junit_f;
+		''')
+		jdbcTemplate.execute('''
+			CREATE OR REPLACE PACKAGE junit_utplsql_test_pkg IS
+			   -- %suite
+
+			   -- %test
+			   PROCEDURE f1;
+			END junit_utplsql_test_pkg;
+		''')		
+		jdbcTemplate.execute('''
+			CREATE OR REPLACE PACKAGE BODY junit_utplsql_test_pkg IS
+			   PROCEDURE f1 IS
+			      l_expected INTEGER := 1;
+			      l_actual   INTEGER;
+			   BEGIN
+			      l_actual := junit_f;
+			      ut.expect(l_actual).to_equal(l_expected).to_equal(l_actual);
+			   END f1;
+			END junit_utplsql_test_pkg;
+		''')
+		val dao = new UtplsqlDao(dataSource.connection)
+		val actualEmpty = dao.includes('TEST_F1')
+		Assert.assertEquals(#[], actualEmpty)
+		val actual = dao.includes('junit_utplsql_test_pkg')
+		Assert.assertEquals(#['JUNIT_UTPLSQL_TEST_PKG','JUNIT_F','UT_EXPECTATION'], actual)
 	}
 
 }

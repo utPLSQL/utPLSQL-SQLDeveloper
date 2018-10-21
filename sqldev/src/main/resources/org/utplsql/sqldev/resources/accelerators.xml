@@ -3,6 +3,9 @@
 		<map action="utplsql.test">
 			<accel>alt shift T</accel>
 		</map>
+		<map action="utplsql.coverage">
+			<accel>alt shift O</accel>
+		</map>
 		<map action="utplsql.generate">
 			<accel>alt shift G</accel>
 		</map>
@@ -10,6 +13,9 @@
 	<preset name="Default MacOS X">
 		<map action="utplsql.test">
 			<accel>alt shift T</accel>
+		</map>
+		<map action="utplsql.coverage">
+			<accel>alt shift O</accel>
 		</map>
 		<map action="utplsql.generate">
 			<accel>alt shift G</accel>

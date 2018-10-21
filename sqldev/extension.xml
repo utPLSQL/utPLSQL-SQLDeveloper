@@ -96,6 +96,13 @@
 						<property name="Category">Code-Editor</property>
 					</properties>
 				</action>
+				<action id="utplsql.coverage">
+					<properties>
+						<property name="Name">${MENU_CODE_COVERAGE_LABEL}</property>
+						<property name="SmallIcon">res:/org/utplsql/sqldev/resources/images/coverage.png</property>
+						<property name="Category">Code-Editor</property>
+					</properties>
+				</action>
 				<action id="utplsql.generate">
 					<properties>
 						<property name="Name">${MENU_GENERATE_TEST_LABEL}</property>
@@ -109,6 +116,7 @@
 					<update-rules>
 						<update-rule rule="always-enabled">
 							<action id="utplsql.test" />
+							<action id="utplsql.coverage" />
 							<action id="utplsql.generate" />
 						</update-rule>
 					</update-rules>
@@ -120,7 +128,8 @@
 					<section xmlns="http://jcp.org/jsr/198/extension-manifest"
 						id="UTPLSQL_MENU" weight="2.0">
 						<item action-ref="utplsql.test" weight="1.0" />
-						<item action-ref="utplsql.generate" weight="1.1" />
+						<item action-ref="utplsql.coverage" weight="1.1" />
+						<item action-ref="utplsql.generate" weight="1.2" />
 					</section>
 				</menu>
 			</context-menu-hook>
@@ -130,6 +139,7 @@
 					<section xmlns="http://jcp.org/jsr/198/extension-manifest"
 						id="UTPLSQL_MENU" weight="2.0">
 						<item action-ref="utplsql.test" weight="12.1" />
+						<item action-ref="utplsql.coverage" weight="12.2" />
 					</section>
 				</menu>
 			</context-menu-hook>
@@ -138,7 +148,7 @@
 				<menu>
 					<section xmlns="http://jcp.org/jsr/198/extension-manifest"
 						id="UTPLSQL_MENU" weight="2.0">
-						<item action-ref="utplsql.generate" weight="12.2" />
+						<item action-ref="utplsql.generate" weight="12.3" />
 					</section>
 				</menu>
 			</context-menu-hook>

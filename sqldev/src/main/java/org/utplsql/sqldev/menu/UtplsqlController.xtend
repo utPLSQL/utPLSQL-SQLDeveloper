@@ -16,7 +16,10 @@ package org.utplsql.sqldev.menu
 
 import java.net.URL
 import java.util.ArrayList
+import java.util.HashSet
+import java.util.List
 import java.util.logging.Logger
+import java.util.regex.Pattern
 import javax.swing.JEditorPane
 import oracle.dbtools.raptor.navigator.db.DBNavigatorWindow
 import oracle.dbtools.raptor.navigator.db.DatabaseConnection
@@ -33,6 +36,7 @@ import oracle.ide.config.Preferences
 import oracle.ide.controller.Controller
 import oracle.ide.controller.IdeAction
 import oracle.ide.editor.Editor
+import org.utplsql.sqldev.CodeCoverageReporter
 import org.utplsql.sqldev.UtplsqlWorksheet
 import org.utplsql.sqldev.dal.UtplsqlDao
 import org.utplsql.sqldev.model.URLTools
@@ -45,16 +49,21 @@ class UtplsqlController implements Controller {
 	static final Logger logger = Logger.getLogger(UtplsqlController.name);
 	val extension URLTools urlTools = new URLTools
 
-	public static int UTLPLSQL_TEST_CMD_ID = Ide.findCmdID("utplsql.test")
-	public static int UTLPLSQL_GENERATE_CMD_ID = Ide.findCmdID("utplsql.generate")
-	public static final IdeAction UTLPLSQL_TEST_ACTION = IdeAction.get(UtplsqlController.UTLPLSQL_TEST_CMD_ID)
-	public static final IdeAction UTLPLSQL_GENERATE_ACTION = IdeAction.get(UtplsqlController.UTLPLSQL_GENERATE_CMD_ID)
+	public static int UTPLSQL_TEST_CMD_ID = Ide.findCmdID("utplsql.test")
+	public static int UTPLSQL_COVERAGE_CMD_ID = Ide.findCmdID("utplsql.coverage")
+	public static int UTPLSQL_GENERATE_CMD_ID = Ide.findCmdID("utplsql.generate")
+	public static final IdeAction UTPLSQL_TEST_ACTION = IdeAction.get(UtplsqlController.UTPLSQL_TEST_CMD_ID)
+	public static final IdeAction UTPLSQL_COVERAGE_ACTION = IdeAction.get(UtplsqlController.UTPLSQL_COVERAGE_CMD_ID)
+	public static final IdeAction UTPLSQL_GENERATE_ACTION = IdeAction.get(UtplsqlController.UTPLSQL_GENERATE_CMD_ID)
 
 	override handleEvent(IdeAction action, Context context) {
-		if (action.commandId === UtplsqlController.UTLPLSQL_TEST_CMD_ID) {
+		if (action.commandId === UTPLSQL_TEST_CMD_ID) {
 			runTest(context)
 			return true
-		} else if (action.commandId === UtplsqlController.UTLPLSQL_GENERATE_CMD_ID) {
+		} else if (action.commandId === UTPLSQL_COVERAGE_CMD_ID) {
+			codeCoverage(context)
+			return true
+		} else if (action.commandId === UTPLSQL_GENERATE_CMD_ID) {
 			generateTest(context)
 			return true
 		}
@@ -62,7 +71,7 @@ class UtplsqlController implements Controller {
 	}
 
 	override update(IdeAction action, Context context) {
-		if (action.commandId === UTLPLSQL_TEST_CMD_ID) {
+		if (action.commandId === UTPLSQL_TEST_CMD_ID || action.commandId === UTPLSQL_COVERAGE_CMD_ID) {
 			val preferences = PreferenceModel.getInstance(Preferences.preferences)
 			action.enabled = false
 			val view = context.view
@@ -117,7 +126,7 @@ class UtplsqlController implements Controller {
 				}
 			}
 			return true
-		} else if (action.commandId === UTLPLSQL_GENERATE_CMD_ID) {
+		} else if (action.commandId === UTPLSQL_GENERATE_CMD_ID) {
 			action.enabled = false
 			// enable if generation is possible
 			val view = context.view
@@ -175,6 +184,36 @@ class UtplsqlController implements Controller {
 		}
 		return pathList
 	}
+	
+	private def getPathList(String path) {
+		val pathList = new ArrayList<String>
+		pathList.add(path)
+		return pathList
+	}
+	
+	private def dedupPathList(List<String> pathList) {
+		val set = new HashSet<String>
+		for (path : pathList) {
+			set.add(path)
+		}
+		val ret = new ArrayList<String>
+		val p = Pattern.compile("((((\\w+)\\.)?\\w+)\\.)?\\w+")
+		for (path : set) {
+			val m = p.matcher(path)
+			if (m.matches()) {
+				val parent1 = m.group(4) // user
+				val parent2 = m.group(2) // user.package
+				if (parent1 === null || !set.contains(parent1)) {
+					if (parent2 === null || !set.contains(parent2)) {
+						ret.add(path)
+					}
+				}
+			} else {
+				logger.severe('''path: «path» did not match «p.toString», this is unexected!''')
+			}
+		}
+		return ret
+	}		
 
 	private def getURL(Context context) {
 		var URL url
@@ -242,7 +281,7 @@ class UtplsqlController implements Controller {
 				val parser = new UtplsqlParser(component.text, if (preferences.checkRunUtplsqlTest) {Connections.instance.getConnection(connectionName)} else {null}, owner)
 				val position = component.caretPosition
 				val path = parser.getPathAt(position)
-				val utPlsqlWorksheet = new UtplsqlWorksheet(path, connectionName)
+				val utPlsqlWorksheet = new UtplsqlWorksheet(path.pathList, connectionName)
 				utPlsqlWorksheet.runTestAsync
 			}
 		} else if (view instanceof DBNavigatorWindow) {
@@ -250,9 +289,74 @@ class UtplsqlController implements Controller {
 			if (url !== null) {
 				val connectionName = url.connectionName
 				logger.fine('''connectionName: «connectionName»''')
-				val pathList=context.pathList
+				val pathList=context.pathList.dedupPathList
 				val utPlsqlWorksheet = new UtplsqlWorksheet(pathList, connectionName)
 				utPlsqlWorksheet.runTestAsync
+			}
+		}
+	}
+	
+	def List<String> dependencies(String name, String connectionName) {
+		var List<String> ret = null
+		if (connectionName !== null) {
+			val dao = new UtplsqlDao(Connections.instance.getConnection(connectionName))
+			ret = dao.includes(name)
+		}
+		return ret
+	}
+	
+	def List<String> dependencies(Context context, String connectionName) {
+		val HashSet<String> ret = new HashSet<String>
+		for (i : 0 ..< context.selection.length) {
+			val element = context.selection.get(i)
+			if (element instanceof PlSqlNode) {
+				val dep = dependencies(element.objectName, connectionName)
+				for (d : dep) {
+					ret.add(d)
+				}
+			} else if (element instanceof ChildObjectElement) {
+				val dep = dependencies(element.URL.memberObject, connectionName)
+				for (d : dep) {
+					ret.add(d)
+				}
+			}
+		}
+		return ret.toList.sortBy[it]
+	}
+	
+	def codeCoverage(Context context) {
+		val view = context.view
+		val node = context.node
+		logger.finer('''Code coverage from view «view?.class?.name» and node «node?.class?.name».''')
+		if (view instanceof Editor) {
+			val component = view.defaultFocusComponent
+			if (component instanceof JEditorPane) {
+				var String connectionName = null;
+				var String owner = null;
+				if (node instanceof DatabaseSourceNode) {
+					connectionName = node.connectionName
+				} else if (view instanceof Worksheet) {
+					connectionName = view.connectionName
+				}
+				logger.fine('''connectionName: «connectionName»''')
+				val preferences = PreferenceModel.getInstance(Preferences.preferences)
+				val parser = new UtplsqlParser(component.text, if (preferences.checkRunUtplsqlTest) {Connections.instance.getConnection(connectionName)} else {null}, owner)
+				val position = component.caretPosition
+				val path = parser.getPathAt(position)
+				val object = parser.getObjectAt(position)
+				val includeObjectList = dependencies(object.name, connectionName)
+				val reporter = new CodeCoverageReporter(path.pathList, includeObjectList, connectionName)
+				reporter.showParameterWindow
+			}
+		} else if (view instanceof DBNavigatorWindow) {
+			val url=context.URL
+			if (url !== null) {
+				val connectionName = url.connectionName
+				logger.fine('''connectionName: «connectionName»''')
+				val pathList=context.pathList.dedupPathList
+				val includeObjectList = dependencies(context, connectionName)
+				val reporter = new CodeCoverageReporter(pathList, includeObjectList, connectionName)
+				reporter.showParameterWindow
 			}
 		}
 	}
