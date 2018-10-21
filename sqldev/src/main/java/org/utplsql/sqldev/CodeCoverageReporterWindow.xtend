@@ -83,10 +83,10 @@ class CodeCoverageReporterWindow extends JFrame implements ActionListener, Focus
 		paneParams = new JPanel(new GridBagLayout())
 		pathsTextArea.editable = false
 		pathsTextArea.enabled = false
-		addParam(UtplsqlResources.getString("WINDOW_PATHS_LABEL"), '''«FOR path : reporter.pathList SEPARATOR ", "»«path»«ENDFOR»''', pathsTextArea)
-		addParam(UtplsqlResources.getString("WINDOW_SCHEMAS_LABEL"), "", schemasTextField);
-		addParam(UtplsqlResources.getString("WINDOW_INCLUDE_OBJECS_LABEL"), '''«FOR i : reporter.includeObjectList SEPARATOR ", "»«i»«ENDFOR»''', includeObjectsTextArea);
-		addParam(UtplsqlResources.getString("WINDOW_EXCLUDE_OBJECS_LABEL"), "", excludeObjectsTextArea);
+		addParam(UtplsqlResources.getString("WINDOW_PATHS_LABEL"), '''«FOR path : reporter.pathList SEPARATOR ", "»«path»«ENDFOR»''', pathsTextArea, 50, 2)
+		addParam(UtplsqlResources.getString("WINDOW_SCHEMAS_LABEL"), "", schemasTextField, 0, 0);
+		addParam(UtplsqlResources.getString("WINDOW_INCLUDE_OBJECS_LABEL"), '''«FOR i : reporter.includeObjectList SEPARATOR ", "»«i»«ENDFOR»''', includeObjectsTextArea, 66, 4);
+		addParam(UtplsqlResources.getString("WINDOW_EXCLUDE_OBJECS_LABEL"), "", excludeObjectsTextArea, 34, 1);
 		val scrollPane = new JScrollPane(paneParams)
 		scrollPane.verticalScrollBarPolicy = ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED
 		scrollPane.horizontalScrollBarPolicy = ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER
@@ -130,11 +130,11 @@ class CodeCoverageReporterWindow extends JFrame implements ActionListener, Focus
 		c.weightx = 0;
 		c.weighty = 0;
 		pane.add(panelButtons, c);
-		pane.setPreferredSize(new Dimension(600, 320));
+		pane.setPreferredSize(new Dimension(500, 320));
 		SwingUtilities.getRootPane(runButton).defaultButton = runButton
 	}
 	
-	private def addParam(String label, String text, Component component) {
+	private def addParam(String label, String text, Component component, int height, double weighty) {
 		paramPos++
 		val c = new GridBagConstraints();
 		val paramLabel = new JLabel(label)
@@ -153,17 +153,16 @@ class CodeCoverageReporterWindow extends JFrame implements ActionListener, Focus
 		c.fill = GridBagConstraints.BOTH
 		c.insets = new Insets(10, 10, 0, 10); // top, left, bottom, right
 		c.weightx = 1
+		c.weighty = weighty
 		if (component instanceof JTextField) {
 			component.text = text
-			c.weighty = 0
 			paneParams.add(component, c)			
 		} else if (component instanceof JTextArea) {
 			component.text = text
 			component.lineWrap = true
 			component.wrapStyleWord = true
 			var scrollPane = new JScrollPane(component);
-			scrollPane.viewport.preferredSize = new Dimension(200, 50)
-			c.weighty = 1
+			scrollPane.viewport.preferredSize = new Dimension(200, height)
 			paneParams.add(scrollPane, c)
 		}
 		component.addFocusListener(this)
