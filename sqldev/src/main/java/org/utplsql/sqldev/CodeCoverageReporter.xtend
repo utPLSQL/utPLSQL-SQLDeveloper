@@ -77,7 +77,7 @@ class CodeCoverageReporter {
 			logger.fine('''Running code coverage reporter for «pathList»...''')
 			val dal = new UtplsqlDao(conn)
 			val content = dal.htmlCodeCoverage(pathList, toStringList(schemas), toStringList(includeObjects), toStringList(excludeObjects))
-			val file = File.createTempFile("utplsql_", "html")
+			val file = File.createTempFile("utplsql_", ".html")
 			logger.fine('''Writing result to «file.absolutePath»...''')
 			Files.write(Paths.get(file.absolutePath), content.split(System.lineSeparator), StandardCharsets.UTF_8);
 			val url = file.toURI().toURL().toExternalForm()
