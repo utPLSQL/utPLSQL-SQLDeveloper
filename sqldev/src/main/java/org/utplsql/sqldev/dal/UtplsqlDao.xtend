@@ -288,7 +288,7 @@ class UtplsqlDao {
 			             lower(a.name) AS name,
 			             a.text,
 			             a.subobject_name
-			        FROM table(ut3.ut_annotation_manager.get_annotated_objects(user, 'PACKAGE')) o
+			        FROM table(«utplsqlSchema».ut_annotation_manager.get_annotated_objects(user, 'PACKAGE')) o
 			       CROSS JOIN table(o.annotations) a
 			       WHERE lower(a.name) in ('suite', 'suitepath', 'endcontext', 'test')
 			          OR lower(a.name) = 'context' AND regexp_like(text, '(\w+)(\.\w+)*')
