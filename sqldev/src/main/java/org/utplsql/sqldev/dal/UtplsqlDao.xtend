@@ -299,7 +299,7 @@ class UtplsqlDao {
 			       WHERE name = 'suite'
 			   ),
 			   suitepath as (
-			      SELECT object_owner, object_type, object_name, text AS suitepath 
+			      SELECT object_owner, object_type, object_name, lower(text) AS suitepath 
 			        FROM base
 			       WHERE name = 'suitepath'
 			   ),
