@@ -251,7 +251,7 @@ class DalTest extends AbstractJdbcTest {
 		jdbcTemplate.execute('''
 			CREATE OR REPLACE PACKAGE junit_utplsql_test_pkg IS
 			   -- %suite
-			   -- %suitepath(a.b.c)
+			   -- %suitepath(a.B.c)
 
 			   -- %test
 			   PROCEDURE t0;
