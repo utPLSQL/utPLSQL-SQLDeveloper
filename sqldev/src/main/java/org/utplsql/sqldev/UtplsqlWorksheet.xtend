@@ -43,7 +43,14 @@ class UtplsqlWorksheet {
 
 	private def setConnection(String connectionName) {
 		if (connectionName !== null && preferences.unsharedWorksheet) {
-			this.connectionName = Connections.instance.createPrivateConnection(connectionName)
+			// fix for issue #47 - private connections are not closed in SQLDev >= 17.4.0
+			try {
+				// temporary connection is closed when worksheet is closed, but requires SQLDev >= 17.4.0
+				this.connectionName = Connections.instance.createTemporaryConnection(connectionName)
+			} catch (Throwable e) {
+				// private connection is closed when worksheet is closed in SQLDev < 17.4.0
+				this.connectionName = Connections.instance.createPrivateConnection(connectionName)				
+			}	
 		} else {
 			this.connectionName = connectionName;
 		}
