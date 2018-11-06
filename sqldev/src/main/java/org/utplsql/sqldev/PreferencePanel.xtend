@@ -251,7 +251,7 @@ class PreferencePanel extends DefaultTraversablePanel {
 					-- populate expected
 					-- ...
 
-				-- assert
+					-- assert
 				«ENDIF»
 				ut.expect(l_actual).to_equal(l_expected);
 			END «testUnitPrefixTextField.text»[procedure_name]«testUnitSuffixTextField.text»«IF withContext»«i»«ENDIF»;
