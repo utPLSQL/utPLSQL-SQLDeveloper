@@ -36,6 +36,9 @@ class RunGenerator implements OddgenGenerator2 {
 	public static var RESET_PACKAGE = UtplsqlResources.getString("PREF_RESET_PACKAGE_LABEL")
 	public static var CLEAR_SCREEN = UtplsqlResources.getString("PREF_CLEAR_SCREEN_LABEL")
 	public static var INDENT_SPACES = UtplsqlResources.getString("PREF_INDENT_SPACES_LABEL")
+	
+	// oddgen node cache
+	var List<Node> runnables = null;
 
 	override isSupported(Connection conn) {
 		var ret = false
@@ -75,17 +78,22 @@ class RunGenerator implements OddgenGenerator2 {
 	}
 	
 	override getNodes(Connection conn, String parentNodeId) {
-		val preferences = PreferenceModel.getInstance(Preferences.preferences)
-		val params = new LinkedHashMap<String, String>()
-		params.put(RESET_PACKAGE, if (preferences.resetPackage) {YES} else {NO})
-		params.put(CLEAR_SCREEN, if (preferences.clearScreen) {YES} else {NO})
-		params.put(INDENT_SPACES, String.valueOf(preferences.indentSpaces))
-		val UtplsqlDao dao = new UtplsqlDao(conn)
-		val nodes = dao.runnables
-		for (node : nodes) {
-			node.params = params
+		// oddgen asks for children for each parent node, regardless of load strategy (eager/lazy)
+		// oddgen does not know about the load strategy, hence caching is the responsibility of the generator
+		if (runnables === null) {
+			val preferences = PreferenceModel.getInstance(Preferences.preferences)
+			val params = new LinkedHashMap<String, String>()
+			params.put(RESET_PACKAGE, if (preferences.resetPackage) {YES} else {NO})
+			params.put(CLEAR_SCREEN, if (preferences.clearScreen) {YES} else {NO})
+			params.put(INDENT_SPACES, String.valueOf(preferences.indentSpaces))
+			val UtplsqlDao dao = new UtplsqlDao(conn)
+			// load node tree eagerly (all nodes in one go)
+			runnables = dao.runnables
+			for (node : runnables) {
+				node.params = params
+			}
 		}
-		return nodes
+		return runnables
 	}
 
 	override getLov(Connection conn, LinkedHashMap<String, String> params, List<Node> nodes) {
