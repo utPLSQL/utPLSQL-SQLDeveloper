@@ -35,6 +35,7 @@ class UtplsqlParserTest extends AbstractJdbcTest {
 		CREATE OR REPLACE PACKAGE pkg IS
 		   -- %suite
 		   -- %rollback(manual)
+
 		   -- %test
 		   PROCEDURE p (in_p1 INTEGER);
 		   FUNCTION f (in_p1 INTEGER) RETURN INTEGER;
@@ -90,7 +91,7 @@ class UtplsqlParserTest extends AbstractJdbcTest {
 		Assert.assertEquals("pkg", parser.getPathAt(parser.toPosition(4,1)))
 		Assert.assertEquals("pkg.p", parser.getPathAt(parser.toPosition(10,33)))
 		Assert.assertEquals("pkg.p", parser.getPathAt(parser.toPosition(13,1)))
-		Assert.assertEquals("SCOTT.PKG.P", parser.getPathAt(parser.toPosition(19,1)))
+		Assert.assertEquals("SCOTT.PKG.p", parser.getPathAt(parser.toPosition(19,1)))
 		Assert.assertEquals("SCOTT.PKG.P", parser.getPathAt(parser.toPosition(22,9)))
 		Assert.assertEquals("SCOTT.PKG.P", parser.getPathAt(parser.toPosition(22,10)))
 		Assert.assertEquals("SCOTT.PKG.P", parser.getPathAt(parser.toPosition(29,1)))
@@ -125,7 +126,7 @@ class UtplsqlParserTest extends AbstractJdbcTest {
 		Assert.assertEquals(2, parser.getObjects.size)
 		Assert.assertEquals(2, parser.getUnits.size)
 		Assert.assertEquals("pkg.p", parser.getPathAt(parser.toPosition(13,1)))
-		Assert.assertEquals("SCOTT.PKG.P", parser.getPathAt(parser.toPosition(19,1)))
+		Assert.assertEquals("SCOTT.PKG.p", parser.getPathAt(parser.toPosition(19,1)))
 		setupAndTeardown
 	}
 	
