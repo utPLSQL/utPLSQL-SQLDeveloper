@@ -86,9 +86,9 @@ class DalTest extends AbstractJdbcTest {
 		Assert.assertTrue(dao.utAnnotationManagerInstalled)
 	}
 	
-	@Test
-	def void containsUtplsqlTest() {
+	def void containsUtplsqlTest(String utPlsqlVersion) {
 		val dao = new UtplsqlDao(dataSource.connection)
+		dao.utPlsqlVersion = utPlsqlVersion
 		jdbcTemplate.execute('''
 			CREATE OR REPLACE PACKAGE junit_utplsql_test_pkg IS
 			   -- %suite
@@ -125,10 +125,20 @@ class DalTest extends AbstractJdbcTest {
 		Assert.assertFalse(dao.containsUtplsqlTest("scott", "junit_utplsql_test_pkg", "t3"))
 		jdbcTemplate.execute("DROP PACKAGE junit_utplsql_test_pkg")
 	}
-	
+
 	@Test
-	def void annotations() {
+	def void containsUtplsqlTest304() {
+		containsUtplsqlTest("3.0.4")
+	}
+
+	@Test
+	def void containsUtplsqlTest313() {
+		containsUtplsqlTest("3.1.3")
+	}
+	
+	def void annotations(String utPlsqlVersion) {
 		val dao = new UtplsqlDao(dataSource.connection)
+		dao.utPlsqlVersion = utPlsqlVersion
 		jdbcTemplate.execute('''
 			CREATE OR REPLACE PACKAGE junit_utplsql_test_pkg IS
 			   -- %suite
@@ -146,31 +156,39 @@ class DalTest extends AbstractJdbcTest {
 		val expected = new ArrayList<Annotation>
 		val suite = new Annotation
 		suite.objectOwner = "SCOTT"
-		suite.objectType = "PACKAGE"
 		suite.objectName = "JUNIT_UTPLSQL_TEST_PKG"
 		suite.name = 'suite'
+		suite.subobjectName = suite.objectName
 		expected.add(suite)
 		val t1 = new Annotation
 		t1.objectOwner = "SCOTT"
-		t1.objectType = "PACKAGE"
 		t1.objectName = "JUNIT_UTPLSQL_TEST_PKG"
 		t1.name = 'test'
-		t1.subobjectName = 't1'
+		t1.subobjectName = 'T1'
 		expected.add(t1)
 		val t2 = new Annotation
 		t2.objectOwner = "SCOTT"
-		t2.objectType = "PACKAGE"
 		t2.objectName = "JUNIT_UTPLSQL_TEST_PKG"
 		t2.name = 'test'
-		t2.subobjectName = 't2'
+		t2.subobjectName = 'T2'
 		expected.add(t2)
 		Assert.assertEquals(expected.toString, actual.toString)
 		jdbcTemplate.execute("DROP PACKAGE junit_utplsql_test_pkg")
 	}
-	
+
 	@Test
-	def void testablesPackages() {
+	def void annotations304() {
+		annotations("3.0.4")
+	}
+
+	@Test
+	def void annotations313() {
+		annotations("3.1.3")
+	}
+	
+	def void testablesPackages(String utPlsqlVersion) {
 		val dao = new UtplsqlDao(dataSource.connection)
+		dao.utPlsqlVersion = utPlsqlVersion		
 		jdbcTemplate.execute('''
 			CREATE OR REPLACE PACKAGE junit_utplsql_test_pkg IS
 			   -- %suite
@@ -197,8 +215,18 @@ class DalTest extends AbstractJdbcTest {
 	}
 
 	@Test
-	def void testablesTypes() {
+	def void testablesPackages304() {
+		testablesPackages("3.0.4")
+	}
+
+	@Test
+	def void testablesPackages313() {
+		testablesPackages("3.1.3")
+	}
+
+	def void testablesTypes(String utPlsqlVersion) {
 		val dao = new UtplsqlDao(dataSource.connection)
+		dao.utPlsqlVersion = utPlsqlVersion		
 		jdbcTemplate.execute('''
 			CREATE OR REPLACE TYPE junit_tab1_ot IS object (a integer, b integer);
 		''')
@@ -218,8 +246,18 @@ class DalTest extends AbstractJdbcTest {
 	}
 
 	@Test
-	def void testablesFunctions() {
+	def void testablesTypes304() {
+		testablesTypes("3.0.4")
+	}
+
+	@Test
+	def void testablesTypes313() {
+		testablesTypes("3.1.3")
+	}
+
+	def void testablesFunctions(String utPlsqlVersion) {
 		val dao = new UtplsqlDao(dataSource.connection)
+		dao.utPlsqlVersion = utPlsqlVersion
 		jdbcTemplate.execute('''
 			CREATE OR REPLACE FUNCTION junit_f RETURN INTEGER IS 
 			BEGIN
@@ -232,8 +270,18 @@ class DalTest extends AbstractJdbcTest {
 	}
 
 	@Test
-	def void testablesProcedures() {
+	def void testablesFunctions304() {
+		testablesFunctions("3.0.4")
+	}
+
+	@Test
+	def void testablesFunctions313() {
+		testablesFunctions("3.1.3")
+	}
+
+	def void testablesProcedures(String utPlsqlVersion) {
 		val dao = new UtplsqlDao(dataSource.connection)
+		dao.utPlsqlVersion = utPlsqlVersion
 		jdbcTemplate.execute('''
 			CREATE OR REPLACE PROCEDURE junit_p RETURN INTEGER IS 
 			BEGIN
@@ -246,22 +294,32 @@ class DalTest extends AbstractJdbcTest {
 	}
 
 	@Test
-	def void runnables() {
+	def void testablesProcedures304() {
+		testablesProcedures("3.0.4")
+	}
+
+	@Test
+	def void testablesProcedures313() {
+		testablesProcedures("3.1.3")
+	}
+
+	def void runnables(String utPlsqlVersion) {
 		val dao = new UtplsqlDao(dataSource.connection)
+		dao.utPlsqlVersion = utPlsqlVersion
 		jdbcTemplate.execute('''
 			CREATE OR REPLACE PACKAGE junit_utplsql_test_pkg IS
 			   -- %suite
 			   -- %suitepath(a.B.c)
 
 			   -- %test
-			   PROCEDURE t0;
+			   PROCEDURE T0;
 
-			   -- %context(mycontext)
+			   -- %context(myContext)
 
-			   -- %test
+			   -- %test(t1: test One)
 			   PROCEDURE t1;
 
-			   -- %test
+			   -- %test(t2: test Two)
 			   PROCEDURE t2;
 
 			   -- %endcontext
@@ -278,20 +336,30 @@ class DalTest extends AbstractJdbcTest {
 		}
 		Assert.assertEquals(null, actual.get("SUITE"))
 		Assert.assertEquals("SUITE", actual.get("SCOTT.JUNIT_UTPLSQL_TEST_PKG"))
-		Assert.assertEquals("SCOTT.JUNIT_UTPLSQL_TEST_PKG", actual.get("SCOTT.JUNIT_UTPLSQL_TEST_PKG.t0"))
-		Assert.assertEquals("SCOTT.JUNIT_UTPLSQL_TEST_PKG", actual.get("SCOTT.JUNIT_UTPLSQL_TEST_PKG.t1"))
-		Assert.assertEquals("SCOTT.JUNIT_UTPLSQL_TEST_PKG", actual.get("SCOTT.JUNIT_UTPLSQL_TEST_PKG.t2"))
-		Assert.assertEquals("SCOTT.JUNIT_UTPLSQL_TEST_PKG", actual.get("SCOTT.JUNIT_UTPLSQL_TEST_PKG.t3"))
+		Assert.assertEquals("SCOTT.JUNIT_UTPLSQL_TEST_PKG", actual.get("SCOTT.JUNIT_UTPLSQL_TEST_PKG.T0"))
+		Assert.assertEquals("SCOTT.JUNIT_UTPLSQL_TEST_PKG", actual.get("SCOTT.JUNIT_UTPLSQL_TEST_PKG.T1"))
+		Assert.assertEquals("SCOTT.JUNIT_UTPLSQL_TEST_PKG", actual.get("SCOTT.JUNIT_UTPLSQL_TEST_PKG.T2"))
+		Assert.assertEquals("SCOTT.JUNIT_UTPLSQL_TEST_PKG", actual.get("SCOTT.JUNIT_UTPLSQL_TEST_PKG.T3"))
 		Assert.assertEquals(null, actual.get("SUITEPATH"))
 		Assert.assertEquals("SUITEPATH", actual.get("SCOTT:a"))
 		Assert.assertEquals("SCOTT:a", actual.get("SCOTT:a.b"))
 		Assert.assertEquals("SCOTT:a.b", actual.get("SCOTT:a.b.c"))
-		Assert.assertEquals("SCOTT:a.b.c", actual.get("SCOTT:a.b.c.JUNIT_UTPLSQL_TEST_PKG"))
-		Assert.assertEquals("SCOTT:a.b.c.JUNIT_UTPLSQL_TEST_PKG", actual.get("SCOTT:a.b.c.JUNIT_UTPLSQL_TEST_PKG.mycontext"))
-		Assert.assertEquals("SCOTT:a.b.c.JUNIT_UTPLSQL_TEST_PKG", actual.get("SCOTT:a.b.c.JUNIT_UTPLSQL_TEST_PKG.t0"))
-		Assert.assertEquals("SCOTT:a.b.c.JUNIT_UTPLSQL_TEST_PKG", actual.get("SCOTT:a.b.c.JUNIT_UTPLSQL_TEST_PKG.t3"))
-		Assert.assertEquals("SCOTT:a.b.c.JUNIT_UTPLSQL_TEST_PKG.mycontext", actual.get("SCOTT:a.b.c.JUNIT_UTPLSQL_TEST_PKG.mycontext.t1"))
-		Assert.assertEquals("SCOTT:a.b.c.JUNIT_UTPLSQL_TEST_PKG.mycontext", actual.get("SCOTT:a.b.c.JUNIT_UTPLSQL_TEST_PKG.mycontext.t2"))
+		Assert.assertEquals("SCOTT:a.b.c", actual.get("SCOTT:a.b.c.junit_utplsql_test_pkg"))
+		Assert.assertEquals("SCOTT:a.b.c.junit_utplsql_test_pkg", actual.get("SCOTT:a.b.c.junit_utplsql_test_pkg.myContext"))
+		Assert.assertEquals("SCOTT:a.b.c.junit_utplsql_test_pkg", actual.get("SCOTT:a.b.c.junit_utplsql_test_pkg.t0"))
+		Assert.assertEquals("SCOTT:a.b.c.junit_utplsql_test_pkg", actual.get("SCOTT:a.b.c.junit_utplsql_test_pkg.t3"))
+		Assert.assertEquals("SCOTT:a.b.c.junit_utplsql_test_pkg.myContext", actual.get("SCOTT:a.b.c.junit_utplsql_test_pkg.myContext.t1"))
+		Assert.assertEquals("SCOTT:a.b.c.junit_utplsql_test_pkg.myContext", actual.get("SCOTT:a.b.c.junit_utplsql_test_pkg.myContext.t2"))
+	}
+
+	@Test
+	def void runnables304() {
+		runnables("3.0.4")
+	}
+
+	@Test
+	def void runnables313() {
+		runnables("3.1.3")
 	}
 
 	@Test
@@ -360,6 +428,48 @@ class DalTest extends AbstractJdbcTest {
 		Assert.assertEquals(#[], actualEmpty)
 		val actual = dao.includes('junit_utplsql_test_pkg')
 		Assert.assertEquals(#['JUNIT_UTPLSQL_TEST_PKG','JUNIT_F','UT_EXPECTATION'].sort, actual.sort)
+	}
+	
+	@Test
+	def void normalizedPlsqlVersionOkRelease() {
+		val dao = new UtplsqlDao(dataSource.connection)
+		dao.utPlsqlVersion = "v3.1.10.1234"
+		val actual = dao.normalizedUtPlsqlVersion()
+		Assert.assertEquals("3.1.10", actual)
+	}
+
+	@Test
+	def void normalizedPlsqlVersionOkDevelop() {
+		val dao = new UtplsqlDao(dataSource.connection)
+		dao.utPlsqlVersion = "v3.1.10.1234-develop"
+		val actual = dao.normalizedUtPlsqlVersion()
+		Assert.assertEquals("3.1.10", actual)
+	}
+
+	@Test
+	def void normalizedPlsqlVersionNok() {
+		val dao = new UtplsqlDao(dataSource.connection)
+		dao.utPlsqlVersion = "bla bla 1.2"
+		val actual = dao.normalizedUtPlsqlVersion()
+		Assert.assertEquals("0.0.0", actual)
+	}
+	
+	@Test
+	def void normaliedPlsqlVersionNumber() {
+		val dao = new UtplsqlDao(dataSource.connection)
+		dao.utPlsqlVersion = "3.14.37"
+		val actual = dao.normalizedUtPlsqlVersionNumber()
+		Assert.assertEquals(3014037, actual)		
+	}
+	
+	@Test
+	def void utPlsqlVersion() {
+		val dao = new UtplsqlDao(dataSource.connection)
+		val actual = dao.utPlsqlVersion
+		val sql = "SELECT ut.version FROM DUAL"
+		val expected = jdbcTemplate.queryForObject(sql, String)
+		Assert.assertEquals(expected, actual)
+		
 	}
 
 }
