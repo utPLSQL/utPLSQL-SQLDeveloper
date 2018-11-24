@@ -21,7 +21,6 @@ import org.utplsql.sqldev.model.AbstractModel
 @Accessors
 class Annotation extends AbstractModel {
 	String objectOwner
-	String objectType
 	String objectName
 	String name
 	String text
