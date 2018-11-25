@@ -416,7 +416,7 @@ class UtplsqlDao {
 				             'Yes' AS multiselectable,
 				             'Yes' AS relevant
 				        FROM test
-				       WHERE item_type = 'UT_TEST'
+				       WHERE item_type IN ('UT_TEST', 'UT_SUITE')
 				      UNION ALL
 				      SELECT object_owner || '.' || object_name AS parent_id,
 				             object_owner || '.' || object_name || '.' || item_name AS id,
