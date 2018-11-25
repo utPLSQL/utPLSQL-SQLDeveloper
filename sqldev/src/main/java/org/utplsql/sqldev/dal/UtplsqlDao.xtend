@@ -179,7 +179,7 @@ class UtplsqlDao {
 				val sql = '''
 					SELECT count(*)
 					  FROM TABLE(ut_runner.get_suites_info(upper(?), upper(?)))
-					 WHERE item_type = 'UT_TEST'
+					 WHERE item_type IN ('UT_TEST', 'UT_SUITE')
 					   AND (item_name = upper(?) or ? IS NULL)
 				'''
 				found = jdbcTemplate.queryForObject(sql, Integer, #[owner, objectName, subobjectName, subobjectName])
@@ -388,6 +388,14 @@ class UtplsqlDao {
 				      SELECT object_owner,
 				             object_name,
 				             path AS suitepath,
+				             count(
+				                CASE 
+				                   WHEN item_type = 'UT_TEST' THEN 
+				                      1 
+				                   ELSE 
+				                      NULL 
+				                   END
+				             ) over (partition by object_owner, object_name) AS test_count,
 				             item_type,
 				             item_name,
 				             item_description
@@ -416,7 +424,7 @@ class UtplsqlDao {
 				             'Yes' AS multiselectable,
 				             'Yes' AS relevant
 				        FROM test
-				       WHERE item_type = 'UT_TEST'
+				       WHERE item_type IN ('UT_TEST', 'UT_SUITE')
 				      UNION ALL
 				      SELECT object_owner || '.' || object_name AS parent_id,
 				             object_owner || '.' || object_name || '.' || item_name AS id,
@@ -451,10 +459,10 @@ class UtplsqlDao {
 				             object_owner || ':' || suitepath AS id,
 				             item_name AS name,
 				             item_description AS description,
-				             CASE item_type
-				                WHEN 'UT_SUITE' THEN
+				             CASE
+				                WHEN item_type = 'UT_SUITE' AND test_count > 0 THEN
 				                   'PACKAGE_ICON'
-				                WHEN 'UT_TEST' THEN
+				                WHEN item_type = 'UT_TEST' THEN
 				                   'PROCEDURE_ICON'
 				               ELSE
 				                   'FOLDER_ICON'
@@ -492,7 +500,7 @@ class UtplsqlDao {
 				             lower(a.name) AS name,
 				             a.text,
 				             a.subobject_name
-				        FROM table(ut3.ut_annotation_manager.get_annotated_objects(user, 'PACKAGE')) o
+				        FROM table(«utplsqlSchema».ut_annotation_manager.get_annotated_objects(user, 'PACKAGE')) o
 				       CROSS JOIN table(o.annotations) a
 				       WHERE lower(a.name) in ('suite', 'suitepath', 'endcontext', 'test')
 				          OR lower(a.name) = 'context' AND regexp_like(text, '(\w+)(\.\w+)*')
