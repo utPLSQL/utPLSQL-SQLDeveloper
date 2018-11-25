@@ -328,7 +328,7 @@ class DalTest extends AbstractJdbcTest {
 			   PROCEDURE t3;
 			END junit_utplsql_test_pkg;
 		''')
-		val actualNodes = dao.runnables()		
+		val actualNodes = dao.runnables()
 		Assert.assertEquals(16, actualNodes.size)
 		val actual = new HashMap<String, String>
 		for (node : actualNodes) {
