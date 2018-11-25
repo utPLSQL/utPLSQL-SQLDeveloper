@@ -473,6 +473,43 @@ class DalTest extends AbstractJdbcTest {
 	}
 
 	@Test
+	def void issue54FolderIconForSuitesWithoutTests() {
+		setupAndTeardown
+		jdbcTemplate.execute('''
+			CREATE OR REPLACE PACKAGE junit_utplsql_test_pkg IS
+			   -- %suite
+
+			END junit_utplsql_test_pkg;
+		''')
+		val dao = new UtplsqlDao(dataSource.connection)
+		val actualNodes = dao.runnables()		
+		Assert.assertEquals(4, actualNodes.size)
+		val pkg = actualNodes.findFirst[it.id == "SCOTT:junit_utplsql_test_pkg"]
+		Assert.assertEquals("FOLDER_ICON", pkg.iconName)
+		jdbcTemplate.execute("DROP PACKAGE junit_utplsql_test_pkg")
+	}
+
+	@Test
+	def void issue54PackageIconForSuitesWithTests() {
+		setupAndTeardown
+		jdbcTemplate.execute('''
+			CREATE OR REPLACE PACKAGE junit_utplsql_test_pkg IS
+			   -- %suite
+
+			   -- %test
+			   PROCEDURE t1;
+
+			END junit_utplsql_test_pkg;
+		''')
+		val dao = new UtplsqlDao(dataSource.connection)
+		val actualNodes = dao.runnables()		
+		Assert.assertEquals(6, actualNodes.size)
+		val pkg = actualNodes.findFirst[it.id == "SCOTT:junit_utplsql_test_pkg"]
+		Assert.assertEquals("PACKAGE_ICON", pkg.iconName)
+		jdbcTemplate.execute("DROP PACKAGE junit_utplsql_test_pkg")
+	}
+
+	@Test
 	def void issue55SuiteWithoutTests() {
 		setupAndTeardown
 		jdbcTemplate.execute('''

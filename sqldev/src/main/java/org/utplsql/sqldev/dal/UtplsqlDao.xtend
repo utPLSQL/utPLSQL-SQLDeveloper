@@ -388,6 +388,14 @@ class UtplsqlDao {
 				      SELECT object_owner,
 				             object_name,
 				             path AS suitepath,
+				             count(
+				                CASE 
+				                   WHEN item_type = 'UT_TEST' THEN 
+				                      1 
+				                   ELSE 
+				                      NULL 
+				                   END
+				             ) over (partition by object_owner, object_name) AS test_count,
 				             item_type,
 				             item_name,
 				             item_description
@@ -451,10 +459,10 @@ class UtplsqlDao {
 				             object_owner || ':' || suitepath AS id,
 				             item_name AS name,
 				             item_description AS description,
-				             CASE item_type
-				                WHEN 'UT_SUITE' THEN
+				             CASE
+				                WHEN item_type = 'UT_SUITE' AND test_count > 0 THEN
 				                   'PACKAGE_ICON'
-				                WHEN 'UT_TEST' THEN
+				                WHEN item_type = 'UT_TEST' THEN
 				                   'PROCEDURE_ICON'
 				               ELSE
 				                   'FOLDER_ICON'
