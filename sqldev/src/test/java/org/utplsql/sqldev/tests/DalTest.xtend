@@ -471,5 +471,18 @@ class DalTest extends AbstractJdbcTest {
 		Assert.assertEquals(expected, actual)
 		
 	}
+	
+	@Test
+	def void issue56SuiteWithoutTests() {
+		jdbcTemplate.execute('''
+			CREATE OR REPLACE PACKAGE junit_utplsql_test_pkg IS
+			   -- %suite
+
+			END junit_utplsql_test_pkg;
+		''')
+		val dao = new UtplsqlDao(dataSource.connection)
+		Assert.assertTrue(dao.containsUtplsqlTest("scott", "junit_utplsql_test_pkg"))			
+		jdbcTemplate.execute("DROP PACKAGE junit_utplsql_test_pkg")
+	}
 
 }

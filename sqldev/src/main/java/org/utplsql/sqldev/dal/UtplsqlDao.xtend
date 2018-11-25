@@ -179,7 +179,7 @@ class UtplsqlDao {
 				val sql = '''
 					SELECT count(*)
 					  FROM TABLE(ut_runner.get_suites_info(upper(?), upper(?)))
-					 WHERE item_type = 'UT_TEST'
+					 WHERE item_type IN ('UT_TEST', 'UT_SUITE')
 					   AND (item_name = upper(?) or ? IS NULL)
 				'''
 				found = jdbcTemplate.queryForObject(sql, Integer, #[owner, objectName, subobjectName, subobjectName])
