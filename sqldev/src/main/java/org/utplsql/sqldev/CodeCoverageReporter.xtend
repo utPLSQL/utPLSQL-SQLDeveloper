@@ -136,11 +136,12 @@ class CodeCoverageReporter {
 		this.excludeObjects = excludeObjects
 	}	
 
-	def runAsync() {
+	def Thread runAsync() {
 		val Runnable runnable = [|run]
 		val thread = new Thread(runnable)
 		thread.name = "code coverage reporter"
 		thread.start
+		return thread
 	}
 	
 	def showParameterWindow() {
