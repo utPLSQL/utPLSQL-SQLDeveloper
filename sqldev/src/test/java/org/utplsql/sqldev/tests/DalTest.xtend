@@ -419,7 +419,7 @@ class DalTest extends AbstractJdbcTest {
 			      l_actual   INTEGER;
 			   BEGIN
 			      l_actual := junit_f;
-			      ut.expect(l_actual).to_equal(l_expected).to_equal(l_actual);
+			      ut.expect(l_actual).to_equal(l_expected);
 			   END f1;
 			END junit_utplsql_test_pkg;
 		''')
