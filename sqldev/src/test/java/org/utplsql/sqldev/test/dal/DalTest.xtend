@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- package org.utplsql.sqldev.tests
+ package org.utplsql.sqldev.test.dal
 
 import java.util.ArrayList
 import java.util.HashMap
@@ -24,6 +24,7 @@ import org.junit.Test
 import org.springframework.jdbc.BadSqlGrammarException
 import org.utplsql.sqldev.dal.UtplsqlDao
 import org.utplsql.sqldev.model.ut.Annotation
+import org.utplsql.sqldev.test.AbstractJdbcTest
 
 class DalTest extends AbstractJdbcTest {
 	

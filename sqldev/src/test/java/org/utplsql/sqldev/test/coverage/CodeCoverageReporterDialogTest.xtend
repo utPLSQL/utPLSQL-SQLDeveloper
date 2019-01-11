@@ -13,12 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.utplsql.sqldev.tests
+package org.utplsql.sqldev.test.coverage
 
 import org.junit.Test
-import org.utplsql.sqldev.CodeCoverageReporter
+import org.utplsql.sqldev.coverage.CodeCoverageReporter
+import org.utplsql.sqldev.test.AbstractJdbcTest
 
-class CodeCoverageReporterWindowTest extends AbstractJdbcTest{
+class CodeCoverageReporterDialogTest extends AbstractJdbcTest{
 	
 	@Test
 	def void layoutTest() {

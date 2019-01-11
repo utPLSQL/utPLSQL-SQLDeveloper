@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.utplsql.sqldev.tests
+package org.utplsql.sqldev.test.parser
 
 import org.junit.AfterClass
 import org.junit.Assert
@@ -21,6 +21,7 @@ import org.junit.BeforeClass
 import org.junit.Test
 import org.springframework.jdbc.BadSqlGrammarException
 import org.utplsql.sqldev.parser.UtplsqlParser
+import org.utplsql.sqldev.test.AbstractJdbcTest
 
 class UtplsqlParserTest extends AbstractJdbcTest {
 	

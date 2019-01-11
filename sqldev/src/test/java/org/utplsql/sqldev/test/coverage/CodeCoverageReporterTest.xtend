@@ -13,9 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.utplsql.sqldev.tests
+package org.utplsql.sqldev.test.coverage
 
 import java.io.File
+import java.nio.charset.StandardCharsets
 import java.nio.file.Files
 import java.nio.file.Path
 import java.util.Comparator
@@ -25,8 +26,8 @@ import org.junit.BeforeClass
 import org.junit.Test
 import org.springframework.jdbc.BadSqlGrammarException
 import org.springframework.jdbc.datasource.SingleConnectionDataSource
-import org.utplsql.sqldev.CodeCoverageReporter
-import java.nio.charset.StandardCharsets
+import org.utplsql.sqldev.coverage.CodeCoverageReporter
+import org.utplsql.sqldev.test.AbstractJdbcTest
 
 class CodeCoverageReporterTest extends AbstractJdbcTest{
 
@@ -89,7 +90,7 @@ class CodeCoverageReporterTest extends AbstractJdbcTest{
 		val includeObjectList = #['f']
 		val reporter = new CodeCoverageReporter(pathList, includeObjectList, conn)
 		val run = reporter.runAsync
-		run.join(2000)
+		run.join(20000)
 		Assert.assertEquals(true, conn.isClosed)
 		val outputFile = getNewestOutputFile
 		Assert.assertTrue(outputFile !== null)

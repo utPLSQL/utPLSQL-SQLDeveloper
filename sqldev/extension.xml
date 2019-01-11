@@ -158,7 +158,7 @@
 			<settings-ui-hook>
 				<page id="UTPLSQL_PREFERENCES_PAGE" parent-idref="/preferences">
 					<label>${PREF_LABEL}</label>
-					<traversable-class>org.utplsql.sqldev.PreferencePanel
+					<traversable-class>org.utplsql.sqldev.ui.preference.PreferencePanel
 					</traversable-class>
 				</page>
 			</settings-ui-hook>

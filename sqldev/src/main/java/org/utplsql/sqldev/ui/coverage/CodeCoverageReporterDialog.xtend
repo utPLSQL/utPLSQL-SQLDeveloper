@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.utplsql.sqldev
+package org.utplsql.sqldev.ui.coverage
 
 import java.awt.Component
 import java.awt.Dimension
@@ -38,9 +38,10 @@ import javax.swing.JTextField
 import javax.swing.ScrollPaneConstants
 import javax.swing.SwingUtilities
 import org.springframework.core.task.SimpleAsyncTaskExecutor
+import org.utplsql.sqldev.coverage.CodeCoverageReporter
 import org.utplsql.sqldev.resources.UtplsqlResources
 
-class CodeCoverageReporterWindow extends JFrame implements ActionListener, FocusListener {
+class CodeCoverageReporterDialog extends JFrame implements ActionListener, FocusListener {
 	
 	var CodeCoverageReporter reporter
 	var JButton runButton
@@ -55,14 +56,14 @@ class CodeCoverageReporterWindow extends JFrame implements ActionListener, Focus
 	def static createAndShow(CodeCoverageReporter reporter) {
 		SwingUtilities.invokeLater(new Runnable() {
 			override run() {
-				CodeCoverageReporterWindow.createAndShowWithinEventThread(reporter);
+				CodeCoverageReporterDialog.createAndShowWithinEventThread(reporter);
 			}
 		});
 	}
 
 	def private static createAndShowWithinEventThread(CodeCoverageReporter reporter) {
 		// create and layout the dialog
-		val frame = new CodeCoverageReporterWindow(reporter)
+		val frame = new CodeCoverageReporterDialog(reporter)
 		reporter.frame = frame
 		frame.pack
 		// center dialog
@@ -75,7 +76,7 @@ class CodeCoverageReporterWindow extends JFrame implements ActionListener, Focus
 	new(CodeCoverageReporter reporter) {
 		super(UtplsqlResources.getString("WINDOW_CODE_COVERAGE_REPORT_LABEL"))
 		this.reporter = reporter
-		val pane = this.getContentPane();
+		val pane = getContentPane();
 		pane.setLayout(new GridBagLayout());
 		val c = new GridBagConstraints();
 		
@@ -169,7 +170,7 @@ class CodeCoverageReporterWindow extends JFrame implements ActionListener, Focus
 	}
 	
 	def exit() {
-		this.dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
+		dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
 	}
 	
 	override actionPerformed(ActionEvent e) {

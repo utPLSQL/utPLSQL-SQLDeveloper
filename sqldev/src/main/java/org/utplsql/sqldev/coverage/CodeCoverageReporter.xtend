@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.utplsql.sqldev
+package org.utplsql.sqldev.coverage
 
 import java.awt.Desktop
 import java.io.File
@@ -27,6 +27,7 @@ import java.util.List
 import java.util.logging.Logger
 import oracle.dbtools.raptor.utils.Connections
 import org.utplsql.sqldev.dal.UtplsqlDao
+import org.utplsql.sqldev.ui.coverage.CodeCoverageReporterDialog
 
 class CodeCoverageReporter {
 	static val Logger logger = Logger.getLogger(CodeCoverageReporter.name);
@@ -34,7 +35,7 @@ class CodeCoverageReporter {
 	var Connection conn
 	var List<String> pathList
 	var List<String> includeObjectList
-	var CodeCoverageReporterWindow frame
+	var CodeCoverageReporterDialog frame
 	var String schemas
 	var String includeObjects
 	var String excludeObjects
@@ -100,7 +101,7 @@ class CodeCoverageReporter {
 		}
 	}
 	
-	def setFrame(CodeCoverageReporterWindow frame) {
+	def setFrame(CodeCoverageReporterDialog frame) {
 		this.frame = frame;
 	}
 	
@@ -145,7 +146,7 @@ class CodeCoverageReporter {
 	}
 	
 	def showParameterWindow() {
-		CodeCoverageReporterWindow.createAndShow(this)
+		CodeCoverageReporterDialog.createAndShow(this)
 	}
 	
 }

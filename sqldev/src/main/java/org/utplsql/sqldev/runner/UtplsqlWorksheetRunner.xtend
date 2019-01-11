@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.utplsql.sqldev
+package org.utplsql.sqldev.runner
 
 import java.util.List
 import java.util.logging.Logger
@@ -28,8 +28,8 @@ import oracle.ide.controller.IdeAction
 import org.utplsql.sqldev.model.preference.PreferenceModel
 import org.utplsql.sqldev.resources.UtplsqlResources
 
-class UtplsqlWorksheet {
-	static val Logger logger = Logger.getLogger(UtplsqlWorksheet.name);
+class UtplsqlWorksheetRunner {
+	static val Logger logger = Logger.getLogger(UtplsqlWorksheetRunner.name);
 
 	var PreferenceModel preferences
 	var String connectionName

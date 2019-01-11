@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.utplsql.sqldev
+package org.utplsql.sqldev.ui.preference
 
 import java.awt.event.ActionEvent
 import java.awt.event.ActionListener
@@ -33,6 +33,7 @@ import oracle.ide.panels.TraversalException
 import oracle.javatools.ui.layout.FieldLayoutBuilder
 import org.utplsql.sqldev.model.preference.PreferenceModel
 import org.utplsql.sqldev.resources.UtplsqlResources
+import org.utplsql.sqldev.ui.common.DirectoryChooser
 
 class PreferencePanel extends DefaultTraversablePanel {
 	val JPanel runTestPanel = new JPanel();

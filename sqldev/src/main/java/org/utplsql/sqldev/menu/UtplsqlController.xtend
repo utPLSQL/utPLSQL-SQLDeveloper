@@ -36,14 +36,14 @@ import oracle.ide.config.Preferences
 import oracle.ide.controller.Controller
 import oracle.ide.controller.IdeAction
 import oracle.ide.editor.Editor
-import org.utplsql.sqldev.CodeCoverageReporter
-import org.utplsql.sqldev.UtplsqlWorksheet
+import org.utplsql.sqldev.coverage.CodeCoverageReporter
 import org.utplsql.sqldev.dal.UtplsqlDao
 import org.utplsql.sqldev.model.URLTools
 import org.utplsql.sqldev.model.oddgen.GenContext
 import org.utplsql.sqldev.model.preference.PreferenceModel
 import org.utplsql.sqldev.oddgen.TestTemplate
 import org.utplsql.sqldev.parser.UtplsqlParser
+import org.utplsql.sqldev.runner.UtplsqlWorksheetRunner
 
 class UtplsqlController implements Controller {
 	static final Logger logger = Logger.getLogger(UtplsqlController.name);
@@ -281,7 +281,7 @@ class UtplsqlController implements Controller {
 				val parser = new UtplsqlParser(component.text, if (preferences.checkRunUtplsqlTest) {Connections.instance.getConnection(connectionName)} else {null}, owner)
 				val position = component.caretPosition
 				val path = parser.getPathAt(position)
-				val utPlsqlWorksheet = new UtplsqlWorksheet(path.pathList, connectionName)
+				val utPlsqlWorksheet = new UtplsqlWorksheetRunner(path.pathList, connectionName)
 				utPlsqlWorksheet.runTestAsync
 			}
 		} else if (view instanceof DBNavigatorWindow) {
@@ -290,7 +290,7 @@ class UtplsqlController implements Controller {
 				val connectionName = url.connectionName
 				logger.fine('''connectionName: «connectionName»''')
 				val pathList=context.pathList.dedupPathList
-				val utPlsqlWorksheet = new UtplsqlWorksheet(pathList, connectionName)
+				val utPlsqlWorksheet = new UtplsqlWorksheetRunner(pathList, connectionName)
 				utPlsqlWorksheet.runTestAsync
 			}
 		}
@@ -388,7 +388,7 @@ class UtplsqlController implements Controller {
 							populateGenContext(genContext, preferences)
 							val testTemplate = new TestTemplate(genContext)
 							val code = testTemplate.generate.toString
-							UtplsqlWorksheet.openWithCode(code, connectionName)
+							UtplsqlWorksheetRunner.openWithCode(code, connectionName)
 						}
 					}
 				}
@@ -400,7 +400,7 @@ class UtplsqlController implements Controller {
 				val connectionName = url.connectionName
 				val testTemplate = new TestTemplate(context.genContext)
 				val code = testTemplate.generate.toString
-				UtplsqlWorksheet.openWithCode(code, connectionName)
+				UtplsqlWorksheetRunner.openWithCode(code, connectionName)
 			}
 		}
 	}

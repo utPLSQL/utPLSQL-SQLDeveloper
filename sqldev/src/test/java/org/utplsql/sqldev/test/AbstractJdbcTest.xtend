@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.utplsql.sqldev.tests
+package org.utplsql.sqldev.test
 
 import java.io.StringReader
 import java.util.ArrayList
