@@ -137,7 +137,22 @@
 			<scope>system</scope>
 			<systemPath>${sqldev.basedir}/jdev/extensions/oracle.jdeveloper.java.core.jar</systemPath>
 		</dependency>
-		<!-- SQL Developer specific dependencies part 2 (available in public maven repositories) -->
+		<!-- SQL Developer specific dependencies part 2 (used for tests only) -->
+		<dependency>
+			<groupId>oracle</groupId>
+			<artifactId>jewt4.jar</artifactId>
+			<version>12.2.1</version>
+			<scope>system</scope>
+			<systemPath>${sqldev.basedir}/modules/oracle.bali.jewt/jewt4.jar</systemPath>
+		</dependency>		
+		<dependency>
+			<groupId>oracle</groupId>
+			<artifactId>share.jar</artifactId>
+			<version>12.2.1</version>
+			<scope>system</scope>
+			<systemPath>${sqldev.basedir}/modules/oracle.bali.share/share.jar</systemPath>
+		</dependency>		
+		<!-- SQL Developer specific dependencies part 3 (available in public maven repositories) -->
 		<dependency>
 			<!-- SQL Developer is using this older version -->
 			<groupId>org.osgi</groupId>
