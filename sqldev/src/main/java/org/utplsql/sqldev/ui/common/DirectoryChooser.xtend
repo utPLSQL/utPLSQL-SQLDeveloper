@@ -17,7 +17,6 @@ package org.utplsql.sqldev.ui.common
 
 import java.io.File
 import java.util.logging.Logger
-import javax.swing.JComboBox
 import javax.swing.JFileChooser
 import javax.swing.JFrame
 import javax.swing.JTextField
@@ -45,12 +44,5 @@ class DirectoryChooser {
 			textField.text = dir
 		}
 	}
-
-	def static void choose (JFrame parentFrame, String title, JComboBox<String> comboBox) {
-		val dir = choose(parentFrame, title, comboBox.editor.item as String);
-		if (dir !== null) {
-			comboBox.editor.item = dir
-		}
-	}	
 
 }
