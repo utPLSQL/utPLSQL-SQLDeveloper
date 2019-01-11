@@ -62,13 +62,6 @@
 		</dependency>
 		<dependency>
 			<groupId>oracle</groupId>
-			<artifactId>oracle.sqldeveloper.utils</artifactId>
-			<version>12.2.0</version>
-			<scope>system</scope>
-			<systemPath>${sqldev.basedir}/sqldeveloper/extensions/oracle.sqldeveloper.utils.jar</systemPath>
-		</dependency>
-		<dependency>
-			<groupId>oracle</groupId>
 			<artifactId>oracle.ide.navigator</artifactId>
 			<version>12.2.0</version>
 			<scope>system</scope>
