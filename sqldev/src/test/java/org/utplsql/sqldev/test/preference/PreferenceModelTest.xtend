@@ -33,6 +33,7 @@ class PreferenceModelTest {
 		Assert.assertEquals("", model.testPackageSuffix)
 		Assert.assertEquals("", model.testUnitPrefix)
 		Assert.assertEquals("", model.testUnitSuffix)
+		Assert.assertEquals(1, model.numberOfTestsPerUnit)
 		Assert.assertFalse(model.checkGenerateUtplsqlTest)
 		Assert.assertTrue(model.generateComments)
 		Assert.assertFalse(model.disableTests)
@@ -40,6 +41,7 @@ class PreferenceModelTest {
 		Assert.assertEquals(3, model.indentSpaces)
 		Assert.assertTrue(model.generateFiles)
 		Assert.assertEquals(PreferenceModel.DEFAULT_OUTPUT_DIRECTORY, model.outputDirectory)
+		Assert.assertEquals(false, model.deleteExistingFiles)
 		Assert.assertEquals("utPLSQL", model.rootFolderInOddgenView)
 	}	
 }
