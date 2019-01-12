@@ -70,11 +70,7 @@ class CodeCoverageReporterTest extends AbstractJdbcTest{
 			.filter([f | f.fileName.toString.startsWith("utplsql_")])
 			.filter([f | f.fileName.toString.endsWith(".html")])
 			.max(Comparator.comparingLong([f|f.toFile().lastModified()]))
-		if (last.isPresent) {
-			return last.get
-		} else {
-			return null
-		}
+		return last.get
 	}
 
 	@Test
