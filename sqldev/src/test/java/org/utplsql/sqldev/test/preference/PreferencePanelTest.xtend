@@ -24,7 +24,7 @@ import org.utplsql.sqldev.ui.preference.PreferencePanel
 class PreferencePanelTest {
 	
 	@Test
-	def void layoutTest() {
+	def void layout() {
 		val frame = new JFrame("Preference Panel")
 		SwingUtilities.invokeLater(new Runnable() {
 			override run() {

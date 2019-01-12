@@ -22,7 +22,7 @@ import org.utplsql.sqldev.model.preference.PreferenceModel
 class PreferenceModelTest {
 
 	@Test
-	def testDefaultValues() {
+	def defaultValues() {
 		val PreferenceModel model = PreferenceModel.getInstance(null)
 		Assert.assertTrue(model.unsharedWorksheet)
 		Assert.assertFalse(model.resetPackage)

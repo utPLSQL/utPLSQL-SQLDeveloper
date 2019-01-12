@@ -23,21 +23,21 @@ class UrlToolsTest {
 	val extension URLTools urlTools = new URLTools
 
 	@Test
-	def void testReplacePlusSign() {
+	def void replacePlusSign() {
 		Assert.assertEquals("+", "%2B".replaceHexChars)
 		Assert.assertEquals("++", "%2B%2B".replaceHexChars)
 		Assert.assertEquals("abc+%xyz", "abc%2B%xyz".replaceHexChars)
 	}
 
 	@Test
-	def void testReplaceAtSign() {
+	def void replaceAtSign() {
 		Assert.assertEquals("@", "%40".replaceHexChars)
 		Assert.assertEquals("@@", "%40%40".replaceHexChars)
 		Assert.assertEquals("abc@%xyz", "abc%40%xyz".replaceHexChars)
 	}
 
 	@Test
-	def void testReplaceAtAndPlusSign() {
+	def void replaceAtAndPlusSign() {
 		Assert.assertEquals("@+", "%40%2B".replaceHexChars)
 		Assert.assertEquals("@+@+", "%40%2B%40%2B".replaceHexChars)
 		Assert.assertEquals("abc@+%xyz", "abc%40%2B%xyz".replaceHexChars)

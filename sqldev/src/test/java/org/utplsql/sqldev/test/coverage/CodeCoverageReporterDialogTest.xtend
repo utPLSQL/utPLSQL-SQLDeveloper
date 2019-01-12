@@ -22,7 +22,7 @@ import org.utplsql.sqldev.test.AbstractJdbcTest
 class CodeCoverageReporterDialogTest extends AbstractJdbcTest{
 	
 	@Test
-	def void layoutTest() {
+	def void layout() {
 		val reporter = new CodeCoverageReporter(#["SCOTT"], #['a', 'b', 'c'], dataSource.connection)
 		reporter.showParameterWindow
 		Thread.sleep(4 * 1000)

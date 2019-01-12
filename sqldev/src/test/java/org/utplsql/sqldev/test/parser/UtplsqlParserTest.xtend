@@ -75,7 +75,7 @@ class UtplsqlParserTest extends AbstractJdbcTest {
 	} 
 
 	@Test
-	def testPackage() {
+	def packageWithoutConnection() {
 		val parser = new UtplsqlParser(sqlScript)
 		val objects = parser.getObjects
 		Assert.assertEquals(2, objects.size)
@@ -99,7 +99,7 @@ class UtplsqlParserTest extends AbstractJdbcTest {
 	}
 
 	@Test
-	def testPackageWithConnection() {
+	def packageWithConnection() {
 		val plsql = '''
 			/*
 			 * some comment
@@ -132,7 +132,7 @@ class UtplsqlParserTest extends AbstractJdbcTest {
 	}
 
 	@Test
-	def testProcedure() {
+	def procedure() {
 		val plsql = '''
 			create or replace procedure z
 			is
@@ -146,7 +146,7 @@ class UtplsqlParserTest extends AbstractJdbcTest {
 	}
 
 	@Test
-	def testFunction() {
+	def function() {
 		val plsql = '''
 			create or replace procedure z
 			is
@@ -166,7 +166,7 @@ class UtplsqlParserTest extends AbstractJdbcTest {
 	}
 
 	@Test
-	def testType() {
+	def type() {
 		val plsql = '''
 			create or replace type t force is
 			    object (
@@ -184,7 +184,7 @@ class UtplsqlParserTest extends AbstractJdbcTest {
 	}
 
 	@Test
-	def testTypeBody() {
+	def typeBody() {
 		val plsql = '''
 			create or replace type body t force is
 			   member procedure p(self in t) is
@@ -200,7 +200,7 @@ class UtplsqlParserTest extends AbstractJdbcTest {
 	}
 
 	@Test
-	def testUnknown() {
+	def unknown() {
 		val plsql = '''
 			create or replace unknown u is
 			begin

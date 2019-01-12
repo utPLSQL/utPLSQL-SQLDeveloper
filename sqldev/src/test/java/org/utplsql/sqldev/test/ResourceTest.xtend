@@ -22,7 +22,7 @@ import org.utplsql.sqldev.resources.UtplsqlResources
 class ResourceTest {
 
 	@Test
-	def void testWindowPathsLabel() {
+	def void windowPathsLabel() {
 		val actual = UtplsqlResources.getString("WINDOW_PATHS_LABEL")
 		val expected = "utPLSQL paths"
 		Assert.assertEquals(expected, actual)
