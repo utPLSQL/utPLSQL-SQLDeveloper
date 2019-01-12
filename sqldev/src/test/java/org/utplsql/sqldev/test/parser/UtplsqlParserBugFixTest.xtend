@@ -23,7 +23,7 @@ class UtplsqlParserBugFixTest {
 	
 	@Test
     // https://github.com/utPLSQL/utPLSQL-SQLDeveloper/issues/1
-	def issue_1_matching_expr_in_string_literals() {
+	def issue1MatchingExprInStringLiterals() {
 		val plsql = '''
 			create or replace package body test_expect_not_to_be_null
 			is
@@ -81,7 +81,7 @@ class UtplsqlParserBugFixTest {
 
 	@Test
 	// https://github.com/utPLSQL/utPLSQL-SQLDeveloper/issues/7
-	def issue_7_platform_specific_line_terminators() {
+	def issue7WrongPositionWithWindowsLineSeparator() {
 		val plsql = '''
 			create or replace package test_expect_not_to_be_null
 			is
