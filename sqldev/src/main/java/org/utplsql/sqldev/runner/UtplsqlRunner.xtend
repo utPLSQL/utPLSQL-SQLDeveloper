@@ -24,14 +24,16 @@ import org.utplsql.sqldev.dal.RealtimeReporterDao
 import org.utplsql.sqldev.dal.RealtimeReporterEventConsumer
 import org.utplsql.sqldev.model.runner.RealtimeReporterEvent
 
-class UtPlsqlRunner implements RealtimeReporterEventConsumer {
+class UtplsqlRunner implements RealtimeReporterEventConsumer {
 
-	static val Logger logger = Logger.getLogger(UtPlsqlRunner.name);
+	static val Logger logger = Logger.getLogger(UtplsqlRunner.name);
 
 	var List<String> pathList
 	var Connection producerConn
 	var Connection consumerConn
-	var String reporterId = UUID.randomUUID().toString.replace("-", "");
+	val String reporterId = UUID.randomUUID().toString.replace("-", "")
+	var Thread producerThread
+	var Thread consumerThread
 
 	new(List<String> pathList, String connectionName) {
 		this.pathList = pathList
@@ -90,13 +92,22 @@ class UtPlsqlRunner implements RealtimeReporterEventConsumer {
 	def runAsync() {
 		// the producer
 		val Runnable producer = [|produce]
-		val producerThread = new Thread(producer)
+		producerThread = new Thread(producer)
 		producerThread.name = "realtime producer"
 		producerThread.start
 		// the consumer
 		val Runnable consumer = [|consume]
-		val consumerThread = new Thread(consumer)
+		consumerThread = new Thread(consumer)
 		consumerThread.name = "realtime consumer"
 		consumerThread.start
 	}
+	
+	def getProducerThread() {
+		return producerThread
+	}
+	
+	def getConsumerThread() {
+		return consumerThread
+	}
+
 }
