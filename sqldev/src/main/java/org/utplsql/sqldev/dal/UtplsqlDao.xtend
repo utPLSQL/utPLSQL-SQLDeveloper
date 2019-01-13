@@ -364,7 +364,6 @@ class UtplsqlDao {
 				   AND generated = 'N'
 			'''
 		}
-		val jdbcTemplate = new JdbcTemplate(new SingleConnectionDataSource(conn, true))
 		val nodes = jdbcTemplate.query(sql, new BeanPropertyRowMapper<Node>(Node), #[objectType])
 		return nodes		
 	}
@@ -687,7 +686,6 @@ class UtplsqlDao {
 				  FROM tree
 			'''
 		}
-		val jdbcTemplate = new JdbcTemplate(new SingleConnectionDataSource(conn, true))
 		val nodes = jdbcTemplate.query(sql, new BeanPropertyRowMapper<Node>(Node))
 		return nodes		
 	}
@@ -856,7 +854,6 @@ class UtplsqlDao {
 			    AND referenced_owner NOT LIKE 'APEX\_______'
 			    AND referenced_type IN ('PACKAGE', 'TYPE', 'PROCEDURE', 'FUNCTION', 'TRIGGER')
 		'''
-		val jdbcTemplate = new JdbcTemplate(new SingleConnectionDataSource(conn, true))
 		val deps = jdbcTemplate.queryForList(sql, String, #[name])
 		return deps
 	}
