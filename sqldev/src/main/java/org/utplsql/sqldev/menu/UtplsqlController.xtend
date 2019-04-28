@@ -277,8 +277,8 @@ class UtplsqlController implements Controller {
 					connectionName = view.connectionName
 				}
 				logger.fine('''connectionName: «connectionName»''')
-				val preferences = PreferenceModel.getInstance(Preferences.preferences)
-				val parser = new UtplsqlParser(component.text, if (preferences.checkRunUtplsqlTest) {Connections.instance.getConnection(connectionName)} else {null}, owner)
+				// issue 59 - always use a connection to ensure the utPL/SQL annotation API is used
+				val parser = new UtplsqlParser(component.text, Connections.instance.getConnection(connectionName), owner)
 				val position = component.caretPosition
 				val path = parser.getPathAt(position)
 				val utPlsqlWorksheet = new UtplsqlWorksheetRunner(path.pathList, connectionName)
