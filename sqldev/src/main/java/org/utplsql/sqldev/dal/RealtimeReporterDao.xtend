@@ -83,9 +83,10 @@ class RealtimeReporterDao {
 	}
 		
 	def consumeReport(String reporterId, RealtimeReporterEventConsumer consumer) {
+		// TODO: table(l_reporter.get_lines()) instead of table(ut_output_clob_table_buffer(?).get_lines())
 		var sql = '''
 			SELECT t.item_type, t.text
-			  FROM table(ut_output_table_buffer(?).get_lines()) t
+			  FROM table(ut_output_clob_table_buffer(?).get_lines()) t
 		'''
 		jdbcTemplate.query(sql, new ResultSetExtractor<Void>() {
 			override extractData(ResultSet rs) throws SQLException, DataAccessException {
