@@ -16,15 +16,17 @@
  package org.utplsql.sqldev.dal
 
 import java.io.StringReader
+import java.sql.CallableStatement
 import java.sql.Connection
 import java.sql.ResultSet
 import java.sql.SQLException
 import java.util.List
 import java.util.logging.Logger
 import javax.xml.parsers.DocumentBuilderFactory
+import oracle.jdbc.OracleTypes
 import org.springframework.dao.DataAccessException
+import org.springframework.jdbc.core.CallableStatementCallback
 import org.springframework.jdbc.core.JdbcTemplate
-import org.springframework.jdbc.core.ResultSetExtractor
 import org.springframework.jdbc.datasource.SingleConnectionDataSource
 import org.utplsql.sqldev.model.XMLTools
 import org.utplsql.sqldev.model.runner.Counter
@@ -83,13 +85,22 @@ class RealtimeReporterDao {
 	}
 		
 	def consumeReport(String reporterId, RealtimeReporterEventConsumer consumer) {
-		// TODO: table(l_reporter.get_lines()) instead of table(ut_output_clob_table_buffer(?).get_lines())
-		var sql = '''
-			SELECT t.item_type, t.text
-			  FROM table(ut_output_clob_table_buffer(?).get_lines()) t
+		val plsql = '''
+			DECLARE
+			   l_reporter ut_realtime_reporter := ut_realtime_reporter();
+			BEGIN
+			   l_reporter.set_reporter_id(?);
+			   OPEN ? FOR
+			      SELECT t.item_type, t.text
+			        FROM table(l_reporter.get_lines()) t;
+			END;
 		'''
-		jdbcTemplate.query(sql, new ResultSetExtractor<Void>() {
-			override extractData(ResultSet rs) throws SQLException, DataAccessException {
+		jdbcTemplate.execute(plsql, new CallableStatementCallback<Void>() {
+			override doInCallableStatement(CallableStatement cs) throws SQLException, DataAccessException {
+				cs.setString(1, reporterId)
+				cs.registerOutParameter(2, OracleTypes.CURSOR)
+				cs.execute
+				val rs = cs.getObject(2) as ResultSet
 				while(rs.next) {
 					val itemType = rs.getString("item_type")
 					val textClob = rs.getClob("text")
@@ -99,9 +110,10 @@ class RealtimeReporterDao {
 						consumer.process(event)
 					}
 				}
+				rs.close
 				return null
 			}
-		}, #[reporterId]);
+		})
 	}
 	
 	private def RealtimeReporterEvent convert(String itemType, String text) {
