@@ -33,6 +33,7 @@ class PreferenceModel extends HashStructureAdapter {
 		return new PreferenceModel(findOrCreate(prefs, DATA_KEY))
 	}
 
+	static final String KEY_USE_REALTIME_REPORTER = "useRealtimeRorter"
 	static final String KEY_UNSHARED_WORKSHEET = "unsharedWorksheet"
 	static final String KEY_RESET_PACKAGE = "resetPackage"
 	static final String KEY_CLEAR_SCREEN = "clearScreen"
@@ -52,6 +53,14 @@ class PreferenceModel extends HashStructureAdapter {
 	static final String KEY_OUTPUT_DIRECTORY = "outputDirectory"
 	static final String KEY_DELETE_EXISTING_FILES="deleteExistingFiles"
 	static final String KEY_ROOT_FOLDER_IN_ODDGEN_VIEW = "rootFolderInOddgenView"
+
+	def isUseRealtimeReporter() {
+		return getHashStructure.getBoolean(PreferenceModel.KEY_USE_REALTIME_REPORTER, true)
+	}
+
+	def setUseRealtimeReporter(boolean useRealtimeReporter) {
+		getHashStructure.putBoolean(PreferenceModel.KEY_USE_REALTIME_REPORTER, useRealtimeReporter)
+	}
 	
 	def isUnsharedWorksheet() {
 		return getHashStructure.getBoolean(PreferenceModel.KEY_UNSHARED_WORKSHEET, true)

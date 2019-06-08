@@ -37,6 +37,7 @@ import org.utplsql.sqldev.ui.common.DirectoryChooser
 
 class PreferencePanel extends DefaultTraversablePanel {
 	val JPanel runTestPanel = new JPanel();
+	val JCheckBox useRealtimeReporterCheckBox = new JCheckBox
 	val JCheckBox unsharedWorksheetCheckBox = new JCheckBox
 	val JCheckBox resetPackageCheckBox = new JCheckBox
 	val JCheckBox clearScreenCheckBox = new JCheckBox
@@ -72,6 +73,9 @@ class PreferencePanel extends DefaultTraversablePanel {
 		// run test group
 		val FieldLayoutBuilder b1 = new FieldLayoutBuilder(runTestPanel)
 		b1.alignLabelsLeft = true
+		b1.add(
+			b1.field.label.withText(UtplsqlResources.getString("PREF_USE_REALTIME_REPORTER_LABEL")).component(
+				useRealtimeReporterCheckBox))
 		b1.add(
 			b1.field.label.withText(UtplsqlResources.getString("PREF_UNSHARED_WORKSHEET_LABEL")).component(
 				unsharedWorksheetCheckBox))
@@ -266,6 +270,7 @@ class PreferencePanel extends DefaultTraversablePanel {
 
 	override onEntry(TraversableContext traversableContext) {
 		var PreferenceModel info = traversableContext.userInformation
+		useRealtimeReporterCheckBox.selected = info.useRealtimeReporter
 		unsharedWorksheetCheckBox.selected = info.unsharedWorksheet
 		resetPackageCheckBox.selected = info.resetPackage
 		clearScreenCheckBox.selected = info.clearScreen
@@ -291,6 +296,7 @@ class PreferencePanel extends DefaultTraversablePanel {
 
 	override onExit(TraversableContext traversableContext) throws TraversalException {
 		var PreferenceModel info = traversableContext.userInformation
+		info.useRealtimeReporter = useRealtimeReporterCheckBox.selected
 		info.unsharedWorksheet = unsharedWorksheetCheckBox.selected
 		info.resetPackage = resetPackageCheckBox.selected
 		info.clearScreen = clearScreenCheckBox.selected

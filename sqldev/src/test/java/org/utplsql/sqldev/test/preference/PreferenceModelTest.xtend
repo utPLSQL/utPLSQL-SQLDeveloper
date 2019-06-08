@@ -24,6 +24,7 @@ class PreferenceModelTest {
 	@Test
 	def defaultValues() {
 		val PreferenceModel model = PreferenceModel.getInstance(null)
+		Assert.assertTrue(model.useRealtimeReporter)
 		Assert.assertTrue(model.unsharedWorksheet)
 		Assert.assertFalse(model.resetPackage)
 		Assert.assertFalse(model.clearScreen)
