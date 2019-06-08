@@ -153,6 +153,7 @@ class PreferencePanel extends DefaultTraversablePanel {
 		val FieldLayoutBuilder builder = new FieldLayoutBuilder(this)
 		builder.alignLabelsLeft = true
 		builder.addVerticalField("", tabbedPane)
+		builder.addVerticalSpring
 		
 		// register action listener for create code template button 
 		createCodeTemplatesButton.addActionListener(new ActionListener() {
