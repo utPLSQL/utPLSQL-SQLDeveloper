@@ -18,11 +18,11 @@ package org.utplsql.sqldev.ui.preference
 import java.awt.event.ActionEvent
 import java.awt.event.ActionListener
 import java.util.Map
-import javax.swing.BorderFactory
 import javax.swing.JButton
 import javax.swing.JCheckBox
 import javax.swing.JPanel
 import javax.swing.JSpinner
+import javax.swing.JTabbedPane
 import javax.swing.JTextField
 import javax.swing.SpinnerNumberModel
 import javax.swing.table.DefaultTableModel
@@ -70,7 +70,6 @@ class PreferencePanel extends DefaultTraversablePanel {
 
 	def private layoutControls() {
 		// run test group
-		runTestPanel.border = BorderFactory.createTitledBorder(UtplsqlResources.getString("MENU_RUN_TEST_LABEL"))
 		val FieldLayoutBuilder b1 = new FieldLayoutBuilder(runTestPanel)
 		b1.alignLabelsLeft = true
 		b1.add(
@@ -88,8 +87,9 @@ class PreferencePanel extends DefaultTraversablePanel {
 		b1.add(
 			b1.field.label.withText(UtplsqlResources.getString("PREF_CHECK_RUN_UTPLSQL_TEST_LABEL")).component(
 				checkRunUtplsqlTestCheckBox))
+		b1.addVerticalSpring
+
 		// generate test group
-		generateTestPanel.border = BorderFactory.createTitledBorder(UtplsqlResources.getString("MENU_GENERATE_TEST_LABEL"))
 		val FieldLayoutBuilder b2 = new FieldLayoutBuilder(generateTestPanel)
 		b2.alignLabelsLeft = true
 		b2.stretchComponentsWithNoButton = true
@@ -124,8 +124,9 @@ class PreferencePanel extends DefaultTraversablePanel {
 			b2.field.label.withText(UtplsqlResources.getString("PREF_CHECK_GENERATE_UTPLSQL_TEST_LABEL")).component(
 				checkGenerateUtplsqlTestCheckBox).button(createCodeTemplatesButton).withText(
 				UtplsqlResources.getString("PREF_CREATE_CODE_TEMPLATES_BUTTON_LABEL")))
+		b2.addVerticalSpring
+
 		// oddgen group
-		oddgenPanel.border = BorderFactory.createTitledBorder("oddgen")
 		val FieldLayoutBuilder b3 = new FieldLayoutBuilder(oddgenPanel)
 		b3.alignLabelsLeft = true
 		b3.stretchComponentsWithNoButton = true
@@ -142,14 +143,16 @@ class PreferencePanel extends DefaultTraversablePanel {
 		b3.add(
 			b3.field.label.withText(UtplsqlResources.getString("PREF_DELETE_EXISTING_FILES_LABEL")).component(
 				deleteExistingFilesCheckBox))
-		
-		// putting everything together
+		b3.addVerticalSpring
+				
+		// putting groups into tabbed panes
+		val tabbedPane = new JTabbedPane()
+		tabbedPane.add(UtplsqlResources.getString("MENU_RUN_TEST_LABEL"), runTestPanel)
+		tabbedPane.add(UtplsqlResources.getString("MENU_GENERATE_TEST_LABEL"), generateTestPanel)
+		tabbedPane.add("oddgen", oddgenPanel)	
 		val FieldLayoutBuilder builder = new FieldLayoutBuilder(this)
 		builder.alignLabelsLeft = true
-		builder.addVerticalField("", runTestPanel)
-		builder.addVerticalField("", generateTestPanel)
-		builder.addVerticalField("", oddgenPanel)
-		builder.addVerticalSpring
+		builder.addVerticalField("", tabbedPane)
 		
 		// register action listener for create code template button 
 		createCodeTemplatesButton.addActionListener(new ActionListener() {
