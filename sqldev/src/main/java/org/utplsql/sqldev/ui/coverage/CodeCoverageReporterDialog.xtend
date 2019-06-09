@@ -61,7 +61,7 @@ class CodeCoverageReporterDialog extends JFrame implements ActionListener, Focus
 		});
 	}
 
-	def private static createAndShowWithinEventThread(CodeCoverageReporter reporter) {
+	private def static createAndShowWithinEventThread(CodeCoverageReporter reporter) {
 		// create and layout the dialog
 		val frame = new CodeCoverageReporterDialog(reporter)
 		reporter.frame = frame

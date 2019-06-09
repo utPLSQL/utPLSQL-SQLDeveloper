@@ -69,7 +69,7 @@ class PreferencePanel extends DefaultTraversablePanel {
 		layoutControls()
 	}
 
-	def private layoutControls() {
+	private def layoutControls() {
 		// run test group
 		val FieldLayoutBuilder b1 = new FieldLayoutBuilder(runTestPanel)
 		b1.alignLabelsLeft = true
@@ -319,7 +319,7 @@ class PreferencePanel extends DefaultTraversablePanel {
 		super.onExit(traversableContext)
 	}
 
-	def private static PreferenceModel getUserInformation(TraversableContext tc) {
+	private def static PreferenceModel getUserInformation(TraversableContext tc) {
 		return PreferenceModel.getInstance(tc.propertyStorage)
 	}
 }
