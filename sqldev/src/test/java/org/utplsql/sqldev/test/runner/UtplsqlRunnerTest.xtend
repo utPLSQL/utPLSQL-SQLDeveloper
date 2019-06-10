@@ -17,6 +17,7 @@
 
 import org.junit.AfterClass
 import org.junit.BeforeClass
+import org.junit.Ignore
 import org.junit.Test
 import org.springframework.jdbc.BadSqlGrammarException
 import org.springframework.jdbc.datasource.SingleConnectionDataSource
@@ -69,7 +70,8 @@ class UtplsqlRunnerTest extends AbstractJdbcTest {
 		}
 	}
 	
-	@Test 
+	@Test
+	@Ignore
 	def void runSlowTests() {
 		var ds1 = new SingleConnectionDataSource()
 		ds1.driverClassName = "oracle.jdbc.OracleDriver"
@@ -82,9 +84,9 @@ class UtplsqlRunnerTest extends AbstractJdbcTest {
 		ds2.username = dataSource.username
 		ds2.password = dataSource.password
 		var runner = new UtplsqlRunner(#[":a"], ds1.connection, ds2.connection)
-		runner.runAsync
-		runner.producerThread.join(20000)
-		runner.consumerThread.join(20000)
+		runner.runTestAsync
+		runner.producerThread.join(200000)
+		runner.consumerThread.join(200000)
 		runner.dispose
 	}
 	
