@@ -40,6 +40,13 @@ class UtplsqlRunnerTest extends AbstractJdbcTest {
 			   --%test(test 2 - NOK)
 			   PROCEDURE test_2_nok;
 			
+			   --%test(test 3 - disabled)
+			   --%disabled
+			   PROCEDURE test_3_disabled;
+
+			   --%test(test 4 - errored)
+			   PROCEDURE test_4_errored;
+
 			   --%endcontext
 			END;
 		''')
@@ -55,6 +62,15 @@ class UtplsqlRunnerTest extends AbstractJdbcTest {
 			   BEGIN
 			      dbms_session.sleep(2);
 			      ut.expect(1).to_equal(2);
+			   END;
+			   
+			   PROCEDURE test_3_disabled IS
+			   BEGIN
+			      NULL;
+			   END;
+			   PROCEDURE test_4_errored IS
+			   BEGIN
+			      EXECUTE IMMEDIATE 'bla bla';
 			   END;
 			END;
 		''')
