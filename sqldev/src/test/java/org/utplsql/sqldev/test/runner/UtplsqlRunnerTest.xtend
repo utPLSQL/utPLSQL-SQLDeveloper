@@ -17,7 +17,6 @@
 
 import org.junit.AfterClass
 import org.junit.BeforeClass
-import org.junit.Ignore
 import org.junit.Test
 import org.springframework.jdbc.BadSqlGrammarException
 import org.springframework.jdbc.datasource.SingleConnectionDataSource
@@ -86,6 +85,7 @@ class UtplsqlRunnerTest extends AbstractJdbcTest {
 		runner.runTestAsync
 		runner.producerThread.join(200000)
 		runner.consumerThread.join(200000)
+		Thread.sleep(4 * 1000)
 		runner.dispose
 	}
 	
