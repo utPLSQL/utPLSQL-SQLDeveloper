@@ -186,6 +186,11 @@ class UtplsqlRunner implements RealtimeReporterEventConsumer {
 		} catch (Exception e) {
 			logger.severe('''Error while consuming events for reporter id «reporterId»: «e?.message»''')
 		}
+		if (run.totalNumberOfTests < 0) {
+			run.status = UtplsqlResources.getString("RUNNER_NO_TESTS_FOUND_TEXT")
+			run.totalNumberOfTests = 0
+			panel.update(reporterId)
+		}
 	}
 	
 	private def isRunningInSqlDeveloper() {
