@@ -21,12 +21,14 @@ import java.awt.Dimension
 import java.awt.GridBagConstraints
 import java.awt.GridBagLayout
 import java.awt.Insets
+import java.text.DecimalFormat
 import javax.swing.JLabel
 import javax.swing.JPanel
 import javax.swing.JProgressBar
 import javax.swing.JScrollPane
 import javax.swing.JTable
 import javax.swing.plaf.basic.BasicProgressBarUI
+import javax.swing.table.DefaultTableCellRenderer
 import org.utplsql.sqldev.model.LimitedLinkedHashMap
 import org.utplsql.sqldev.model.runner.Run
 import org.utplsql.sqldev.resources.UtplsqlResources
@@ -54,6 +56,7 @@ class RunnerPanel {
 	def setModel(Run run) {
 		runs.put(run.reporterId, run)
 		testOverviewTableModel.model = run.tests
+		testOverviewTable.rowSorter.sortKeys = null
 	}
 	
 	def update(String reporterId) {
@@ -62,7 +65,11 @@ class RunnerPanel {
 		if (row < 0) {
 			testOverviewTableModel.fireTableDataChanged
 		} else {
-			testOverviewTableModel.fireTableRowsUpdated(row, row)
+			if (testOverviewTableModel.rowCount > row) {
+				testOverviewTableModel.fireTableRowsUpdated(row, row)
+				val positionOfCurrentTest = testOverviewTable.getCellRect(row, 0, true);
+				testOverviewTable.scrollRectToVisible = positionOfCurrentTest
+			}
 		}
 		statusLabel.text = run.status
 		testCounterValueLabel.text = '''«run.totalNumberOfCompletedTests»/«run.totalNumberOfTests»'''
@@ -79,6 +86,25 @@ class RunnerPanel {
 			progressBar.foreground = GREEN
 		}
 	}
+
+   static class TimeFormatRenderer extends DefaultTableCellRenderer {
+		static val DecimalFormat formatter = new DecimalFormat("#,##0.000")
+
+		override getTableCellRendererComponent(JTable table, Object value, boolean isSelected,
+			boolean hasFocus, int row, int col) {
+			val renderedValue = if (value === null) {null} else {formatter.format(value as Number)}
+			return super.getTableCellRendererComponent(table, renderedValue, isSelected, hasFocus, row, col)		}
+	}
+	
+	static class TestTableHeaderRenderer extends DefaultTableCellRenderer {
+		override getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus,
+			int row, int col) {
+			val renderer = table.getTableHeader().getDefaultRenderer()
+			val label = renderer.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, col) as JLabel
+			label.horizontalAlignment = if (col === 2) {JLabel.RIGHT} else {JLabel.LEFT}
+			return label
+		}
+	}	
 		
 	private def initializeGUI() {
 		// Base panel containing all components 
@@ -196,14 +222,22 @@ class RunnerPanel {
 		// Test overview - first part of the horizontal split pane
 		testOverviewTableModel = new TestOverviewTableModel
 		testOverviewTable = new JTable(testOverviewTableModel)
+		testOverviewTable.tableHeader.reorderingAllowed = false
+		testOverviewTable.autoCreateRowSorter = true
+		val testTableHeaderRenderer = new TestTableHeaderRenderer
 		val overviewTableIcon = testOverviewTable.columnModel.getColumn(0)
 		overviewTableIcon.minWidth = 20
 		overviewTableIcon.preferredWidth = 20
 		overviewTableIcon.maxWidth = 20
+		val overviewTableId = testOverviewTable.columnModel.getColumn(1)
+		overviewTableId.headerRenderer = testTableHeaderRenderer
 		val overviewTableTime = testOverviewTable.columnModel.getColumn(2)
 		overviewTableTime.preferredWidth = 60
 		overviewTableTime.maxWidth = 100
-		testOverviewTable.tableHeader.reorderingAllowed = false
+		overviewTableTime.headerRenderer = testTableHeaderRenderer		
+		val timeFormatRenderer = new TimeFormatRenderer
+		timeFormatRenderer.horizontalAlignment = JLabel.RIGHT
+		overviewTableTime.cellRenderer = timeFormatRenderer
 		val testOverviewScrollPane = new JScrollPane(testOverviewTable)
 		c.gridx = 0
 		c.gridy = 3
