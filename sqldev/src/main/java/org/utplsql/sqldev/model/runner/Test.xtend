@@ -16,7 +16,9 @@
 package org.utplsql.sqldev.model.runner
 
 import java.util.List
+import javax.swing.Icon
 import org.eclipse.xtend.lib.annotations.Accessors
+import org.utplsql.sqldev.resources.UtplsqlResources
 
 @Accessors
 class Test extends Item {
@@ -29,4 +31,20 @@ class Test extends Item {
 	String description
 	Integer testNumber
 	List<Expectation> failedExpectations
+	
+	def getStatusIcon() {
+		var Icon icon = null
+		if (counter !== null) {
+			if (counter.success > 0) {
+				icon = UtplsqlResources.getIcon("SUCCESS_ICON")
+			} else if (counter.error > 0) {
+				icon = UtplsqlResources.getIcon("ERROR_ICON")
+			} else if (counter.failure > 0) {
+				icon = UtplsqlResources.getIcon("FAILURE_ICON")
+			} else if (counter.disabled > 0) {
+				icon = UtplsqlResources.getIcon("DISABLED_ICON")
+			}		
+		}
+		return icon
+	}
 }
