@@ -47,8 +47,8 @@ class UtplsqlRunnerPanelTest {
 		val frame = new JFrame("utPLSQL Runner Panel")
 		frame.defaultCloseOperation = JFrame.EXIT_ON_CLOSE;
 		val panel = new RunnerPanel
-		panel.model = run
 		val gui = panel.getGUI
+		panel.model = run
 
 		SwingUtilities.invokeLater(new Runnable() {
 			override run() {
