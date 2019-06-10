@@ -37,12 +37,14 @@ import oracle.ide.controller.Controller
 import oracle.ide.controller.IdeAction
 import oracle.ide.editor.Editor
 import org.utplsql.sqldev.coverage.CodeCoverageReporter
+import org.utplsql.sqldev.dal.RealtimeReporterDao
 import org.utplsql.sqldev.dal.UtplsqlDao
 import org.utplsql.sqldev.model.URLTools
 import org.utplsql.sqldev.model.oddgen.GenContext
 import org.utplsql.sqldev.model.preference.PreferenceModel
 import org.utplsql.sqldev.oddgen.TestTemplate
 import org.utplsql.sqldev.parser.UtplsqlParser
+import org.utplsql.sqldev.runner.UtplsqlRunner
 import org.utplsql.sqldev.runner.UtplsqlWorksheetRunner
 
 class UtplsqlController implements Controller {
@@ -197,7 +199,7 @@ class UtplsqlController implements Controller {
 			set.add(path)
 		}
 		val ret = new ArrayList<String>
-		val p = Pattern.compile("((((\\w+)\\.)?\\w+)\\.)?\\w+")
+		val p = Pattern.compile("(((([^\\.]+)\\.)?[^\\.]+)\\.)?[^\\.]+")
 		for (path : set) {
 			val m = p.matcher(path)
 			if (m.matches()) {
@@ -264,6 +266,7 @@ class UtplsqlController implements Controller {
 	def runTest(Context context) {
 		val view = context.view
 		val node = context.node
+		val preferences = PreferenceModel.getInstance(Preferences.preferences)
 		logger.finer('''Run utPLSQL from view «view?.class?.name» and node «node?.class?.name».''')
 		if (view instanceof Editor) {
 			val component = view.defaultFocusComponent
@@ -278,20 +281,35 @@ class UtplsqlController implements Controller {
 				}
 				logger.fine('''connectionName: «connectionName»''')
 				// issue 59 - always use a connection to ensure the utPL/SQL annotation API is used
-				val parser = new UtplsqlParser(component.text, Connections.instance.getConnection(connectionName), owner)
+				val conn = Connections.instance.getConnection(connectionName)
+				val parser = new UtplsqlParser(component.text, conn, owner)
 				val position = component.caretPosition
 				val path = parser.getPathAt(position)
-				val utPlsqlWorksheet = new UtplsqlWorksheetRunner(path.pathList, connectionName)
-				utPlsqlWorksheet.runTestAsync
+				val rrDao = new RealtimeReporterDao(conn)
+				if (preferences.useRealtimeReporter && rrDao.supported) {
+					val runner = new UtplsqlRunner(path.pathList, connectionName)
+					runner.runTestAsync
+						
+				} else {
+					val worksheet = new UtplsqlWorksheetRunner(path.pathList, connectionName)
+					worksheet.runTestAsync
+				}
 			}
 		} else if (view instanceof DBNavigatorWindow) {
 			val url=context.URL
 			if (url !== null) {
 				val connectionName = url.connectionName
 				logger.fine('''connectionName: «connectionName»''')
+				val conn = Connections.instance.getConnection(connectionName)
+				val rrDao = new RealtimeReporterDao(conn)
 				val pathList=context.pathList.dedupPathList
-				val utPlsqlWorksheet = new UtplsqlWorksheetRunner(pathList, connectionName)
-				utPlsqlWorksheet.runTestAsync
+				if (preferences.useRealtimeReporter && rrDao.supported) {
+					val runner = new UtplsqlRunner(pathList, connectionName)
+					runner.runTestAsync
+				} else {
+					val worksheet = new UtplsqlWorksheetRunner(pathList, connectionName)
+					worksheet.runTestAsync
+				}
 			}
 		}
 	}
