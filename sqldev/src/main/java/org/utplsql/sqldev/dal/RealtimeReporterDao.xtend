@@ -57,9 +57,10 @@ class RealtimeReporterDao {
 		conn = connection
 		jdbcTemplate = new JdbcTemplate(new SingleConnectionDataSource(conn, true))
 		jdbcTemplate.fetchSize = 1
-		if ((new UtplsqlDao(conn)).normalizedUtPlsqlVersionNumber < FIRST_VERSION_WITH_REALTIME_REPORTER) {
-			throw new RuntimeException("RealtimeReporter requires utPLSQL v3.1.4 or higher to be installed.")
-		}
+	}
+	
+	def isSupported() {
+		return new UtplsqlDao(conn).normalizedUtPlsqlVersionNumber >= FIRST_VERSION_WITH_REALTIME_REPORTER
 	}
 	
 	def produceReport(String reporterId, List<String> pathList) {
