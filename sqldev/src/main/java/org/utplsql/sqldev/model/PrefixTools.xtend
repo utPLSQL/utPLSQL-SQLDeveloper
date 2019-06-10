@@ -16,7 +16,7 @@
 package org.utplsql.sqldev.model
 
 // converted to Xtend based on Java code on https://www.geeksforgeeks.org/longest-common-prefix-using-binary-search/
-class GFG {
+class PrefixTools {
 	def static int findMinLength(String[] arr, int n) {
 		var int min = Integer.MAX_VALUE
 		for (var int i = 0; i <= (n - 1); i++) {

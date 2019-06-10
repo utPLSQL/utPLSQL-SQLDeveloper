@@ -18,9 +18,9 @@
 import java.util.LinkedHashMap
 import javax.swing.Icon
 import javax.swing.table.DefaultTableModel
-import org.utplsql.sqldev.model.GFG
 import org.utplsql.sqldev.model.runner.Test
 import org.utplsql.sqldev.resources.UtplsqlResources
+import org.utplsql.sqldev.model.PrefixTools
 
 class TestOverviewTableModel extends DefaultTableModel {
 	LinkedHashMap<String, Test> tests
@@ -54,7 +54,7 @@ class TestOverviewTableModel extends DefaultTableModel {
 		}
 		if (commonPrefix === null) {
 			var String[] testArray = newArrayOfSize(tests.keySet.size)
-			commonPrefix = GFG.commonPrefix(tests.keySet.toArray(testArray), tests.keySet.size)
+			commonPrefix = PrefixTools.commonPrefix(tests.keySet.toArray(testArray), tests.keySet.size)
 		}
 		switch (col) {
 			case 0: {
