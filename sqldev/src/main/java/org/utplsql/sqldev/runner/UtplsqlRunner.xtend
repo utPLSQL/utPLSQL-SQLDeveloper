@@ -92,7 +92,7 @@ class UtplsqlRunner implements RealtimeReporterEventConsumer {
       
 	}
 	
-	private def dispatch doProcess(PreRunEvent event) {
+	private def initRun() {
 		run = new Run(reporterId, connectionName)
 		run.startTime = sysdate
 		run.counter.disabled = 0
@@ -100,12 +100,17 @@ class UtplsqlRunner implements RealtimeReporterEventConsumer {
 		run.counter.failure = 0
 		run.counter.error = 0
 		run.counter.warning = 0
+		run.totalNumberOfTests = -1
+		run.status = UtplsqlResources.getString("RUNNER_INITIALIZING_TEXT")
+		panel.model = run
+		panel.update(reporterId)
+	}
+	
+	private def dispatch doProcess(PreRunEvent event) {
 		run.totalNumberOfTests = event.totalNumberOfTests
 		run.put(event.items)
-		panel.model = run
-		panel.status = UtplsqlResources.getString("RUNNER_INITIALIZING_TEXT")
-		panel.updateCounter
-		
+		run.status = UtplsqlResources.getString("RUNNER_RUNNING_TEXT")
+		panel.update(reporterId)	
 	}
 
 	private def dispatch doProcess(PostRunEvent event) {
@@ -115,8 +120,8 @@ class UtplsqlRunner implements RealtimeReporterEventConsumer {
 		run.counter = event.counter
 		run.errorStack = event.errorStack
 		run.serverOutput = event.serverOutput
-		panel.status = String.format(UtplsqlResources.getString("RUNNER_FINNISHED_TEXT"), event.executionTime)
-		panel.updateCounter
+		run.status = String.format(UtplsqlResources.getString("RUNNER_FINNISHED_TEXT"), event.executionTime)
+		panel.update(reporterId)
 	}
 	
 	private def dispatch doProcess(PreSuiteEvent event) {
@@ -134,8 +139,8 @@ class UtplsqlRunner implements RealtimeReporterEventConsumer {
 		} else {
 			test.startTime = sysdate
 		}
-		panel.status = '''«event.id»'''
-		panel.updateCounter
+		run.status = event.id
+		panel.update(reporterId)
 	}
 
 	private def dispatch doProcess(PostTestEvent event) {
@@ -155,7 +160,7 @@ class UtplsqlRunner implements RealtimeReporterEventConsumer {
 		run.counter.failure = run.counter.failure + event.counter.failure
 		run.counter.error = run.counter.error + event.counter.error
 		run.counter.warning = run.counter.warning + event.counter.warning
-		panel.updateCounter
+		panel.update(reporterId)
 	}
 
 	private def void produce() {
@@ -183,18 +188,23 @@ class UtplsqlRunner implements RealtimeReporterEventConsumer {
 	def runTestAsync() {
 		// show dockable
 		val dockable = RunnerFactory.dockable as RunnerView
-		RunnerFactory.showDockable;
-		panel = dockable?.runnerPanel
-		// the producer
-		val Runnable producer = [|produce]
-		producerThread = new Thread(producer)
-		producerThread.name = "realtime producer"
-		producerThread.start
-		// the consumer
-		val Runnable consumer = [|consume]
-		consumerThread = new Thread(consumer)
-		consumerThread.name = "realtime consumer"
-		consumerThread.start
+		if (dockable === null) {
+			logger.severe('''Error getting utPLSQL dockable. Cannot run utPLSQL test.''')
+		} else {
+			RunnerFactory.showDockable;
+			panel = dockable.runnerPanel
+			initRun
+			// the producer
+			val Runnable producer = [|produce]
+			producerThread = new Thread(producer)
+			producerThread.name = "realtime producer"
+			producerThread.start
+			// the consumer
+			val Runnable consumer = [|consume]
+			consumerThread = new Thread(consumer)
+			consumerThread.name = "realtime consumer"
+			consumerThread.start
+		}
 	}
 	
 	def getProducerThread() {

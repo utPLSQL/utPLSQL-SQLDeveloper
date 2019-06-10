@@ -60,34 +60,35 @@ class UtplsqlRunnerPanelTest {
 			}
 		});
 
-		panel.status = "starting"
-		panel.updateCounter
+		run.status="starting"
+		panel.update(run.reporterId)
 		Thread.sleep(3000);
 
 		run.counter.success = run.counter.success + 1
-		panel.status = "utplsql.test.a"
-		panel.updateCounter
+		run.status="utplsql.test.a"
+		panel.update(run.reporterId)
 		Thread.sleep(500);
 
 		run.counter.success = run.counter.success + 1
-		panel.status = "utplsql.test.b"
-		panel.updateCounter
+		run.status="utplsql.test.b"
+		panel.update(run.reporterId)
 		Thread.sleep(500);
 
 		run.counter.success = run.counter.success + 1
-		panel.status = "utplsql.test.c"
-		panel.updateCounter
+		run.status="utplsql.test.c"
+		panel.update(run.reporterId)
 		Thread.sleep(500);
 
 		run.counter.failure = run.counter.failure + 1
-		panel.status = "utplsql.test.d"
-		panel.updateCounter
+		run.status="utplsql.test.d"
+		panel.update(run.reporterId)
 		Thread.sleep(500);
 		
 		run.counter.success = run.counter.success + 1
+		run.status="utplsql.test.e"
 		val end = System.currentTimeMillis
-		panel.status = String.format(UtplsqlResources.getString("RUNNER_FINNISHED_TEXT"), new Double(end-start)/1000)
-		panel.updateCounter
+		run.status = String.format(UtplsqlResources.getString("RUNNER_FINNISHED_TEXT"), new Double(end-start)/1000)
+		panel.update(run.reporterId)
 		Thread.sleep(2000);
 		frame.dispose
 	}
