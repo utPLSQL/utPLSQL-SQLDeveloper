@@ -15,12 +15,15 @@
  */
 package org.utplsql.sqldev.runner
 
+import java.awt.Dimension
+import java.awt.Toolkit
 import java.sql.Connection
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.List
 import java.util.UUID
 import java.util.logging.Logger
+import javax.swing.JFrame
 import oracle.dbtools.raptor.utils.Connections
 import org.utplsql.sqldev.dal.RealtimeReporterDao
 import org.utplsql.sqldev.dal.RealtimeReporterEventConsumer
@@ -185,15 +188,40 @@ class UtplsqlRunner implements RealtimeReporterEventConsumer {
 		}
 	}
 	
-	def runTestAsync() {
-		// show dockable
-		val dockable = RunnerFactory.dockable as RunnerView
-		if (dockable === null) {
+	private def isRunningInSqlDeveloper() {
+		return connectionName !== null
+	}
+	
+	private def initGUI() {
+		var RunnerView dockable = null
+		if (runningInSqlDeveloper && (dockable = RunnerFactory.dockable as RunnerView) === null) {
 			logger.severe('''Error getting utPLSQL dockable. Cannot run utPLSQL test.''')
+			return false
 		} else {
-			RunnerFactory.showDockable;
-			panel = dockable.runnerPanel
+			if (runningInSqlDeveloper) {
+				RunnerFactory.showDockable;
+				panel = dockable.runnerPanel
+			} else {
+				val frame = new JFrame("utPLSQL Runner Panel")
+				frame.defaultCloseOperation = JFrame.EXIT_ON_CLOSE;
+				panel = new RunnerPanel
+				frame.add(panel.getGUI)
+				val frameSize = new Dimension(500, 500)
+				frame.minimumSize = frameSize
+				frame.preferredSize = frameSize
+				frame.pack
+				val dim = Toolkit.getDefaultToolkit().getScreenSize();
+				frame.setLocation(dim.width / 2 - frame.getSize().width / 2, dim.height / 2 - frame.getSize().height / 2);
+				frame.setVisible(true)
+			}
 			initRun
+		}
+		return true
+	}
+	
+	def runTestAsync() {
+		// start tests when the GUI has been successfully initialized.
+		if (initGUI) {
 			// the producer
 			val Runnable producer = [|produce]
 			producerThread = new Thread(producer)
