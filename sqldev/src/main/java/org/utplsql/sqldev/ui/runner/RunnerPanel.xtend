@@ -17,6 +17,7 @@ package org.utplsql.sqldev.ui.runner
 
 import java.awt.Color
 import java.awt.Component
+import java.awt.Dimension
 import java.awt.GridBagConstraints
 import java.awt.GridBagLayout
 import java.awt.Insets
@@ -29,6 +30,8 @@ import org.utplsql.sqldev.model.runner.Run
 import org.utplsql.sqldev.resources.UtplsqlResources
 
 class RunnerPanel {
+	static val GREEN = new Color(0, 153, 0)
+	static val RED = new Color(153, 0, 0)
 	LimitedLinkedHashMap<String, Run> runs = new LimitedLinkedHashMap<String, Run>(10)
 	JPanel basePanel
 	JLabel statusLabel
@@ -44,35 +47,28 @@ class RunnerPanel {
 		return basePanel
 	}
 	
-	def setStatus(String text) {
-		statusLabel.text = text
-	}
-	
 	def setModel(Run run) {
 		runs.put(run.reporterId, run)
 	}
 	
-	def updateCounter() {
-		val run = currentRun
+	def update(String reporterId) {
+		val run = runs.get(reporterId)
+		statusLabel.text = run.status
 		testCounterValueLabel.text = '''«run.totalNumberOfCompletedTests»/«run.totalNumberOfTests»'''
 		errorCounterValueLabel.text = '''«run.counter.error»'''
 		failureCounterValueLabel.text = '''«run.counter.failure»'''
 		if (run.totalNumberOfTests == 0) {
 			progressBar.value = 100
 		} else {
-			progressBar.value = 100 * run.totalNumberOfCompletedTests / run.totalNumberOfTests
+			progressBar.value = Math.round(100 * run.totalNumberOfCompletedTests / run.totalNumberOfTests)
 		}
 		if (run.counter.error > 0 || run.counter.failure > 0) {
-			progressBar.foreground = Color.RED
+			progressBar.foreground = RED
 		} else {
-			progressBar.foreground = Color.GREEN
+			progressBar.foreground = GREEN
 		}
 	}
-	
-	private def getCurrentRun() {
-		return runs.values.get(runs.values.length - 1)
-	}	
-	
+		
 	private def initializeGUI() {
 		// Base panel containing all components 
 		basePanel = new JPanel()
@@ -169,8 +165,11 @@ class RunnerPanel {
 		
 		// Progress bar
 		progressBar = new JProgressBar
+		val progressBarDim = new Dimension(10, 20)
+		progressBar.preferredSize = progressBarDim
+		progressBar.minimumSize = progressBarDim
 		progressBar.stringPainted = false
-		progressBar.foreground = Color.GREEN
+		progressBar.foreground = GREEN
 		progressBar.UI = new BasicProgressBarUI
 		c.gridx = 0
 		c.gridy = 2
