@@ -32,6 +32,7 @@ class Run extends AbstractModel {
 	String errorStack
 	String serverOutput
 	LinkedHashMap<String, Test> tests
+	String status
 	
 	new(String reporterId, String connectionName) {
 		this.reporterId = reporterId
