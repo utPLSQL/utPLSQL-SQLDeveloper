@@ -71,8 +71,7 @@ class UtplsqlRunnerTest extends AbstractJdbcTest {
 	}
 	
 	@Test
-	@Ignore
-	def void runSlowTests() {
+	def void runTestsWithMaxTime() {
 		var ds1 = new SingleConnectionDataSource()
 		ds1.driverClassName = "oracle.jdbc.OracleDriver"
 		ds1.url = dataSource.url
