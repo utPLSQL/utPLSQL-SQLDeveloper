@@ -24,6 +24,8 @@ import java.awt.Insets
 import javax.swing.JLabel
 import javax.swing.JPanel
 import javax.swing.JProgressBar
+import javax.swing.JScrollPane
+import javax.swing.JTable
 import javax.swing.plaf.basic.BasicProgressBarUI
 import org.utplsql.sqldev.model.LimitedLinkedHashMap
 import org.utplsql.sqldev.model.runner.Run
@@ -39,6 +41,8 @@ class RunnerPanel {
 	JLabel errorCounterValueLabel
 	JLabel failureCounterValueLabel
 	JProgressBar progressBar;
+	TestOverviewTableModel testOverviewTableModel
+	JTable testOverviewTable
 	
 	def Component getGUI() {
 		if (basePanel === null) {
@@ -49,10 +53,17 @@ class RunnerPanel {
 	
 	def setModel(Run run) {
 		runs.put(run.reporterId, run)
+		testOverviewTableModel.model = run.tests
 	}
 	
 	def update(String reporterId) {
 		val run = runs.get(reporterId)
+		val row = run.totalNumberOfCompletedTests - 1
+		if (row < 0) {
+			testOverviewTableModel.fireTableDataChanged
+		} else {
+			testOverviewTableModel.fireTableRowsUpdated(row, row)
+		}
 		statusLabel.text = run.status
 		testCounterValueLabel.text = '''«run.totalNumberOfCompletedTests»/«run.totalNumberOfTests»'''
 		errorCounterValueLabel.text = '''«run.counter.error»'''
@@ -181,9 +192,19 @@ class RunnerPanel {
 		c.weightx = 1
 		c.weighty = 0
 		basePanel.add(progressBar, c)
-		
-		// Vertical spring
-		val spring = new JLabel
+
+		// Test overview - first part of the horizontal split pane
+		testOverviewTableModel = new TestOverviewTableModel
+		testOverviewTable = new JTable(testOverviewTableModel)
+		val overviewTableIcon = testOverviewTable.columnModel.getColumn(0)
+		overviewTableIcon.minWidth = 20
+		overviewTableIcon.preferredWidth = 20
+		overviewTableIcon.maxWidth = 20
+		val overviewTableTime = testOverviewTable.columnModel.getColumn(2)
+		overviewTableTime.preferredWidth = 60
+		overviewTableTime.maxWidth = 100
+		testOverviewTable.tableHeader.reorderingAllowed = false
+		val testOverviewScrollPane = new JScrollPane(testOverviewTable)
 		c.gridx = 0
 		c.gridy = 3
 		c.gridwidth = 6
@@ -193,6 +214,10 @@ class RunnerPanel {
 		c.fill = GridBagConstraints::BOTH
 		c.weightx = 1
 		c.weighty = 1
-		basePanel.add(spring, c)		
+		basePanel.add(testOverviewScrollPane, c)		
+		
+		// Test details tabbed pane - second part of the horizontal split pane
+
+		
 	}
 }
