@@ -43,6 +43,12 @@ class TestOverviewTableModel extends DefaultTableModel {
 			commonPrefix
 		}
 	}
+	
+	def getTest(int row) {
+		val entry = tests.entrySet.get(row)
+		val test = tests.get(entry.key)
+		return test
+	}
 
 	override getRowCount() {
 		if (tests === null) {
