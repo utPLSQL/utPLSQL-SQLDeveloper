@@ -156,35 +156,10 @@ class RunnerPanel {
 		c.weighty = 0
 		basePanel.add(testCounterValueLabel, c)
 		
-		// Error counter
-		val errorCounterLabel = new JLabel(UtplsqlResources.getString("RUNNER_ERRORS_LABEL") + ":",
-			UtplsqlResources.getIcon("ERROR_ICON"), JLabel::LEADING)
-		c.gridx = 2
-		c.gridy = 1
-		c.gridwidth = 1
-		c.gridheight = 1
-		c.insets = new Insets(10, 10, 10, 5) // top, left, bottom, right
-		c.anchor = GridBagConstraints::WEST
-		c.fill = GridBagConstraints::NONE
-		c.weightx = 0
-		c.weighty = 0
-		basePanel.add(errorCounterLabel, c)
-		errorCounterValueLabel = new JLabel
-		c.gridx = 3
-		c.gridy = 1
-		c.gridwidth = 1
-		c.gridheight = 1
-		c.insets = new Insets(10, 0, 10, 10) // top, left, bottom, right
-		c.anchor = GridBagConstraints::WEST
-		c.fill = GridBagConstraints::NONE
-		c.weightx = 0
-		c.weighty = 0
-		basePanel.add(errorCounterValueLabel, c)		
-
 		// Failure counter
 		val failureCounterLabel = new JLabel(UtplsqlResources.getString("RUNNER_FAILURES_LABEL") + ":",
 			UtplsqlResources.getIcon("FAILURE_ICON"), JLabel::LEADING)
-		c.gridx = 4
+		c.gridx = 2
 		c.gridy = 1
 		c.gridwidth = 1
 		c.gridheight = 1
@@ -195,7 +170,7 @@ class RunnerPanel {
 		c.weighty = 0
 		basePanel.add(failureCounterLabel, c)
 		failureCounterValueLabel = new JLabel
-		c.gridx = 5
+		c.gridx = 3
 		c.gridy = 1
 		c.gridwidth = 1
 		c.gridheight = 1
@@ -205,6 +180,31 @@ class RunnerPanel {
 		c.weightx = 0
 		c.weighty = 0
 		basePanel.add(failureCounterValueLabel, c)
+
+		// Error counter
+		val errorCounterLabel = new JLabel(UtplsqlResources.getString("RUNNER_ERRORS_LABEL") + ":",
+			UtplsqlResources.getIcon("ERROR_ICON"), JLabel::LEADING)
+		c.gridx = 4
+		c.gridy = 1
+		c.gridwidth = 1
+		c.gridheight = 1
+		c.insets = new Insets(10, 10, 10, 5) // top, left, bottom, right
+		c.anchor = GridBagConstraints::WEST
+		c.fill = GridBagConstraints::NONE
+		c.weightx = 0
+		c.weighty = 0
+		basePanel.add(errorCounterLabel, c)
+		errorCounterValueLabel = new JLabel
+		c.gridx = 5
+		c.gridy = 1
+		c.gridwidth = 1
+		c.gridheight = 1
+		c.insets = new Insets(10, 0, 10, 10) // top, left, bottom, right
+		c.anchor = GridBagConstraints::WEST
+		c.fill = GridBagConstraints::NONE
+		c.weightx = 0
+		c.weighty = 0
+		basePanel.add(errorCounterValueLabel, c)		
 		
 		// Progress bar
 		progressBar = new JProgressBar
