@@ -15,6 +15,8 @@
  */
 package org.utplsql.sqldev.model
 
+import java.util.List
+
 // converted to Xtend based on Java code on https://www.geeksforgeeks.org/longest-common-prefix-using-binary-search/
 class PrefixTools {
 	def static int findMinLength(String[] arr, int n) {
@@ -61,4 +63,22 @@ class PrefixTools {
 		}
 		return prefix
 	}
+	
+	def static String commonPrefix(List<String> list) {
+		if (list.size === 0) {
+			return ""
+		} else if (list.size === 1) {
+			val pos = list.get(0).lastIndexOf(".");
+			if (pos > 0) {
+				return list.get(0).substring(0, pos + 1)
+			} else {
+				return ""
+			}
+		} else {
+			var String[] testArray = newArrayOfSize(list.size)
+			var prefix = commonPrefix(list.toArray(testArray), list.size)
+			return prefix
+		}
+	}
+	
 }
