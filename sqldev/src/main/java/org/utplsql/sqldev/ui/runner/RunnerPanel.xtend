@@ -62,6 +62,12 @@ class RunnerPanel {
 	def update(String reporterId) {
 		val run = runs.get(reporterId)
 		val row = run.totalNumberOfCompletedTests - 1
+		val header = testOverviewTableModel.testIdColumnName
+		val idColumn = testOverviewTable.columnModel.getColumn(1)
+		if (idColumn.headerValue != header) {
+			idColumn.headerValue = header
+			testOverviewTable.tableHeader.repaint
+		}
 		if (row < 0) {
 			testOverviewTableModel.fireTableDataChanged
 		} else {

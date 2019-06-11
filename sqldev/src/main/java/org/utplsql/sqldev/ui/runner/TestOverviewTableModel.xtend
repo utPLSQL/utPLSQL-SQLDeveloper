@@ -35,6 +35,14 @@ class TestOverviewTableModel extends DefaultTableModel {
 		this.commonPrefix = null
 		fireTableDataChanged()
 	}
+	
+	def getTestIdColumnName() {
+		if (commonPrefix === null) {
+			return UtplsqlResources.getString("RUNNER_TEST_ID")
+		} else {
+			commonPrefix
+		}
+	}
 
 	override getRowCount() {
 		if (tests === null) {
