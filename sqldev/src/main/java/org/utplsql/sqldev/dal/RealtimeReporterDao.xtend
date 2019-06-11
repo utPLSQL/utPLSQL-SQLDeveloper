@@ -239,7 +239,7 @@ class RealtimeReporterDao {
 	private def void populate(Test test, Node node) {
 		if (node instanceof Element) {
 			test.id = node.attributes?.getNamedItem("id")?.nodeValue
-			test.executionType = node.getElementsByTagName("executionType")?.item(0)?.textContent
+			test.executableType = node.getElementsByTagName("executableType")?.item(0)?.textContent
 			test.ownerName = node.getElementsByTagName("ownerName")?.item(0)?.textContent
 			test.objectName = node.getElementsByTagName("objectName")?.item(0)?.textContent
 			test.procedureName = node.getElementsByTagName("procedureName")?.item(0)?.textContent

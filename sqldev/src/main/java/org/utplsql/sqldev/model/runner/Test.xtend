@@ -22,7 +22,7 @@ import org.utplsql.sqldev.resources.UtplsqlResources
 
 @Accessors
 class Test extends Item {
-	String executionType
+	String executableType
 	String ownerName
 	String objectName
 	String procedureName
