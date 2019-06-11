@@ -54,14 +54,19 @@ class UtplsqlRunnerTest extends AbstractJdbcTest {
 			CREATE OR REPLACE PACKAGE BODY junit_utplsql_test1_pkg IS
 			   PROCEDURE test_1_ok IS
 			   BEGIN
+			      dbms_output.put_line('start test 1');
 			      dbms_session.sleep(1);
 			      ut.expect(1).to_equal(1);
+			      dbms_output.put_line('end test 1');
 			   END;
 			
 			   PROCEDURE test_2_nok IS
 			   BEGIN
+			      dbms_output.put_line('start test 2');
 			      dbms_session.sleep(2);
-			      ut.expect(1).to_equal(2);
+			      ut.expect(1, 'first assert.').to_equal(2);
+			      ut.expect(1, 'second assert.').to_equal(2);
+			      dbms_output.put_line('end test 2');
 			   END;
 			   
 			   PROCEDURE test_3_disabled IS
