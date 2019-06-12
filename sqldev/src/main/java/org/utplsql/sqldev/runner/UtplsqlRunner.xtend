@@ -121,7 +121,6 @@ class UtplsqlRunner implements RealtimeReporterEventConsumer {
 		run.startTime = event.startTime
 		run.endTime = event.endTime
 		run.executionTime = event.executionTime
-		run.counter = event.counter
 		run.errorStack = event.errorStack
 		run.serverOutput = event.serverOutput
 		run.status = String.format(UtplsqlResources.getString("RUNNER_FINNISHED_TEXT"), event.executionTime)
@@ -163,12 +162,18 @@ class UtplsqlRunner implements RealtimeReporterEventConsumer {
 			}
 			test.failedExpectations = event.failedExpectations
 			test.warnings = event.warnings
+			if (test.warnings !== null) {
+				// it does not matter how many rows are used by utPLSQL to store a warning event
+				test.counter.warning = 1
+			} else {
+				test.counter.warning = 0
+			}
 		}
 		run.counter.disabled = run.counter.disabled + event.counter.disabled
 		run.counter.success = run.counter.success + event.counter.success
 		run.counter.failure = run.counter.failure + event.counter.failure
 		run.counter.error = run.counter.error + event.counter.error
-		run.counter.warning = run.counter.warning + event.counter.warning
+		run.counter.warning = run.counter.warning + test.counter.warning
 		panel.update(reporterId)
 	}
 
