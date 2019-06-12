@@ -37,7 +37,7 @@ class TestOverviewTableModel extends DefaultTableModel {
 	}
 	
 	def getTestIdColumnName() {
-		if (commonPrefix === null) {
+		if (commonPrefix === null || commonPrefix == "") {
 			return UtplsqlResources.getString("RUNNER_TEST_ID")
 		} else {
 			commonPrefix
