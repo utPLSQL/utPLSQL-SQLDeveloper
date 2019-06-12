@@ -54,6 +54,7 @@ class RunnerPanel implements FocusListener {
 	JLabel errorCounterValueLabel
 	JLabel failureCounterValueLabel
 	JLabel disabledCounterValueLabel
+	JLabel warningsCounterValueLabel
 	JProgressBar progressBar;
 	TestOverviewTableModel testOverviewTableModel
 	JTable testOverviewTable
@@ -118,6 +119,7 @@ class RunnerPanel implements FocusListener {
 		errorCounterValueLabel.text = '''«run.counter.error»'''
 		failureCounterValueLabel.text = '''«run.counter.failure»'''
 		disabledCounterValueLabel.text = '''«run.counter.disabled»'''
+		warningsCounterValueLabel.text = '''«run.counter.warning»'''
 		if (run.totalNumberOfTests == 0) {
 			progressBar.value = 100
 		} else {
@@ -304,6 +306,11 @@ class RunnerPanel implements FocusListener {
 			UtplsqlResources.getIcon("DISABLED_ICON"), JLabel::LEADING)
 		disabledCounterValueLabel = new JLabel
 		counterPanel.add(makeLabelledComponent(disabledCounterLabel, disabledCounterValueLabel))
+		// - Warnings counter
+		val warningsCounterLabel = new JLabel(UtplsqlResources.getString("RUNNER_WARNINGS_LABEL") + ":",
+			UtplsqlResources.getIcon("WARNING_ICON"), JLabel::LEADING)
+		warningsCounterValueLabel = new JLabel
+		counterPanel.add(makeLabelledComponent(warningsCounterLabel, warningsCounterValueLabel))
 		// - add everything to basePanel		
 		c.gridx = 0
 		c.gridy = 1
