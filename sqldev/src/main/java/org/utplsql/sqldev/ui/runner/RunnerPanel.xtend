@@ -18,12 +18,14 @@ package org.utplsql.sqldev.ui.runner
 import java.awt.Color
 import java.awt.Component
 import java.awt.Dimension
+import java.awt.FlowLayout
 import java.awt.GridBagConstraints
 import java.awt.GridBagLayout
 import java.awt.Insets
 import java.awt.event.FocusEvent
 import java.awt.event.FocusListener
 import java.text.DecimalFormat
+import javax.swing.JComponent
 import javax.swing.JLabel
 import javax.swing.JPanel
 import javax.swing.JProgressBar
@@ -51,6 +53,7 @@ class RunnerPanel implements FocusListener {
 	JLabel testCounterValueLabel
 	JLabel errorCounterValueLabel
 	JLabel failureCounterValueLabel
+	JLabel disabledCounterValueLabel
 	JProgressBar progressBar;
 	TestOverviewTableModel testOverviewTableModel
 	JTable testOverviewTable
@@ -114,6 +117,7 @@ class RunnerPanel implements FocusListener {
 		testCounterValueLabel.text = '''«run.totalNumberOfCompletedTests»/«run.totalNumberOfTests»'''
 		errorCounterValueLabel.text = '''«run.counter.error»'''
 		failureCounterValueLabel.text = '''«run.counter.failure»'''
+		disabledCounterValueLabel.text = '''«run.counter.disabled»'''
 		if (run.totalNumberOfTests == 0) {
 			progressBar.value = 100
 		} else {
@@ -227,7 +231,36 @@ class RunnerPanel implements FocusListener {
 			label.horizontalAlignment = if (col === 2) {JLabel.RIGHT} else {JLabel.LEFT}
 			return label
 		}
-	}	
+	}
+	
+	private def makeLabelledComponent (JLabel label, JComponent comp) {
+		val groupPanel = new JPanel
+		groupPanel.layout = new GridBagLayout
+		var GridBagConstraints c = new GridBagConstraints
+		// label
+		c.gridx = 0
+		c.gridy = 0
+		c.gridwidth = 1
+		c.gridheight = 1
+		c.insets = new Insets(5, 10, 5, 0) // top, left, bottom, right
+		c.anchor = GridBagConstraints::WEST
+		c.fill = GridBagConstraints::NONE
+		c.weightx = 0
+		c.weighty = 0
+		groupPanel.add(label, c)
+		// component
+		c.gridx = 1
+		c.gridy = 0
+		c.gridwidth = 1
+		c.gridheight = 1
+		c.insets = new Insets(5, 5, 5, 10) // top, left, bottom, right
+		c.anchor = GridBagConstraints::WEST
+		c.fill = GridBagConstraints::NONE
+		c.weightx = 0
+		c.weighty = 0
+		groupPanel.add(comp, c)
+		return groupPanel
+	}
 		
 	private def initializeGUI() {
 		// Base panel containing all components 
@@ -239,7 +272,7 @@ class RunnerPanel implements FocusListener {
 		statusLabel = new JLabel
 		c.gridx = 0
 		c.gridy = 0
-		c.gridwidth = 6
+		c.gridwidth = 1
 		c.gridheight = 1
 		c.insets = new Insets(10, 10, 10, 10) // top, left, bottom, right
 		c.anchor = GridBagConstraints::WEST
@@ -248,80 +281,40 @@ class RunnerPanel implements FocusListener {
 		c.weighty = 0
 		basePanel.add(statusLabel, c)
 		
-		// Test counter
+		// Counters
+		// - Test counter
+		val counterPanel = new JPanel
+		counterPanel.layout = new WrapLayout(FlowLayout.LEFT, 0, 0)
 		val testCounterLabel = new JLabel(UtplsqlResources.getString("RUNNER_TESTS_LABEL") + ":",
 			UtplsqlResources.getIcon("UTPLSQL_ICON"), JLabel::LEADING)
+		testCounterValueLabel = new JLabel
+		counterPanel.add(makeLabelledComponent(testCounterLabel, testCounterValueLabel))
+		// - Failure counter
+		val failureCounterLabel = new JLabel(UtplsqlResources.getString("RUNNER_FAILURES_LABEL") + ":",
+			UtplsqlResources.getIcon("FAILURE_ICON"), JLabel::LEADING)
+		failureCounterValueLabel = new JLabel
+		counterPanel.add(makeLabelledComponent(failureCounterLabel,failureCounterValueLabel))
+		// - Error counter
+		val errorCounterLabel = new JLabel(UtplsqlResources.getString("RUNNER_ERRORS_LABEL") + ":",
+			UtplsqlResources.getIcon("ERROR_ICON"), JLabel::LEADING)
+		errorCounterValueLabel = new JLabel
+		counterPanel.add(makeLabelledComponent(errorCounterLabel, errorCounterValueLabel))
+		// - Disabled counter
+		val disabledCounterLabel = new JLabel(UtplsqlResources.getString("RUNNER_DISABLED_LABEL") + ":",
+			UtplsqlResources.getIcon("DISABLED_ICON"), JLabel::LEADING)
+		disabledCounterValueLabel = new JLabel
+		counterPanel.add(makeLabelledComponent(disabledCounterLabel, disabledCounterValueLabel))
+		// - add everything to basePanel		
 		c.gridx = 0
 		c.gridy = 1
 		c.gridwidth = 1
 		c.gridheight = 1
-		c.insets = new Insets(10, 10, 10, 5) // top, left, bottom, right
+		c.insets = new Insets(5, 0, 5, 0) // top, left, bottom, right
 		c.anchor = GridBagConstraints::WEST
-		c.fill = GridBagConstraints::NONE
-		c.weightx = 0
+		c.fill = GridBagConstraints::HORIZONTAL
+		c.weightx = 1
 		c.weighty = 0
-		basePanel.add(testCounterLabel, c)
-		testCounterValueLabel = new JLabel
-		c.gridx = 1
-		c.gridy = 1
-		c.gridwidth = 1
-		c.gridheight = 1
-		c.insets = new Insets(10, 0, 10, 10) // top, left, bottom, right
-		c.anchor = GridBagConstraints::WEST
-		c.fill = GridBagConstraints::NONE
-		c.weightx = 0
-		c.weighty = 0
-		basePanel.add(testCounterValueLabel, c)
-		
-		// Failure counter
-		val failureCounterLabel = new JLabel(UtplsqlResources.getString("RUNNER_FAILURES_LABEL") + ":",
-			UtplsqlResources.getIcon("FAILURE_ICON"), JLabel::LEADING)
-		c.gridx = 2
-		c.gridy = 1
-		c.gridwidth = 1
-		c.gridheight = 1
-		c.insets = new Insets(10, 10, 10, 5) // top, left, bottom, right
-		c.anchor = GridBagConstraints::WEST
-		c.fill = GridBagConstraints::NONE
-		c.weightx = 0
-		c.weighty = 0
-		basePanel.add(failureCounterLabel, c)
-		failureCounterValueLabel = new JLabel
-		c.gridx = 3
-		c.gridy = 1
-		c.gridwidth = 1
-		c.gridheight = 1
-		c.insets = new Insets(10, 0, 10, 10) // top, left, bottom, right
-		c.anchor = GridBagConstraints::WEST
-		c.fill = GridBagConstraints::NONE
-		c.weightx = 0
-		c.weighty = 0
-		basePanel.add(failureCounterValueLabel, c)
-
-		// Error counter
-		val errorCounterLabel = new JLabel(UtplsqlResources.getString("RUNNER_ERRORS_LABEL") + ":",
-			UtplsqlResources.getIcon("ERROR_ICON"), JLabel::LEADING)
-		c.gridx = 4
-		c.gridy = 1
-		c.gridwidth = 1
-		c.gridheight = 1
-		c.insets = new Insets(10, 10, 10, 5) // top, left, bottom, right
-		c.anchor = GridBagConstraints::WEST
-		c.fill = GridBagConstraints::NONE
-		c.weightx = 0
-		c.weighty = 0
-		basePanel.add(errorCounterLabel, c)
-		errorCounterValueLabel = new JLabel
-		c.gridx = 5
-		c.gridy = 1
-		c.gridwidth = 1
-		c.gridheight = 1
-		c.insets = new Insets(10, 0, 10, 10) // top, left, bottom, right
-		c.anchor = GridBagConstraints::WEST
-		c.fill = GridBagConstraints::NONE
-		c.weightx = 0
-		c.weighty = 0
-		basePanel.add(errorCounterValueLabel, c)		
+		basePanel.add(counterPanel,c)
 		
 		// Progress bar
 		progressBar = new JProgressBar
@@ -333,7 +326,7 @@ class RunnerPanel implements FocusListener {
 		progressBar.UI = new BasicProgressBarUI
 		c.gridx = 0
 		c.gridy = 2
-		c.gridwidth = 6
+		c.gridwidth = 1
 		c.gridheight = 1
 		c.insets = new Insets(10, 10, 10, 10) // top, left, bottom, right
 		c.anchor = GridBagConstraints::WEST
@@ -701,7 +694,7 @@ class RunnerPanel implements FocusListener {
 		horizontalSplitPane.resizeWeight = 0.5
 		c.gridx = 0
 		c.gridy = 3
-		c.gridwidth = 6
+		c.gridwidth = 1
 		c.gridheight = 1
 		c.insets = new Insets(10, 10, 10, 10) // top, left, bottom, right
 		c.anchor = GridBagConstraints::WEST
