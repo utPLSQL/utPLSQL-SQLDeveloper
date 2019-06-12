@@ -29,6 +29,7 @@ class Run extends AbstractModel {
 	String endTime
 	Double executionTime
 	Counter counter
+	Integer infoCount
 	String errorStack
 	String serverOutput
 	LinkedHashMap<String, Test> tests
