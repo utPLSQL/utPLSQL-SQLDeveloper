@@ -46,6 +46,9 @@ class UtplsqlRunnerTest extends AbstractJdbcTest {
 
 			   --%test(test 4 - errored)
 			   PROCEDURE test_4_errored;
+			   
+			   --%test(test 5 - warnings)
+			   PROCEDURE test_5_warnings;
 
 			   --%endcontext
 			END;
@@ -73,9 +76,16 @@ class UtplsqlRunnerTest extends AbstractJdbcTest {
 			   BEGIN
 			      NULL;
 			   END;
+
 			   PROCEDURE test_4_errored IS
 			   BEGIN
 			      EXECUTE IMMEDIATE 'bla bla';
+			   END;
+
+			   PROCEDURE test_5_warnings IS
+			   BEGIN
+			      COMMIT; -- will raise a warning
+				  ut.expect(1).to_equal(1);
 			   END;
 			END;
 		''')
