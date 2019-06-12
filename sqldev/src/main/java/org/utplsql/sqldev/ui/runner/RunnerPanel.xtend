@@ -245,8 +245,10 @@ class RunnerPanel implements FocusListener {
 				label.icon = UtplsqlResources.getIcon("INFO_ICON")
 				label.horizontalAlignment = JLabel.CENTER
 			} else if (col === 3) {
+				label.icon = null
 				label.horizontalAlignment = JLabel.LEFT
 			} else if (col === 4) {
+				label.icon = null
 				label.horizontalAlignment = JLabel.RIGHT
 			}
 			return label
