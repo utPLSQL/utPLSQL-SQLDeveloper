@@ -103,6 +103,7 @@ class UtplsqlRunner implements RealtimeReporterEventConsumer {
 		run.counter.failure = 0
 		run.counter.error = 0
 		run.counter.warning = 0
+		run.infoCount = 0
 		run.totalNumberOfTests = -1
 		run.status = UtplsqlResources.getString("RUNNER_INITIALIZING_TEXT")
 		panel.model = run
@@ -157,6 +158,9 @@ class UtplsqlRunner implements RealtimeReporterEventConsumer {
 			test.counter = event.counter
 			test.errorStack = event.errorStack
 			test.serverOutput = event.serverOutput
+			if (test.serverOutput !== null) {
+				run.infoCount = run.infoCount + 1
+			}
 			test.failedExpectations = event.failedExpectations
 			test.warnings = event.warnings
 		}
