@@ -72,6 +72,7 @@ class RunnerPanel implements FocusListener {
 	JTextArea testErrorStackTextArea
 	JTextArea testWarningsTextArea
 	JTextArea testServerOutputTextArea
+	JTabbedPane testDetailTabbedPane
 	
 	def Component getGUI() {
 		if (basePanel === null) {
@@ -216,6 +217,19 @@ class RunnerPanel implements FocusListener {
 				p.testErrorStackTextArea.text = test.errorStack
 				p.testWarningsTextArea.text = test.warnings
 				p.testServerOutputTextArea.text = test.serverOutput
+				var int tabIndex
+				if (test.counter.failure > 0) {
+					tabIndex = 1
+				} else if (test.counter.error > 0) {
+					tabIndex = 2
+				} else if (test.counter.warning > 0) {
+					tabIndex = 3
+				} else if (test.serverOutput !== null && test.serverOutput.length > 0) {
+					tabIndex = 4
+				} else {
+					tabIndex = 0
+				}
+				p.testDetailTabbedPane.selectedIndex = tabIndex
 			}
 		}		
 	}
@@ -752,7 +766,7 @@ class RunnerPanel implements FocusListener {
 		testServerOutputPanel.add(testServerOutputScrollPane, c)
 
 		// split pane with all tabs
-		val testDetailTabbedPane = new JTabbedPane()
+		testDetailTabbedPane = new JTabbedPane()
 		testDetailTabbedPane.add("Test", testPropertiesScrollPane)
 		testDetailTabbedPane.add("Failures", testFailuresPanel)
 		testDetailTabbedPane.add("Errors", testErrorStackPanel)
