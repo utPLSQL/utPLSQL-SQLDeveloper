@@ -69,8 +69,9 @@ class RunnerPanel implements FocusListener {
 	JTextArea testFailureDescriptionTextArea
 	JTextArea testFailureMessageTextArea
 	JTextArea testFailureCallerTextArea
-	JTextArea testServerOutputTextArea
 	JTextArea testErrorStackTextArea
+	JTextArea testWarningsTextArea
+	JTextArea testServerOutputTextArea
 	
 	def Component getGUI() {
 		if (basePanel === null) {
@@ -93,8 +94,9 @@ class RunnerPanel implements FocusListener {
 		testFailureDescriptionTextArea.text = null
 		testFailureMessageTextArea.text = null
 		testFailureCallerTextArea.text = null
-		testServerOutputTextArea.text = null
 		testErrorStackTextArea.text = null
+		testWarningsTextArea.text = null
+		testServerOutputTextArea.text = null
 	}
 	
 	def update(String reporterId) {
@@ -211,8 +213,9 @@ class RunnerPanel implements FocusListener {
 					p.testFailureMessageTextArea.text = null
 					p.testFailureCallerTextArea.text = null
 				}
-				p.testServerOutputTextArea.text = test.serverOutput
 				p.testErrorStackTextArea.text = test.errorStack
+				p.testWarningsTextArea.text = test.warnings
+				p.testServerOutputTextArea.text = test.serverOutput
 			}
 		}		
 	}
@@ -374,7 +377,7 @@ class RunnerPanel implements FocusListener {
 		overviewTableTime.cellRenderer = timeFormatRenderer
 		val testOverviewScrollPane = new JScrollPane(testOverviewTable)		
 		
-		// Test info tabbed pane
+		// Test tabbed pane (Test Properties)
 		// - Id
 		val testInfoPanel = new ScrollablePanel
 		testInfoPanel.setLayout(new GridBagLayout())
@@ -565,13 +568,13 @@ class RunnerPanel implements FocusListener {
 		c.weightx = 0
 		c.weighty = 1
 		testInfoPanel.add(testInfoVerticalSpringLabel, c)
-		val testInfoScrollPane = new JScrollPane(testInfoPanel)
+		val testPropertiesScrollPane = new JScrollPane(testInfoPanel)
 
-		// failures tabbed pane (failed expectations)
+		// Failures tabbed pane (failed expectations)
 		// TODO support unbound number of failed expectations
 		// - description
-		val testFailurePanel = new JPanel
-		testFailurePanel.setLayout(new GridBagLayout())
+		val testFailuresPanel = new JPanel
+		testFailuresPanel.setLayout(new GridBagLayout())
 		val testFailureDescriptionLabel = new JLabel("Description")
 		c.gridx = 0
 		c.gridy = 0
@@ -582,7 +585,7 @@ class RunnerPanel implements FocusListener {
 		c.fill = GridBagConstraints::NONE
 		c.weightx = 0
 		c.weighty = 0
-		testFailurePanel.add(testFailureDescriptionLabel, c)
+		testFailuresPanel.add(testFailureDescriptionLabel, c)
 		testFailureDescriptionTextArea = new JTextArea
 		testFailureDescriptionTextArea.editable = false
 		testFailureDescriptionTextArea.enabled = true
@@ -599,7 +602,7 @@ class RunnerPanel implements FocusListener {
 		c.fill = GridBagConstraints::HORIZONTAL
 		c.weightx = 1
 		c.weighty = 0
-		testFailurePanel.add(testFailureDescriptionScrollPane, c)
+		testFailuresPanel.add(testFailureDescriptionScrollPane, c)
 		// - message
 		val testFailureMessageLabel = new JLabel("Message")
 		c.gridx = 0
@@ -611,7 +614,7 @@ class RunnerPanel implements FocusListener {
 		c.fill = GridBagConstraints::NONE
 		c.weightx = 0
 		c.weighty = 0
-		testFailurePanel.add(testFailureMessageLabel, c)
+		testFailuresPanel.add(testFailureMessageLabel, c)
 		testFailureMessageTextArea = new JTextArea
 		testFailureMessageTextArea.editable = false
 		testFailureMessageTextArea.enabled = true
@@ -628,7 +631,7 @@ class RunnerPanel implements FocusListener {
 		c.fill = GridBagConstraints::BOTH
 		c.weightx = 1
 		c.weighty = 6
-		testFailurePanel.add(testFailureMessageScrollPane, c)
+		testFailuresPanel.add(testFailureMessageScrollPane, c)
 		// - caller
 		val testFailureCallerLabel = new JLabel("Caller")
 		c.gridx = 0
@@ -640,7 +643,7 @@ class RunnerPanel implements FocusListener {
 		c.fill = GridBagConstraints::NONE
 		c.weightx = 0
 		c.weighty = 0
-		testFailurePanel.add(testFailureCallerLabel, c)
+		testFailuresPanel.add(testFailureCallerLabel, c)
 		testFailureCallerTextArea = new JTextArea
 		testFailureCallerTextArea.editable = false
 		testFailureCallerTextArea.enabled = true
@@ -657,30 +660,9 @@ class RunnerPanel implements FocusListener {
 		c.fill = GridBagConstraints::BOTH
 		c.weightx = 1
 		c.weighty = 2
-		testFailurePanel.add(testFailureCallerScrollPane, c)
+		testFailuresPanel.add(testFailureCallerScrollPane, c)
 
-		// server output tabbed pane
-		val testServerOutputPanel = new JPanel
-		testServerOutputPanel.setLayout(new GridBagLayout())
-		testServerOutputTextArea = new JTextArea
-		testServerOutputTextArea.editable = false
-		testServerOutputTextArea.enabled = true
-		testServerOutputTextArea.lineWrap = true
-		testServerOutputTextArea.wrapStyleWord = true
-		testServerOutputTextArea.addFocusListener(this)
-		val testServerOutputScrollPane = new JScrollPane(testServerOutputTextArea)
-		c.gridx = 0
-		c.gridy = 0
-		c.gridwidth = 1
-		c.gridheight = 1
-		c.insets = new Insets(10, 10, 10, 10) // top, left, bottom, right
-		c.anchor = GridBagConstraints::WEST
-		c.fill = GridBagConstraints::BOTH
-		c.weightx = 1
-		c.weighty = 1
-		testServerOutputPanel.add(testServerOutputScrollPane, c)
-		
-		// error stack tabbed pane
+		// Errors tabbed pane (Error Stack)
 		val testErrorStackPanel = new JPanel
 		testErrorStackPanel.setLayout(new GridBagLayout())
 		testErrorStackTextArea = new JTextArea
@@ -700,13 +682,56 @@ class RunnerPanel implements FocusListener {
 		c.weightx = 1
 		c.weighty = 1
 		testErrorStackPanel.add(testErrorStackScrollPane, c)
+		
+		// Warnings tabbed pane
+		val testWarningsPanel = new JPanel
+		testWarningsPanel.setLayout(new GridBagLayout())
+		testWarningsTextArea = new JTextArea
+		testWarningsTextArea.editable = false
+		testWarningsTextArea.enabled = true
+		testWarningsTextArea.lineWrap = true
+		testWarningsTextArea.wrapStyleWord = true
+		testWarningsTextArea.addFocusListener(this)
+		val testWarningsScrollPane = new JScrollPane(testWarningsTextArea)
+		c.gridx = 0
+		c.gridy = 0
+		c.gridwidth = 1
+		c.gridheight = 1
+		c.insets = new Insets(10, 10, 10, 10) // top, left, bottom, right
+		c.anchor = GridBagConstraints::WEST
+		c.fill = GridBagConstraints::BOTH
+		c.weightx = 1
+		c.weighty = 1
+		testWarningsPanel.add(testWarningsScrollPane, c)
+
+		// Info tabbed pane (Server Output)
+		val testServerOutputPanel = new JPanel
+		testServerOutputPanel.setLayout(new GridBagLayout())
+		testServerOutputTextArea = new JTextArea
+		testServerOutputTextArea.editable = false
+		testServerOutputTextArea.enabled = true
+		testServerOutputTextArea.lineWrap = true
+		testServerOutputTextArea.wrapStyleWord = true
+		testServerOutputTextArea.addFocusListener(this)
+		val testServerOutputScrollPane = new JScrollPane(testServerOutputTextArea)
+		c.gridx = 0
+		c.gridy = 0
+		c.gridwidth = 1
+		c.gridheight = 1
+		c.insets = new Insets(10, 10, 10, 10) // top, left, bottom, right
+		c.anchor = GridBagConstraints::WEST
+		c.fill = GridBagConstraints::BOTH
+		c.weightx = 1
+		c.weighty = 1
+		testServerOutputPanel.add(testServerOutputScrollPane, c)
 
 		// split pane with all tabs
 		val testDetailTabbedPane = new JTabbedPane()
-		testDetailTabbedPane.add("Info", testInfoScrollPane)
-		testDetailTabbedPane.add("Failures", testFailurePanel)
-		testDetailTabbedPane.add("Server Output", testServerOutputPanel)
-		testDetailTabbedPane.add("Error Stack", testErrorStackPanel)
+		testDetailTabbedPane.add("Test", testPropertiesScrollPane)
+		testDetailTabbedPane.add("Failures", testFailuresPanel)
+		testDetailTabbedPane.add("Errors", testErrorStackPanel)
+		testDetailTabbedPane.add("Warnings", testWarningsPanel)
+		testDetailTabbedPane.add("Info", testServerOutputPanel)
 		val horizontalSplitPane = new JSplitPane(SwingConstants.HORIZONTAL, testOverviewScrollPane, testDetailTabbedPane)
 		horizontalSplitPane.resizeWeight = 0.5
 		c.gridx = 0
