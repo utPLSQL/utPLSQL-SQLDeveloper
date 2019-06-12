@@ -55,6 +55,7 @@ class RunnerPanel implements FocusListener {
 	JLabel failureCounterValueLabel
 	JLabel disabledCounterValueLabel
 	JLabel warningsCounterValueLabel
+	JLabel infoCounterValueLabel
 	JProgressBar progressBar;
 	TestOverviewTableModel testOverviewTableModel
 	JTable testOverviewTable
@@ -120,6 +121,7 @@ class RunnerPanel implements FocusListener {
 		failureCounterValueLabel.text = '''«run.counter.failure»'''
 		disabledCounterValueLabel.text = '''«run.counter.disabled»'''
 		warningsCounterValueLabel.text = '''«run.counter.warning»'''
+		infoCounterValueLabel.text = '''«run.infoCount»'''
 		if (run.totalNumberOfTests == 0) {
 			progressBar.value = 100
 		} else {
@@ -235,7 +237,7 @@ class RunnerPanel implements FocusListener {
 		}
 	}
 	
-	private def makeLabelledComponent (JLabel label, JComponent comp) {
+	private def makeLabelledCounterComponent (JLabel label, JComponent comp) {
 		val groupPanel = new JPanel
 		groupPanel.layout = new GridBagLayout
 		var GridBagConstraints c = new GridBagConstraints
@@ -257,10 +259,13 @@ class RunnerPanel implements FocusListener {
 		c.gridheight = 1
 		c.insets = new Insets(5, 5, 5, 10) // top, left, bottom, right
 		c.anchor = GridBagConstraints::WEST
-		c.fill = GridBagConstraints::NONE
-		c.weightx = 0
+		c.fill = GridBagConstraints::HORIZONTAL
+		c.weightx = 1
 		c.weighty = 0
 		groupPanel.add(comp, c)
+		val dim = new Dimension(154, 24)
+		groupPanel.minimumSize = dim
+		groupPanel.preferredSize = dim
 		return groupPanel
 	}
 		
@@ -290,27 +295,32 @@ class RunnerPanel implements FocusListener {
 		val testCounterLabel = new JLabel(UtplsqlResources.getString("RUNNER_TESTS_LABEL") + ":",
 			UtplsqlResources.getIcon("UTPLSQL_ICON"), JLabel::LEADING)
 		testCounterValueLabel = new JLabel
-		counterPanel.add(makeLabelledComponent(testCounterLabel, testCounterValueLabel))
+		counterPanel.add(makeLabelledCounterComponent(testCounterLabel, testCounterValueLabel))
 		// - Failure counter
 		val failureCounterLabel = new JLabel(UtplsqlResources.getString("RUNNER_FAILURES_LABEL") + ":",
 			UtplsqlResources.getIcon("FAILURE_ICON"), JLabel::LEADING)
 		failureCounterValueLabel = new JLabel
-		counterPanel.add(makeLabelledComponent(failureCounterLabel,failureCounterValueLabel))
+		counterPanel.add(makeLabelledCounterComponent(failureCounterLabel,failureCounterValueLabel))
 		// - Error counter
 		val errorCounterLabel = new JLabel(UtplsqlResources.getString("RUNNER_ERRORS_LABEL") + ":",
 			UtplsqlResources.getIcon("ERROR_ICON"), JLabel::LEADING)
 		errorCounterValueLabel = new JLabel
-		counterPanel.add(makeLabelledComponent(errorCounterLabel, errorCounterValueLabel))
+		counterPanel.add(makeLabelledCounterComponent(errorCounterLabel, errorCounterValueLabel))
 		// - Disabled counter
 		val disabledCounterLabel = new JLabel(UtplsqlResources.getString("RUNNER_DISABLED_LABEL") + ":",
 			UtplsqlResources.getIcon("DISABLED_ICON"), JLabel::LEADING)
 		disabledCounterValueLabel = new JLabel
-		counterPanel.add(makeLabelledComponent(disabledCounterLabel, disabledCounterValueLabel))
+		counterPanel.add(makeLabelledCounterComponent(disabledCounterLabel, disabledCounterValueLabel))
 		// - Warnings counter
 		val warningsCounterLabel = new JLabel(UtplsqlResources.getString("RUNNER_WARNINGS_LABEL") + ":",
 			UtplsqlResources.getIcon("WARNING_ICON"), JLabel::LEADING)
 		warningsCounterValueLabel = new JLabel
-		counterPanel.add(makeLabelledComponent(warningsCounterLabel, warningsCounterValueLabel))
+		counterPanel.add(makeLabelledCounterComponent(warningsCounterLabel, warningsCounterValueLabel))
+		// - Info counter
+		val infoCounterLabel = new JLabel(UtplsqlResources.getString("RUNNER_INFO_LABEL") + ":",
+			UtplsqlResources.getIcon("INFO_ICON"), JLabel::LEADING)
+		infoCounterValueLabel = new JLabel
+		counterPanel.add(makeLabelledCounterComponent(infoCounterLabel, infoCounterValueLabel))
 		// - add everything to basePanel		
 		c.gridx = 0
 		c.gridy = 1
