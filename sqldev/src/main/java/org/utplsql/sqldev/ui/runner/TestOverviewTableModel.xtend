@@ -58,7 +58,7 @@ class TestOverviewTableModel extends DefaultTableModel {
 	}
 
 	override getColumnCount() {
-		return 3
+		return 5
 	}
 
 	override getValueAt(int row, int col) {
@@ -74,9 +74,15 @@ class TestOverviewTableModel extends DefaultTableModel {
 				return test.statusIcon
 			}
 			case 1: {
-				return test.id.substring(if(commonPrefix === null) {0} else {commonPrefix.length})
+				return test.warningIcon
 			}
 			case 2: {
+				return test.infoIcon
+			}
+			case 3: {
+				return test.id.substring(if(commonPrefix === null) {0} else {commonPrefix.length})
+			}
+			case 4: {
 				return test.executionTime
 			}
 			default: {
@@ -86,7 +92,7 @@ class TestOverviewTableModel extends DefaultTableModel {
 	}
 
 	override getColumnName(int col) {
-		return #[UtplsqlResources.getString("RUNNER_TEST_STATUS"), UtplsqlResources.getString("RUNNER_TEST_ID"),
+		return #["", "", "", UtplsqlResources.getString("RUNNER_TEST_ID"),
 			UtplsqlResources.getString("RUNNER_TEST_EXECUTION_TIME")].get(col)
 	}
 
@@ -100,9 +106,15 @@ class TestOverviewTableModel extends DefaultTableModel {
 				return Icon
 			}
 			case 1: {
-				return String
+				return Icon
 			}
 			case 2: {
+				return Icon
+			}
+			case 3: {
+				return String
+			}
+			case 4: {
 				return Double
 			}
 			default: {

@@ -47,4 +47,22 @@ class Test extends Item {
 		}
 		return icon
 	}
+	
+	def getWarningIcon() {
+		var Icon icon = null
+		if (counter !== null) {
+			if (counter.warning > 0) {
+				icon =  UtplsqlResources.getIcon("WARNING_ICON")
+			}
+		}
+		return icon
+	}
+
+	def getInfoIcon() {
+		var Icon icon = null
+		if (serverOutput !== null && serverOutput.length > 0) {
+			icon =  UtplsqlResources.getIcon("INFO_ICON")
+		}
+		return icon
+	}
 }

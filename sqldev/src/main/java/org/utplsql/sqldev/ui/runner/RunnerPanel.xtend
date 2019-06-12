@@ -103,7 +103,7 @@ class RunnerPanel implements FocusListener {
 		val run = runs.get(reporterId)
 		val row = run.totalNumberOfCompletedTests - 1
 		val header = testOverviewTableModel.testIdColumnName
-		val idColumn = testOverviewTable.columnModel.getColumn(1)
+		val idColumn = testOverviewTable.columnModel.getColumn(3)
 		if (idColumn.headerValue != header) {
 			idColumn.headerValue = header
 			testOverviewTable.tableHeader.repaint
@@ -235,7 +235,20 @@ class RunnerPanel implements FocusListener {
 			int row, int col) {
 			val renderer = table.getTableHeader().getDefaultRenderer()
 			val label = renderer.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, col) as JLabel
-			label.horizontalAlignment = if (col === 2) {JLabel.RIGHT} else {JLabel.LEFT}
+			if (col === 0) {
+				label.icon = UtplsqlResources.getIcon("UTPLSQL_ICON")
+				label.horizontalAlignment = JLabel.CENTER
+			} else if (col === 1) {
+				label.icon = UtplsqlResources.getIcon("WARNING_ICON")
+				label.horizontalAlignment = JLabel.CENTER
+			} else if (col === 2) {
+				label.icon = UtplsqlResources.getIcon("INFO_ICON")
+				label.horizontalAlignment = JLabel.CENTER
+			} else if (col === 3) {
+				label.horizontalAlignment = JLabel.LEFT
+			} else if (col === 4) {
+				label.horizontalAlignment = JLabel.RIGHT
+			}
 			return label
 		}
 	}
@@ -362,13 +375,24 @@ class RunnerPanel implements FocusListener {
 		testOverviewTable.autoCreateRowSorter = true
 		testOverviewTable.selectionModel.addListSelectionListener(new TestOverviewRowListener(this)) 		
 		val testTableHeaderRenderer = new TestTableHeaderRenderer
-		val overviewTableIcon = testOverviewTable.columnModel.getColumn(0)
-		overviewTableIcon.minWidth = 20
-		overviewTableIcon.preferredWidth = 20
-		overviewTableIcon.maxWidth = 20
-		val overviewTableId = testOverviewTable.columnModel.getColumn(1)
+		val overviewTableStatus = testOverviewTable.columnModel.getColumn(0)
+		overviewTableStatus.minWidth = 20
+		overviewTableStatus.preferredWidth = 20
+		overviewTableStatus.maxWidth = 20
+		overviewTableStatus.headerRenderer = testTableHeaderRenderer
+		val overviewTableWarning = testOverviewTable.columnModel.getColumn(1)
+		overviewTableWarning.minWidth = 20
+		overviewTableWarning.preferredWidth = 20
+		overviewTableWarning.maxWidth = 20
+		overviewTableWarning.headerRenderer = testTableHeaderRenderer
+		val overviewTableInfo = testOverviewTable.columnModel.getColumn(2)
+		overviewTableInfo.minWidth = 20
+		overviewTableInfo.preferredWidth = 20
+		overviewTableInfo.maxWidth = 20
+		overviewTableInfo.headerRenderer = testTableHeaderRenderer
+		val overviewTableId = testOverviewTable.columnModel.getColumn(3)
 		overviewTableId.headerRenderer = testTableHeaderRenderer
-		val overviewTableTime = testOverviewTable.columnModel.getColumn(2)
+		val overviewTableTime = testOverviewTable.columnModel.getColumn(4)
 		overviewTableTime.preferredWidth = 60
 		overviewTableTime.maxWidth = 100
 		overviewTableTime.headerRenderer = testTableHeaderRenderer		
