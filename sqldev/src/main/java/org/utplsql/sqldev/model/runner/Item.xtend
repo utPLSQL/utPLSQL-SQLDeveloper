@@ -27,4 +27,5 @@ abstract class Item extends AbstractModel {
 	Counter counter
 	String errorStack
 	String serverOutput
+	String warnings
 }

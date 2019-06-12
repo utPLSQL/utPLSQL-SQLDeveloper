@@ -258,6 +258,7 @@ class RealtimeReporterDao {
 			event.counter.populate(node)
 			event.errorStack = node.getElementsByTagName("errorStack")?.item(0)?.textContent
 			event.serverOutput = node.getElementsByTagName("serverOutput")?.item(0)?.textContent
+			event.warnings = node.getElementsByTagName("warnings")?.item(0)?.textContent
 		}
 	}
 	

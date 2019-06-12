@@ -25,6 +25,7 @@ abstract class PostEvent extends RealtimeReporterEvent {
 	Counter counter
 	String errorStack
 	String serverOutput
+	String warnings
 	
 	new() {
 		counter = new Counter

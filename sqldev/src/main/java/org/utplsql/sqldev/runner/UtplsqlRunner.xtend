@@ -158,6 +158,7 @@ class UtplsqlRunner implements RealtimeReporterEventConsumer {
 			test.errorStack = event.errorStack
 			test.serverOutput = event.serverOutput
 			test.failedExpectations = event.failedExpectations
+			test.warnings = event.warnings
 		}
 		run.counter.disabled = run.counter.disabled + event.counter.disabled
 		run.counter.success = run.counter.success + event.counter.success
