@@ -222,7 +222,7 @@ class UtplsqlRunner implements RealtimeReporterEventConsumer {
 				frame.defaultCloseOperation = JFrame.EXIT_ON_CLOSE;
 				panel = new RunnerPanel
 				frame.add(panel.getGUI)
-				frame.preferredSize = new Dimension(500, 500)
+				frame.preferredSize = new Dimension(600, 800)
 				frame.pack
 				val dim = Toolkit.getDefaultToolkit().getScreenSize();
 				frame.setLocation(dim.width / 2 - frame.getSize().width / 2, dim.height / 2 - frame.getSize().height / 2);
