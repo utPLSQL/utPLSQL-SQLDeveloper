@@ -101,9 +101,6 @@ class UtplsqlParserTest extends AbstractJdbcTest {
 	@Test
 	def packageWithConnection() {
 		val plsql = '''
-			/*
-			 * some comment
-			 */
 			CREATE OR REPLACE PACKAGE pkg IS
 			   -- %suite
 			   -- %rollback(manual)
@@ -211,6 +208,4 @@ class UtplsqlParserTest extends AbstractJdbcTest {
 		val parser = new UtplsqlParser(plsql)
 		Assert.assertEquals(null, parser.getObjectAt(0))
 	}
-
-
 }
