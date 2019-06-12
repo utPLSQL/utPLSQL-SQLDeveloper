@@ -15,6 +15,7 @@
  */
 package org.utplsql.sqldev.model.runner
 
+import java.util.regex.Pattern
 import org.eclipse.xtend.lib.annotations.Accessors
 import org.utplsql.sqldev.model.AbstractModel
 
@@ -29,5 +30,19 @@ class Expectation extends AbstractModel {
 			«message.trim»
 			«caller.trim»
 		'''.toString.trim
+	}
+	
+	def getShortFailureText() {
+		return '''«IF description !== null»«description» (line «callerLine»)«ELSE»Line «callerLine»«ENDIF»'''.toString
+	}
+	
+	def getCallerLine() {
+		var Integer line = null
+		val p = Pattern.compile("(?i)\"[^\\\"]+\",\\s+line\\s*([0-9]+)")
+		val m = p.matcher(caller)
+		if (m.find) {
+			line = Integer.valueOf(m.group(1))
+		}
+		return line
 	}
 }
