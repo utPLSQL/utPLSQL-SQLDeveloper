@@ -32,7 +32,7 @@ class TestOverviewTableModel extends DefaultTableModel {
 	
 	def setModel(LinkedHashMap<String, Test> tests) {
 		this.tests = tests
-		this.commonPrefix = null
+		this.commonPrefix = PrefixTools.commonPrefix(tests.keySet.toList)
 		fireTableDataChanged()
 	}
 	
@@ -65,9 +65,6 @@ class TestOverviewTableModel extends DefaultTableModel {
 		val test = tests.entrySet.get(row).value
 		if (test === null) {
 			return null
-		}
-		if (commonPrefix === null) {
-			commonPrefix = PrefixTools.commonPrefix(tests.keySet.toList)
 		}
 		switch (col) {
 			case 0: {
