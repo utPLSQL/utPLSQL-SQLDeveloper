@@ -24,6 +24,7 @@ import org.utplsql.sqldev.model.AbstractModel
 class Run extends AbstractModel {
 	String reporterId
 	String connectionName
+	List<String> pathList
 	Integer totalNumberOfTests
 	String startTime
 	String endTime
@@ -35,9 +36,10 @@ class Run extends AbstractModel {
 	LinkedHashMap<String, Test> tests
 	String status
 	
-	new(String reporterId, String connectionName) {
+	new(String reporterId, String connectionName, List<String> pathList) {
 		this.reporterId = reporterId
 		this.connectionName = connectionName
+		this.pathList = pathList
 		this.counter = new Counter
 		this.tests = new LinkedHashMap<String, Test>
 	}

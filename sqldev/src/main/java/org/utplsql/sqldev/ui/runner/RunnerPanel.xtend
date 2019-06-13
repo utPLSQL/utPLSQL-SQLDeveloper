@@ -22,6 +22,8 @@ import java.awt.FlowLayout
 import java.awt.GridBagConstraints
 import java.awt.GridBagLayout
 import java.awt.Insets
+import java.awt.event.ActionEvent
+import java.awt.event.ActionListener
 import java.awt.event.FocusEvent
 import java.awt.event.FocusListener
 import java.text.DecimalFormat
@@ -36,19 +38,27 @@ import javax.swing.JTable
 import javax.swing.JTextArea
 import javax.swing.JTextField
 import javax.swing.SwingConstants
+import javax.swing.border.LineBorder
 import javax.swing.event.ListSelectionEvent
 import javax.swing.event.ListSelectionListener
 import javax.swing.plaf.basic.BasicProgressBarUI
 import javax.swing.table.DefaultTableCellRenderer
+import oracle.javatools.ui.table.ToolbarButton
 import org.utplsql.sqldev.model.LimitedLinkedHashMap
 import org.utplsql.sqldev.model.runner.Run
 import org.utplsql.sqldev.resources.UtplsqlResources
+import org.utplsql.sqldev.runner.UtplsqlRunner
+import org.utplsql.sqldev.runner.UtplsqlWorksheetRunner
 
-class RunnerPanel implements FocusListener {
+class RunnerPanel implements FocusListener, ActionListener {
 	static val GREEN = new Color(0, 153, 0)
 	static val RED = new Color(153, 0, 0)
 	LimitedLinkedHashMap<String, Run> runs = new LimitedLinkedHashMap<String, Run>(10)
+	Run currentRun
 	JPanel basePanel
+	ToolbarButton refreshButton
+	ToolbarButton rerunButton
+	ToolbarButton rerunWorksheetButton
 	JLabel statusLabel
 	JLabel testCounterValueLabel
 	JLabel errorCounterValueLabel
@@ -80,10 +90,8 @@ class RunnerPanel implements FocusListener {
 		}
 		return basePanel
 	}
-	
-	def setModel(Run run) {
-		runs.put(run.reporterId, run)
-		testOverviewTableModel.model = run.tests
+
+	private def resetDerived() {
 		testOverviewTable.rowSorter.sortKeys = null
 		testIdTextArea.text = null
 		testOwnerTextField.text = null
@@ -98,6 +106,13 @@ class RunnerPanel implements FocusListener {
 		testErrorStackTextArea.text = null
 		testWarningsTextArea.text = null
 		testServerOutputTextArea.text = null
+	}
+		
+	def setModel(Run run) {
+		runs.put(run.reporterId, run)
+		currentRun = run
+		testOverviewTableModel.model = run.tests
+		resetDerived
 	}
 	
 	def update(String reporterId) {
@@ -170,6 +185,20 @@ class RunnerPanel implements FocusListener {
 			testServerOutputTextArea.caret.visible = false
 		} else if (e.source == testErrorStackTextArea) {
 			testErrorStackTextArea.caret.visible = false
+		}
+	}
+
+	override actionPerformed(ActionEvent e) {
+		if (e.source == refreshButton) {
+			resetDerived
+			testDetailTabbedPane.selectedIndex = 0
+			testOverviewTableModel.fireTableDataChanged
+		} else if (e.source == rerunButton) {
+			val runner = new UtplsqlRunner(currentRun.pathList, currentRun.connectionName)
+			runner.runTestAsync
+		} else if (e.source == rerunWorksheetButton) {
+			val worksheet = new UtplsqlWorksheetRunner(currentRun.pathList, currentRun.connectionName)
+			worksheet.runTestAsync
 		}
 	}
 	
@@ -300,17 +329,47 @@ class RunnerPanel implements FocusListener {
 		groupPanel.preferredSize = dim
 		return groupPanel
 	}
-		
+			
 	private def initializeGUI() {
 		// Base panel containing all components 
 		basePanel = new JPanel()
 		basePanel.setLayout(new GridBagLayout())
 		var GridBagConstraints c = new GridBagConstraints()
 		
+		// Toolbar
+		var toolbar = new GradientToolbar
+		toolbar.floatable = false
+        toolbar.border = new LineBorder(Color.LIGHT_GRAY, 1)
+        toolbar.margin = new Insets(2, 2, 2, 2)
+		refreshButton = new ToolbarButton(UtplsqlResources.getIcon("REFRESH_ICON"))
+		refreshButton.toolTipText = "Reset ordering and refresh"
+		refreshButton.addActionListener(this)
+		toolbar.add(refreshButton)
+		rerunButton = new ToolbarButton(UtplsqlResources.getIcon("RUN_ICON"))
+		rerunButton.toolTipText = "Rerun all tests"
+		rerunButton.addActionListener(this)
+		toolbar.add(rerunButton)
+		rerunWorksheetButton = new ToolbarButton(UtplsqlResources.getIcon("RUN_WORKSHEET_ICON"))
+		rerunWorksheetButton.toolTipText = "Rerun all tests in a new worksheet"
+		rerunWorksheetButton.addActionListener(this)
+		toolbar.add(rerunWorksheetButton)
+
+
+		c.gridx = 0
+		c.gridy = 0
+		c.gridwidth = 1
+		c.gridheight = 1
+		c.insets = new Insets(0, 0, 0, 0) // top, left, bottom, right
+		c.anchor = GridBagConstraints::NORTH
+		c.fill = GridBagConstraints::HORIZONTAL
+		c.weightx = 1
+		c.weighty = 0
+		basePanel.add(toolbar, c)
+		
 		// Status line
 		statusLabel = new JLabel
 		c.gridx = 0
-		c.gridy = 0
+		c.gridy = 1
 		c.gridwidth = 1
 		c.gridheight = 1
 		c.insets = new Insets(10, 10, 10, 10) // top, left, bottom, right
@@ -355,7 +414,7 @@ class RunnerPanel implements FocusListener {
 		counterPanel.add(makeLabelledCounterComponent(infoCounterLabel, infoCounterValueLabel))
 		// - add everything to basePanel		
 		c.gridx = 0
-		c.gridy = 1
+		c.gridy = 2
 		c.gridwidth = 1
 		c.gridheight = 1
 		c.insets = new Insets(5, 0, 5, 0) // top, left, bottom, right
@@ -374,7 +433,7 @@ class RunnerPanel implements FocusListener {
 		progressBar.foreground = GREEN
 		progressBar.UI = new BasicProgressBarUI
 		c.gridx = 0
-		c.gridy = 2
+		c.gridy = 3
 		c.gridwidth = 1
 		c.gridheight = 1
 		c.insets = new Insets(10, 10, 10, 10) // top, left, bottom, right
@@ -775,7 +834,7 @@ class RunnerPanel implements FocusListener {
 		val horizontalSplitPane = new JSplitPane(SwingConstants.HORIZONTAL, testOverviewScrollPane, testDetailTabbedPane)
 		horizontalSplitPane.resizeWeight = 0.5
 		c.gridx = 0
-		c.gridy = 3
+		c.gridy = 4
 		c.gridwidth = 1
 		c.gridheight = 1
 		c.insets = new Insets(10, 10, 10, 10) // top, left, bottom, right
@@ -784,6 +843,5 @@ class RunnerPanel implements FocusListener {
 		c.weightx = 1
 		c.weighty = 1
 		basePanel.add(horizontalSplitPane, c)
-	}
-	
+	}	
 }

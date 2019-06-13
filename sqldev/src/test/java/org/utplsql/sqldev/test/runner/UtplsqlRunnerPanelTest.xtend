@@ -31,7 +31,7 @@ class UtplsqlRunnerPanelTest {
 	@Before
 	def void setup() {
 		val reporterId = UUID.randomUUID().toString.replace("-", "")
-		run = new Run(null, reporterId)
+		run = new Run(null, reporterId, #[])
 		run.startTime = "2019-06-09T13:42:42.123456"
 		run.counter.disabled = 0
 		run.counter.success = 0
