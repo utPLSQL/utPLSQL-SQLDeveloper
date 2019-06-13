@@ -96,7 +96,7 @@ class UtplsqlRunner implements RealtimeReporterEventConsumer {
 	}
 	
 	private def initRun() {
-		run = new Run(reporterId, connectionName)
+		run = new Run(reporterId, connectionName, pathList)
 		run.startTime = sysdate
 		run.counter.disabled = 0
 		run.counter.success = 0
