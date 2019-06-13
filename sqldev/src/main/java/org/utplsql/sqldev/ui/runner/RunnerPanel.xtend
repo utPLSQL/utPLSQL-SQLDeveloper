@@ -38,7 +38,7 @@ import javax.swing.JTable
 import javax.swing.JTextArea
 import javax.swing.JTextField
 import javax.swing.SwingConstants
-import javax.swing.border.LineBorder
+import javax.swing.border.EmptyBorder
 import javax.swing.event.ListSelectionEvent
 import javax.swing.event.ListSelectionListener
 import javax.swing.plaf.basic.BasicProgressBarUI
@@ -339,8 +339,7 @@ class RunnerPanel implements FocusListener, ActionListener {
 		// Toolbar
 		var toolbar = new GradientToolbar
 		toolbar.floatable = false
-        toolbar.border = new LineBorder(Color.LIGHT_GRAY, 1)
-        toolbar.margin = new Insets(2, 2, 2, 2)
+		toolbar.border = new EmptyBorder(new Insets(2, 2, 2, 2)) // top, left, bottom, right
 		refreshButton = new ToolbarButton(UtplsqlResources.getIcon("REFRESH_ICON"))
 		refreshButton.toolTipText = "Reset ordering and refresh"
 		refreshButton.addActionListener(this)
