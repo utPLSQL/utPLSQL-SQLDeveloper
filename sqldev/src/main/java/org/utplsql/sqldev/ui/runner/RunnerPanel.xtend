@@ -27,6 +27,9 @@ import java.awt.event.ActionListener
 import java.awt.event.FocusEvent
 import java.awt.event.FocusListener
 import java.text.DecimalFormat
+import javax.swing.Box
+import javax.swing.DefaultComboBoxModel
+import javax.swing.JComboBox
 import javax.swing.JComponent
 import javax.swing.JLabel
 import javax.swing.JPanel
@@ -59,6 +62,9 @@ class RunnerPanel implements FocusListener, ActionListener {
 	ToolbarButton refreshButton
 	ToolbarButton rerunButton
 	ToolbarButton rerunWorksheetButton
+	DefaultComboBoxModel<ComboBoxItem<String,String>> runComboBoxModel
+	ToolbarButton clearButton
+	JComboBox<ComboBoxItem<String,String>> runComboBox
 	JLabel statusLabel
 	JLabel testCounterValueLabel
 	JLabel errorCounterValueLabel
@@ -107,17 +113,39 @@ class RunnerPanel implements FocusListener, ActionListener {
 		testWarningsTextArea.text = null
 		testServerOutputTextArea.text = null
 	}
+	
+	private def refreshRunsComboBox() {
+		if (runs.size > 0) {
+			runComboBox.removeActionListener(this)
+			runComboBoxModel.removeAllElements
+			for (var i = runs.size - 1 ; i >= 0; i--) {
+				val entry = runs.entrySet.get(i)
+				val item = new ComboBoxItem<String, String>(entry.key, entry.value.name)
+				runComboBoxModel.addElement(item)
+			}
+			runComboBox.selectedIndex = 0
+			runComboBox.addActionListener(this)
+		}
+	}
 		
 	def setModel(Run run) {
 		runs.put(run.reporterId, run)
-		currentRun = run
-		testOverviewTableModel.model = run.tests
-		resetDerived
+		refreshRunsComboBox
+		setCurrentRun(run)
 	}
 	
-	def update(String reporterId) {
-		val run = runs.get(reporterId)
-		val row = run.totalNumberOfCompletedTests - 1
+	private def setCurrentRun(Run run) {
+		if (run !== currentRun) {
+			currentRun = run
+			testOverviewTableModel.model = run.tests
+			resetDerived
+			runComboBox.selectedItem = run.name
+		}		
+	}
+
+	def synchronized update(String reporterId) {
+		setCurrentRun(runs.get(reporterId))
+		val row = currentRun.totalNumberOfCompletedTests - 1
 		val header = testOverviewTableModel.testIdColumnName
 		val idColumn = testOverviewTable.columnModel.getColumn(3)
 		if (idColumn.headerValue != header) {
@@ -133,19 +161,19 @@ class RunnerPanel implements FocusListener, ActionListener {
 				testOverviewTable.scrollRectToVisible = positionOfCurrentTest
 			}
 		}
-		statusLabel.text = run.status
-		testCounterValueLabel.text = '''«run.totalNumberOfCompletedTests»/«run.totalNumberOfTests»'''
-		errorCounterValueLabel.text = '''«run.counter.error»'''
-		failureCounterValueLabel.text = '''«run.counter.failure»'''
-		disabledCounterValueLabel.text = '''«run.counter.disabled»'''
-		warningsCounterValueLabel.text = '''«run.counter.warning»'''
-		infoCounterValueLabel.text = '''«run.infoCount»'''
-		if (run.totalNumberOfTests == 0) {
+		statusLabel.text = currentRun.status
+		testCounterValueLabel.text = '''«currentRun.totalNumberOfCompletedTests»/«currentRun.totalNumberOfTests»'''
+		errorCounterValueLabel.text = '''«currentRun.counter.error»'''
+		failureCounterValueLabel.text = '''«currentRun.counter.failure»'''
+		disabledCounterValueLabel.text = '''«currentRun.counter.disabled»'''
+		warningsCounterValueLabel.text = '''«currentRun.counter.warning»'''
+		infoCounterValueLabel.text = '''«currentRun.infoCount»'''
+		if (currentRun.totalNumberOfTests == 0) {
 			progressBar.value = 100
 		} else {
-			progressBar.value = Math.round(100 * run.totalNumberOfCompletedTests / run.totalNumberOfTests)
+			progressBar.value = Math.round(100 * currentRun.totalNumberOfCompletedTests / currentRun.totalNumberOfTests)
 		}
-		if (run.counter.error > 0 || run.counter.failure > 0) {
+		if (currentRun.counter.error > 0 || currentRun.counter.failure > 0) {
 			progressBar.foreground = RED
 		} else {
 			progressBar.foreground = GREEN
@@ -199,6 +227,20 @@ class RunnerPanel implements FocusListener, ActionListener {
 		} else if (e.source == rerunWorksheetButton) {
 			val worksheet = new UtplsqlWorksheetRunner(currentRun.pathList, currentRun.connectionName)
 			worksheet.runTestAsync
+		} else if (e.source == runComboBox) {
+			if (currentRun !== null) {
+				val comboBoxItem = runComboBox.selectedItem as ComboBoxItem<String, String>
+				if (currentRun.reporterId != comboBoxItem.key) {
+					update(comboBoxItem.key)
+					testDetailTabbedPane.selectedIndex = 0
+				}
+			}
+		} else if (e.source == clearButton) {
+			val run = currentRun
+			runs.clear
+			currentRun = null
+			setModel(run)
+			update(run.reporterId)
 		}
 	}
 	
@@ -352,8 +394,18 @@ class RunnerPanel implements FocusListener, ActionListener {
 		rerunWorksheetButton.toolTipText = "Rerun all tests in a new worksheet"
 		rerunWorksheetButton.addActionListener(this)
 		toolbar.add(rerunWorksheetButton)
-
-
+		toolbar.add(Box.createHorizontalGlue())
+		runComboBoxModel = new DefaultComboBoxModel<ComboBoxItem<String, String>>;
+		runComboBox = new JComboBox<ComboBoxItem<String, String>>(runComboBoxModel);
+		runComboBox.editable = false
+		val comboBoxDim = new Dimension(500, 50)
+		runComboBox.maximumSize = comboBoxDim
+		runComboBox.addActionListener(this)
+		toolbar.add(runComboBox)
+		clearButton = new ToolbarButton(UtplsqlResources.getIcon("CLEAR_ICON"))
+		clearButton.toolTipText = "Clear history"
+		clearButton.addActionListener(this)
+		toolbar.add(clearButton)
 		c.gridx = 0
 		c.gridy = 0
 		c.gridwidth = 1
