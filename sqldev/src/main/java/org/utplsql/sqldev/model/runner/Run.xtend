@@ -45,7 +45,9 @@ class Run extends AbstractModel {
 	}
 	
 	def getName() {
-		return '''«startTime» («connectionName»)'''
+		val time = startTime.substring(11,19)
+		val conn = connectionName?.substring(15)
+		return '''«time» («conn»)'''
 	}
 	
 	def void put(List<Item> items) {
