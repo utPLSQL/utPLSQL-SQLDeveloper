@@ -90,7 +90,6 @@ class RunnerPanel implements FocusListener, ActionListener {
 	FailuresTableModel failuresTableModel
 	JTable failuresTable
 	JTextArea testFailureMessageTextArea
-	JTextArea testFailureCallerTextArea
 	JTextArea testErrorStackTextArea
 	JTextArea testWarningsTextArea
 	JTextArea testServerOutputTextArea
@@ -117,7 +116,6 @@ class RunnerPanel implements FocusListener, ActionListener {
 		failuresTableModel.model = null
 		failuresTableModel.fireTableDataChanged
 		testFailureMessageTextArea.text = null
-		testFailureCallerTextArea.text = null
 		testErrorStackTextArea.text = null
 		testWarningsTextArea.text = null
 		testServerOutputTextArea.text = null
@@ -197,12 +195,12 @@ class RunnerPanel implements FocusListener, ActionListener {
 			testDescriptionTextArea.caret.visible = true
 		} else if (e.source == testFailureMessageTextArea) {
 			testFailureMessageTextArea.caret.visible = true
-		} else if (e.source == testFailureCallerTextArea) {
-			testFailureCallerTextArea.caret.visible = true
 		} else if (e.source == testServerOutputTextArea) {
 			testServerOutputTextArea.caret.visible = true
 		} else if (e.source == testErrorStackTextArea) {
 			testErrorStackTextArea.caret.visible = true
+		} else if (e.source == testWarningsTextArea) {
+			testWarningsTextArea.caret.visible = true
 		}
 	}
 
@@ -213,12 +211,12 @@ class RunnerPanel implements FocusListener, ActionListener {
 			testDescriptionTextArea.caret.visible = false
 		} else if (e.source == testFailureMessageTextArea) {
 			testFailureMessageTextArea.caret.visible = false
-		} else if (e.source == testFailureCallerTextArea) {
-			testFailureCallerTextArea.caret.visible = false
 		} else if (e.source == testServerOutputTextArea) {
 			testServerOutputTextArea.caret.visible = false
 		} else if (e.source == testErrorStackTextArea) {
 			testErrorStackTextArea.caret.visible = false
+		} else if (e.source == testWarningsTextArea) {
+			testWarningsTextArea.caret.visible = false
 		}
 	}
 	
@@ -294,25 +292,24 @@ class RunnerPanel implements FocusListener, ActionListener {
 				p.testOwnerTextField.text = test.ownerName
 				p.testPackageTextField.text = test.objectName
 				p.testProcedureTextField.text = test.procedureName
-				p.testDescriptionTextArea.text = test.description
+				p.testDescriptionTextArea.text = test.description?.trim
 				p.testStartTextField.text = formatDateTime(test.startTime)
 				p.testEndTextField.text = formatDateTime(test.endTime)
 				p.failuresTableModel.model = test.failedExpectations
 				p.testFailureMessageTextArea.text = null
-				p.testFailureCallerTextArea.text = null
-				if (test.failedExpectations.size > 0) {
+				if (test.failedExpectations !== null && test.failedExpectations.size > 0) {
 					p.failuresTableModel.fireTableDataChanged
 					p.failuresTable.setRowSelectionInterval(0, 0)
 				}
-				p.testErrorStackTextArea.text = test.errorStack
-				p.testWarningsTextArea.text = test.warnings
-				p.testServerOutputTextArea.text = test.serverOutput
+				p.testErrorStackTextArea.text = test.errorStack?.trim
+				p.testWarningsTextArea.text = test.warnings?.trim
+				p.testServerOutputTextArea.text = test.serverOutput?.trim
 				var int tabIndex
-				if (test.counter.failure > 0) {
+				if (test.counter?.failure !== null && test.counter.failure > 0) {
 					tabIndex = 1
-				} else if (test.counter.error > 0) {
+				} else if (test.counter?.error !== null && test.counter.error > 0) {
 					tabIndex = 2
-				} else if (test.counter.warning > 0) {
+				} else if (test.counter?.warning !== null && test.counter.warning > 0) {
 					tabIndex = 3
 				} else if (test.serverOutput !== null && test.serverOutput.length > 0) {
 					tabIndex = 4
@@ -338,8 +335,7 @@ class RunnerPanel implements FocusListener, ActionListener {
 			if (rowIndex != -1) {
 				val row =  p.failuresTable.convertRowIndexToModel(rowIndex)
 				val expectation = p.failuresTableModel.getExpectation(row)
-				p.testFailureMessageTextArea.text = expectation.message
-				p.testFailureCallerTextArea.text = expectation.caller
+				p.testFailureMessageTextArea.text = expectation.failureText
 			}
 		}		
 	}
@@ -798,20 +794,6 @@ class RunnerPanel implements FocusListener, ActionListener {
 		failuresDescription.headerRenderer = failuresTableHeaderRenderer
 		val failuresTableScrollPane = new JScrollPane(failuresTable)		
 		// - failures details
-		val testFailuresPanel = new JPanel
-		testFailuresPanel.setLayout(new GridBagLayout())
-		// - message
-		val testFailureMessageLabel = new JLabel("Message")
-		c.gridx = 0
-		c.gridy = 0
-		c.gridwidth = 1
-		c.gridheight = 1
-		c.insets = new Insets(10, 10, 0, 0) // top, left, bottom, right
-		c.anchor = GridBagConstraints::NORTHWEST
-		c.fill = GridBagConstraints::NONE
-		c.weightx = 0
-		c.weighty = 0
-		testFailuresPanel.add(testFailureMessageLabel, c)
 		testFailureMessageTextArea = new JTextArea
 		testFailureMessageTextArea.editable = false
 		testFailureMessageTextArea.enabled = true
@@ -828,38 +810,9 @@ class RunnerPanel implements FocusListener, ActionListener {
 		c.fill = GridBagConstraints::BOTH
 		c.weightx = 1
 		c.weighty = 6
-		testFailuresPanel.add(testFailureMessageScrollPane, c)
-		// - caller
-		val testFailureCallerLabel = new JLabel("Caller")
-		c.gridx = 0
-		c.gridy = 1
-		c.gridwidth = 1
-		c.gridheight = 1
-		c.insets = new Insets(5, 10, 10, 0) // top, left, bottom, right
-		c.anchor = GridBagConstraints::NORTHWEST
-		c.fill = GridBagConstraints::NONE
-		c.weightx = 0
-		c.weighty = 0
-		testFailuresPanel.add(testFailureCallerLabel, c)
-		testFailureCallerTextArea = new JTextArea
-		testFailureCallerTextArea.editable = false
-		testFailureCallerTextArea.enabled = true
-		testFailureCallerTextArea.lineWrap = true
-		testFailureCallerTextArea.wrapStyleWord = true
-		testFailureCallerTextArea.addFocusListener(this)
-		val testFailureCallerScrollPane = new JScrollPane(testFailureCallerTextArea)
-		c.gridx = 1
-		c.gridy = 1
-		c.gridwidth = 1
-		c.gridheight = 1
-		c.insets = new Insets(5, 5, 10, 10) // top, left, bottom, right
-		c.anchor = GridBagConstraints::WEST
-		c.fill = GridBagConstraints::BOTH
-		c.weightx = 1
-		c.weighty = 2
-		testFailuresPanel.add(testFailureCallerScrollPane, c)
+
 		// - split pane
-		val failuresSplitPane = new JSplitPane(SwingConstants.HORIZONTAL, failuresTableScrollPane, testFailuresPanel)
+		val failuresSplitPane = new JSplitPane(SwingConstants.HORIZONTAL, failuresTableScrollPane, testFailureMessageScrollPane)
 		failuresSplitPane.resizeWeight = 0.2
 
 		// Errors tabbed pane (Error Stack)
