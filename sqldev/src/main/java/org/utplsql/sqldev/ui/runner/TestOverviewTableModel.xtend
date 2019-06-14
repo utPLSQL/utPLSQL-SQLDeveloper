@@ -25,18 +25,29 @@ import org.utplsql.sqldev.resources.UtplsqlResources
 class TestOverviewTableModel extends DefaultTableModel {
 	LinkedHashMap<String, Test> tests
 	String commonPrefix
+	boolean commonPrefixCalculated
 	
 	new() {
 		super()
 	}
 	
+	private def calcCommonPrefix() {
+		if (!commonPrefixCalculated && tests.size > 0) {
+			this.commonPrefix = PrefixTools.commonPrefix(tests.keySet.toList)
+			fireTableDataChanged()
+			commonPrefixCalculated = true
+		}
+	}
+	
 	def setModel(LinkedHashMap<String, Test> tests) {
+		commonPrefixCalculated = false
 		this.tests = tests
-		this.commonPrefix = PrefixTools.commonPrefix(tests.keySet.toList)
+		calcCommonPrefix
 		fireTableDataChanged()
 	}
 	
 	def getTestIdColumnName() {
+		calcCommonPrefix
 		if (commonPrefix === null || commonPrefix == "") {
 			return UtplsqlResources.getString("RUNNER_TEST_ID")
 		} else {
