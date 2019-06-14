@@ -27,12 +27,15 @@ import java.awt.event.ActionListener
 import java.awt.event.FocusEvent
 import java.awt.event.FocusListener
 import java.text.DecimalFormat
+import java.util.ArrayList
 import javax.swing.Box
 import javax.swing.DefaultComboBoxModel
 import javax.swing.JComboBox
 import javax.swing.JComponent
 import javax.swing.JLabel
+import javax.swing.JMenuItem
 import javax.swing.JPanel
+import javax.swing.JPopupMenu
 import javax.swing.JProgressBar
 import javax.swing.JScrollPane
 import javax.swing.JSplitPane
@@ -62,9 +65,9 @@ class RunnerPanel implements FocusListener, ActionListener {
 	ToolbarButton refreshButton
 	ToolbarButton rerunButton
 	ToolbarButton rerunWorksheetButton
-	DefaultComboBoxModel<ComboBoxItem<String,String>> runComboBoxModel
+	DefaultComboBoxModel<ComboBoxItem<String, String>> runComboBoxModel
 	ToolbarButton clearButton
-	JComboBox<ComboBoxItem<String,String>> runComboBox
+	JComboBox<ComboBoxItem<String, String>> runComboBox
 	JLabel statusLabel
 	JLabel testCounterValueLabel
 	JLabel errorCounterValueLabel
@@ -75,6 +78,8 @@ class RunnerPanel implements FocusListener, ActionListener {
 	JProgressBar progressBar;
 	TestOverviewTableModel testOverviewTableModel
 	JTable testOverviewTable
+	JMenuItem testOverviewRunMenuItem
+	JMenuItem testOverviewRunWorksheetMenuItem
 	JTextArea testIdTextArea
 	JTextField testOwnerTextField
 	JTextField testPackageTextField
@@ -100,6 +105,8 @@ class RunnerPanel implements FocusListener, ActionListener {
 
 	private def resetDerived() {
 		testOverviewTable.rowSorter.sortKeys = null
+		testOverviewRunMenuItem.enabled = false
+		testOverviewRunWorksheetMenuItem.enabled = false
 		testIdTextArea.text = null
 		testOwnerTextField.text = null
 		testPackageTextField.text = null
@@ -141,7 +148,8 @@ class RunnerPanel implements FocusListener, ActionListener {
 			currentRun = run
 			testOverviewTableModel.model = run.tests
 			resetDerived
-			runComboBox.selectedItem = run.name
+			val item = new ComboBoxItem<String, String>(currentRun.reporterId, currentRun.name)
+			runComboBox.selectedItem = item
 		}		
 	}
 
@@ -213,6 +221,16 @@ class RunnerPanel implements FocusListener, ActionListener {
 			testErrorStackTextArea.caret.visible = false
 		}
 	}
+	
+	private def getPathListFromSelectedTests() {
+		val pathList = new ArrayList<String>
+		for (row : testOverviewTable.selectedRows) {
+			val test = testOverviewTableModel.getTest(row)
+			val path = '''«test.ownerName».«test.objectName».«test.procedureName»'''
+			pathList.add(path)
+		}
+		return pathList
+	}
 
 	override actionPerformed(ActionEvent e) {
 		if (e.source == refreshButton) {
@@ -239,9 +257,15 @@ class RunnerPanel implements FocusListener, ActionListener {
 			currentRun = null
 			setModel(run)
 			update(run.reporterId)
+		} else if (e.source == testOverviewRunMenuItem) {
+			val runner = new UtplsqlRunner(pathListFromSelectedTests, currentRun.connectionName)
+			runner.runTestAsync
+		} else if (e.source == testOverviewRunWorksheetMenuItem) {
+			val worksheet = new UtplsqlWorksheetRunner(pathListFromSelectedTests, currentRun.connectionName)
+			worksheet.runTestAsync
 		}
 	}
-	
+
 	private static def formatDateTime(String dateTime) {
 		if (dateTime === null) {
 			return null
@@ -296,8 +320,10 @@ class RunnerPanel implements FocusListener, ActionListener {
 					tabIndex = 0
 				}
 				p.testDetailTabbedPane.selectedIndex = tabIndex
+				p.testOverviewRunMenuItem.enabled = true
+				p.testOverviewRunWorksheetMenuItem.enabled = true
 			}
-		}		
+		}
 	}
 
 	static class FailuresRowListener implements ListSelectionListener {
@@ -552,7 +578,17 @@ class RunnerPanel implements FocusListener, ActionListener {
 		val timeFormatRenderer = new TimeFormatRenderer
 		timeFormatRenderer.horizontalAlignment = JLabel.RIGHT
 		overviewTableTime.cellRenderer = timeFormatRenderer
-		val testOverviewScrollPane = new JScrollPane(testOverviewTable)		
+		val testOverviewScrollPane = new JScrollPane(testOverviewTable)
+		
+		// Context menu for test overview
+		val testOverviewPopupMenu = new JPopupMenu
+		testOverviewRunMenuItem = new JMenuItem("Run test", UtplsqlResources.getIcon("RUN_ICON"));
+		testOverviewRunMenuItem.addActionListener(this)
+		testOverviewPopupMenu.add(testOverviewRunMenuItem)
+		testOverviewRunWorksheetMenuItem = new JMenuItem("Run test in new worksheet", UtplsqlResources.getIcon("RUN_WORKSHEET_ICON"));
+		testOverviewRunWorksheetMenuItem.addActionListener(this)
+		testOverviewPopupMenu.add(testOverviewRunWorksheetMenuItem)
+		testOverviewTable.componentPopupMenu = testOverviewPopupMenu
 		
 		// Test tabbed pane (Test Properties)
 		// - Id
@@ -663,7 +699,7 @@ class RunnerPanel implements FocusListener, ActionListener {
 		c.gridy = 4
 		c.gridwidth = 1
 		c.gridheight = 1
-		c.insets = new Insets(5, 5, 0, 0) // top, left, bottom, right
+		c.insets = new Insets(5, 10, 0, 0) // top, left, bottom, right
 		c.anchor = GridBagConstraints::NORTHWEST
 		c.fill = GridBagConstraints::NONE
 		c.weightx = 0
