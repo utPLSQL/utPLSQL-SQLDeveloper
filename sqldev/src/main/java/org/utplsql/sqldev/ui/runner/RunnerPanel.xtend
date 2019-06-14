@@ -658,12 +658,12 @@ class RunnerPanel implements FocusListener, ActionListener {
 		c.weighty = 0
 		testInfoPanel.add(testProcedureTextField, c)
 		// - Description
-		val testDescriptionLabel = new JLabel("Description")
+		val testDescriptionLabel = new JLabel(UtplsqlResources.getString("RUNNER_DESCRIPTION"))
 		c.gridx = 0
 		c.gridy = 4
 		c.gridwidth = 1
 		c.gridheight = 1
-		c.insets = new Insets(5, 10, 0, 0) // top, left, bottom, right
+		c.insets = new Insets(5, 5, 0, 0) // top, left, bottom, right
 		c.anchor = GridBagConstraints::NORTHWEST
 		c.fill = GridBagConstraints::NONE
 		c.weightx = 0
