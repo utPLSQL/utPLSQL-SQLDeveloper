@@ -30,6 +30,7 @@ import java.text.DecimalFormat
 import java.util.ArrayList
 import javax.swing.Box
 import javax.swing.DefaultComboBoxModel
+import javax.swing.JCheckBoxMenuItem
 import javax.swing.JComboBox
 import javax.swing.JComponent
 import javax.swing.JLabel
@@ -38,6 +39,7 @@ import javax.swing.JPanel
 import javax.swing.JPopupMenu
 import javax.swing.JProgressBar
 import javax.swing.JScrollPane
+import javax.swing.JSeparator
 import javax.swing.JSplitPane
 import javax.swing.JTabbedPane
 import javax.swing.JTable
@@ -49,8 +51,10 @@ import javax.swing.event.ListSelectionEvent
 import javax.swing.event.ListSelectionListener
 import javax.swing.plaf.basic.BasicProgressBarUI
 import javax.swing.table.DefaultTableCellRenderer
+import oracle.ide.config.Preferences
 import oracle.javatools.ui.table.ToolbarButton
 import org.utplsql.sqldev.model.LimitedLinkedHashMap
+import org.utplsql.sqldev.model.preference.PreferenceModel
 import org.utplsql.sqldev.model.runner.Run
 import org.utplsql.sqldev.resources.UtplsqlResources
 import org.utplsql.sqldev.runner.UtplsqlRunner
@@ -59,6 +63,7 @@ import org.utplsql.sqldev.runner.UtplsqlWorksheetRunner
 class RunnerPanel implements FocusListener, ActionListener {
 	static val GREEN = new Color(0, 153, 0)
 	static val RED = new Color(153, 0, 0)
+	static val INDICATOR_WIDTH = 20
 	LimitedLinkedHashMap<String, Run> runs = new LimitedLinkedHashMap<String, Run>(10)
 	Run currentRun
 	JPanel basePanel
@@ -75,11 +80,16 @@ class RunnerPanel implements FocusListener, ActionListener {
 	JLabel disabledCounterValueLabel
 	JLabel warningsCounterValueLabel
 	JLabel infoCounterValueLabel
+	JCheckBoxMenuItem showDisabledCounterCheckBoxMenuItem
+	JCheckBoxMenuItem showWarningsCounterCheckBoxMenuItem
+	JCheckBoxMenuItem showInfoCounterCheckBoxMenuItem
 	JProgressBar progressBar;
 	TestOverviewTableModel testOverviewTableModel
 	JTable testOverviewTable
 	JMenuItem testOverviewRunMenuItem
 	JMenuItem testOverviewRunWorksheetMenuItem
+	JCheckBoxMenuItem showWarningIndicatorCheckBoxMenuItem
+	JCheckBoxMenuItem showInfoIndicatorCheckBoxMenuItem
 	JTextArea testIdTextArea
 	JTextField testOwnerTextField
 	JTextField testPackageTextField
@@ -133,6 +143,72 @@ class RunnerPanel implements FocusListener, ActionListener {
 			runComboBox.selectedIndex = 0
 			runComboBox.addActionListener(this)
 		}
+	}
+	
+	private def applyShowDisabledCounter(boolean show) {
+		disabledCounterValueLabel.parent.visible = showDisabledCounterCheckBoxMenuItem.selected
+	}
+	
+	private def applyShowWarningsCounter(boolean show) {
+		warningsCounterValueLabel.parent.visible = showWarningsCounterCheckBoxMenuItem.selected
+	}
+	
+	private def applyShowInfoCounter(boolean show) {
+		infoCounterValueLabel.parent.visible = showInfoCounterCheckBoxMenuItem.selected
+	}
+
+	private def applyShowWarningIndicator(boolean show) {
+		val col = testOverviewTable.columnModel.getColumn(1)
+		if (show) {
+			col.width = INDICATOR_WIDTH
+			col.minWidth = INDICATOR_WIDTH
+			col.maxWidth = INDICATOR_WIDTH
+			col.preferredWidth = INDICATOR_WIDTH
+		} else {
+			col.width = 0
+			col.minWidth = 0
+			col.maxWidth = 0
+			col.preferredWidth = 0
+		}
+	}
+	
+	private def applyShowInfoIndicator(boolean show) {
+		val col = testOverviewTable.columnModel.getColumn(2)
+		if (show) {
+			col.width = INDICATOR_WIDTH
+			col.minWidth = INDICATOR_WIDTH
+			col.maxWidth = INDICATOR_WIDTH
+			col.preferredWidth = INDICATOR_WIDTH
+		} else {
+			col.width = 0
+			col.minWidth = 0
+			col.maxWidth = 0
+			col.preferredWidth = 0
+		} 
+	}
+	
+	private def getPreferenceModel() {
+		var PreferenceModel preferences
+		try {
+			preferences = PreferenceModel.getInstance(Preferences.preferences)
+		} catch (NoClassDefFoundError e) {
+			preferences = PreferenceModel.getInstance(null)
+		}
+		return preferences
+	}
+	
+	private def applyPreferences() {
+		val PreferenceModel preferences = preferenceModel
+		showDisabledCounterCheckBoxMenuItem.selected = preferences.showDisabledCounter
+		applyShowDisabledCounter(showDisabledCounterCheckBoxMenuItem.selected)
+		showWarningsCounterCheckBoxMenuItem.selected = preferences.showWarningsCounter
+		applyShowWarningsCounter(showWarningsCounterCheckBoxMenuItem.selected)
+		showInfoCounterCheckBoxMenuItem.selected = preferences.showInfoCounter
+		applyShowInfoCounter(showInfoCounterCheckBoxMenuItem.selected)
+		showWarningIndicatorCheckBoxMenuItem.selected = preferences.showWarningIndicator
+		applyShowWarningIndicator(showWarningIndicatorCheckBoxMenuItem.selected)
+		showInfoIndicatorCheckBoxMenuItem.selected = preferences.showInfoIndicator
+		applyShowInfoIndicator(showInfoIndicatorCheckBoxMenuItem.selected)
 	}
 		
 	def setModel(Run run) {
@@ -261,6 +337,16 @@ class RunnerPanel implements FocusListener, ActionListener {
 		} else if (e.source == testOverviewRunWorksheetMenuItem) {
 			val worksheet = new UtplsqlWorksheetRunner(pathListFromSelectedTests, currentRun.connectionName)
 			worksheet.runTestAsync
+		} else if (e.source == showDisabledCounterCheckBoxMenuItem) {
+			applyShowDisabledCounter(showDisabledCounterCheckBoxMenuItem.selected)
+		} else if (e.source == showWarningsCounterCheckBoxMenuItem) {
+			applyShowWarningsCounter( showWarningsCounterCheckBoxMenuItem.selected)
+		} else if (e.source == showInfoCounterCheckBoxMenuItem) {
+			applyShowInfoCounter(showInfoCounterCheckBoxMenuItem.selected)
+		} else if (e.source == showWarningIndicatorCheckBoxMenuItem) {
+			applyShowWarningIndicator(showWarningIndicatorCheckBoxMenuItem.selected)
+		} else if (e.source == showInfoIndicatorCheckBoxMenuItem) {
+			applyShowInfoIndicator(showInfoIndicatorCheckBoxMenuItem.selected)
 		}
 	}
 
@@ -523,6 +609,22 @@ class RunnerPanel implements FocusListener, ActionListener {
 		c.weightx = 1
 		c.weighty = 0
 		basePanel.add(counterPanel,c)
+
+		// Context menu for counters panel
+		val countersPopupMenu = new JPopupMenu
+		showDisabledCounterCheckBoxMenuItem = new JCheckBoxMenuItem(UtplsqlResources.getString("PREF_SHOW_DISABLED_COUNTER_LABEL").replace("?",""))
+		showDisabledCounterCheckBoxMenuItem.selected = true
+		showDisabledCounterCheckBoxMenuItem.addActionListener(this)
+		countersPopupMenu.add(showDisabledCounterCheckBoxMenuItem)
+		showWarningsCounterCheckBoxMenuItem = new JCheckBoxMenuItem(UtplsqlResources.getString("PREF_SHOW_WARNINGS_COUNTER_LABEL").replace("?",""))
+		showWarningsCounterCheckBoxMenuItem.selected = true
+		showWarningsCounterCheckBoxMenuItem.addActionListener(this)
+		countersPopupMenu.add(showWarningsCounterCheckBoxMenuItem)
+		showInfoCounterCheckBoxMenuItem = new JCheckBoxMenuItem(UtplsqlResources.getString("PREF_SHOW_INFO_COUNTER_LABEL").replace("?",""))
+		showInfoCounterCheckBoxMenuItem.selected = true
+		showInfoCounterCheckBoxMenuItem.addActionListener(this)
+		countersPopupMenu.add(showInfoCounterCheckBoxMenuItem)
+		counterPanel.componentPopupMenu = countersPopupMenu
 		
 		// Progress bar
 		progressBar = new JProgressBar
@@ -551,19 +653,19 @@ class RunnerPanel implements FocusListener, ActionListener {
 		testOverviewTable.selectionModel.addListSelectionListener(new TestOverviewRowListener(this)) 		
 		val testTableHeaderRenderer = new TestTableHeaderRenderer
 		val overviewTableStatus = testOverviewTable.columnModel.getColumn(0)
-		overviewTableStatus.minWidth = 20
-		overviewTableStatus.preferredWidth = 20
-		overviewTableStatus.maxWidth = 20
+		overviewTableStatus.minWidth = INDICATOR_WIDTH
+		overviewTableStatus.preferredWidth = INDICATOR_WIDTH
+		overviewTableStatus.maxWidth = INDICATOR_WIDTH
 		overviewTableStatus.headerRenderer = testTableHeaderRenderer
 		val overviewTableWarning = testOverviewTable.columnModel.getColumn(1)
-		overviewTableWarning.minWidth = 20
-		overviewTableWarning.preferredWidth = 20
-		overviewTableWarning.maxWidth = 20
+		overviewTableWarning.minWidth = INDICATOR_WIDTH
+		overviewTableWarning.preferredWidth = INDICATOR_WIDTH
+		overviewTableWarning.maxWidth = INDICATOR_WIDTH
 		overviewTableWarning.headerRenderer = testTableHeaderRenderer
 		val overviewTableInfo = testOverviewTable.columnModel.getColumn(2)
-		overviewTableInfo.minWidth = 20
-		overviewTableInfo.preferredWidth = 20
-		overviewTableInfo.maxWidth = 20
+		overviewTableInfo.minWidth = INDICATOR_WIDTH
+		overviewTableInfo.preferredWidth = INDICATOR_WIDTH
+		overviewTableInfo.maxWidth = INDICATOR_WIDTH
 		overviewTableInfo.headerRenderer = testTableHeaderRenderer
 		val overviewTableId = testOverviewTable.columnModel.getColumn(3)
 		overviewTableId.headerRenderer = testTableHeaderRenderer
@@ -584,8 +686,17 @@ class RunnerPanel implements FocusListener, ActionListener {
 		testOverviewRunWorksheetMenuItem = new JMenuItem("Run test in new worksheet", UtplsqlResources.getIcon("RUN_WORKSHEET_ICON"));
 		testOverviewRunWorksheetMenuItem.addActionListener(this)
 		testOverviewPopupMenu.add(testOverviewRunWorksheetMenuItem)
+		testOverviewPopupMenu.add(new JSeparator)
+		showWarningIndicatorCheckBoxMenuItem = new JCheckBoxMenuItem(UtplsqlResources.getString("PREF_SHOW_WARNING_INDICATOR_LABEL").replace("?",""))
+		showWarningIndicatorCheckBoxMenuItem.selected = true
+		showWarningIndicatorCheckBoxMenuItem.addActionListener(this)
+		testOverviewPopupMenu.add(showWarningIndicatorCheckBoxMenuItem)
+		showInfoIndicatorCheckBoxMenuItem = new JCheckBoxMenuItem(UtplsqlResources.getString("PREF_SHOW_INFO_INDICATOR_LABEL").replace("?",""))
+		showInfoIndicatorCheckBoxMenuItem.selected = true
+		showInfoIndicatorCheckBoxMenuItem.addActionListener(this)
+		testOverviewPopupMenu.add(showInfoIndicatorCheckBoxMenuItem)
 		testOverviewTable.componentPopupMenu = testOverviewPopupMenu
-		
+
 		// Test tabbed pane (Test Properties)
 		// - Id
 		val testInfoPanel = new ScrollablePanel
@@ -897,5 +1008,6 @@ class RunnerPanel implements FocusListener, ActionListener {
 		c.weightx = 1
 		c.weighty = 1
 		basePanel.add(horizontalSplitPane, c)
+		applyPreferences
 	}	
 }
