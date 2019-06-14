@@ -23,4 +23,8 @@ class Expectation extends AbstractModel {
 	String description
 	String message
 	String caller
+	
+	def getFailureText() {
+		return '''«message.trim» «caller.trim»'''.toString
+	}
 }
