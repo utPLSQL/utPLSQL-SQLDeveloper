@@ -360,6 +360,8 @@ class RunnerPanel implements FocusListener, ActionListener {
 			val label = renderer.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, col) as JLabel
 			if (col === 0) {
 				label.horizontalAlignment = JLabel.RIGHT
+			} else {
+				label.horizontalAlignment = JLabel.LEFT
 			}
 			return label
 		}
@@ -754,8 +756,10 @@ class RunnerPanel implements FocusListener, ActionListener {
 		val failuresTableHeaderRenderer = new FailuresTableHeaderRenderer		
 		val failuresTableNumber = failuresTable.columnModel.getColumn(0)
 		failuresTableNumber.headerRenderer = failuresTableHeaderRenderer
-		failuresTableNumber.preferredWidth = 60
-		failuresTableNumber.maxWidth = 60
+		failuresTableNumber.preferredWidth = 30
+		failuresTableNumber.maxWidth = 30
+		val failuresDescription = failuresTable.columnModel.getColumn(1)
+		failuresDescription.headerRenderer = failuresTableHeaderRenderer
 		val failuresTableScrollPane = new JScrollPane(failuresTable)		
 		// - failures details
 		val testFailuresPanel = new JPanel
