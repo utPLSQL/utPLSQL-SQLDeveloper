@@ -30,6 +30,11 @@ class PreferenceModelTest {
 		Assert.assertFalse(model.clearScreen)
 		Assert.assertTrue(model.autoExecute)
 		Assert.assertFalse(model.checkRunUtplsqlTest)
+		Assert.assertFalse(model.showDisabledCounter)
+		Assert.assertFalse(model.showWarningsCounter)
+		Assert.assertFalse(model.showInfoCounter)
+		Assert.assertFalse(model.showWarningIndicator)
+		Assert.assertFalse(model.showInfoIndicator)
 		Assert.assertEquals("test_", model.testPackagePrefix)
 		Assert.assertEquals("", model.testPackageSuffix)
 		Assert.assertEquals("", model.testUnitPrefix)
@@ -44,5 +49,5 @@ class PreferenceModelTest {
 		Assert.assertEquals(PreferenceModel.DEFAULT_OUTPUT_DIRECTORY, model.outputDirectory)
 		Assert.assertEquals(false, model.deleteExistingFiles)
 		Assert.assertEquals("utPLSQL", model.rootFolderInOddgenView)
-	}	
+	}
 }

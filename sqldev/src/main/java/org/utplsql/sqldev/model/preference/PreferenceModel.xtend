@@ -39,6 +39,11 @@ class PreferenceModel extends HashStructureAdapter {
 	static final String KEY_CLEAR_SCREEN = "clearScreen"
 	static final String KEY_AUTO_EXECUTE = "autoExecute"
 	static final String KEY_CHECK_RUN_UTPLSQL_TEST = "checkRunUtplsqlTest"
+	static final String KEY_SHOW_DISABLED_COUNTER = "showDisabledCounter"
+	static final String KEY_SHOW_WARNINGS_COUNTER = "showWarningsCounter"
+	static final String KEY_SHOW_INFO_COUNTER = "showInfoCounter"
+	static final String KEY_SHOW_WARNING_INDICATOR = "showWarningIndicator"
+	static final String KEY_SHOW_INFO_INDICATOR = "showInfoIndicator"
 	static final String KEY_TEST_PACKAGE_PREFIX = "testPackagePrefix"
 	static final String KEY_TEST_PACKAGE_SUFFIX = "testPackageSuffix"
 	static final String KEY_TEST_UNIT_PREFIX = "testUnitPrefix"
@@ -100,6 +105,46 @@ class PreferenceModel extends HashStructureAdapter {
 
 	def setCheckRunUtplsqlTest(boolean checkRunUtplsqlTest) {
 		getHashStructure.putBoolean(PreferenceModel.KEY_CHECK_RUN_UTPLSQL_TEST, checkRunUtplsqlTest)
+	}
+
+	def isShowDisabledCounter() {
+		return getHashStructure.getBoolean(PreferenceModel.KEY_SHOW_DISABLED_COUNTER, false)
+	}
+
+	def setShowDisabledCounter(boolean showDisabledCounter) {
+		getHashStructure.putBoolean(PreferenceModel.KEY_SHOW_DISABLED_COUNTER, showDisabledCounter)
+	}
+
+	def isShowWarningsCounter() {
+		return getHashStructure.getBoolean(PreferenceModel.KEY_SHOW_WARNINGS_COUNTER, false)
+	}
+
+	def setShowWarningsCounter(boolean showWarningCounter) {
+		getHashStructure.putBoolean(PreferenceModel.KEY_SHOW_WARNINGS_COUNTER, showWarningCounter)
+	}
+
+	def isShowInfoCounter() {
+		return getHashStructure.getBoolean(PreferenceModel.KEY_SHOW_INFO_COUNTER, false)
+	}
+
+	def setShowInfoCounter(boolean showInfoCounter) {
+		getHashStructure.putBoolean(PreferenceModel.KEY_SHOW_INFO_COUNTER, showInfoCounter)
+	}
+
+	def isShowWarningIndicator() {
+		return getHashStructure.getBoolean(PreferenceModel.KEY_SHOW_WARNING_INDICATOR, false)
+	}
+
+	def setShowWarningIndicator(boolean showWarningIndicator) {
+		getHashStructure.putBoolean(PreferenceModel.KEY_SHOW_WARNING_INDICATOR, showWarningIndicator)
+	}
+
+	def isShowInfoIndicator() {
+		return getHashStructure.getBoolean(PreferenceModel.KEY_SHOW_INFO_INDICATOR, false)
+	}
+
+	def setShowInfoIndicator(boolean showInfoIndicator) {
+		getHashStructure.putBoolean(PreferenceModel.KEY_SHOW_INFO_INDICATOR, showInfoIndicator)
 	}
 
 	def getTestPackagePrefix() {

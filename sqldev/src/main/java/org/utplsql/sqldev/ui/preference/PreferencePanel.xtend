@@ -43,6 +43,12 @@ class PreferencePanel extends DefaultTraversablePanel {
 	val JCheckBox clearScreenCheckBox = new JCheckBox
 	val JCheckBox autoExecuteCheckBox = new JCheckBox
 	val JCheckBox checkRunUtplsqlTestCheckBox = new JCheckBox
+	val JPanel realtimeReporterPanel = new JPanel
+	val JCheckBox showDisabledCounterCheckBox = new JCheckBox
+	val JCheckBox showWarningsCounterCheckBox = new JCheckBox
+	val JCheckBox showInfoCounterCheckBox = new JCheckBox
+	val JCheckBox showWarningIndicatorCheckBox = new JCheckBox
+	val JCheckBox showInfoIndicatorCheckBox = new JCheckBox
 	val JPanel generateTestPanel = new JPanel();
 	val JTextField testPackagePrefixTextField = new JTextField
 	val JTextField testPackageSuffixTextField = new JTextField
@@ -71,87 +77,108 @@ class PreferencePanel extends DefaultTraversablePanel {
 
 	private def layoutControls() {
 		// run test group
-		val FieldLayoutBuilder b1 = new FieldLayoutBuilder(runTestPanel)
-		b1.alignLabelsLeft = true
-		b1.add(
-			b1.field.label.withText(UtplsqlResources.getString("PREF_USE_REALTIME_REPORTER_LABEL")).component(
+		val FieldLayoutBuilder runTab = new FieldLayoutBuilder(runTestPanel)
+		runTab.alignLabelsLeft = true
+		runTab.add(
+			runTab.field.label.withText(UtplsqlResources.getString("PREF_USE_REALTIME_REPORTER_LABEL")).component(
 				useRealtimeReporterCheckBox))
-		b1.add(
-			b1.field.label.withText(UtplsqlResources.getString("PREF_UNSHARED_WORKSHEET_LABEL")).component(
+		runTab.add(
+			runTab.field.label.withText(UtplsqlResources.getString("PREF_UNSHARED_WORKSHEET_LABEL")).component(
 				unsharedWorksheetCheckBox))
-		b1.add(
-			b1.field.label.withText(UtplsqlResources.getString("PREF_RESET_PACKAGE_LABEL")).component(
+		runTab.add(
+			runTab.field.label.withText(UtplsqlResources.getString("PREF_RESET_PACKAGE_LABEL")).component(
 				resetPackageCheckBox))
-		b1.add(
-			b1.field.label.withText(UtplsqlResources.getString("PREF_CLEAR_SCREEN_LABEL")).component(
+		runTab.add(
+			runTab.field.label.withText(UtplsqlResources.getString("PREF_CLEAR_SCREEN_LABEL")).component(
 				clearScreenCheckBox))
-		b1.add(
-			b1.field.label.withText(UtplsqlResources.getString("PREF_AUTO_EXECUTE_LABEL")).component(
+		runTab.add(
+			runTab.field.label.withText(UtplsqlResources.getString("PREF_AUTO_EXECUTE_LABEL")).component(
 				autoExecuteCheckBox))
-		b1.add(
-			b1.field.label.withText(UtplsqlResources.getString("PREF_CHECK_RUN_UTPLSQL_TEST_LABEL")).component(
+		runTab.add(
+			runTab.field.label.withText(UtplsqlResources.getString("PREF_CHECK_RUN_UTPLSQL_TEST_LABEL")).component(
 				checkRunUtplsqlTestCheckBox))
-		b1.addVerticalSpring
+		runTab.addVerticalSpring
+		
+		// realtime reporter group
+		val FieldLayoutBuilder rrTab = new FieldLayoutBuilder(realtimeReporterPanel)
+		rrTab.alignLabelsLeft = true
+		rrTab.add(
+			runTab.field.label.withText(UtplsqlResources.getString("PREF_SHOW_DISABLED_COUNTER_LABEL")).component(
+				showDisabledCounterCheckBox))
+		rrTab.add(
+			runTab.field.label.withText(UtplsqlResources.getString("PREF_SHOW_WARNINGS_COUNTER_LABEL")).component(
+				showWarningsCounterCheckBox))
+		rrTab.add(
+			runTab.field.label.withText(UtplsqlResources.getString("PREF_SHOW_INFO_COUNTER_LABEL")).component(
+				showInfoCounterCheckBox))
+		rrTab.add(
+			runTab.field.label.withText(UtplsqlResources.getString("PREF_SHOW_WARNING_INDICATOR_LABEL")).component(
+				showWarningIndicatorCheckBox))
+		rrTab.add(
+			runTab.field.label.withText(UtplsqlResources.getString("PREF_SHOW_INFO_INDICATOR_LABEL")).component(
+				showInfoIndicatorCheckBox))
+		rrTab.addVerticalSpring
 
 		// generate test group
-		val FieldLayoutBuilder b2 = new FieldLayoutBuilder(generateTestPanel)
-		b2.alignLabelsLeft = true
-		b2.stretchComponentsWithNoButton = true
-		b2.add(
-			b2.field.label.withText(UtplsqlResources.getString("PREF_TEST_PACKAGE_PREFIX_LABEL")).component(
+		val FieldLayoutBuilder generateTab = new FieldLayoutBuilder(generateTestPanel)
+		generateTab.alignLabelsLeft = true
+		generateTab.stretchComponentsWithNoButton = true
+		generateTab.add(
+			generateTab.field.label.withText(UtplsqlResources.getString("PREF_TEST_PACKAGE_PREFIX_LABEL")).component(
 				testPackagePrefixTextField))
-		b2.add(
-			b2.field.label.withText(UtplsqlResources.getString("PREF_TEST_PACKAGE_SUFFIX_LABEL")).component(
+		generateTab.add(
+			generateTab.field.label.withText(UtplsqlResources.getString("PREF_TEST_PACKAGE_SUFFIX_LABEL")).component(
 				testPackageSuffixTextField))
-		b2.add(
-			b2.field.label.withText(UtplsqlResources.getString("PREF_TEST_UNIT_PREFIX_LABEL")).component(
+		generateTab.add(
+			generateTab.field.label.withText(UtplsqlResources.getString("PREF_TEST_UNIT_PREFIX_LABEL")).component(
 				testUnitPrefixTextField))
-		b2.add(
-			b2.field.label.withText(UtplsqlResources.getString("PREF_TEST_UNIT_SUFFIX_LABEL")).component(
+		generateTab.add(
+			generateTab.field.label.withText(UtplsqlResources.getString("PREF_TEST_UNIT_SUFFIX_LABEL")).component(
 				testUnitSuffixTextField))
-		b2.add(
-			b2.field.label.withText(UtplsqlResources.getString("PREF_NUMBER_OF_TESTS_PER_UNIT_LABEL")).component(
+		generateTab.add(
+			generateTab.field.label.withText(UtplsqlResources.getString("PREF_NUMBER_OF_TESTS_PER_UNIT_LABEL")).component(
 				numberOfTestsPerUnitSpinner))
-		b2.add(
-			b2.field.label.withText(UtplsqlResources.getString("PREF_GENERATE_COMMENTS_LABEL")).component(
+		generateTab.add(
+			generateTab.field.label.withText(UtplsqlResources.getString("PREF_GENERATE_COMMENTS_LABEL")).component(
 				generateCommentsCheckBox))
-		b2.add(
-			b2.field.label.withText(UtplsqlResources.getString("PREF_DISABLE_TESTS_LABEL")).component(
+		generateTab.add(
+			generateTab.field.label.withText(UtplsqlResources.getString("PREF_DISABLE_TESTS_LABEL")).component(
 				disableTestsCheckBox))
-		b2.add(
-			b2.field.label.withText(UtplsqlResources.getString("PREF_SUITE_PATH_LABEL")).component(
+		generateTab.add(
+			generateTab.field.label.withText(UtplsqlResources.getString("PREF_SUITE_PATH_LABEL")).component(
 				suitePathTextField))
-		b2.add(
-			b2.field.label.withText(UtplsqlResources.getString("PREF_INDENT_SPACES_LABEL")).component(
+		generateTab.add(
+			generateTab.field.label.withText(UtplsqlResources.getString("PREF_INDENT_SPACES_LABEL")).component(
 				indentSpacesSpinner))
-		b2.add(
-			b2.field.label.withText(UtplsqlResources.getString("PREF_CHECK_GENERATE_UTPLSQL_TEST_LABEL")).component(
+		generateTab.add(
+			generateTab.field.label.withText(UtplsqlResources.getString("PREF_CHECK_GENERATE_UTPLSQL_TEST_LABEL")).component(
 				checkGenerateUtplsqlTestCheckBox).button(createCodeTemplatesButton).withText(
 				UtplsqlResources.getString("PREF_CREATE_CODE_TEMPLATES_BUTTON_LABEL")))
-		b2.addVerticalSpring
+		generateTab.addVerticalSpring
 
 		// oddgen group
-		val FieldLayoutBuilder b3 = new FieldLayoutBuilder(oddgenPanel)
-		b3.alignLabelsLeft = true
-		b3.stretchComponentsWithNoButton = true
-		b3.add(
-			b3.field.label.withText(UtplsqlResources.getString("PREF_ROOT_FOLDER_IN_ODDGEN_VIEW_LABEL")).component(
+		val FieldLayoutBuilder oddgenTab = new FieldLayoutBuilder(oddgenPanel)
+		oddgenTab.alignLabelsLeft = true
+		oddgenTab.stretchComponentsWithNoButton = true
+		oddgenTab.add(
+			oddgenTab.field.label.withText(UtplsqlResources.getString("PREF_ROOT_FOLDER_IN_ODDGEN_VIEW_LABEL")).component(
 				rootFolderInOddgenViewTextField))
-		b3.add(
-			b3.field.label.withText(UtplsqlResources.getString("PREF_GENERATE_FILES_LABEL")).component(
+		oddgenTab.add(
+			oddgenTab.field.label.withText(UtplsqlResources.getString("PREF_GENERATE_FILES_LABEL")).component(
 				generateFilesCheckBox))
-		b3.add(
-			b3.field.label.withText(UtplsqlResources.getString("PREF_OUTPUT_DIRECTORY_LABEL")).component(
+		oddgenTab.add(
+			oddgenTab.field.label.withText(UtplsqlResources.getString("PREF_OUTPUT_DIRECTORY_LABEL")).component(
 				outputDirectoryTextField).button(outputDirectoryBrowse).withText(
 				UtplsqlResources.getString("PREF_OUTPUT_DIRECTORY_BUTTON_LABEL")))
-		b3.add(
-			b3.field.label.withText(UtplsqlResources.getString("PREF_DELETE_EXISTING_FILES_LABEL")).component(
+		oddgenTab.add(
+			oddgenTab.field.label.withText(UtplsqlResources.getString("PREF_DELETE_EXISTING_FILES_LABEL")).component(
 				deleteExistingFilesCheckBox))
-		b3.addVerticalSpring
+		oddgenTab.addVerticalSpring
 				
 		// putting groups into tabbed panes
 		val tabbedPane = new JTabbedPane()
 		tabbedPane.add(UtplsqlResources.getString("MENU_RUN_TEST_LABEL"), runTestPanel)
+		tabbedPane.add(UtplsqlResources.getString("MENU_REALTIME_REPORTER_LABEL"), realtimeReporterPanel)
 		tabbedPane.add(UtplsqlResources.getString("MENU_GENERATE_TEST_LABEL"), generateTestPanel)
 		tabbedPane.add("oddgen", oddgenPanel)	
 		val FieldLayoutBuilder builder = new FieldLayoutBuilder(this)
@@ -163,8 +190,7 @@ class PreferencePanel extends DefaultTraversablePanel {
 		createCodeTemplatesButton.addActionListener(new ActionListener() {
 			override actionPerformed(ActionEvent event) {
 				saveCodeTemplates
-			}
-			
+			}			
 		})
 		
 		// register action listener for directory chooser
@@ -276,6 +302,11 @@ class PreferencePanel extends DefaultTraversablePanel {
 		clearScreenCheckBox.selected = info.clearScreen
 		autoExecuteCheckBox.selected = info.autoExecute
 		checkRunUtplsqlTestCheckBox.selected = info.checkRunUtplsqlTest
+		showDisabledCounterCheckBox.selected = info.showDisabledCounter
+		showWarningsCounterCheckBox.selected = info.showWarningsCounter
+		showInfoCounterCheckBox.selected = info.showInfoCounter
+		showWarningIndicatorCheckBox.selected = info.showWarningIndicator
+		showInfoIndicatorCheckBox.selected = info.showInfoIndicator
 		testPackagePrefixTextField.text = info.testPackagePrefix
 		testPackageSuffixTextField.text = info.testPackageSuffix
 		testUnitPrefixTextField.text = info.testUnitPrefix
@@ -302,6 +333,11 @@ class PreferencePanel extends DefaultTraversablePanel {
 		info.clearScreen = clearScreenCheckBox.selected
 		info.autoExecute = autoExecuteCheckBox.selected
 		info.checkRunUtplsqlTest = checkRunUtplsqlTestCheckBox.selected
+		info.showDisabledCounter = showDisabledCounterCheckBox.selected
+		info.showWarningsCounter = showWarningsCounterCheckBox.selected
+		info.showInfoCounter = showInfoCounterCheckBox.selected
+		info.showWarningIndicator = showWarningIndicatorCheckBox.selected
+		info.showInfoIndicator = showInfoIndicatorCheckBox.selected
 		info.testPackagePrefix = testPackagePrefixTextField.text
 		info.testPackageSuffix = testPackageSuffixTextField.text
 		info.testUnitPrefix = testUnitPrefixTextField.text
