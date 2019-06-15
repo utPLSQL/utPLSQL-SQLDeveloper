@@ -44,6 +44,7 @@ class PreferenceModel extends HashStructureAdapter {
 	static final String KEY_SHOW_INFO_COUNTER = "showInfoCounter"
 	static final String KEY_SHOW_WARNING_INDICATOR = "showWarningIndicator"
 	static final String KEY_SHOW_INFO_INDICATOR = "showInfoIndicator"
+	static final String KEY_SYNC_DETAIL_TAB = "syncDetailTab"
 	static final String KEY_TEST_PACKAGE_PREFIX = "testPackagePrefix"
 	static final String KEY_TEST_PACKAGE_SUFFIX = "testPackageSuffix"
 	static final String KEY_TEST_UNIT_PREFIX = "testUnitPrefix"
@@ -145,6 +146,14 @@ class PreferenceModel extends HashStructureAdapter {
 
 	def setShowInfoIndicator(boolean showInfoIndicator) {
 		getHashStructure.putBoolean(PreferenceModel.KEY_SHOW_INFO_INDICATOR, showInfoIndicator)
+	}
+
+	def isSyncDetailTab() {
+		return getHashStructure.getBoolean(PreferenceModel.KEY_SYNC_DETAIL_TAB, true)
+	}
+
+	def setSyncDetailTab(boolean syncDetailTab) {
+		getHashStructure.putBoolean(PreferenceModel.KEY_SYNC_DETAIL_TAB, syncDetailTab)
 	}
 
 	def getTestPackagePrefix() {
