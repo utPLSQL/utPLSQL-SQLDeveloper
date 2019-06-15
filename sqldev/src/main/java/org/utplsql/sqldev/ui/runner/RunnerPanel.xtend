@@ -90,6 +90,7 @@ class RunnerPanel implements FocusListener, ActionListener {
 	JMenuItem testOverviewRunWorksheetMenuItem
 	JCheckBoxMenuItem showWarningIndicatorCheckBoxMenuItem
 	JCheckBoxMenuItem showInfoIndicatorCheckBoxMenuItem
+	JCheckBoxMenuItem syncDetailTabCheckBoxMenuItem
 	JTextArea testIdTextArea
 	JTextField testOwnerTextField
 	JTextField testPackageTextField
@@ -190,6 +191,29 @@ class RunnerPanel implements FocusListener, ActionListener {
 		} 
 	}
 	
+	private def syncDetailTab() {
+		if (syncDetailTabCheckBoxMenuItem.selected) {
+			val rowIndex = testOverviewTable.selectedRow
+			if (rowIndex != -1) {
+				val row =  testOverviewTable.convertRowIndexToModel(rowIndex)
+				val test = testOverviewTableModel.getTest(row)
+				var int tabIndex
+				if (test.counter?.failure !== null && test.counter.failure > 0) {
+					tabIndex = 1
+				} else if (test.counter?.error !== null && test.counter.error > 0) {
+					tabIndex = 2
+				} else if (test.counter?.warning !== null && test.counter.warning > 0) {
+					tabIndex = 3
+				} else if (test.serverOutput !== null && test.serverOutput.length > 0) {
+					tabIndex = 4
+				} else {
+					tabIndex = 0
+				}
+				testDetailTabbedPane.selectedIndex = tabIndex
+			}
+		}
+	}
+	
 	private def getPreferenceModel() {
 		var PreferenceModel preferences
 		try {
@@ -212,6 +236,7 @@ class RunnerPanel implements FocusListener, ActionListener {
 		applyShowWarningIndicator(showWarningIndicatorCheckBoxMenuItem.selected)
 		showInfoIndicatorCheckBoxMenuItem.selected = preferences.showInfoIndicator
 		applyShowInfoIndicator(showInfoIndicatorCheckBoxMenuItem.selected)
+		syncDetailTabCheckBoxMenuItem.selected = preferences.syncDetailTab
 	}
 		
 	def setModel(Run run) {
@@ -350,6 +375,8 @@ class RunnerPanel implements FocusListener, ActionListener {
 			applyShowWarningIndicator(showWarningIndicatorCheckBoxMenuItem.selected)
 		} else if (e.source == showInfoIndicatorCheckBoxMenuItem) {
 			applyShowInfoIndicator(showInfoIndicatorCheckBoxMenuItem.selected)
+		} else if (e.source == syncDetailTabCheckBoxMenuItem) {
+			syncDetailTab
 		}
 	}
 
@@ -393,19 +420,7 @@ class RunnerPanel implements FocusListener, ActionListener {
 				p.testErrorStackTextArea.text = test.errorStack?.trim
 				p.testWarningsTextArea.text = test.warnings?.trim
 				p.testServerOutputTextArea.text = test.serverOutput?.trim
-				var int tabIndex
-				if (test.counter?.failure !== null && test.counter.failure > 0) {
-					tabIndex = 1
-				} else if (test.counter?.error !== null && test.counter.error > 0) {
-					tabIndex = 2
-				} else if (test.counter?.warning !== null && test.counter.warning > 0) {
-					tabIndex = 3
-				} else if (test.serverOutput !== null && test.serverOutput.length > 0) {
-					tabIndex = 4
-				} else {
-					tabIndex = 0
-				}
-				p.testDetailTabbedPane.selectedIndex = tabIndex
+				p.syncDetailTab
 				p.testOverviewRunMenuItem.enabled = true
 				p.testOverviewRunWorksheetMenuItem.enabled = true
 			}
@@ -698,6 +713,10 @@ class RunnerPanel implements FocusListener, ActionListener {
 		showInfoIndicatorCheckBoxMenuItem.selected = true
 		showInfoIndicatorCheckBoxMenuItem.addActionListener(this)
 		testOverviewPopupMenu.add(showInfoIndicatorCheckBoxMenuItem)
+		syncDetailTabCheckBoxMenuItem = new JCheckBoxMenuItem(UtplsqlResources.getString("PREF_SYNC_DETAIL_TAB_LABEL").replace("?",""))
+		syncDetailTabCheckBoxMenuItem.selected = true
+		syncDetailTabCheckBoxMenuItem.addActionListener(this)
+		testOverviewPopupMenu.add(syncDetailTabCheckBoxMenuItem)
 		testOverviewTable.componentPopupMenu = testOverviewPopupMenu
 
 		// Test tabbed pane (Test Properties)
