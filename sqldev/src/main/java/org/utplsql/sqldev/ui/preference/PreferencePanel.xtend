@@ -49,6 +49,7 @@ class PreferencePanel extends DefaultTraversablePanel {
 	val JCheckBox showInfoCounterCheckBox = new JCheckBox
 	val JCheckBox showWarningIndicatorCheckBox = new JCheckBox
 	val JCheckBox showInfoIndicatorCheckBox = new JCheckBox
+	val JCheckBox syncDetailTabCheckBox = new JCheckBox
 	val JPanel generateTestPanel = new JPanel();
 	val JTextField testPackagePrefixTextField = new JTextField
 	val JTextField testPackageSuffixTextField = new JTextField
@@ -117,6 +118,9 @@ class PreferencePanel extends DefaultTraversablePanel {
 		rrTab.add(
 			runTab.field.label.withText(UtplsqlResources.getString("PREF_SHOW_INFO_INDICATOR_LABEL")).component(
 				showInfoIndicatorCheckBox))
+		rrTab.add(
+			runTab.field.label.withText(UtplsqlResources.getString("PREF_SYNC_DETAIL_TAB_LABEL")).component(
+				syncDetailTabCheckBox))
 		rrTab.addVerticalSpring
 
 		// generate test group
@@ -307,6 +311,7 @@ class PreferencePanel extends DefaultTraversablePanel {
 		showInfoCounterCheckBox.selected = info.showInfoCounter
 		showWarningIndicatorCheckBox.selected = info.showWarningIndicator
 		showInfoIndicatorCheckBox.selected = info.showInfoIndicator
+		syncDetailTabCheckBox.selected = info.syncDetailTab
 		testPackagePrefixTextField.text = info.testPackagePrefix
 		testPackageSuffixTextField.text = info.testPackageSuffix
 		testUnitPrefixTextField.text = info.testUnitPrefix
@@ -338,6 +343,7 @@ class PreferencePanel extends DefaultTraversablePanel {
 		info.showInfoCounter = showInfoCounterCheckBox.selected
 		info.showWarningIndicator = showWarningIndicatorCheckBox.selected
 		info.showInfoIndicator = showInfoIndicatorCheckBox.selected
+		info.syncDetailTab = syncDetailTabCheckBox.selected
 		info.testPackagePrefix = testPackagePrefixTextField.text
 		info.testPackageSuffix = testPackageSuffixTextField.text
 		info.testUnitPrefix = testUnitPrefixTextField.text
