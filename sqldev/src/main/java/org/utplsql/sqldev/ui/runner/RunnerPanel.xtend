@@ -109,6 +109,9 @@ class RunnerPanel implements FocusListener, ActionListener {
 		if (basePanel === null) {
 			initializeGUI()
 		}
+		if (!basePanel.showing) {
+			applyPreferences
+		}
 		return basePanel
 	}
 
@@ -1008,6 +1011,5 @@ class RunnerPanel implements FocusListener, ActionListener {
 		c.weightx = 1
 		c.weighty = 1
 		basePanel.add(horizontalSplitPane, c)
-		applyPreferences
 	}	
 }
