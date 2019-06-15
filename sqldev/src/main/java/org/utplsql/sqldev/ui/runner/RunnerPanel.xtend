@@ -326,7 +326,8 @@ class RunnerPanel implements FocusListener, ActionListener {
 	
 	private def getPathListFromSelectedTests() {
 		val pathList = new ArrayList<String>
-		for (row : testOverviewTable.selectedRows) {
+		for (rowIndex : testOverviewTable.selectedRows) {
+			val row = testOverviewTable.convertRowIndexToModel(rowIndex) 
 			val test = testOverviewTableModel.getTest(row)
 			val path = '''«test.ownerName».«test.objectName».«test.procedureName»'''
 			pathList.add(path)
