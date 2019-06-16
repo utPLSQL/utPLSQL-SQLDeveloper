@@ -79,8 +79,13 @@ class UtplsqlRunner implements RealtimeReporterEventConsumer {
 	}
 	
 	def dispose() {
-		producerConn.close;
-		consumerConn.close;
+		// running in SQL Developer
+		if (!producerConn.closed) {
+			producerConn.close;
+		}
+		if (!consumerConn.closed) {
+			consumerConn.close;
+		}
 	}
 	
 	override void process(RealtimeReporterEvent event) {
@@ -201,6 +206,9 @@ class UtplsqlRunner implements RealtimeReporterEventConsumer {
 			run.status = UtplsqlResources.getString("RUNNER_NO_TESTS_FOUND_TEXT")
 			run.totalNumberOfTests = 0
 			panel.update(reporterId)
+		}
+		if (isRunningInSqlDeveloper) {
+			dispose
 		}
 	}
 	
