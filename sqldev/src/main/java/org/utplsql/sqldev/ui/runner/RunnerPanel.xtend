@@ -46,6 +46,7 @@ import javax.swing.JTable
 import javax.swing.JTextArea
 import javax.swing.JTextField
 import javax.swing.SwingConstants
+import javax.swing.UIManager
 import javax.swing.border.EmptyBorder
 import javax.swing.event.ListSelectionEvent
 import javax.swing.event.ListSelectionListener
@@ -60,7 +61,6 @@ import org.utplsql.sqldev.resources.UtplsqlResources
 import org.utplsql.sqldev.runner.UtplsqlRunner
 import org.utplsql.sqldev.runner.UtplsqlWorksheetRunner
 
-// TODO: fix missing checkmark on Windows with windows look and feel (just a blue box is shown instead of checkmark)
 class RunnerPanel implements FocusListener, ActionListener {
 	static val GREEN = new Color(0, 153, 0)
 	static val RED = new Color(153, 0, 0)
@@ -92,13 +92,12 @@ class RunnerPanel implements FocusListener, ActionListener {
 	JCheckBoxMenuItem showWarningIndicatorCheckBoxMenuItem
 	JCheckBoxMenuItem showInfoIndicatorCheckBoxMenuItem
 	JCheckBoxMenuItem syncDetailTabCheckBoxMenuItem
-	JTextArea testIdTextArea
 	JTextField testOwnerTextField
 	JTextField testPackageTextField
 	JTextField testProcedureTextField
 	JTextArea testDescriptionTextArea
+	JTextArea suitePathTextArea
 	JTextField testStartTextField
-	JTextField testEndTextField
 	FailuresTableModel failuresTableModel
 	JTable failuresTable
 	JTextArea testFailureMessageTextArea
@@ -121,13 +120,12 @@ class RunnerPanel implements FocusListener, ActionListener {
 		testOverviewTable.rowSorter.sortKeys = null
 		testOverviewRunMenuItem.enabled = false
 		testOverviewRunWorksheetMenuItem.enabled = false
-		testIdTextArea.text = null
+		suitePathTextArea.text = null
 		testOwnerTextField.text = null
 		testPackageTextField.text = null
 		testProcedureTextField.text = null
 		testDescriptionTextArea.text = null
 		testStartTextField.text = null
-		testEndTextField.text = null
 		failuresTableModel.model = null
 		failuresTableModel.fireTableDataChanged
 		testFailureMessageTextArea.text = null
@@ -229,15 +227,21 @@ class RunnerPanel implements FocusListener, ActionListener {
 		val PreferenceModel preferences = preferenceModel
 		showDisabledCounterCheckBoxMenuItem.selected = preferences.showDisabledCounter
 		applyShowDisabledCounter(showDisabledCounterCheckBoxMenuItem.selected)
+		fixCheckBoxMenuItem(showDisabledCounterCheckBoxMenuItem) 
 		showWarningsCounterCheckBoxMenuItem.selected = preferences.showWarningsCounter
 		applyShowWarningsCounter(showWarningsCounterCheckBoxMenuItem.selected)
+		fixCheckBoxMenuItem(showWarningsCounterCheckBoxMenuItem)
 		showInfoCounterCheckBoxMenuItem.selected = preferences.showInfoCounter
 		applyShowInfoCounter(showInfoCounterCheckBoxMenuItem.selected)
+		fixCheckBoxMenuItem(showInfoCounterCheckBoxMenuItem)
 		showWarningIndicatorCheckBoxMenuItem.selected = preferences.showWarningIndicator
 		applyShowWarningIndicator(showWarningIndicatorCheckBoxMenuItem.selected)
+		fixCheckBoxMenuItem(showWarningIndicatorCheckBoxMenuItem)
 		showInfoIndicatorCheckBoxMenuItem.selected = preferences.showInfoIndicator
 		applyShowInfoIndicator(showInfoIndicatorCheckBoxMenuItem.selected)
+		fixCheckBoxMenuItem(showInfoIndicatorCheckBoxMenuItem)
 		syncDetailTabCheckBoxMenuItem.selected = preferences.syncDetailTab
+		fixCheckBoxMenuItem(syncDetailTabCheckBoxMenuItem)
 	}
 		
 	def setModel(Run run) {
@@ -259,7 +263,7 @@ class RunnerPanel implements FocusListener, ActionListener {
 	def synchronized update(String reporterId) {
 		setCurrentRun(runs.get(reporterId))
 		val row = currentRun.totalNumberOfCompletedTests - 1
-		val header = testOverviewTableModel.testIdColumnName
+		val header = testOverviewTableModel.suitepathColumnName
 		val idColumn = testOverviewTable.columnModel.getColumn(3)
 		if (idColumn.headerValue != header) {
 			idColumn.headerValue = header
@@ -294,8 +298,8 @@ class RunnerPanel implements FocusListener, ActionListener {
 	}
 
 	override void focusGained(FocusEvent e) {
-		if (e.source == testIdTextArea) {
-			testIdTextArea.caret.visible = true
+		if (e.source == suitePathTextArea) {
+			suitePathTextArea.caret.visible = true
 		} else if (e.source == testDescriptionTextArea) {
 			testDescriptionTextArea.caret.visible = true
 		} else if (e.source == testFailureMessageTextArea) {
@@ -310,8 +314,8 @@ class RunnerPanel implements FocusListener, ActionListener {
 	}
 
 	override focusLost(FocusEvent e) {
-		if (e.source == testIdTextArea) {
-			testIdTextArea.caret.visible = false
+		if (e.source == suitePathTextArea) {
+			suitePathTextArea.caret.visible = false
 		} else if (e.source == testDescriptionTextArea) {
 			testDescriptionTextArea.caret.visible = false
 		} else if (e.source == testFailureMessageTextArea) {
@@ -334,6 +338,25 @@ class RunnerPanel implements FocusListener, ActionListener {
 			pathList.add(path)
 		}
 		return pathList
+	}
+	
+	private def isWindowsLookAndFeel() {
+		val laf = UIManager.systemLookAndFeelClassName
+		if (laf.toLowerCase.contains("windows")) {
+			return true
+		} else {
+			return false
+		}
+	}
+	
+	private def void fixCheckBoxMenuItem(JCheckBoxMenuItem item) {
+		if (windowsLookAndFeel) {
+			if (item.selected) {
+				item.icon = UtplsqlResources.getIcon("CHECKMARK_ICON")
+			} else {
+				item.icon = null
+			}
+		}
 	}
 
 	override actionPerformed(ActionEvent e) {
@@ -369,16 +392,22 @@ class RunnerPanel implements FocusListener, ActionListener {
 			worksheet.runTestAsync
 		} else if (e.source == showDisabledCounterCheckBoxMenuItem) {
 			applyShowDisabledCounter(showDisabledCounterCheckBoxMenuItem.selected)
+			fixCheckBoxMenuItem(showDisabledCounterCheckBoxMenuItem) 
 		} else if (e.source == showWarningsCounterCheckBoxMenuItem) {
 			applyShowWarningsCounter( showWarningsCounterCheckBoxMenuItem.selected)
+			fixCheckBoxMenuItem(showWarningsCounterCheckBoxMenuItem)
 		} else if (e.source == showInfoCounterCheckBoxMenuItem) {
 			applyShowInfoCounter(showInfoCounterCheckBoxMenuItem.selected)
+			fixCheckBoxMenuItem(showInfoCounterCheckBoxMenuItem)
 		} else if (e.source == showWarningIndicatorCheckBoxMenuItem) {
 			applyShowWarningIndicator(showWarningIndicatorCheckBoxMenuItem.selected)
+			fixCheckBoxMenuItem(showWarningIndicatorCheckBoxMenuItem)
 		} else if (e.source == showInfoIndicatorCheckBoxMenuItem) {
 			applyShowInfoIndicator(showInfoIndicatorCheckBoxMenuItem.selected)
+			fixCheckBoxMenuItem(showInfoIndicatorCheckBoxMenuItem)
 		} else if (e.source == syncDetailTabCheckBoxMenuItem) {
 			syncDetailTab
+			fixCheckBoxMenuItem(syncDetailTabCheckBoxMenuItem)
 		}
 	}
 
@@ -406,13 +435,12 @@ class RunnerPanel implements FocusListener, ActionListener {
 			if (rowIndex != -1) {
 				val row =  p.testOverviewTable.convertRowIndexToModel(rowIndex)
 				val test = p.testOverviewTableModel.getTest(row)
-				p.testIdTextArea.text = test.id
+				p.suitePathTextArea.text = test.id
 				p.testOwnerTextField.text = test.ownerName
 				p.testPackageTextField.text = test.objectName
 				p.testProcedureTextField.text = test.procedureName
 				p.testDescriptionTextArea.text = test.description?.trim
 				p.testStartTextField.text = formatDateTime(test.startTime)
-				p.testEndTextField.text = formatDateTime(test.endTime)
 				p.failuresTableModel.model = test.failedExpectations
 				p.testFailureMessageTextArea.text = null
 				if (test.failedExpectations !== null && test.failedExpectations.size > 0) {
@@ -716,43 +744,15 @@ class RunnerPanel implements FocusListener, ActionListener {
 		testOverviewTable.componentPopupMenu = testOverviewPopupMenu
 
 		// Test tabbed pane (Test Properties)
-		// - Id
 		val testInfoPanel = new ScrollablePanel
 		testInfoPanel.setLayout(new GridBagLayout())
-		val testIdLabel = new JLabel("Id")
+		// - Owner
+		val testOwnerLabel = new JLabel("Owner")
 		c.gridx = 0
 		c.gridy = 0
 		c.gridwidth = 1
 		c.gridheight = 1
 		c.insets = new Insets(10, 10, 0, 0) // top, left, bottom, right
-		c.anchor = GridBagConstraints::NORTHWEST
-		c.fill = GridBagConstraints::NONE
-		c.weightx = 0
-		c.weighty = 0
-		testInfoPanel.add(testIdLabel, c)
-		testIdTextArea = new JTextArea
-		testIdTextArea.editable = false
-		testIdTextArea.enabled = true
-		testIdTextArea.lineWrap = true
-		testIdTextArea.wrapStyleWord = false
-		testIdTextArea.addFocusListener(this)
-		c.gridx = 1
-		c.gridy = 0
-		c.gridwidth = 1
-		c.gridheight = 1
-		c.insets = new Insets(5, 5, 0, 10) // top, left, bottom, right
-		c.anchor = GridBagConstraints::WEST
-		c.fill = GridBagConstraints::HORIZONTAL
-		c.weightx = 1
-		c.weighty = 0
-		testInfoPanel.add(testIdTextArea, c)
-		// - Owner
-		val testOwnerLabel = new JLabel("Owner")
-		c.gridx = 0
-		c.gridy = 1
-		c.gridwidth = 1
-		c.gridheight = 1
-		c.insets = new Insets(5, 10, 0, 0) // top, left, bottom, right
 		c.anchor = GridBagConstraints::WEST
 		c.fill = GridBagConstraints::NONE
 		c.weightx = 0
@@ -761,10 +761,10 @@ class RunnerPanel implements FocusListener, ActionListener {
 		testOwnerTextField = new JTextField
 		testOwnerTextField.editable = false
 		c.gridx = 1
-		c.gridy = 1
+		c.gridy = 0
 		c.gridwidth = 1
 		c.gridheight = 1
-		c.insets = new Insets(5, 5, 0, 10) // top, left, bottom, right
+		c.insets = new Insets(10, 5, 0, 10) // top, left, bottom, right
 		c.anchor = GridBagConstraints::WEST
 		c.fill = GridBagConstraints::HORIZONTAL
 		c.weightx = 1
@@ -773,7 +773,7 @@ class RunnerPanel implements FocusListener, ActionListener {
 		// - Package
 		val testPackageLabel = new JLabel("Package")
 		c.gridx = 0
-		c.gridy = 2
+		c.gridy = 1
 		c.gridwidth = 1
 		c.gridheight = 1
 		c.insets = new Insets(5, 10, 0, 0) // top, left, bottom, right
@@ -785,7 +785,7 @@ class RunnerPanel implements FocusListener, ActionListener {
 		testPackageTextField = new JTextField
 		testPackageTextField.editable = false
 		c.gridx = 1
-		c.gridy = 2
+		c.gridy = 1
 		c.gridwidth = 1
 		c.gridheight = 1
 		c.insets = new Insets(5, 5, 0, 10) // top, left, bottom, right
@@ -797,7 +797,7 @@ class RunnerPanel implements FocusListener, ActionListener {
 		// - Procedure
 		val testProcedureLabel = new JLabel("Procedure")
 		c.gridx = 0
-		c.gridy = 3
+		c.gridy = 2
 		c.gridwidth = 1
 		c.gridheight = 1
 		c.insets = new Insets(5, 10, 0, 0) // top, left, bottom, right
@@ -809,7 +809,7 @@ class RunnerPanel implements FocusListener, ActionListener {
 		testProcedureTextField = new JTextField
 		testProcedureTextField.editable = false
 		c.gridx = 1
-		c.gridy = 3
+		c.gridy = 2
 		c.gridwidth = 1
 		c.gridheight = 1
 		c.insets = new Insets(5, 5, 0, 10) // top, left, bottom, right
@@ -821,7 +821,7 @@ class RunnerPanel implements FocusListener, ActionListener {
 		// - Description
 		val testDescriptionLabel = new JLabel(UtplsqlResources.getString("RUNNER_DESCRIPTION"))
 		c.gridx = 0
-		c.gridy = 4
+		c.gridy = 3
 		c.gridwidth = 1
 		c.gridheight = 1
 		c.insets = new Insets(5, 10, 0, 0) // top, left, bottom, right
@@ -837,7 +837,7 @@ class RunnerPanel implements FocusListener, ActionListener {
 		testDescriptionTextArea.wrapStyleWord = true
 		testDescriptionTextArea.addFocusListener(this)
 		c.gridx = 1
-		c.gridy = 4
+		c.gridy = 3
 		c.gridwidth = 1
 		c.gridheight = 1
 		c.insets = new Insets(5, 5, 0, 10) // top, left, bottom, right
@@ -846,13 +846,41 @@ class RunnerPanel implements FocusListener, ActionListener {
 		c.weightx = 1
 		c.weighty = 0
 		testInfoPanel.add(testDescriptionTextArea, c)
+		// - Suitepath
+		val suitePathLabel = new JLabel("Suitepath")
+		c.gridx = 0
+		c.gridy = 4
+		c.gridwidth = 1
+		c.gridheight = 1
+		c.insets = new Insets(5, 10, 0, 0) // top, left, bottom, right
+		c.anchor = GridBagConstraints::NORTHWEST
+		c.fill = GridBagConstraints::NONE
+		c.weightx = 0
+		c.weighty = 0
+		testInfoPanel.add(suitePathLabel, c)
+		suitePathTextArea = new JTextArea
+		suitePathTextArea.editable = false
+		suitePathTextArea.enabled = true
+		suitePathTextArea.lineWrap = true
+		suitePathTextArea.wrapStyleWord = false
+		suitePathTextArea.addFocusListener(this)
+		c.gridx = 1
+		c.gridy = 4
+		c.gridwidth = 1
+		c.gridheight = 1
+		c.insets = new Insets(5, 5, 0, 10) // top, left, bottom, right
+		c.anchor = GridBagConstraints::WEST
+		c.fill = GridBagConstraints::HORIZONTAL
+		c.weightx = 1
+		c.weighty = 0
+		testInfoPanel.add(suitePathTextArea, c)
 		// - Start
 		val testStartLabel = new JLabel("Start")
 		c.gridx = 0
 		c.gridy = 5
 		c.gridwidth = 1
 		c.gridheight = 1
-		c.insets = new Insets(5, 10, 0, 0) // top, left, bottom, right
+		c.insets = new Insets(5, 10, 10, 0) // top, left, bottom, right
 		c.anchor = GridBagConstraints::WEST
 		c.fill = GridBagConstraints::NONE
 		c.weightx = 0
@@ -864,40 +892,16 @@ class RunnerPanel implements FocusListener, ActionListener {
 		c.gridy = 5
 		c.gridwidth = 1
 		c.gridheight = 1
-		c.insets = new Insets(5, 5, 0, 10) // top, left, bottom, right
-		c.anchor = GridBagConstraints::WEST
-		c.fill = GridBagConstraints::HORIZONTAL
-		c.weightx = 1
-		c.weighty = 0
-		testInfoPanel.add(testStartTextField, c)
-		// - End
-		val testEndLabel = new JLabel("End")
-		c.gridx = 0
-		c.gridy = 6
-		c.gridwidth = 1
-		c.gridheight = 1
-		c.insets = new Insets(5, 10, 10, 0) // top, left, bottom, right
-		c.anchor = GridBagConstraints::WEST
-		c.fill = GridBagConstraints::NONE
-		c.weightx = 0
-		c.weighty = 0		
-		testInfoPanel.add(testEndLabel, c)
-		testEndTextField = new JTextField
-		testEndTextField.editable = false
-		c.gridx = 1
-		c.gridy = 6
-		c.gridwidth = 1
-		c.gridheight = 1
 		c.insets = new Insets(5, 5, 10, 10) // top, left, bottom, right
 		c.anchor = GridBagConstraints::WEST
 		c.fill = GridBagConstraints::HORIZONTAL
 		c.weightx = 1
 		c.weighty = 0
-		testInfoPanel.add(testEndTextField, c)
+		testInfoPanel.add(testStartTextField, c)
 		// - Vertical spring and scrollbar for info panel
 		val testInfoVerticalSpringLabel = new JLabel
 		c.gridx = 0
-		c.gridy = 7
+		c.gridy = 6
 		c.gridwidth = 1
 		c.gridheight = 1
 		c.insets = new Insets(0, 0, 0, 0) // top, left, bottom, right
