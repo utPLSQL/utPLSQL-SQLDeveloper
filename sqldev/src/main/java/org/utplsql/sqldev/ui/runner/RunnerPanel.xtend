@@ -60,6 +60,7 @@ import org.utplsql.sqldev.resources.UtplsqlResources
 import org.utplsql.sqldev.runner.UtplsqlRunner
 import org.utplsql.sqldev.runner.UtplsqlWorksheetRunner
 
+// TODO: fix missing checkmark on Windows with windows look and feel (just a blue box is shown instead of checkmark)
 class RunnerPanel implements FocusListener, ActionListener {
 	static val GREEN = new Color(0, 153, 0)
 	static val RED = new Color(153, 0, 0)
@@ -631,16 +632,13 @@ class RunnerPanel implements FocusListener, ActionListener {
 
 		// Context menu for counters panel
 		val countersPopupMenu = new JPopupMenu
-		showDisabledCounterCheckBoxMenuItem = new JCheckBoxMenuItem(UtplsqlResources.getString("PREF_SHOW_DISABLED_COUNTER_LABEL").replace("?",""))
-		showDisabledCounterCheckBoxMenuItem.selected = true
+		showDisabledCounterCheckBoxMenuItem = new JCheckBoxMenuItem(UtplsqlResources.getString("PREF_SHOW_DISABLED_COUNTER_LABEL").replace("?",""), true)
 		showDisabledCounterCheckBoxMenuItem.addActionListener(this)
 		countersPopupMenu.add(showDisabledCounterCheckBoxMenuItem)
-		showWarningsCounterCheckBoxMenuItem = new JCheckBoxMenuItem(UtplsqlResources.getString("PREF_SHOW_WARNINGS_COUNTER_LABEL").replace("?",""))
-		showWarningsCounterCheckBoxMenuItem.selected = true
+		showWarningsCounterCheckBoxMenuItem = new JCheckBoxMenuItem(UtplsqlResources.getString("PREF_SHOW_WARNINGS_COUNTER_LABEL").replace("?",""), true)
 		showWarningsCounterCheckBoxMenuItem.addActionListener(this)
 		countersPopupMenu.add(showWarningsCounterCheckBoxMenuItem)
-		showInfoCounterCheckBoxMenuItem = new JCheckBoxMenuItem(UtplsqlResources.getString("PREF_SHOW_INFO_COUNTER_LABEL").replace("?",""))
-		showInfoCounterCheckBoxMenuItem.selected = true
+		showInfoCounterCheckBoxMenuItem = new JCheckBoxMenuItem(UtplsqlResources.getString("PREF_SHOW_INFO_COUNTER_LABEL").replace("?",""), true)
 		showInfoCounterCheckBoxMenuItem.addActionListener(this)
 		countersPopupMenu.add(showInfoCounterCheckBoxMenuItem)
 		counterPanel.componentPopupMenu = countersPopupMenu
@@ -706,16 +704,13 @@ class RunnerPanel implements FocusListener, ActionListener {
 		testOverviewRunWorksheetMenuItem.addActionListener(this)
 		testOverviewPopupMenu.add(testOverviewRunWorksheetMenuItem)
 		testOverviewPopupMenu.add(new JSeparator)
-		showWarningIndicatorCheckBoxMenuItem = new JCheckBoxMenuItem(UtplsqlResources.getString("PREF_SHOW_WARNING_INDICATOR_LABEL").replace("?",""))
-		showWarningIndicatorCheckBoxMenuItem.selected = true
+		showWarningIndicatorCheckBoxMenuItem = new JCheckBoxMenuItem(UtplsqlResources.getString("PREF_SHOW_WARNING_INDICATOR_LABEL").replace("?",""), true)
 		showWarningIndicatorCheckBoxMenuItem.addActionListener(this)
 		testOverviewPopupMenu.add(showWarningIndicatorCheckBoxMenuItem)
-		showInfoIndicatorCheckBoxMenuItem = new JCheckBoxMenuItem(UtplsqlResources.getString("PREF_SHOW_INFO_INDICATOR_LABEL").replace("?",""))
-		showInfoIndicatorCheckBoxMenuItem.selected = true
+		showInfoIndicatorCheckBoxMenuItem = new JCheckBoxMenuItem(UtplsqlResources.getString("PREF_SHOW_INFO_INDICATOR_LABEL").replace("?",""), true)
 		showInfoIndicatorCheckBoxMenuItem.addActionListener(this)
 		testOverviewPopupMenu.add(showInfoIndicatorCheckBoxMenuItem)
-		syncDetailTabCheckBoxMenuItem = new JCheckBoxMenuItem(UtplsqlResources.getString("PREF_SYNC_DETAIL_TAB_LABEL").replace("?",""))
-		syncDetailTabCheckBoxMenuItem.selected = true
+		syncDetailTabCheckBoxMenuItem = new JCheckBoxMenuItem(UtplsqlResources.getString("PREF_SYNC_DETAIL_TAB_LABEL").replace("?",""), true)
 		syncDetailTabCheckBoxMenuItem.addActionListener(this)
 		testOverviewPopupMenu.add(syncDetailTabCheckBoxMenuItem)
 		testOverviewTable.componentPopupMenu = testOverviewPopupMenu
