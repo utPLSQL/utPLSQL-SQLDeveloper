@@ -46,10 +46,10 @@ class TestOverviewTableModel extends DefaultTableModel {
 		fireTableDataChanged()
 	}
 	
-	def getSuitepathColumnName() {
+	def getTestIdColumnName() {
 		calcCommonPrefix
 		if (commonPrefix === null || commonPrefix == "") {
-			return UtplsqlResources.getString("RUNNER_SUITEPATH")
+			return UtplsqlResources.getString("RUNNER_TEST_ID")
 		} else {
 			commonPrefix
 		}

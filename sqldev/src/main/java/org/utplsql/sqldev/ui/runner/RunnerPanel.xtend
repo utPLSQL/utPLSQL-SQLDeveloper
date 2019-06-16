@@ -96,7 +96,7 @@ class RunnerPanel implements FocusListener, ActionListener {
 	JTextField testPackageTextField
 	JTextField testProcedureTextField
 	JTextArea testDescriptionTextArea
-	JTextArea suitePathTextArea
+	JTextArea testIdTextArea
 	JTextField testStartTextField
 	FailuresTableModel failuresTableModel
 	JTable failuresTable
@@ -120,7 +120,7 @@ class RunnerPanel implements FocusListener, ActionListener {
 		testOverviewTable.rowSorter.sortKeys = null
 		testOverviewRunMenuItem.enabled = false
 		testOverviewRunWorksheetMenuItem.enabled = false
-		suitePathTextArea.text = null
+		testIdTextArea.text = null
 		testOwnerTextField.text = null
 		testPackageTextField.text = null
 		testProcedureTextField.text = null
@@ -263,7 +263,7 @@ class RunnerPanel implements FocusListener, ActionListener {
 	def synchronized update(String reporterId) {
 		setCurrentRun(runs.get(reporterId))
 		val row = currentRun.totalNumberOfCompletedTests - 1
-		val header = testOverviewTableModel.suitepathColumnName
+		val header = testOverviewTableModel.testIdColumnName
 		val idColumn = testOverviewTable.columnModel.getColumn(3)
 		if (idColumn.headerValue != header) {
 			idColumn.headerValue = header
@@ -298,8 +298,8 @@ class RunnerPanel implements FocusListener, ActionListener {
 	}
 
 	override void focusGained(FocusEvent e) {
-		if (e.source == suitePathTextArea) {
-			suitePathTextArea.caret.visible = true
+		if (e.source == testIdTextArea) {
+			testIdTextArea.caret.visible = true
 		} else if (e.source == testDescriptionTextArea) {
 			testDescriptionTextArea.caret.visible = true
 		} else if (e.source == testFailureMessageTextArea) {
@@ -314,8 +314,8 @@ class RunnerPanel implements FocusListener, ActionListener {
 	}
 
 	override focusLost(FocusEvent e) {
-		if (e.source == suitePathTextArea) {
-			suitePathTextArea.caret.visible = false
+		if (e.source == testIdTextArea) {
+			testIdTextArea.caret.visible = false
 		} else if (e.source == testDescriptionTextArea) {
 			testDescriptionTextArea.caret.visible = false
 		} else if (e.source == testFailureMessageTextArea) {
@@ -435,11 +435,11 @@ class RunnerPanel implements FocusListener, ActionListener {
 			if (rowIndex != -1) {
 				val row =  p.testOverviewTable.convertRowIndexToModel(rowIndex)
 				val test = p.testOverviewTableModel.getTest(row)
-				p.suitePathTextArea.text = test.id
 				p.testOwnerTextField.text = test.ownerName
 				p.testPackageTextField.text = test.objectName
 				p.testProcedureTextField.text = test.procedureName
 				p.testDescriptionTextArea.text = test.description?.trim
+				p.testIdTextArea.text = test.id
 				p.testStartTextField.text = formatDateTime(test.startTime)
 				p.failuresTableModel.model = test.failedExpectations
 				p.testFailureMessageTextArea.text = null
@@ -846,8 +846,8 @@ class RunnerPanel implements FocusListener, ActionListener {
 		c.weightx = 1
 		c.weighty = 0
 		testInfoPanel.add(testDescriptionTextArea, c)
-		// - Suitepath
-		val suitePathLabel = new JLabel("Suitepath")
+		// - Suitepath (id)
+		val testIdLabel = new JLabel("Suitepath")
 		c.gridx = 0
 		c.gridy = 4
 		c.gridwidth = 1
@@ -857,13 +857,13 @@ class RunnerPanel implements FocusListener, ActionListener {
 		c.fill = GridBagConstraints::NONE
 		c.weightx = 0
 		c.weighty = 0
-		testInfoPanel.add(suitePathLabel, c)
-		suitePathTextArea = new JTextArea
-		suitePathTextArea.editable = false
-		suitePathTextArea.enabled = true
-		suitePathTextArea.lineWrap = true
-		suitePathTextArea.wrapStyleWord = false
-		suitePathTextArea.addFocusListener(this)
+		testInfoPanel.add(testIdLabel, c)
+		testIdTextArea = new JTextArea
+		testIdTextArea.editable = false
+		testIdTextArea.enabled = true
+		testIdTextArea.lineWrap = true
+		testIdTextArea.wrapStyleWord = false
+		testIdTextArea.addFocusListener(this)
 		c.gridx = 1
 		c.gridy = 4
 		c.gridwidth = 1
@@ -873,7 +873,7 @@ class RunnerPanel implements FocusListener, ActionListener {
 		c.fill = GridBagConstraints::HORIZONTAL
 		c.weightx = 1
 		c.weighty = 0
-		testInfoPanel.add(suitePathTextArea, c)
+		testInfoPanel.add(testIdTextArea, c)
 		// - Start
 		val testStartLabel = new JLabel("Start")
 		c.gridx = 0
