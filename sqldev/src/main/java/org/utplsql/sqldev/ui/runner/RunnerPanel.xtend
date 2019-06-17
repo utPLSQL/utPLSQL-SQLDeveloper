@@ -63,6 +63,7 @@ class RunnerPanel implements FocusListener, ActionListener {
 	static val GREEN = new Color(0, 153, 0)
 	static val RED = new Color(153, 0, 0)
 	static val INDICATOR_WIDTH = 20
+	static val OVERVIEW_TABLE_ROW_HEIGHT = 20
 	LimitedLinkedHashMap<String, Run> runs = new LimitedLinkedHashMap<String, Run>(10)
 	Run currentRun
 	JPanel basePanel
@@ -692,6 +693,8 @@ class RunnerPanel implements FocusListener, ActionListener {
 		testOverviewTable = new JTable(testOverviewTableModel)
 		testOverviewTable.tableHeader.reorderingAllowed = false
 		testOverviewTable.autoCreateRowSorter = true
+		testOverviewTable.rowHeight = OVERVIEW_TABLE_ROW_HEIGHT
+		testOverviewTable.tableHeader.preferredSize = new Dimension(testOverviewTable.tableHeader.getPreferredSize.width, OVERVIEW_TABLE_ROW_HEIGHT)
 		testOverviewTable.selectionModel.addListSelectionListener(new TestOverviewRowListener(this)) 		
 		val testTableHeaderRenderer = new TestTableHeaderRenderer
 		val overviewTableStatus = testOverviewTable.columnModel.getColumn(0)
