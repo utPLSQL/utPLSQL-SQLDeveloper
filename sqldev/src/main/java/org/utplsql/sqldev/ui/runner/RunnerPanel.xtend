@@ -488,7 +488,7 @@ class RunnerPanel implements FocusListener, ActionListener {
 			val renderer = table.tableHeader.defaultRenderer
 			val label = renderer.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, col) as JLabel
 			if (col === 0) {
-				label.icon = UtplsqlResources.getIcon("UTPLSQL_ICON")
+				label.icon = UtplsqlResources.getIcon("STATUS_ICON")
 				label.horizontalAlignment = JLabel.CENTER
 			} else if (col === 1) {
 				label.icon = UtplsqlResources.getIcon("WARNING_ICON")
@@ -547,7 +547,7 @@ class RunnerPanel implements FocusListener, ActionListener {
 		c.weightx = 1
 		c.weighty = 0
 		groupPanel.add(comp, c)
-		val dim = new Dimension(154, 24)
+		val dim = new Dimension(134, 24)
 		groupPanel.minimumSize = dim
 		groupPanel.preferredSize = dim
 		return groupPanel
@@ -615,8 +615,7 @@ class RunnerPanel implements FocusListener, ActionListener {
 		// - Test counter
 		val counterPanel = new JPanel
 		counterPanel.layout = new WrapLayout(FlowLayout.LEFT, 0, 0)
-		val testCounterLabel = new JLabel(UtplsqlResources.getString("RUNNER_TESTS_LABEL") + ":",
-			UtplsqlResources.getIcon("UTPLSQL_ICON"), JLabel::LEADING)
+		val testCounterLabel = new JLabel(UtplsqlResources.getString("RUNNER_TESTS_LABEL") + ":", JLabel::LEADING)
 		testCounterValueLabel = new JLabel
 		counterPanel.add(makeLabelledCounterComponent(testCounterLabel, testCounterValueLabel))
 		// - Failure counter
