@@ -43,8 +43,6 @@ import javax.swing.JSeparator
 import javax.swing.JSplitPane
 import javax.swing.JTabbedPane
 import javax.swing.JTable
-import javax.swing.JTextArea
-import javax.swing.JTextField
 import javax.swing.SwingConstants
 import javax.swing.UIManager
 import javax.swing.border.EmptyBorder
@@ -92,18 +90,18 @@ class RunnerPanel implements FocusListener, ActionListener {
 	JCheckBoxMenuItem showWarningIndicatorCheckBoxMenuItem
 	JCheckBoxMenuItem showInfoIndicatorCheckBoxMenuItem
 	JCheckBoxMenuItem syncDetailTabCheckBoxMenuItem
-	JTextField testOwnerTextField
-	JTextField testPackageTextField
-	JTextField testProcedureTextField
-	JTextArea testDescriptionTextArea
-	JTextArea testIdTextArea
-	JTextField testStartTextField
+	RunnerTextField testOwnerTextField
+	RunnerTextField testPackageTextField
+	RunnerTextField testProcedureTextField
+	RunnerTextArea testDescriptionTextArea
+	RunnerTextArea testIdTextArea
+	RunnerTextField testStartTextField
 	FailuresTableModel failuresTableModel
 	JTable failuresTable
-	JTextArea testFailureMessageTextArea
-	JTextArea testErrorStackTextArea
-	JTextArea testWarningsTextArea
-	JTextArea testServerOutputTextArea
+	RunnerTextArea testFailureMessageTextArea
+	RunnerTextArea testErrorStackTextArea
+	RunnerTextArea testWarningsTextArea
+	RunnerTextArea testServerOutputTextArea
 	JTabbedPane testDetailTabbedPane
 	
 	def Component getGUI() {
@@ -758,7 +756,7 @@ class RunnerPanel implements FocusListener, ActionListener {
 		c.weightx = 0
 		c.weighty = 0		
 		testInfoPanel.add(testOwnerLabel, c)
-		testOwnerTextField = new JTextField
+		testOwnerTextField = new RunnerTextField
 		testOwnerTextField.editable = false
 		c.gridx = 1
 		c.gridy = 0
@@ -782,7 +780,7 @@ class RunnerPanel implements FocusListener, ActionListener {
 		c.weightx = 0
 		c.weighty = 0		
 		testInfoPanel.add(testPackageLabel, c)
-		testPackageTextField = new JTextField
+		testPackageTextField = new RunnerTextField
 		testPackageTextField.editable = false
 		c.gridx = 1
 		c.gridy = 1
@@ -806,7 +804,7 @@ class RunnerPanel implements FocusListener, ActionListener {
 		c.weightx = 0
 		c.weighty = 0		
 		testInfoPanel.add(testProcedureLabel, c)
-		testProcedureTextField = new JTextField
+		testProcedureTextField = new RunnerTextField
 		testProcedureTextField.editable = false
 		c.gridx = 1
 		c.gridy = 2
@@ -830,7 +828,7 @@ class RunnerPanel implements FocusListener, ActionListener {
 		c.weightx = 0
 		c.weighty = 0
 		testInfoPanel.add(testDescriptionLabel, c)
-		testDescriptionTextArea = new JTextArea
+		testDescriptionTextArea = new RunnerTextArea
 		testDescriptionTextArea.editable = false
 		testDescriptionTextArea.enabled = true
 		testDescriptionTextArea.lineWrap = true
@@ -858,7 +856,7 @@ class RunnerPanel implements FocusListener, ActionListener {
 		c.weightx = 0
 		c.weighty = 0
 		testInfoPanel.add(testIdLabel, c)
-		testIdTextArea = new JTextArea
+		testIdTextArea = new RunnerTextArea
 		testIdTextArea.editable = false
 		testIdTextArea.enabled = true
 		testIdTextArea.lineWrap = true
@@ -886,7 +884,7 @@ class RunnerPanel implements FocusListener, ActionListener {
 		c.weightx = 0
 		c.weighty = 0		
 		testInfoPanel.add(testStartLabel, c)
-		testStartTextField = new JTextField
+		testStartTextField = new RunnerTextField
 		testStartTextField.editable = false
 		c.gridx = 1
 		c.gridy = 5
@@ -899,7 +897,6 @@ class RunnerPanel implements FocusListener, ActionListener {
 		c.weighty = 0
 		testInfoPanel.add(testStartTextField, c)
 		// - Vertical spring and scrollbar for info panel
-		val testInfoVerticalSpringLabel = new JLabel
 		c.gridx = 0
 		c.gridy = 6
 		c.gridwidth = 1
@@ -909,7 +906,7 @@ class RunnerPanel implements FocusListener, ActionListener {
 		c.fill = GridBagConstraints::BOTH
 		c.weightx = 0
 		c.weighty = 1
-		testInfoPanel.add(testInfoVerticalSpringLabel, c)
+		testInfoPanel.add(Box.createVerticalGlue(), c)
 		val testPropertiesScrollPane = new JScrollPane(testInfoPanel)
 
 		// Failures tabbed pane (failed expectations)
@@ -927,7 +924,7 @@ class RunnerPanel implements FocusListener, ActionListener {
 		failuresDescription.headerRenderer = failuresTableHeaderRenderer
 		val failuresTableScrollPane = new JScrollPane(failuresTable)		
 		// - failures details
-		testFailureMessageTextArea = new JTextArea
+		testFailureMessageTextArea = new RunnerTextArea
 		testFailureMessageTextArea.editable = false
 		testFailureMessageTextArea.enabled = true
 		testFailureMessageTextArea.lineWrap = true
@@ -951,7 +948,7 @@ class RunnerPanel implements FocusListener, ActionListener {
 		// Errors tabbed pane (Error Stack)
 		val testErrorStackPanel = new JPanel
 		testErrorStackPanel.setLayout(new GridBagLayout())
-		testErrorStackTextArea = new JTextArea
+		testErrorStackTextArea = new RunnerTextArea
 		testErrorStackTextArea.editable = false
 		testErrorStackTextArea.enabled = true
 		testErrorStackTextArea.lineWrap = true
@@ -962,7 +959,7 @@ class RunnerPanel implements FocusListener, ActionListener {
 		c.gridy = 0
 		c.gridwidth = 1
 		c.gridheight = 1
-		c.insets = new Insets(10, 10, 10, 10) // top, left, bottom, right
+		c.insets = new Insets(0, 0, 0, 0) // top, left, bottom, right
 		c.anchor = GridBagConstraints::WEST
 		c.fill = GridBagConstraints::BOTH
 		c.weightx = 1
@@ -972,7 +969,7 @@ class RunnerPanel implements FocusListener, ActionListener {
 		// Warnings tabbed pane
 		val testWarningsPanel = new JPanel
 		testWarningsPanel.setLayout(new GridBagLayout())
-		testWarningsTextArea = new JTextArea
+		testWarningsTextArea = new RunnerTextArea
 		testWarningsTextArea.editable = false
 		testWarningsTextArea.enabled = true
 		testWarningsTextArea.lineWrap = true
@@ -983,7 +980,7 @@ class RunnerPanel implements FocusListener, ActionListener {
 		c.gridy = 0
 		c.gridwidth = 1
 		c.gridheight = 1
-		c.insets = new Insets(10, 10, 10, 10) // top, left, bottom, right
+		c.insets = new Insets(0, 0, 0, 0) // top, left, bottom, right
 		c.anchor = GridBagConstraints::WEST
 		c.fill = GridBagConstraints::BOTH
 		c.weightx = 1
@@ -993,7 +990,7 @@ class RunnerPanel implements FocusListener, ActionListener {
 		// Info tabbed pane (Server Output)
 		val testServerOutputPanel = new JPanel
 		testServerOutputPanel.setLayout(new GridBagLayout())
-		testServerOutputTextArea = new JTextArea
+		testServerOutputTextArea = new RunnerTextArea
 		testServerOutputTextArea.editable = false
 		testServerOutputTextArea.enabled = true
 		testServerOutputTextArea.lineWrap = true
@@ -1004,7 +1001,7 @@ class RunnerPanel implements FocusListener, ActionListener {
 		c.gridy = 0
 		c.gridwidth = 1
 		c.gridheight = 1
-		c.insets = new Insets(10, 10, 10, 10) // top, left, bottom, right
+		c.insets = new Insets(0, 0, 0, 0) // top, left, bottom, right
 		c.anchor = GridBagConstraints::WEST
 		c.fill = GridBagConstraints::BOTH
 		c.weightx = 1
@@ -1030,5 +1027,10 @@ class RunnerPanel implements FocusListener, ActionListener {
 		c.weightx = 1
 		c.weighty = 1
 		basePanel.add(horizontalSplitPane, c)
+		
+		// fix missing borders (e.g. on windows look and feel)
+		val referenceBorder = testOwnerTextField.border
+		testDescriptionTextArea.border = referenceBorder
+		testIdTextArea.border = referenceBorder	
 	}	
 }
