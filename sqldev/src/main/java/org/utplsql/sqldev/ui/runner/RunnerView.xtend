@@ -35,6 +35,10 @@ class RunnerView extends DockableWindow {
 		return panel.getGUI()
 	}
 	
+	override getTabIcon() {
+		return UtplsqlResources.getIcon("UTPLSQL_ICON")
+	}
+	
 	def getRunnerPanel() {
 		getGUI()
 		return panel
