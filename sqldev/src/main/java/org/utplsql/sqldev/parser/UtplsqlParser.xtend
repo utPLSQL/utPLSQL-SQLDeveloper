@@ -110,6 +110,7 @@ class UtplsqlParser {
 			val u = new Unit
 			u.name = m.group(4)
 			u.position = m.start
+			u.positionOfName = m.start(4)
 			units.add(u)
 		}
 	}
@@ -221,5 +222,32 @@ class UtplsqlParser {
 		}
 		return ""
 	}
-
+	
+	private def getStartLine(int position) {
+		var int line = 1
+		for (var i = 0; i < plsql.length; i++) {
+			val c = plsql.substring(i, i+1)
+			if (i > position) {
+				return line
+			} else if (c == '\n') {
+				line = line + 1
+			}
+		}
+		return line
+	}
+	
+	/**
+	 * get the line of a PL/SQL package unit
+	 * 
+	 * @param unitName name of the unit. Only procedures are supported
+	 * @return the line where the procedure is defined
+	 */
+	def getLineOf(String unitName) {
+		for (u : units) {
+			if (u.name.equalsIgnoreCase(unitName)) {
+				return u.positionOfName.startLine
+			}
+		}
+		return 1
+	}
 }
