@@ -49,7 +49,7 @@ class TestOverviewTableModel extends DefaultTableModel {
 	def getTestIdColumnName() {
 		calcCommonPrefix
 		if (commonPrefix === null || commonPrefix == "") {
-			return UtplsqlResources.getString("RUNNER_TEST_ID")
+			return UtplsqlResources.getString("RUNNER_TEST_ID_COLUMN")
 		} else {
 			commonPrefix
 		}
@@ -100,8 +100,8 @@ class TestOverviewTableModel extends DefaultTableModel {
 	}
 
 	override getColumnName(int col) {
-		return #["", "", "", UtplsqlResources.getString("RUNNER_TEST_ID"),
-			UtplsqlResources.getString("RUNNER_TEST_EXECUTION_TIME")].get(col)
+		return #["", "", "", UtplsqlResources.getString("RUNNER_TEST_ID_COLUMN"),
+			UtplsqlResources.getString("RUNNER_TEST_EXECUTION_TIME_COLUMN")].get(col)
 	}
 
 	override isCellEditable(int row, int column) {

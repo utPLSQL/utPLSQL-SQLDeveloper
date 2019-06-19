@@ -565,15 +565,15 @@ class RunnerPanel implements FocusListener, ActionListener {
 		toolbar.floatable = false
 		toolbar.border = new EmptyBorder(new Insets(2, 2, 2, 2)) // top, left, bottom, right
 		refreshButton = new ToolbarButton(UtplsqlResources.getIcon("REFRESH_ICON"))
-		refreshButton.toolTipText = "Reset ordering and refresh"
+		refreshButton.toolTipText = UtplsqlResources.getString("RUNNER_REFRESH_BUTTON")
 		refreshButton.addActionListener(this)
 		toolbar.add(refreshButton)
 		rerunButton = new ToolbarButton(UtplsqlResources.getIcon("RUN_ICON"))
-		rerunButton.toolTipText = "Rerun all tests"
+		rerunButton.toolTipText = UtplsqlResources.getString("RUNNER_RERUN_TOOLTIP")
 		rerunButton.addActionListener(this)
 		toolbar.add(rerunButton)
 		rerunWorksheetButton = new ToolbarButton(UtplsqlResources.getIcon("RUN_WORKSHEET_ICON"))
-		rerunWorksheetButton.toolTipText = "Rerun all tests in a new worksheet"
+		rerunWorksheetButton.toolTipText = UtplsqlResources.getString("RUNNER_RERUN_WORKSHEET_TOOLTIP")
 		rerunWorksheetButton.addActionListener(this)
 		toolbar.add(rerunWorksheetButton)
 		toolbar.add(Box.createHorizontalGlue())
@@ -585,7 +585,7 @@ class RunnerPanel implements FocusListener, ActionListener {
 		runComboBox.addActionListener(this)
 		toolbar.add(runComboBox)
 		clearButton = new ToolbarButton(UtplsqlResources.getIcon("CLEAR_ICON"))
-		clearButton.toolTipText = "Clear history"
+		clearButton.toolTipText = UtplsqlResources.getString("RUNNER_CLEAR_HISTORY_BUTTON")
 		clearButton.addActionListener(this)
 		toolbar.add(clearButton)
 		c.gridx = 0
@@ -725,10 +725,10 @@ class RunnerPanel implements FocusListener, ActionListener {
 		
 		// Context menu for test overview
 		val testOverviewPopupMenu = new JPopupMenu
-		testOverviewRunMenuItem = new JMenuItem("Run test", UtplsqlResources.getIcon("RUN_ICON"));
+		testOverviewRunMenuItem = new JMenuItem(UtplsqlResources.getString("RUNNER_RUN_MENUITEM"), UtplsqlResources.getIcon("RUN_ICON"));
 		testOverviewRunMenuItem.addActionListener(this)
 		testOverviewPopupMenu.add(testOverviewRunMenuItem)
-		testOverviewRunWorksheetMenuItem = new JMenuItem("Run test in new worksheet", UtplsqlResources.getIcon("RUN_WORKSHEET_ICON"));
+		testOverviewRunWorksheetMenuItem = new JMenuItem(UtplsqlResources.getString("RUNNER_RUN_WORKSHEET_MENUITEM"), UtplsqlResources.getIcon("RUN_WORKSHEET_ICON"));
 		testOverviewRunWorksheetMenuItem.addActionListener(this)
 		testOverviewPopupMenu.add(testOverviewRunWorksheetMenuItem)
 		testOverviewPopupMenu.add(new JSeparator)
@@ -747,7 +747,7 @@ class RunnerPanel implements FocusListener, ActionListener {
 		val testInfoPanel = new ScrollablePanel
 		testInfoPanel.setLayout(new GridBagLayout())
 		// - Owner
-		val testOwnerLabel = new JLabel("Owner")
+		val testOwnerLabel = new JLabel(UtplsqlResources.getString("RUNNER_OWNER_LABEL"))
 		c.gridx = 0
 		c.gridy = 0
 		c.gridwidth = 1
@@ -771,7 +771,7 @@ class RunnerPanel implements FocusListener, ActionListener {
 		c.weighty = 0
 		testInfoPanel.add(testOwnerTextField, c)
 		// - Package
-		val testPackageLabel = new JLabel("Package")
+		val testPackageLabel = new JLabel(UtplsqlResources.getString("RUNNER_PACKAGE_LABEL"))
 		c.gridx = 0
 		c.gridy = 1
 		c.gridwidth = 1
@@ -795,7 +795,7 @@ class RunnerPanel implements FocusListener, ActionListener {
 		c.weighty = 0
 		testInfoPanel.add(testPackageTextField, c)
 		// - Procedure
-		val testProcedureLabel = new JLabel("Procedure")
+		val testProcedureLabel = new JLabel(UtplsqlResources.getString("RUNNER_PROCEDURE_LABEL"))
 		c.gridx = 0
 		c.gridy = 2
 		c.gridwidth = 1
@@ -819,7 +819,7 @@ class RunnerPanel implements FocusListener, ActionListener {
 		c.weighty = 0
 		testInfoPanel.add(testProcedureTextField, c)
 		// - Description
-		val testDescriptionLabel = new JLabel(UtplsqlResources.getString("RUNNER_DESCRIPTION"))
+		val testDescriptionLabel = new JLabel(UtplsqlResources.getString("RUNNER_DESCRIPTION_LABEL"))
 		c.gridx = 0
 		c.gridy = 3
 		c.gridwidth = 1
@@ -847,7 +847,7 @@ class RunnerPanel implements FocusListener, ActionListener {
 		c.weighty = 0
 		testInfoPanel.add(testDescriptionTextArea, c)
 		// - Suitepath (id)
-		val testIdLabel = new JLabel("Suitepath")
+		val testIdLabel = new JLabel(UtplsqlResources.getString("RUNNER_TEST_ID_COLUMN"))
 		c.gridx = 0
 		c.gridy = 4
 		c.gridwidth = 1
@@ -875,7 +875,7 @@ class RunnerPanel implements FocusListener, ActionListener {
 		c.weighty = 0
 		testInfoPanel.add(testIdTextArea, c)
 		// - Start
-		val testStartLabel = new JLabel("Start")
+		val testStartLabel = new JLabel(UtplsqlResources.getString("RUNNER_START_LABEL"))
 		c.gridx = 0
 		c.gridy = 5
 		c.gridwidth = 1
@@ -1012,11 +1012,11 @@ class RunnerPanel implements FocusListener, ActionListener {
 
 		// split pane with all tabs
 		testDetailTabbedPane = new JTabbedPane()
-		testDetailTabbedPane.add("Test", testPropertiesScrollPane)
-		testDetailTabbedPane.add("Failures", failuresSplitPane)
-		testDetailTabbedPane.add("Errors", testErrorStackPanel)
-		testDetailTabbedPane.add("Warnings", testWarningsPanel)
-		testDetailTabbedPane.add("Info", testServerOutputPanel)
+		testDetailTabbedPane.add(UtplsqlResources.getString("RUNNER_TEST_TAB_LABEL"), testPropertiesScrollPane)
+		testDetailTabbedPane.add(UtplsqlResources.getString("RUNNER_FAILURES_TAB_LABEL"), failuresSplitPane)
+		testDetailTabbedPane.add(UtplsqlResources.getString("RUNNER_ERRORS_TAB_LABEL"), testErrorStackPanel)
+		testDetailTabbedPane.add(UtplsqlResources.getString("RUNNER_WARNINGS_TAB_LABEL"), testWarningsPanel)
+		testDetailTabbedPane.add(UtplsqlResources.getString("RUNNER_INFO_TAB_LABEL"), testServerOutputPanel)
 		val horizontalSplitPane = new JSplitPane(SwingConstants.HORIZONTAL, testOverviewScrollPane, testDetailTabbedPane)
 		horizontalSplitPane.resizeWeight = 0.5
 		c.gridx = 0
