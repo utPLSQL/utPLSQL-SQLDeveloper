@@ -858,4 +858,43 @@ class UtplsqlDao {
 		return deps
 	}
 
+	/**
+	 * gets source of an object from the database via DBMS_METADATA
+	 * 
+	 * @param owner owner of the object (schema)
+	 * @param objectType expected object types are PACKAGE, PACKAGE BODY
+	 * @param objectName name of the object
+	 * @return the source code of the object
+	 * @throws DataAccessException if there is a problem
+	 */
+	def getSource(String owner, String objectType, String objectName) {
+		// dbms_metadata uses slightly different objectTypes
+		val fixedObjectType = if (objectType == "PACKAGE") {
+				"PACKAGE_SPEC"
+			} else if (objectType == "PACKAGE BODY") {
+				"PACKAGE_BODY"
+			} else {
+				objectType
+			}
+		val sql = '''
+			BEGIN
+				? := sys.dbms_metadata.get_ddl(
+				        schema      => ?,
+				        object_type => ?, 
+				        name        => ?
+				     );
+			END;
+		'''
+		val ret = jdbcTemplate.execute(sql, new CallableStatementCallback<String>() {
+			override String doInCallableStatement(CallableStatement cs) throws SQLException, DataAccessException {
+				cs.registerOutParameter(1, Types.CLOB);
+				cs.setString(2, owner)
+				cs.setString(3, fixedObjectType)
+				cs.setString(4, objectName)
+				cs.execute
+				return cs.getString(1)
+			}
+		})
+		return ret
+	}
 }

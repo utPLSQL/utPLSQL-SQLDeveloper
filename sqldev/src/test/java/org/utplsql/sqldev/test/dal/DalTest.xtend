@@ -38,6 +38,11 @@ class DalTest extends AbstractJdbcTest {
 			// ignore
 		}
 		try {
+			jdbcTemplate.execute("DROP PACKAGE BODY junit_utplsql_test_pkg")
+		} catch (BadSqlGrammarException e) {
+			// ignore
+		}
+		try {
 			jdbcTemplate.execute("DROP PACKAGE junit_no_test_pkg")
 		} catch (BadSqlGrammarException e) {
 			// ignore
@@ -471,6 +476,43 @@ class DalTest extends AbstractJdbcTest {
 		val expected = jdbcTemplate.queryForObject(sql, String)
 		Assert.assertEquals(expected, actual)
 		
+	}
+	
+	@Test
+	def void getSourceOfPackage() {
+		val dao = new UtplsqlDao(dataSource.connection)
+		jdbcTemplate.execute('''
+			CREATE OR REPLACE PACKAGE junit_utplsql_test_pkg IS
+			   -- %suite
+
+			   -- %test
+			   PROCEDURE p1;
+			END junit_utplsql_test_pkg;
+		''')
+		val actual = dao.getSource("SCOTT", "PACKAGE", "JUNIT_UTPLSQL_TEST_PKG")
+		Assert.assertTrue(actual.contains("-- %suite"))
+		Assert.assertTrue(actual.contains("PROCEDURE p1;"))
+		jdbcTemplate.execute("DROP PACKAGE junit_utplsql_test_pkg")
+	}
+
+	@Test
+	def void getSourceOfPackageBody() {
+		val dao = new UtplsqlDao(dataSource.connection)
+		jdbcTemplate.execute('''
+			CREATE OR REPLACE PACKAGE BODY junit_utplsql_test_pkg IS
+			   PROCEDURE p1 IS
+			      l_expected INTEGER := 1;
+			      l_actual   INTEGER;
+			   BEGIN
+			      l_actual := junit_f;
+			      ut.expect(l_actual).to_equal(l_expected);
+			   END p1;
+			END junit_utplsql_test_pkg;
+		''');
+		val actual = dao.getSource("SCOTT", "PACKAGE BODY", "JUNIT_UTPLSQL_TEST_PKG")
+		Assert.assertTrue(actual.contains("PACKAGE BODY"))
+		Assert.assertTrue(actual.contains("PROCEDURE p1 IS"))
+		jdbcTemplate.execute("DROP PACKAGE BODY junit_utplsql_test_pkg")
 	}
 
 }
