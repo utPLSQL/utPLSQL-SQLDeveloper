@@ -24,8 +24,8 @@ import java.awt.GridBagLayout
 import java.awt.Insets
 import java.awt.event.ActionEvent
 import java.awt.event.ActionListener
-import java.awt.event.FocusEvent
-import java.awt.event.FocusListener
+import java.awt.event.MouseEvent
+import java.awt.event.MouseListener
 import java.text.DecimalFormat
 import java.util.ArrayList
 import javax.swing.Box
@@ -50,16 +50,20 @@ import javax.swing.event.ListSelectionEvent
 import javax.swing.event.ListSelectionListener
 import javax.swing.plaf.basic.BasicProgressBarUI
 import javax.swing.table.DefaultTableCellRenderer
+import oracle.dbtools.raptor.controls.grid.DefaultDrillLink
+import oracle.dbtools.raptor.utils.Connections
 import oracle.ide.config.Preferences
 import oracle.javatools.ui.table.ToolbarButton
+import org.utplsql.sqldev.dal.UtplsqlDao
 import org.utplsql.sqldev.model.LimitedLinkedHashMap
 import org.utplsql.sqldev.model.preference.PreferenceModel
 import org.utplsql.sqldev.model.runner.Run
+import org.utplsql.sqldev.parser.UtplsqlParser
 import org.utplsql.sqldev.resources.UtplsqlResources
 import org.utplsql.sqldev.runner.UtplsqlRunner
 import org.utplsql.sqldev.runner.UtplsqlWorksheetRunner
 
-class RunnerPanel implements ActionListener {
+class RunnerPanel implements ActionListener, MouseListener {
 	static val GREEN = new Color(0, 153, 0)
 	static val RED = new Color(153, 0, 0)
 	static val INDICATOR_WIDTH = 20
@@ -188,7 +192,38 @@ class RunnerPanel implements ActionListener {
 			col.preferredWidth = 0
 		} 
 	}
+
+	private def openSelectedTest() {
+		val rowIndex = testOverviewTable.selectedRow
+		if (rowIndex != -1) {
+			val row = testOverviewTable.convertRowIndexToModel(rowIndex)
+			val test = testOverviewTableModel.getTest(row)
+			val dao = new UtplsqlDao(Connections.instance.getConnection(currentRun.connectionName))
+			val source = dao.getSource(test.ownerName, "PACKAGE", test.objectName.toUpperCase).trim
+			val parser = new UtplsqlParser(source)
+			val line = parser.getLineOf(test.procedureName)
+			openEditor(test.ownerName, "PACKAGE", test.objectName.toUpperCase, line, 1)
+		}
+	}
 	
+	private def openSelectedFailure() {
+		val rowIndex = failuresTable.selectedRow
+		if (rowIndex != -1) {
+			val row = failuresTable.convertRowIndexToModel(rowIndex)
+			val expectation = failuresTableModel.getExpectation(row)
+			val test = testOverviewTableModel.getTest(testOverviewTable.convertRowIndexToModel(testOverviewTable.selectedRow))
+			openEditor(test.ownerName, "PACKAGE BODY", test.objectName.toUpperCase, expectation.callerLine, 1)
+		}
+	}
+	
+	private def openEditor(String owner, String type, String name, int line, int col) {
+		var drillLink = new DefaultDrillLink
+		drillLink.connName = currentRun.connectionName
+		// argument order is based on SQLDEV:LINK that can be used in SQL query result tables (editors, reports)
+		drillLink.args = #[owner, type, name, String.valueOf(line), String.valueOf(col), "OpenEditor", "oracle.dbtools.raptor.controls.grid.DefaultDrillLink"]
+		drillLink.performDrill
+	}
+ 	
 	private def syncDetailTab() {
 		if (syncDetailTabCheckBoxMenuItem.selected) {
 			val rowIndex = testOverviewTable.selectedRow
@@ -378,6 +413,35 @@ class RunnerPanel implements ActionListener {
 		}
 	}
 
+	override mouseClicked(MouseEvent e) {
+		if (e.clickCount == 2) {
+			if (e.source == testOverviewTable) {
+				if (failuresTable.selectedRowCount == 1) {
+					openSelectedFailure
+				} else {
+					openSelectedTest
+				}
+				
+			} else if (e.source == failuresTable) {
+				if (failuresTable.selectedRowCount == 1) {
+					openSelectedFailure
+		        }
+			}
+		}
+	}
+	
+	override mouseEntered(MouseEvent e) {
+	}
+	
+	override mouseExited(MouseEvent e) {
+	}
+	
+	override mousePressed(MouseEvent e) {
+	}
+	
+	override mouseReleased(MouseEvent e) {
+	}
+
 	private static def formatDateTime(String dateTime) {
 		if (dateTime === null) {
 			return null
@@ -409,9 +473,9 @@ class RunnerPanel implements ActionListener {
 				p.testIdTextArea.text = test.id
 				p.testStartTextField.text = formatDateTime(test.startTime)
 				p.failuresTableModel.model = test.failedExpectations
+				p.failuresTableModel.fireTableDataChanged
 				p.testFailureMessageTextArea.text = null
 				if (test.failedExpectations !== null && test.failedExpectations.size > 0) {
-					p.failuresTableModel.fireTableDataChanged
 					p.failuresTable.setRowSelectionInterval(0, 0)
 				}
 				p.testErrorStackTextArea.text = test.errorStack?.trim
@@ -663,7 +727,8 @@ class RunnerPanel implements ActionListener {
 		testOverviewTable.autoCreateRowSorter = true
 		testOverviewTable.rowHeight = OVERVIEW_TABLE_ROW_HEIGHT
 		testOverviewTable.tableHeader.preferredSize = new Dimension(testOverviewTable.tableHeader.getPreferredSize.width, OVERVIEW_TABLE_ROW_HEIGHT)
-		testOverviewTable.selectionModel.addListSelectionListener(new TestOverviewRowListener(this)) 		
+		testOverviewTable.selectionModel.addListSelectionListener(new TestOverviewRowListener(this))
+		testOverviewTable.addMouseListener(this)		
 		val testTableHeaderRenderer = new TestTableHeaderRenderer
 		val overviewTableStatus = testOverviewTable.columnModel.getColumn(0)
 		overviewTableStatus.minWidth = INDICATOR_WIDTH
@@ -883,6 +948,7 @@ class RunnerPanel implements ActionListener {
 		failuresTable = new JTable(failuresTableModel)
 		failuresTable.tableHeader.reorderingAllowed = false
 		failuresTable.selectionModel.addListSelectionListener(new FailuresRowListener(this))
+		failuresTable.addMouseListener(this)
 		val failuresTableHeaderRenderer = new FailuresTableHeaderRenderer		
 		val failuresTableNumber = failuresTable.columnModel.getColumn(0)
 		failuresTableNumber.headerRenderer = failuresTableHeaderRenderer
