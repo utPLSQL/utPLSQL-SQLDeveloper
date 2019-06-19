@@ -56,7 +56,7 @@ class FailuresTableModel extends DefaultTableModel {
 				return row + 1
 			}
 			case 1: {
-				return expectation.description
+				return expectation.shortFailureText
 			}
 			default: {
 				return null
@@ -65,7 +65,7 @@ class FailuresTableModel extends DefaultTableModel {
 	}
 
 	override getColumnName(int col) {
-		return #["#", UtplsqlResources.getString("RUNNER_DESCRIPTION")].get(col)
+		return #["#", UtplsqlResources.getString("RUNNER_ASSERT_DESCRIPTION_COLUMN")].get(col)
 	}
 
 	override isCellEditable(int row, int column) {
