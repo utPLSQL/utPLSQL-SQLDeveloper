@@ -59,7 +59,7 @@ import org.utplsql.sqldev.resources.UtplsqlResources
 import org.utplsql.sqldev.runner.UtplsqlRunner
 import org.utplsql.sqldev.runner.UtplsqlWorksheetRunner
 
-class RunnerPanel implements FocusListener, ActionListener {
+class RunnerPanel implements ActionListener {
 	static val GREEN = new Color(0, 153, 0)
 	static val RED = new Color(153, 0, 0)
 	static val INDICATOR_WIDTH = 20
@@ -293,38 +293,6 @@ class RunnerPanel implements FocusListener, ActionListener {
 			progressBar.foreground = RED
 		} else {
 			progressBar.foreground = GREEN
-		}
-	}
-
-	override void focusGained(FocusEvent e) {
-		if (e.source == testIdTextArea) {
-			testIdTextArea.caret.visible = true
-		} else if (e.source == testDescriptionTextArea) {
-			testDescriptionTextArea.caret.visible = true
-		} else if (e.source == testFailureMessageTextArea) {
-			testFailureMessageTextArea.caret.visible = true
-		} else if (e.source == testServerOutputTextArea) {
-			testServerOutputTextArea.caret.visible = true
-		} else if (e.source == testErrorStackTextArea) {
-			testErrorStackTextArea.caret.visible = true
-		} else if (e.source == testWarningsTextArea) {
-			testWarningsTextArea.caret.visible = true
-		}
-	}
-
-	override focusLost(FocusEvent e) {
-		if (e.source == testIdTextArea) {
-			testIdTextArea.caret.visible = false
-		} else if (e.source == testDescriptionTextArea) {
-			testDescriptionTextArea.caret.visible = false
-		} else if (e.source == testFailureMessageTextArea) {
-			testFailureMessageTextArea.caret.visible = false
-		} else if (e.source == testServerOutputTextArea) {
-			testServerOutputTextArea.caret.visible = false
-		} else if (e.source == testErrorStackTextArea) {
-			testErrorStackTextArea.caret.visible = false
-		} else if (e.source == testWarningsTextArea) {
-			testWarningsTextArea.caret.visible = false
 		}
 	}
 	
@@ -835,7 +803,6 @@ class RunnerPanel implements FocusListener, ActionListener {
 		testDescriptionTextArea.enabled = true
 		testDescriptionTextArea.lineWrap = true
 		testDescriptionTextArea.wrapStyleWord = true
-		testDescriptionTextArea.addFocusListener(this)
 		c.gridx = 1
 		c.gridy = 3
 		c.gridwidth = 1
@@ -863,7 +830,6 @@ class RunnerPanel implements FocusListener, ActionListener {
 		testIdTextArea.enabled = true
 		testIdTextArea.lineWrap = true
 		testIdTextArea.wrapStyleWord = false
-		testIdTextArea.addFocusListener(this)
 		c.gridx = 1
 		c.gridy = 4
 		c.gridwidth = 1
@@ -931,7 +897,6 @@ class RunnerPanel implements FocusListener, ActionListener {
 		testFailureMessageTextArea.enabled = true
 		testFailureMessageTextArea.lineWrap = true
 		testFailureMessageTextArea.wrapStyleWord = true
-		testFailureMessageTextArea.addFocusListener(this)
 		val testFailureMessageScrollPane = new JScrollPane(testFailureMessageTextArea)
 		c.gridx = 1
 		c.gridy = 0
@@ -955,7 +920,6 @@ class RunnerPanel implements FocusListener, ActionListener {
 		testErrorStackTextArea.enabled = true
 		testErrorStackTextArea.lineWrap = true
 		testErrorStackTextArea.wrapStyleWord = true
-		testErrorStackTextArea.addFocusListener(this)
 		val testErrorStackScrollPane = new JScrollPane(testErrorStackTextArea)
 		c.gridx = 0
 		c.gridy = 0
@@ -976,7 +940,6 @@ class RunnerPanel implements FocusListener, ActionListener {
 		testWarningsTextArea.enabled = true
 		testWarningsTextArea.lineWrap = true
 		testWarningsTextArea.wrapStyleWord = true
-		testWarningsTextArea.addFocusListener(this)
 		val testWarningsScrollPane = new JScrollPane(testWarningsTextArea)
 		c.gridx = 0
 		c.gridy = 0
@@ -997,7 +960,6 @@ class RunnerPanel implements FocusListener, ActionListener {
 		testServerOutputTextArea.enabled = true
 		testServerOutputTextArea.lineWrap = true
 		testServerOutputTextArea.wrapStyleWord = true
-		testServerOutputTextArea.addFocusListener(this)
 		val testServerOutputScrollPane = new JScrollPane(testServerOutputTextArea)
 		c.gridx = 0
 		c.gridy = 0
