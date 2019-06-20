@@ -71,6 +71,7 @@ class RunnerPanel implements ActionListener, MouseListener, HyperlinkListener {
 	static val RED = new Color(153, 0, 0)
 	static val INDICATOR_WIDTH = 20
 	static val OVERVIEW_TABLE_ROW_HEIGHT = 20
+	static val TEXTPANE_DIM = new Dimension(100, 100)
 	LimitedLinkedHashMap<String, Run> runs = new LimitedLinkedHashMap<String, Run>(10)
 	Run currentRun
 	JPanel basePanel
@@ -558,7 +559,7 @@ class RunnerPanel implements ActionListener, MouseListener, HyperlinkListener {
 			m = p2.matcher(localText)
 		}
 		val result = '''
-			«FOR p : localText.split(System.lineSeparator)»
+			«FOR p : localText.split("\n")»
 				<p>«p»</p>
 			«ENDFOR»
 		'''
@@ -1040,7 +1041,9 @@ class RunnerPanel implements ActionListener, MouseListener, HyperlinkListener {
 		testFailureMessageTextPane = new RunnerTextPane
 		testFailureMessageTextPane.editable = false
 		testFailureMessageTextPane.enabled = true
-		testFailureMessageTextPane.contentType = "text/html"		
+		testFailureMessageTextPane.contentType = "text/html"
+		testFailureMessageTextPane.minimumSize = TEXTPANE_DIM	
+		testFailureMessageTextPane.preferredSize = TEXTPANE_DIM	
 		testFailureMessageTextPane.addHyperlinkListener(this)
 		val testFailureMessageScrollPane = new JScrollPane(testFailureMessageTextPane)
 		c.gridx = 1
@@ -1064,6 +1067,8 @@ class RunnerPanel implements ActionListener, MouseListener, HyperlinkListener {
 		testErrorStackTextPane.editable = false
 		testErrorStackTextPane.enabled = true
 		testErrorStackTextPane.contentType = "text/html"
+		testErrorStackTextPane.minimumSize = TEXTPANE_DIM	
+		testErrorStackTextPane.preferredSize = TEXTPANE_DIM	
 		testErrorStackTextPane.addHyperlinkListener(this)
 		val testErrorStackScrollPane = new JScrollPane(testErrorStackTextPane)
 		c.gridx = 0
@@ -1084,6 +1089,8 @@ class RunnerPanel implements ActionListener, MouseListener, HyperlinkListener {
 		testWarningsTextPane.editable = false
 		testWarningsTextPane.enabled = true
 		testWarningsTextPane.contentType = "text/html"
+		testWarningsTextPane.minimumSize = TEXTPANE_DIM	
+		testWarningsTextPane.preferredSize = TEXTPANE_DIM	
 		testWarningsTextPane.addHyperlinkListener(this)
 		val testWarningsScrollPane = new JScrollPane(testWarningsTextPane)
 		c.gridx = 0
@@ -1104,6 +1111,8 @@ class RunnerPanel implements ActionListener, MouseListener, HyperlinkListener {
 		testServerOutputTextPane.editable = false
 		testServerOutputTextPane.enabled = true
 		testServerOutputTextPane.contentType = "text/html"
+		testServerOutputTextPane.minimumSize = TEXTPANE_DIM	
+		testServerOutputTextPane.preferredSize = TEXTPANE_DIM	
 		testServerOutputTextPane.addHyperlinkListener(this)
 		val testServerOutputScrollPane = new JScrollPane(testServerOutputTextPane)
 		c.gridx = 0
