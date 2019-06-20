@@ -28,6 +28,7 @@ import java.awt.event.MouseEvent
 import java.awt.event.MouseListener
 import java.text.DecimalFormat
 import java.util.ArrayList
+import java.util.regex.Pattern
 import javax.swing.Box
 import javax.swing.DefaultComboBoxModel
 import javax.swing.JCheckBoxMenuItem
@@ -46,6 +47,8 @@ import javax.swing.JTable
 import javax.swing.SwingConstants
 import javax.swing.UIManager
 import javax.swing.border.EmptyBorder
+import javax.swing.event.HyperlinkEvent
+import javax.swing.event.HyperlinkListener
 import javax.swing.event.ListSelectionEvent
 import javax.swing.event.ListSelectionListener
 import javax.swing.plaf.basic.BasicProgressBarUI
@@ -63,7 +66,7 @@ import org.utplsql.sqldev.resources.UtplsqlResources
 import org.utplsql.sqldev.runner.UtplsqlRunner
 import org.utplsql.sqldev.runner.UtplsqlWorksheetRunner
 
-class RunnerPanel implements ActionListener, MouseListener {
+class RunnerPanel implements ActionListener, MouseListener, HyperlinkListener {
 	static val GREEN = new Color(0, 153, 0)
 	static val RED = new Color(153, 0, 0)
 	static val INDICATOR_WIDTH = 20
@@ -103,10 +106,10 @@ class RunnerPanel implements ActionListener, MouseListener {
 	RunnerTextField testStartTextField
 	FailuresTableModel failuresTableModel
 	JTable failuresTable
-	RunnerTextArea testFailureMessageTextArea
-	RunnerTextArea testErrorStackTextArea
-	RunnerTextArea testWarningsTextArea
-	RunnerTextArea testServerOutputTextArea
+	RunnerTextPane testFailureMessageTextPane
+	RunnerTextPane testErrorStackTextPane
+	RunnerTextPane testWarningsTextPane
+	RunnerTextPane testServerOutputTextPane
 	JTabbedPane testDetailTabbedPane
 	
 	def Component getGUI() {
@@ -131,10 +134,10 @@ class RunnerPanel implements ActionListener, MouseListener {
 		testStartTextField.text = null
 		failuresTableModel.model = null
 		failuresTableModel.fireTableDataChanged
-		testFailureMessageTextArea.text = null
-		testErrorStackTextArea.text = null
-		testWarningsTextArea.text = null
-		testServerOutputTextArea.text = null
+		testFailureMessageTextPane.text = null
+		testErrorStackTextPane.text = null
+		testWarningsTextPane.text = null
+		testServerOutputTextPane.text = null
 	}
 	
 	private def refreshRunsComboBox() {
@@ -214,6 +217,39 @@ class RunnerPanel implements ActionListener, MouseListener {
 			val test = testOverviewTableModel.getTest(testOverviewTable.convertRowIndexToModel(testOverviewTable.selectedRow))
 			openEditor(test.ownerName, "PACKAGE BODY", test.objectName.toUpperCase, expectation.callerLine, 1)
 		}
+	}
+	
+	private def getHtml(String text) {
+		val html = '''
+			<html>
+				<head>
+					<style type="text/css">
+						body, p {font-family: «testOwnerTextField.font.family»; font-size: 1.0em; line-height: 1.1em; margin-top: 0px; margin-bottom: 0px;}
+					</style>
+				</head>
+				<body>
+					«getLinkedText(text)»
+				</body>
+			</html>
+		'''
+		return html
+	}
+	
+	private def openLink(String link) {
+		val parts = link.split("/")
+		val ownerName = parts.get(0)
+		val objectName = parts.get(1)
+		var line = Integer.parseInt(parts.get(2))
+		val dao = new UtplsqlDao(Connections.instance.getConnection(currentRun.connectionName))
+		val objectType = dao.getObjectType(ownerName, objectName)
+		val fixedObjectType = '''«objectType»«IF objectType == "PACKAGE" || objectType == "TYPE"» BODY«ENDIF»'''
+		if (parts.size == 4) {
+			val procedureName = parts.get(3)
+			val source = dao.getSource(ownerName, fixedObjectType, objectName).trim
+			val parser = new UtplsqlParser(source)
+			line = parser.getLineOf(procedureName)
+		}
+		openEditor(ownerName, '''«objectType»«IF objectType == "PACKAGE" || objectType == "TYPE"» BODY«ENDIF»''', objectName.toUpperCase, line, 1)
 	}
 	
 	private def openEditor(String owner, String type, String name, int line, int col) {
@@ -442,6 +478,13 @@ class RunnerPanel implements ActionListener, MouseListener {
 	override mouseReleased(MouseEvent e) {
 	}
 
+	override hyperlinkUpdate(HyperlinkEvent e) {
+		if (e.eventType == HyperlinkEvent.EventType.ACTIVATED) {
+			val link = e.description
+			openLink(link)
+		}
+	}
+
 	private static def formatDateTime(String dateTime) {
 		if (dateTime === null) {
 			return null
@@ -474,18 +517,52 @@ class RunnerPanel implements ActionListener, MouseListener {
 				p.testStartTextField.text = formatDateTime(test.startTime)
 				p.failuresTableModel.model = test.failedExpectations
 				p.failuresTableModel.fireTableDataChanged
-				p.testFailureMessageTextArea.text = null
+				p.testFailureMessageTextPane.text = null
 				if (test.failedExpectations !== null && test.failedExpectations.size > 0) {
 					p.failuresTable.setRowSelectionInterval(0, 0)
 				}
-				p.testErrorStackTextArea.text = test.errorStack?.trim
-				p.testWarningsTextArea.text = test.warnings?.trim
-				p.testServerOutputTextArea.text = test.serverOutput?.trim
+				p.testErrorStackTextPane.text = p.getHtml(test.errorStack?.trim)
+				p.testWarningsTextPane.text =  p.getHtml(test.warnings?.trim)
+				p.testServerOutputTextPane.text = p.getHtml(test.serverOutput?.trim)
 				p.syncDetailTab
 				p.testOverviewRunMenuItem.enabled = true
 				p.testOverviewRunWorksheetMenuItem.enabled = true
 			}
 		}
+	}
+	
+	private def getLinkedText(String text) {
+		if (text === null) {
+			return ""
+		}
+		// Patterns (primarily Asserts, Errors, ServerOutput): 
+		// at "OWNER.PACKAGE.PROCEDURE", line 42 
+		// at "OWNER.PROCEDURE", line 42 
+		val p1 = Pattern.compile('''\s+("([^\.]+)\.([^\."]+)(?:\.([^\"]+))?",\s+line\s+([0-9]+))''')
+		var localText = text
+		var m = p1.matcher(localText)
+		while(m.find) {
+			val link = ''' <a href="«m.group(2)»/«m.group(3)»/«m.group(5)»">«m.group(1)»</a>'''
+			localText = localText.replaceFirst(p1.pattern, link)
+			m = p1.matcher(localText)
+		}
+		// Patterns (primarily Warnings, without line reference, calculate when opening link):
+		//   owner.package.procedure
+		val p2 = Pattern.compile('''^\s{2}(([^\.]+)\.([^\.]+)\.(.+))$''', Pattern.MULTILINE)
+		m = p2.matcher(localText)
+		while(m.find) {
+			val link = '''&nbsp;&nbsp;<a href="«m.group(2).toUpperCase»/«m.group(3).toUpperCase»/1/«m.group(4).toUpperCase»">«m.group(1)»</a>'''
+			val start = m.start(0)
+			val end = m.end(0)
+			localText = '''«localText.substring(0, start)»«link»«localText.substring(end)»'''
+			m = p2.matcher(localText)
+		}
+		val result = '''
+			«FOR p : localText.split(System.lineSeparator)»
+				<p>«p»</p>
+			«ENDFOR»
+		'''
+		return result
 	}
 
 	static class FailuresRowListener implements ListSelectionListener {
@@ -500,7 +577,9 @@ class RunnerPanel implements ActionListener, MouseListener {
 			if (rowIndex != -1) {
 				val row =  p.failuresTable.convertRowIndexToModel(rowIndex)
 				val expectation = p.failuresTableModel.getExpectation(row)
-				p.testFailureMessageTextArea.text = expectation.failureText
+				val html = p.getHtml(expectation.failureText)
+				p.testFailureMessageTextPane.text = html
+				
 			}
 		}		
 	}
@@ -958,12 +1037,12 @@ class RunnerPanel implements ActionListener, MouseListener {
 		failuresDescription.headerRenderer = failuresTableHeaderRenderer
 		val failuresTableScrollPane = new JScrollPane(failuresTable)		
 		// - failures details
-		testFailureMessageTextArea = new RunnerTextArea
-		testFailureMessageTextArea.editable = false
-		testFailureMessageTextArea.enabled = true
-		testFailureMessageTextArea.lineWrap = true
-		testFailureMessageTextArea.wrapStyleWord = true
-		val testFailureMessageScrollPane = new JScrollPane(testFailureMessageTextArea)
+		testFailureMessageTextPane = new RunnerTextPane
+		testFailureMessageTextPane.editable = false
+		testFailureMessageTextPane.enabled = true
+		testFailureMessageTextPane.contentType = "text/html"		
+		testFailureMessageTextPane.addHyperlinkListener(this)
+		val testFailureMessageScrollPane = new JScrollPane(testFailureMessageTextPane)
 		c.gridx = 1
 		c.gridy = 0
 		c.gridwidth = 1
@@ -981,12 +1060,12 @@ class RunnerPanel implements ActionListener, MouseListener {
 		// Errors tabbed pane (Error Stack)
 		val testErrorStackPanel = new JPanel
 		testErrorStackPanel.setLayout(new GridBagLayout())
-		testErrorStackTextArea = new RunnerTextArea
-		testErrorStackTextArea.editable = false
-		testErrorStackTextArea.enabled = true
-		testErrorStackTextArea.lineWrap = true
-		testErrorStackTextArea.wrapStyleWord = true
-		val testErrorStackScrollPane = new JScrollPane(testErrorStackTextArea)
+		testErrorStackTextPane = new RunnerTextPane
+		testErrorStackTextPane.editable = false
+		testErrorStackTextPane.enabled = true
+		testErrorStackTextPane.contentType = "text/html"
+		testErrorStackTextPane.addHyperlinkListener(this)
+		val testErrorStackScrollPane = new JScrollPane(testErrorStackTextPane)
 		c.gridx = 0
 		c.gridy = 0
 		c.gridwidth = 1
@@ -1001,12 +1080,12 @@ class RunnerPanel implements ActionListener, MouseListener {
 		// Warnings tabbed pane
 		val testWarningsPanel = new JPanel
 		testWarningsPanel.setLayout(new GridBagLayout())
-		testWarningsTextArea = new RunnerTextArea
-		testWarningsTextArea.editable = false
-		testWarningsTextArea.enabled = true
-		testWarningsTextArea.lineWrap = true
-		testWarningsTextArea.wrapStyleWord = true
-		val testWarningsScrollPane = new JScrollPane(testWarningsTextArea)
+		testWarningsTextPane = new RunnerTextPane
+		testWarningsTextPane.editable = false
+		testWarningsTextPane.enabled = true
+		testWarningsTextPane.contentType = "text/html"
+		testWarningsTextPane.addHyperlinkListener(this)
+		val testWarningsScrollPane = new JScrollPane(testWarningsTextPane)
 		c.gridx = 0
 		c.gridy = 0
 		c.gridwidth = 1
@@ -1021,12 +1100,12 @@ class RunnerPanel implements ActionListener, MouseListener {
 		// Info tabbed pane (Server Output)
 		val testServerOutputPanel = new JPanel
 		testServerOutputPanel.setLayout(new GridBagLayout())
-		testServerOutputTextArea = new RunnerTextArea
-		testServerOutputTextArea.editable = false
-		testServerOutputTextArea.enabled = true
-		testServerOutputTextArea.lineWrap = true
-		testServerOutputTextArea.wrapStyleWord = true
-		val testServerOutputScrollPane = new JScrollPane(testServerOutputTextArea)
+		testServerOutputTextPane = new RunnerTextPane
+		testServerOutputTextPane.editable = false
+		testServerOutputTextPane.enabled = true
+		testServerOutputTextPane.contentType = "text/html"
+		testServerOutputTextPane.addHyperlinkListener(this)
+		val testServerOutputScrollPane = new JScrollPane(testServerOutputTextPane)
 		c.gridx = 0
 		c.gridy = 0
 		c.gridwidth = 1
@@ -1062,5 +1141,6 @@ class RunnerPanel implements ActionListener, MouseListener {
 		val referenceBorder = testOwnerTextField.border
 		testDescriptionTextArea.border = referenceBorder
 		testIdTextArea.border = referenceBorder	
-	}	
+	}
+	
 }
