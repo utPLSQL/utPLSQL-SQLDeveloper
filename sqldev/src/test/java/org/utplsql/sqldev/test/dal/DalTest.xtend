@@ -514,5 +514,21 @@ class DalTest extends AbstractJdbcTest {
 		Assert.assertTrue(actual.contains("PROCEDURE p1 IS"))
 		jdbcTemplate.execute("DROP PACKAGE BODY junit_utplsql_test_pkg")
 	}
+	
+	@Test
+	def void getObjectType() {
+		val dao = new UtplsqlDao(dataSource.connection)
+		jdbcTemplate.execute('''
+			CREATE OR REPLACE PACKAGE junit_utplsql_test_pkg IS
+			   -- %suite
+
+			   -- %test
+			   PROCEDURE p1;
+			END junit_utplsql_test_pkg;
+		''')
+		val actual = dao.getObjectType("SCOTT", "JUNIT_UTPLSQL_TEST_PKG")
+		Assert.assertEquals("PACKAGE", actual)
+		jdbcTemplate.execute("DROP PACKAGE junit_utplsql_test_pkg")
+	}
 
 }

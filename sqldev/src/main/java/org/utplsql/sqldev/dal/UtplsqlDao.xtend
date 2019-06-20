@@ -897,4 +897,30 @@ class UtplsqlDao {
 		})
 		return ret
 	}
+	
+	/**
+	 * gets the object type of a database object
+	 * 
+	 * The object types "PACKAGE BODY", "TYPE BODY" have higher priority.
+	 * "PACKAGE" OR "TYPE" will be returned only when no body exists.
+	 * 
+	 * @param owner owner of the object (schema)
+	 * @param objectName name of the object
+	 * @return the object type, e.g. PACKAGE BODY, TYPE BODY, PROCEDURE, FUNCTION
+	 */
+	def getObjectType(String owner, String objectName) {
+		val sql = '''
+				SELECT object_type
+				  FROM (
+				          SELECT object_type
+				            FROM «IF dbaViewAccessible»dba«ELSE»all«ENDIF»_objects
+				           WHERE owner = ?
+				             AND object_name = ?
+				           ORDER BY decode(object_type, 'PACKAGE', 10, 'TYPE', 10, 'SYNONYM', 20, 1)
+					   )
+				 WHERE rownum = 1
+			'''
+		val objectType = jdbcTemplate.queryForObject(sql, #[owner, objectName], String)
+		return objectType
+	}
 }
