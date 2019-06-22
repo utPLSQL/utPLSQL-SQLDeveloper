@@ -549,7 +549,7 @@ class RunnerPanel implements ActionListener, MouseListener, HyperlinkListener {
 		}
 		// Patterns (primarily Warnings, without line reference, calculate when opening link):
 		//   owner.package.procedure
-		val p2 = Pattern.compile('''^\s{2}(([^\.]+)\.([^\.]+)\.(.+))$''', Pattern.MULTILINE)
+		val p2 = Pattern.compile('''^\s{2}(\S+)\.(\S+)\.(\S+)$''', Pattern.MULTILINE)
 		m = p2.matcher(localText)
 		while(m.find) {
 			val link = '''&nbsp;&nbsp;<a href="«m.group(2).toUpperCase»/«m.group(3).toUpperCase»/1/«m.group(4).toUpperCase»">«m.group(1)»</a>'''
