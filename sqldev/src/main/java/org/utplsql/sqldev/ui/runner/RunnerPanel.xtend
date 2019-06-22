@@ -57,6 +57,7 @@ import oracle.dbtools.raptor.controls.grid.DefaultDrillLink
 import oracle.dbtools.raptor.utils.Connections
 import oracle.ide.config.Preferences
 import oracle.javatools.ui.table.ToolbarButton
+import org.springframework.web.util.HtmlUtils
 import org.utplsql.sqldev.dal.UtplsqlDao
 import org.utplsql.sqldev.model.LimitedLinkedHashMap
 import org.utplsql.sqldev.model.preference.PreferenceModel
@@ -539,8 +540,8 @@ class RunnerPanel implements ActionListener, MouseListener, HyperlinkListener {
 		// Patterns (primarily Asserts, Errors, ServerOutput): 
 		// at "OWNER.PACKAGE.PROCEDURE", line 42 
 		// at "OWNER.PROCEDURE", line 42 
-		val p1 = Pattern.compile('''\s+("([^\.]+)\.([^\."]+)(?:\.([^\"]+))?",\s+line\s+([0-9]+))''')
-		var localText = text
+		val p1 = Pattern.compile('''\s+(&quot;(\S+?)\.(\S+?)(?:\.(\S+?))?&quot;,\s+line\s+([0-9]+))''')
+		var localText = HtmlUtils.htmlEscape(text)
 		var m = p1.matcher(localText)
 		while(m.find) {
 			val link = ''' <a href="«m.group(2)»/«m.group(3)»/«m.group(5)»">«m.group(1)»</a>'''
@@ -549,7 +550,7 @@ class RunnerPanel implements ActionListener, MouseListener, HyperlinkListener {
 		}
 		// Patterns (primarily Warnings, without line reference, calculate when opening link):
 		//   owner.package.procedure
-		val p2 = Pattern.compile('''^\s{2}(\S+)\.(\S+)\.(\S+)$''', Pattern.MULTILINE)
+		val p2 = Pattern.compile('''^\s{2}((\S+?)\.(\S+?)\.(\S+?))$''', Pattern.MULTILINE)
 		m = p2.matcher(localText)
 		while(m.find) {
 			val link = '''&nbsp;&nbsp;<a href="«m.group(2).toUpperCase»/«m.group(3).toUpperCase»/1/«m.group(4).toUpperCase»">«m.group(1)»</a>'''
