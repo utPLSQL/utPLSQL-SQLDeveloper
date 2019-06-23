@@ -25,4 +25,19 @@ class PrefixToolsTest {
 		val expected = ""
 		Assert.assertEquals(expected, actual)
 	}
+	
+	@Test
+	def void twoOverlapLeft() {
+		val actual = PrefixTools.commonPrefix(#["a.b.c", "a.b.c.d"])
+		val expected = ""
+		Assert.assertEquals(expected, actual)
+	}
+
+	@Test
+	def void twoOverlapRight() {
+		val actual = PrefixTools.commonPrefix(#["a.b.c.d", "a.b.c"])
+		val expected = ""
+		Assert.assertEquals(expected, actual)
+	}
+
 }

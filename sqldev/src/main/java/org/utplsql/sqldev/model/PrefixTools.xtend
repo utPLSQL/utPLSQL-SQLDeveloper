@@ -21,7 +21,7 @@ import java.util.List
 class PrefixTools {
 	def static int findMinLength(String[] arr, int n) {
 		var int min = Integer.MAX_VALUE
-		for (var int i = 0; i <= (n - 1); i++) {
+		for (var int i = 0; i < n; i++) {
 			if ({
 				val _rdIndx_arr = i
 				arr.get(_rdIndx_arr)
@@ -36,13 +36,16 @@ class PrefixTools {
 	}
 
 	def static boolean allContainsPrefix(String[] arr, int n, String str, int start, int end) {
-		for (var int i = 0; i <= (n - 1); i++) {
+		for (var int i = 0; i < n; i++) {
 			var String arr_i = {
 				val _rdIndx_arr = i
 				arr.get(_rdIndx_arr)
 			}
-			for (var int j = start; j <= end; j++)
-				if(arr_i.charAt(j) !== str.charAt(j)) return false
+			for (var int j = start; j <= end; j++) {
+				if (arr_i.charAt(j) !== str.charAt(j)) {
+					return false
+				}
+			}
 		}
 		return true
 	}
@@ -63,22 +66,26 @@ class PrefixTools {
 		}
 		return prefix
 	}
-	
+
 	def static String commonPrefix(List<String> list) {
-		if (list.size === 0) {
-			return ""
-		} else if (list.size === 1) {
-			val pos = list.get(0).lastIndexOf(".");
-			if (pos > 0) {
-				return list.get(0).substring(0, pos + 1)
-			} else {
+		try {
+			if (list.size === 0) {
 				return ""
+			} else if (list.size === 1) {
+				val pos = list.get(0).lastIndexOf(".");
+				if (pos > 0) {
+					return list.get(0).substring(0, pos + 1)
+				} else {
+					return ""
+				}
+			} else {
+				var String[] testArray = newArrayOfSize(list.size)
+				var prefix = commonPrefix(list.toArray(testArray), list.size)
+				return prefix
 			}
-		} else {
-			var String[] testArray = newArrayOfSize(list.size)
-			var prefix = commonPrefix(list.toArray(testArray), list.size)
-			return prefix
+		} catch (Exception e) {
+			return ""
 		}
 	}
-	
+
 }
