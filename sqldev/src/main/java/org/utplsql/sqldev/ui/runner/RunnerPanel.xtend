@@ -351,7 +351,7 @@ class RunnerPanel implements ActionListener, MouseListener, HyperlinkListener {
 			}
 		}
 		statusLabel.text = currentRun.status
-		testCounterValueLabel.text = '''«currentRun.totalNumberOfCompletedTests»/«currentRun.totalNumberOfTests»'''
+		testCounterValueLabel.text = '''«currentRun.totalNumberOfCompletedTests»«IF currentRun.totalNumberOfTests >= 0»/«currentRun.totalNumberOfTests»«ENDIF»'''
 		errorCounterValueLabel.text = '''«currentRun.counter.error»'''
 		failureCounterValueLabel.text = '''«currentRun.counter.failure»'''
 		disabledCounterValueLabel.text = '''«currentRun.counter.disabled»'''
