@@ -34,16 +34,20 @@ class Test extends Item {
 	
 	def getStatusIcon() {
 		var Icon icon = null
-		if (counter !== null) {
-			if (counter.success > 0) {
-				icon = UtplsqlResources.getIcon("SUCCESS_ICON")
-			} else if (counter.error > 0) {
-				icon = UtplsqlResources.getIcon("ERROR_ICON")
-			} else if (counter.failure > 0) {
-				icon = UtplsqlResources.getIcon("FAILURE_ICON")
-			} else if (counter.disabled > 0) {
-				icon = UtplsqlResources.getIcon("DISABLED_ICON")
-			}		
+		if (startTime !== null && endTime === null ) {
+			icon = UtplsqlResources.getIcon("PROGRESS_ICON")
+		} else {
+			if (counter !== null) {
+				if (counter.success > 0) {
+					icon = UtplsqlResources.getIcon("SUCCESS_ICON")
+				} else if (counter.error > 0) {
+					icon = UtplsqlResources.getIcon("ERROR_ICON")
+				} else if (counter.failure > 0) {
+					icon = UtplsqlResources.getIcon("FAILURE_ICON")
+				} else if (counter.disabled > 0) {
+					icon = UtplsqlResources.getIcon("DISABLED_ICON")
+				}		
+			}
 		}
 		return icon
 	}
