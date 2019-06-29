@@ -39,6 +39,7 @@ class UtplsqlRunnerPanelTest {
 		run.counter.error = 0
 		run.counter.warning = 0
 		run.totalNumberOfTests = 5
+		run.currentTestNumber = 0
 	}
 	
 	@Test 

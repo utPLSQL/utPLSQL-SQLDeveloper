@@ -110,6 +110,7 @@ class UtplsqlRunner implements RealtimeReporterEventConsumer {
 		run.counter.warning = 0
 		run.infoCount = 0
 		run.totalNumberOfTests = -1
+		run.currentTestNumber = 0
 		run.status = UtplsqlResources.getString("RUNNER_INITIALIZING_TEXT")
 		panel.model = run
 		panel.update(reporterId)
@@ -148,6 +149,7 @@ class UtplsqlRunner implements RealtimeReporterEventConsumer {
 			test.startTime = sysdate
 		}
 		run.status = event.id
+		run.currentTestNumber = event.testNumber
 		panel.update(reporterId)
 	}
 

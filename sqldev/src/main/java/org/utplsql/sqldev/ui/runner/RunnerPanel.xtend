@@ -334,7 +334,7 @@ class RunnerPanel implements ActionListener, MouseListener, HyperlinkListener {
 
 	def synchronized update(String reporterId) {
 		setCurrentRun(runs.get(reporterId))
-		val row = currentRun.totalNumberOfCompletedTests - 1
+		val row = currentRun.currentTestNumber - 1
 		val header = testOverviewTableModel.testIdColumnName
 		val idColumn = testOverviewTable.columnModel.getColumn(3)
 		if (idColumn.headerValue != header) {

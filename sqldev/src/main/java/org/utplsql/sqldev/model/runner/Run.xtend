@@ -25,6 +25,7 @@ class Run extends AbstractModel {
 	String reporterId
 	String connectionName
 	List<String> pathList
+	Integer currentTestNumber
 	Integer totalNumberOfTests
 	String startTime
 	String endTime
