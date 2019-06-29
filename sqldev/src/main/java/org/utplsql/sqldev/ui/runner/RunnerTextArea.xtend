@@ -22,7 +22,7 @@ class RunnerTextArea extends JTextArea implements FocusListener{
 
 		// use value of JTextField for consistency
 		g.color = UIManager.getColor("TextField.inactiveBackground")
-		g.fillRect(0, 0, width, height)
+		g.fillRect(3, 3, width - 6, height - 6)
 
 		// do rest, changing opaque to ensure background is not overwritten
 		setOpaque(false)
