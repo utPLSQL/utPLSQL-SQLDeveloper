@@ -678,7 +678,7 @@ class RunnerPanel implements ActionListener, MouseListener, HyperlinkListener {
 		toolbar.floatable = false
 		toolbar.border = new EmptyBorder(new Insets(2, 2, 2, 2)) // top, left, bottom, right
 		refreshButton = new ToolbarButton(UtplsqlResources.getIcon("REFRESH_ICON"))
-		refreshButton.toolTipText = UtplsqlResources.getString("RUNNER_REFRESH_BUTTON")
+		refreshButton.toolTipText = UtplsqlResources.getString("RUNNER_REFRESH_TOOLTIP")
 		refreshButton.addActionListener(this)
 		toolbar.add(refreshButton)
 		rerunButton = new ToolbarButton(UtplsqlResources.getIcon("RUN_ICON"))
