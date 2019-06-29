@@ -29,6 +29,7 @@ import java.awt.event.MouseListener
 import java.text.DecimalFormat
 import java.util.ArrayList
 import java.util.regex.Pattern
+import javax.swing.BorderFactory
 import javax.swing.Box
 import javax.swing.DefaultComboBoxModel
 import javax.swing.JCheckBoxMenuItem
@@ -381,12 +382,21 @@ class RunnerPanel implements ActionListener, MouseListener, HyperlinkListener {
 	}
 	
 	private def isWindowsLookAndFeel() {
-		val laf = UIManager.systemLookAndFeelClassName
-		if (laf.toLowerCase.contains("windows")) {
+		val laf =  UIManager.lookAndFeel?.name
+		if (laf == "Windows") {
 			return true
 		} else {
 			return false
 		}
+	}
+	
+	private def isMacLookAndFeel() {
+		val laf = UIManager.lookAndFeel?.name
+		if (laf == "Mac OS X") {
+			return true
+		} else {
+			return false
+		}		
 	}
 	
 	private def void fixCheckBoxMenuItem(JCheckBoxMenuItem item) {
@@ -934,6 +944,7 @@ class RunnerPanel implements ActionListener, MouseListener, HyperlinkListener {
 		testInfoPanel.add(testProcedureTextField, c)
 		// - Description
 		val testDescriptionLabel = new JLabel(UtplsqlResources.getString("RUNNER_DESCRIPTION_LABEL"))
+		testDescriptionLabel.border = BorderFactory.createEmptyBorder(if (macLookAndFeel) {5} else {3}, 0, 0, 0)
 		c.gridx = 0
 		c.gridy = 3
 		c.gridwidth = 1
@@ -961,6 +972,7 @@ class RunnerPanel implements ActionListener, MouseListener, HyperlinkListener {
 		testInfoPanel.add(testDescriptionTextArea, c)
 		// - Suitepath (id)
 		val testIdLabel = new JLabel(UtplsqlResources.getString("RUNNER_TEST_ID_COLUMN"))
+		testIdLabel.border = BorderFactory.createEmptyBorder(if (macLookAndFeel) {5} else {3}, 0, 0, 0)
 		c.gridx = 0
 		c.gridy = 4
 		c.gridwidth = 1
@@ -1147,10 +1159,22 @@ class RunnerPanel implements ActionListener, MouseListener, HyperlinkListener {
 		c.weighty = 1
 		basePanel.add(horizontalSplitPane, c)
 		
-		// fix missing borders (e.g. on windows look and feel)
-		val referenceBorder = testOwnerTextField.border
-		testDescriptionTextArea.border = referenceBorder
-		testIdTextArea.border = referenceBorder	
+		// fix borders (colors, margins)
+		if (macLookAndFeel) {
+			val border = BorderFactory.createCompoundBorder(
+				BorderFactory.createEmptyBorder(3, 3, 3, 3), 
+				BorderFactory.createCompoundBorder(
+					BorderFactory.createLineBorder(new Color(219, 219, 219)),
+					BorderFactory.createEmptyBorder(1, 1, 1, 1)
+				)
+			)
+			testDescriptionTextArea.border = border
+			testIdTextArea.border = border	
+		} else {
+			val referenceBorder = testOwnerTextField.border
+			testDescriptionTextArea.border = referenceBorder
+			testIdTextArea.border = referenceBorder			
+		}
 	}
 	
 }
