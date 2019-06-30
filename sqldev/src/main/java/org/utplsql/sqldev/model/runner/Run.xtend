@@ -26,6 +26,7 @@ class Run extends AbstractModel {
 	String connectionName
 	List<String> pathList
 	Integer currentTestNumber
+	Test currentTest
 	Integer totalNumberOfTests
 	String startTime
 	String endTime
