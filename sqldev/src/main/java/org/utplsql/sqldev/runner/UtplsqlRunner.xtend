@@ -138,7 +138,41 @@ class UtplsqlRunner implements RealtimeReporterEventConsumer {
 	}
 	
 	private def dispatch doProcess(PostSuiteEvent event) {
-		// ignore
+		val test = run.currentTest
+		// Errors on suite levels are reported as warnings by the utPLSQL framework, 
+		// since an error on suite level does not affect a status of a test.
+		// It is possible that the test is OK, but contains error messages on suite level(s)
+		// Populating test.errorStack would be a) wrong and b) redundant
+		if (event.warnings !== null) {
+			if (test.counter.warning == 0) {
+				test.counter.warning = 1
+				run.counter.warning = run.counter.warning + 1
+			}
+			test.warnings = '''
+				«IF test.warnings !== null»
+					«test.warnings»
+
+				«ENDIF»
+				For suite «event.id»:
+
+				«event.warnings»
+			'''.toString.trim
+		}
+		if (event.serverOutput !== null) {
+			if (test.serverOutput === null) {
+				run.infoCount = run.infoCount + 1
+			}
+			test.serverOutput = '''
+				«IF test.serverOutput !== null»
+					«test.serverOutput»
+
+				«ENDIF»
+				For suite «event.id»:
+
+				«event.serverOutput»
+			'''.toString.trim
+		}
+		panel.update(reporterId)
 	}
 	
 	private def dispatch doProcess(PreTestEvent event) {
@@ -150,6 +184,7 @@ class UtplsqlRunner implements RealtimeReporterEventConsumer {
 		}
 		run.status = event.id
 		run.currentTestNumber = event.testNumber
+		run.currentTest = test
 		panel.update(reporterId)
 	}
 
