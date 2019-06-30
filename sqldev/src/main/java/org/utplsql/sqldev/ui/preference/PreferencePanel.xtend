@@ -44,7 +44,7 @@ class PreferencePanel extends DefaultTraversablePanel {
 	val JCheckBox autoExecuteCheckBox = new JCheckBox
 	val JCheckBox checkRunUtplsqlTestCheckBox = new JCheckBox
 	val JPanel realtimeReporterPanel = new JPanel
-	val SpinnerNumberModel numberOfRunsInHistoryModel = new SpinnerNumberModel(10, 1, 100, 1);
+	val SpinnerNumberModel numberOfRunsInHistoryModel = new SpinnerNumberModel(1, 1, 100, 1);
 	val JSpinner numberOfRunsInHistorySpinner = new JSpinner(numberOfRunsInHistoryModel);
 	val JCheckBox showDisabledCounterCheckBox = new JCheckBox
 	val JCheckBox showWarningsCounterCheckBox = new JCheckBox
@@ -316,7 +316,7 @@ class PreferencePanel extends DefaultTraversablePanel {
 		clearScreenCheckBox.selected = info.clearScreen
 		autoExecuteCheckBox.selected = info.autoExecute
 		checkRunUtplsqlTestCheckBox.selected = info.checkRunUtplsqlTest
-		numberOfTestsPerUnitSpinner.value = info.numberOfRunsInHistory
+		numberOfRunsInHistorySpinner.value = info.numberOfRunsInHistory
 		showDisabledCounterCheckBox.selected = info.showDisabledCounter
 		showWarningsCounterCheckBox.selected = info.showWarningsCounter
 		showInfoCounterCheckBox.selected = info.showInfoCounter
@@ -349,7 +349,7 @@ class PreferencePanel extends DefaultTraversablePanel {
 		info.resetPackage = resetPackageCheckBox.selected
 		info.clearScreen = clearScreenCheckBox.selected
 		info.autoExecute = autoExecuteCheckBox.selected
-		info.numberOfRunsInHistory = numberOfTestsPerUnitSpinner.value as Integer
+		info.numberOfRunsInHistory = numberOfRunsInHistorySpinner.value as Integer
 		info.checkRunUtplsqlTest = checkRunUtplsqlTestCheckBox.selected
 		info.showDisabledCounter = showDisabledCounterCheckBox.selected
 		info.showWarningsCounter = showWarningsCounterCheckBox.selected
