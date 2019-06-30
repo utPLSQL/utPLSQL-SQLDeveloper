@@ -231,7 +231,7 @@ class RunnerPanel implements ActionListener, MouseListener, HyperlinkListener {
 					</style>
 				</head>
 				<body>
-					«getLinkedText(text)»
+					«getLinkedAndFormattedText(text)»
 				</body>
 			</html>
 		'''
@@ -245,6 +245,8 @@ class RunnerPanel implements ActionListener, MouseListener, HyperlinkListener {
 		var line = Integer.parseInt(parts.get(2))
 		val dao = new UtplsqlDao(Connections.instance.getConnection(currentRun.connectionName))
 		val objectType = dao.getObjectType(ownerName, objectName)
+		// links to package specification will open the body, there is no way to identify the type without context knowledge
+		// but the jump to the specification from the body is simple from SQL Developer, so it is a minor issue 
 		val fixedObjectType = '''«objectType»«IF objectType == "PACKAGE" || objectType == "TYPE"» BODY«ENDIF»'''
 		if (parts.size == 4) {
 			val procedureName = parts.get(3)
@@ -252,7 +254,7 @@ class RunnerPanel implements ActionListener, MouseListener, HyperlinkListener {
 			val parser = new UtplsqlParser(source)
 			line = parser.getLineOf(procedureName)
 		}
-		openEditor(ownerName, '''«objectType»«IF objectType == "PACKAGE" || objectType == "TYPE"» BODY«ENDIF»''', objectName.toUpperCase, line, 1)
+		openEditor(ownerName, fixedObjectType, objectName.toUpperCase, line, 1)
 	}
 	
 	private def openEditor(String owner, String type, String name, int line, int col) {
@@ -543,13 +545,14 @@ class RunnerPanel implements ActionListener, MouseListener, HyperlinkListener {
 		}
 	}
 	
-	private def getLinkedText(String text) {
+	private def getLinkedAndFormattedText(String text) {
 		if (text === null) {
 			return ""
 		}
 		// Patterns (primarily Asserts, Errors, ServerOutput): 
 		// at "OWNER.PACKAGE.PROCEDURE", line 42 
 		// at "OWNER.PROCEDURE", line 42 
+		// at "OWNER.PACKAGE", line 42
 		val p1 = Pattern.compile('''\s+(&quot;(\S+?)\.(\S+?)(?:\.(\S+?))?&quot;,\s+line\s+([0-9]+))''')
 		var localText = HtmlUtils.htmlEscape(text)
 		var m = p1.matcher(localText)
@@ -568,6 +571,17 @@ class RunnerPanel implements ActionListener, MouseListener, HyperlinkListener {
 			val end = m.end(0)
 			localText = '''«localText.substring(0, start)»«link»«localText.substring(end)»'''
 			m = p2.matcher(localText)
+		}
+		// Patterns (Title for warning/info on suite level)
+		// from suite a.junit_utplsql_test1_pkg:
+		val p3 = Pattern.compile('''^For suite ([^:]+):$''', Pattern.MULTILINE)
+		m = p3.matcher(localText)
+		while(m.find) {
+			val title = '''<font size="4"><b>For suite "«m.group(1)»"</b></font>'''
+			val start = m.start(0)
+			val end = m.end(0)
+			localText = '''«localText.substring(0, start)»«title»«localText.substring(end)»'''
+			m = p3.matcher(localText)
 		}
 		val result = '''
 			«FOR p : localText.split("\n")»
