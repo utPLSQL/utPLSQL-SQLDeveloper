@@ -39,11 +39,13 @@ class PreferenceModel extends HashStructureAdapter {
 	static final String KEY_CLEAR_SCREEN = "clearScreen"
 	static final String KEY_AUTO_EXECUTE = "autoExecute"
 	static final String KEY_CHECK_RUN_UTPLSQL_TEST = "checkRunUtplsqlTest"
+	static final String KEY_NUMBER_OF_RUNS_IN_HISTORY = "numberOfRunsInHistory"
 	static final String KEY_SHOW_DISABLED_COUNTER = "showDisabledCounter"
 	static final String KEY_SHOW_WARNINGS_COUNTER = "showWarningsCounter"
 	static final String KEY_SHOW_INFO_COUNTER = "showInfoCounter"
 	static final String KEY_SHOW_WARNING_INDICATOR = "showWarningIndicator"
 	static final String KEY_SHOW_INFO_INDICATOR = "showInfoIndicator"
+	static final String KEY_SHOW_TEST_DESCRIPTION = "showTestDescription"
 	static final String KEY_SYNC_DETAIL_TAB = "syncDetailTab"
 	static final String KEY_TEST_PACKAGE_PREFIX = "testPackagePrefix"
 	static final String KEY_TEST_PACKAGE_SUFFIX = "testPackageSuffix"
@@ -108,6 +110,14 @@ class PreferenceModel extends HashStructureAdapter {
 		getHashStructure.putBoolean(PreferenceModel.KEY_CHECK_RUN_UTPLSQL_TEST, checkRunUtplsqlTest)
 	}
 
+	def getNumberOfRunsInHistory() {
+		return getHashStructure.getInt(PreferenceModel.KEY_NUMBER_OF_RUNS_IN_HISTORY, 10)
+	}
+
+	def setNumberOfRunsInHistory(int runs) {
+		getHashStructure.putInt(PreferenceModel.KEY_NUMBER_OF_RUNS_IN_HISTORY, runs)
+	}
+
 	def isShowDisabledCounter() {
 		return getHashStructure.getBoolean(PreferenceModel.KEY_SHOW_DISABLED_COUNTER, false)
 	}
@@ -146,6 +156,14 @@ class PreferenceModel extends HashStructureAdapter {
 
 	def setShowInfoIndicator(boolean showInfoIndicator) {
 		getHashStructure.putBoolean(PreferenceModel.KEY_SHOW_INFO_INDICATOR, showInfoIndicator)
+	}
+
+	def isShowTestDescription() {
+		return getHashStructure.getBoolean(PreferenceModel.KEY_SHOW_TEST_DESCRIPTION, false)
+	}
+
+	def setShowTestDescription(boolean showTestDescription) {
+		getHashStructure.putBoolean(PreferenceModel.KEY_SHOW_TEST_DESCRIPTION, showTestDescription)
 	}
 
 	def isSyncDetailTab() {

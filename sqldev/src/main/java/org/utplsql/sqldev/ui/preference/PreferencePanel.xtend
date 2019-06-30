@@ -44,11 +44,14 @@ class PreferencePanel extends DefaultTraversablePanel {
 	val JCheckBox autoExecuteCheckBox = new JCheckBox
 	val JCheckBox checkRunUtplsqlTestCheckBox = new JCheckBox
 	val JPanel realtimeReporterPanel = new JPanel
+	val SpinnerNumberModel numberOfRunsInHistoryModel = new SpinnerNumberModel(10, 1, 100, 1);
+	val JSpinner numberOfRunsInHistorySpinner = new JSpinner(numberOfRunsInHistoryModel);
 	val JCheckBox showDisabledCounterCheckBox = new JCheckBox
 	val JCheckBox showWarningsCounterCheckBox = new JCheckBox
 	val JCheckBox showInfoCounterCheckBox = new JCheckBox
 	val JCheckBox showWarningIndicatorCheckBox = new JCheckBox
 	val JCheckBox showInfoIndicatorCheckBox = new JCheckBox
+	val JCheckBox showTestDescriptionCheckBox = new JCheckBox
 	val JCheckBox syncDetailTabCheckBox = new JCheckBox
 	val JPanel generateTestPanel = new JPanel();
 	val JTextField testPackagePrefixTextField = new JTextField
@@ -103,6 +106,10 @@ class PreferencePanel extends DefaultTraversablePanel {
 		// realtime reporter group
 		val FieldLayoutBuilder rrTab = new FieldLayoutBuilder(realtimeReporterPanel)
 		rrTab.alignLabelsLeft = true
+
+		rrTab.add(
+			runTab.field.label.withText(UtplsqlResources.getString("PREF_NUMBER_OF_RUNS_IN_HISTORY_LABEL")).component(
+				numberOfRunsInHistorySpinner))
 		rrTab.add(
 			runTab.field.label.withText(UtplsqlResources.getString("PREF_SHOW_DISABLED_COUNTER_LABEL")).component(
 				showDisabledCounterCheckBox))
@@ -118,6 +125,9 @@ class PreferencePanel extends DefaultTraversablePanel {
 		rrTab.add(
 			runTab.field.label.withText(UtplsqlResources.getString("PREF_SHOW_INFO_INDICATOR_LABEL")).component(
 				showInfoIndicatorCheckBox))
+		rrTab.add(
+			runTab.field.label.withText(UtplsqlResources.getString("PREF_SHOW_TEST_DESCRIPTION_LABEL")).component(
+				showTestDescriptionCheckBox))
 		rrTab.add(
 			runTab.field.label.withText(UtplsqlResources.getString("PREF_SYNC_DETAIL_TAB_LABEL")).component(
 				syncDetailTabCheckBox))
@@ -306,11 +316,13 @@ class PreferencePanel extends DefaultTraversablePanel {
 		clearScreenCheckBox.selected = info.clearScreen
 		autoExecuteCheckBox.selected = info.autoExecute
 		checkRunUtplsqlTestCheckBox.selected = info.checkRunUtplsqlTest
+		numberOfTestsPerUnitSpinner.value = info.numberOfRunsInHistory
 		showDisabledCounterCheckBox.selected = info.showDisabledCounter
 		showWarningsCounterCheckBox.selected = info.showWarningsCounter
 		showInfoCounterCheckBox.selected = info.showInfoCounter
 		showWarningIndicatorCheckBox.selected = info.showWarningIndicator
 		showInfoIndicatorCheckBox.selected = info.showInfoIndicator
+		showTestDescriptionCheckBox.selected = info.showTestDescription
 		syncDetailTabCheckBox.selected = info.syncDetailTab
 		testPackagePrefixTextField.text = info.testPackagePrefix
 		testPackageSuffixTextField.text = info.testPackageSuffix
@@ -337,12 +349,14 @@ class PreferencePanel extends DefaultTraversablePanel {
 		info.resetPackage = resetPackageCheckBox.selected
 		info.clearScreen = clearScreenCheckBox.selected
 		info.autoExecute = autoExecuteCheckBox.selected
+		info.numberOfRunsInHistory = numberOfTestsPerUnitSpinner.value as Integer
 		info.checkRunUtplsqlTest = checkRunUtplsqlTestCheckBox.selected
 		info.showDisabledCounter = showDisabledCounterCheckBox.selected
 		info.showWarningsCounter = showWarningsCounterCheckBox.selected
 		info.showInfoCounter = showInfoCounterCheckBox.selected
 		info.showWarningIndicator = showWarningIndicatorCheckBox.selected
 		info.showInfoIndicator = showInfoIndicatorCheckBox.selected
+		info.showTestDescription = showTestDescriptionCheckBox.selected
 		info.syncDetailTab = syncDetailTabCheckBox.selected
 		info.testPackagePrefix = testPackagePrefixTextField.text
 		info.testPackageSuffix = testPackageSuffixTextField.text
