@@ -25,6 +25,7 @@ import org.springframework.jdbc.BadSqlGrammarException
 import org.utplsql.sqldev.dal.UtplsqlDao
 import org.utplsql.sqldev.model.ut.Annotation
 import org.utplsql.sqldev.test.AbstractJdbcTest
+import org.junit.Ignore
 
 class DalTest extends AbstractJdbcTest {
 	
@@ -142,6 +143,12 @@ class DalTest extends AbstractJdbcTest {
 		containsUtplsqlTest("3.1.3")
 	}
 	
+	@Test
+	@Ignore
+	def void containsUtplsqlTest999() {
+		containsUtplsqlTest("9.9.9")
+	}
+
 	def void annotations(String utPlsqlVersion) {
 		val dao = new UtplsqlDao(dataSource.connection)
 		dao.utPlsqlVersion = utPlsqlVersion
@@ -192,6 +199,11 @@ class DalTest extends AbstractJdbcTest {
 		annotations("3.1.3")
 	}
 	
+	@Test
+	def void annotations999() {
+		annotations("9.9.9")
+	}
+
 	def void testablesPackages(String utPlsqlVersion) {
 		val dao = new UtplsqlDao(dataSource.connection)
 		dao.utPlsqlVersion = utPlsqlVersion		
@@ -230,6 +242,11 @@ class DalTest extends AbstractJdbcTest {
 		testablesPackages("3.1.3")
 	}
 
+	@Test
+	def void testablesPackages999() {
+		testablesPackages("9.9.9")
+	}
+
 	def void testablesTypes(String utPlsqlVersion) {
 		val dao = new UtplsqlDao(dataSource.connection)
 		dao.utPlsqlVersion = utPlsqlVersion		
@@ -261,6 +278,11 @@ class DalTest extends AbstractJdbcTest {
 		testablesTypes("3.1.3")
 	}
 
+	@Test
+	def void testablesTypes999() {
+		testablesTypes("9.9.9")
+	}
+
 	def void testablesFunctions(String utPlsqlVersion) {
 		val dao = new UtplsqlDao(dataSource.connection)
 		dao.utPlsqlVersion = utPlsqlVersion
@@ -285,6 +307,11 @@ class DalTest extends AbstractJdbcTest {
 		testablesFunctions("3.1.3")
 	}
 
+	@Test
+	def void testablesFunctions999() {
+		testablesFunctions("9.9.9")
+	}
+
 	def void testablesProcedures(String utPlsqlVersion) {
 		val dao = new UtplsqlDao(dataSource.connection)
 		dao.utPlsqlVersion = utPlsqlVersion
@@ -307,6 +334,11 @@ class DalTest extends AbstractJdbcTest {
 	@Test
 	def void testablesProcedures313() {
 		testablesProcedures("3.1.3")
+	}
+
+	@Test
+	def void testablesProcedures999() {
+		testablesProcedures("9.9.9")
 	}
 
 	def void runnables(String utPlsqlVersion) {
@@ -366,6 +398,11 @@ class DalTest extends AbstractJdbcTest {
 	@Test
 	def void runnables313() {
 		runnables("3.1.3")
+	}
+	
+	@Test
+	def void runnables999() {
+		runnables("9.9.9")
 	}
 
 	@Test

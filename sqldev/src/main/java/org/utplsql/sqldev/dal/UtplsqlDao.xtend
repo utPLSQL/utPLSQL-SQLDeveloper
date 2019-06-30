@@ -35,6 +35,7 @@ class UtplsqlDao {
 	public static val UTPLSQL_PACKAGE_NAME = "UT"
 	public static val FIRST_VERSION_WITH_INTERNAL_ANNOTATION_API = 3000004
 	public static val FIRST_VERSION_WITH_ANNOTATION_API = 3001003
+	public static val NOT_YET_AVAILABLE = 9009009
 	var Connection conn
 	var JdbcTemplate jdbcTemplate
 	// cache fields
@@ -173,16 +174,41 @@ class UtplsqlDao {
 	 */
 	def boolean containsUtplsqlTest(String owner, String objectName, String subobjectName) {
 		try {
-			var Integer found
-			if (normalizedUtPlsqlVersionNumber >= FIRST_VERSION_WITH_ANNOTATION_API) {
-				// using API available since 3.1.3
+			if (normalizedUtPlsqlVersionNumber >= NOT_YET_AVAILABLE && objectName !== null && subobjectName !== null) {
+				// use faster check function available since v3.1.3 (FIRST_VERSION_WITH_ANNOTATION_API)
+				// disabled (NOT_YET_AVAILABLE) due to wrong results in v3.1.7
+				val sql = '''
+					DECLARE
+					   l_return VARCHAR2(1) := '0';
+					BEGIN
+					   IF ut_runner.is_test(?, ?, ?) THEN
+					      l_return := '1';
+					   END IF;
+					   ? := l_return;
+					END;
+				'''
+				val ret = jdbcTemplate.execute(sql, new CallableStatementCallback<Boolean>() {
+					override Boolean doInCallableStatement(CallableStatement cs) throws SQLException, DataAccessException {
+						cs.setString(1, owner)
+						cs.setString(2, objectName)
+						cs.setString(3, subobjectName)
+						cs.registerOutParameter(4, Types.VARCHAR);
+						cs.execute
+						val ret = cs.getString(4)
+						return ret == "1"
+					}
+				})
+				return ret
+			} else if (normalizedUtPlsqlVersionNumber >= FIRST_VERSION_WITH_ANNOTATION_API) {
+				// using API available since 3.1.3, can handle nulls in objectName and subobjectName
 				val sql = '''
 					SELECT count(*)
 					  FROM TABLE(ut_runner.get_suites_info(upper(?), upper(?)))
 					 WHERE item_type IN ('UT_TEST', 'UT_SUITE')
 					   AND (item_name = upper(?) or ? IS NULL)
 				'''
-				found = jdbcTemplate.queryForObject(sql, Integer, #[owner, objectName, subobjectName, subobjectName])
+				val found = jdbcTemplate.queryForObject(sql, Integer, #[owner, objectName, subobjectName, subobjectName])
+				return found > 0
 			} else {
 				// using internal API (deprecated)
 				val sql = '''
@@ -209,20 +235,71 @@ class UtplsqlDao {
 					          END
 					       ) > 0
 				'''
-				found = jdbcTemplate.queryForObject(sql, Integer, #[subobjectName, subobjectName, owner, objectName, objectName])
-			}
-			return found > 0
+				val found = jdbcTemplate.queryForObject(sql, Integer, #[subobjectName, subobjectName, owner, objectName, objectName])
+				return found > 0
+			}			
 		} catch (EmptyResultDataAccessException e) {
 			return false	
 		}
 	} 
 	
 	def boolean containsUtplsqlTest(String owner) {
-		return containsUtplsqlTest(owner, null, null)
+		if (normalizedUtPlsqlVersionNumber >= NOT_YET_AVAILABLE) {
+			// use faster check function available since v3.1.3 (FIRST_VERSION_WITH_ANNOTATION_API)
+			// disabled (NOT_YET_AVAILABLE) due to wrong results in v3.1.7
+			val sql = '''
+				DECLARE
+				   l_return VARCHAR2(1) := '0';
+				BEGIN
+				   IF ut_runner.has_suites(?) THEN
+				      l_return := '1';
+				   END IF;
+				   ? := l_return;
+				END;
+			'''
+			val ret = jdbcTemplate.execute(sql, new CallableStatementCallback<Boolean>() {
+				override Boolean doInCallableStatement(CallableStatement cs) throws SQLException, DataAccessException {
+					cs.setString(1, owner)
+					cs.registerOutParameter(2, Types.VARCHAR);
+					cs.execute
+					val ret = cs.getString(2)
+					return ret == "1"
+				}
+			})
+			return ret
+		} else {
+			return containsUtplsqlTest(owner, null, null)
+		}
 	}
 	
 	def boolean containsUtplsqlTest(String owner, String objectName) {
-		return containsUtplsqlTest(owner, objectName, null)
+		if (normalizedUtPlsqlVersionNumber >= NOT_YET_AVAILABLE) {
+			// use faster check function available since v3.1.3 (FIRST_VERSION_WITH_ANNOTATION_API)
+			// disabled (NOT_YET_AVAILABLE) due to wrong results in v3.1.7
+			val sql = '''
+				DECLARE
+				   l_return VARCHAR2(1) := '0';
+				BEGIN
+				   IF ut_runner.is_suite(?, ?) THEN
+				      l_return := '1';
+				   END IF;
+				   ? := l_return;
+				END;
+			'''
+			val ret = jdbcTemplate.execute(sql, new CallableStatementCallback<Boolean>() {
+				override Boolean doInCallableStatement(CallableStatement cs) throws SQLException, DataAccessException {
+					cs.setString(1, owner)
+					cs.setString(2, objectName)
+					cs.registerOutParameter(3, Types.VARCHAR);
+					cs.execute
+					val ret = cs.getString(3)
+					return ret == "1"
+				}
+			})
+			return ret
+		} else {
+			return containsUtplsqlTest(owner, objectName, null)
+		}
 	}
 	
 	/**
