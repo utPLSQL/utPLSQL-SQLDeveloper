@@ -15,6 +15,7 @@
  */
 package org.utplsql.sqldev.test.preference
 
+import java.awt.Dimension
 import java.awt.Toolkit
 import javax.swing.JFrame
 import javax.swing.SwingUtilities
@@ -30,6 +31,7 @@ class PreferencePanelTest {
 			override run() {
 				val panel = new PreferencePanel
 				frame.add(panel)
+				frame.preferredSize = new Dimension(600, 400)
 				frame.pack
 				val dim = Toolkit.getDefaultToolkit().getScreenSize();
 				frame.setLocation(dim.width / 2 - frame.getSize().width / 2, dim.height / 2 - frame.getSize().height / 2);
