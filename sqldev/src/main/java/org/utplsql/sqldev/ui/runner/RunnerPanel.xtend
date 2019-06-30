@@ -98,6 +98,7 @@ class RunnerPanel implements ActionListener, MouseListener, HyperlinkListener {
 	JTable testOverviewTable
 	JMenuItem testOverviewRunMenuItem
 	JMenuItem testOverviewRunWorksheetMenuItem
+	JCheckBoxMenuItem showTestDescriptionCheckBoxMenuItem
 	JCheckBoxMenuItem showWarningIndicatorCheckBoxMenuItem
 	JCheckBoxMenuItem showInfoIndicatorCheckBoxMenuItem
 	JCheckBoxMenuItem syncDetailTabCheckBoxMenuItem
@@ -157,6 +158,16 @@ class RunnerPanel implements ActionListener, MouseListener, HyperlinkListener {
 		}
 	}
 	
+	private def applyShowNumberOfRunsInHistory(int maxRuns) {
+		if (maxRuns != runs.maxEntries) {
+			val newRuns = new LimitedLinkedHashMap<String, Run>(maxRuns)
+			for (entry : runs.entrySet) {
+				newRuns.put(entry.key, entry.value)
+			}
+			runs = newRuns
+		}
+	}
+
 	private def applyShowDisabledCounter(boolean show) {
 		disabledCounterValueLabel.parent.visible = showDisabledCounterCheckBoxMenuItem.selected
 	}
@@ -167,6 +178,13 @@ class RunnerPanel implements ActionListener, MouseListener, HyperlinkListener {
 	
 	private def applyShowInfoCounter(boolean show) {
 		infoCounterValueLabel.parent.visible = showInfoCounterCheckBoxMenuItem.selected
+	}
+	
+	private def applyShowTestDescription(boolean show) {
+		testOverviewTableModel.updateModel(showTestDescriptionCheckBoxMenuItem.selected)
+		val idColumn = testOverviewTable.columnModel.getColumn(3)
+		idColumn.headerValue = testOverviewTableModel.testIdColumnName
+		testOverviewTable.tableHeader.repaint
 	}
 
 	private def applyShowWarningIndicator(boolean show) {
@@ -300,6 +318,7 @@ class RunnerPanel implements ActionListener, MouseListener, HyperlinkListener {
 	
 	private def applyPreferences() {
 		val PreferenceModel preferences = preferenceModel
+		applyShowNumberOfRunsInHistory(preferences.numberOfRunsInHistory)
 		showDisabledCounterCheckBoxMenuItem.selected = preferences.showDisabledCounter
 		applyShowDisabledCounter(showDisabledCounterCheckBoxMenuItem.selected)
 		fixCheckBoxMenuItem(showDisabledCounterCheckBoxMenuItem) 
@@ -309,6 +328,9 @@ class RunnerPanel implements ActionListener, MouseListener, HyperlinkListener {
 		showInfoCounterCheckBoxMenuItem.selected = preferences.showInfoCounter
 		applyShowInfoCounter(showInfoCounterCheckBoxMenuItem.selected)
 		fixCheckBoxMenuItem(showInfoCounterCheckBoxMenuItem)
+		showTestDescriptionCheckBoxMenuItem.selected = preferences.showTestDescription
+		applyShowTestDescription(showTestDescriptionCheckBoxMenuItem.selected)
+		fixCheckBoxMenuItem(showTestDescriptionCheckBoxMenuItem)
 		showWarningIndicatorCheckBoxMenuItem.selected = preferences.showWarningIndicator
 		applyShowWarningIndicator(showWarningIndicatorCheckBoxMenuItem.selected)
 		fixCheckBoxMenuItem(showWarningIndicatorCheckBoxMenuItem)
@@ -328,7 +350,7 @@ class RunnerPanel implements ActionListener, MouseListener, HyperlinkListener {
 	private def setCurrentRun(Run run) {
 		if (run !== currentRun) {
 			currentRun = run
-			testOverviewTableModel.model = run.tests
+			testOverviewTableModel.setModel(run.tests, showTestDescriptionCheckBoxMenuItem.selected)
 			resetDerived
 			val item = new ComboBoxItem<String, String>(currentRun.reporterId, currentRun.name)
 			runComboBox.selectedItem = item
@@ -451,6 +473,9 @@ class RunnerPanel implements ActionListener, MouseListener, HyperlinkListener {
 		} else if (e.source == showInfoCounterCheckBoxMenuItem) {
 			applyShowInfoCounter(showInfoCounterCheckBoxMenuItem.selected)
 			fixCheckBoxMenuItem(showInfoCounterCheckBoxMenuItem)
+		} else if (e.source == showTestDescriptionCheckBoxMenuItem) {
+			applyShowTestDescription(showTestDescriptionCheckBoxMenuItem.selected)
+			fixCheckBoxMenuItem(showTestDescriptionCheckBoxMenuItem)
 		} else if (e.source == showWarningIndicatorCheckBoxMenuItem) {
 			applyShowWarningIndicator(showWarningIndicatorCheckBoxMenuItem.selected)
 			fixCheckBoxMenuItem(showWarningIndicatorCheckBoxMenuItem)
@@ -870,6 +895,9 @@ class RunnerPanel implements ActionListener, MouseListener, HyperlinkListener {
 		testOverviewRunWorksheetMenuItem.addActionListener(this)
 		testOverviewPopupMenu.add(testOverviewRunWorksheetMenuItem)
 		testOverviewPopupMenu.add(new JSeparator)
+		showTestDescriptionCheckBoxMenuItem = new JCheckBoxMenuItem(UtplsqlResources.getString("PREF_SHOW_TEST_DESCRIPTION_LABEL").replace("?",""), true)
+		showTestDescriptionCheckBoxMenuItem.addActionListener(this)
+		testOverviewPopupMenu.add(showTestDescriptionCheckBoxMenuItem)
 		showWarningIndicatorCheckBoxMenuItem = new JCheckBoxMenuItem(UtplsqlResources.getString("PREF_SHOW_WARNING_INDICATOR_LABEL").replace("?",""), true)
 		showWarningIndicatorCheckBoxMenuItem.addActionListener(this)
 		testOverviewPopupMenu.add(showWarningIndicatorCheckBoxMenuItem)

@@ -26,32 +26,47 @@ class TestOverviewTableModel extends DefaultTableModel {
 	LinkedHashMap<String, Test> tests
 	String commonPrefix
 	boolean commonPrefixCalculated
+	boolean showDescription
 	
 	new() {
 		super()
 	}
 	
 	private def calcCommonPrefix() {
-		if (!commonPrefixCalculated && tests.size > 0) {
+		if (!commonPrefixCalculated && tests !== null && tests.size > 0) {
 			this.commonPrefix = PrefixTools.commonPrefix(tests.keySet.toList)
 			fireTableDataChanged()
 			commonPrefixCalculated = true
 		}
 	}
 	
-	def setModel(LinkedHashMap<String, Test> tests) {
+	def setModel(LinkedHashMap<String, Test> tests, boolean showDescription) {
 		commonPrefixCalculated = false
 		this.tests = tests
+		this.showDescription = showDescription
 		calcCommonPrefix
+		fireTableDataChanged()
+	}
+	
+	def updateModel(boolean showDescription) {
+		this.showDescription = showDescription
 		fireTableDataChanged()
 	}
 	
 	def getTestIdColumnName() {
 		calcCommonPrefix
 		if (commonPrefix === null || commonPrefix == "") {
-			return UtplsqlResources.getString("RUNNER_TEST_ID_COLUMN")
+			if (showDescription) {
+				UtplsqlResources.getString("RUNNER_DESCRIPTION_LABEL")
+			} else {
+				UtplsqlResources.getString("RUNNER_TEST_ID_COLUMN")			
+			}
 		} else {
-			commonPrefix
+			if (showDescription) {
+				'''«UtplsqlResources.getString("RUNNER_DESCRIPTION_LABEL")» («commonPrefix»)'''
+			} else {
+				commonPrefix
+			}
 		}
 	}
 	
@@ -88,7 +103,11 @@ class TestOverviewTableModel extends DefaultTableModel {
 				return test.infoIcon
 			}
 			case 3: {
-				return test.id.substring(if(commonPrefix === null) {0} else {commonPrefix.length})
+				return if(showDescription && test.description !== null) {
+							test.description
+						} else {
+							test.id.substring(if(commonPrefix === null) {0} else {commonPrefix.length})
+						}
 			}
 			case 4: {
 				return test.executionTime
@@ -100,7 +119,7 @@ class TestOverviewTableModel extends DefaultTableModel {
 	}
 
 	override getColumnName(int col) {
-		return #["", "", "", UtplsqlResources.getString("RUNNER_TEST_ID_COLUMN"),
+		return #["", "", "", UtplsqlResources.getString(if (showDescription) {"RUNNER_DESCRIPTION_LABEL"} else {"RUNNER_TEST_ID_COLUMN"}),
 			UtplsqlResources.getString("RUNNER_TEST_EXECUTION_TIME_COLUMN")].get(col)
 	}
 
