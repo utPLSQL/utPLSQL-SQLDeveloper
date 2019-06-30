@@ -30,4 +30,8 @@ class LimitedLinkedHashMap<K, V> extends LinkedHashMap<K, V> {
 	override removeEldestEntry(Map.Entry<K, V> eldest) {
 		return size > maxEntries
 	}
+	
+	def getMaxEntries() {
+		return maxEntries
+	}
 }
