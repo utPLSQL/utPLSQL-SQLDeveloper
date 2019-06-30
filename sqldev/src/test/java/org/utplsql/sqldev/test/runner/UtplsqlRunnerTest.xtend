@@ -31,6 +31,8 @@ class UtplsqlRunnerTest extends AbstractJdbcTest {
 			CREATE OR REPLACE PACKAGE junit_utplsql_test1_pkg is
 			   --%suite(JUnit testing)
 			   --%suitepath(a)
+			   /* tags annotation without parameter will raise a warning */
+			   --%tags
 			
 			   --%context(test context)
 			
@@ -51,6 +53,9 @@ class UtplsqlRunnerTest extends AbstractJdbcTest {
 			   PROCEDURE test_5_warnings;
 
 			   --%endcontext
+
+			   --%afterall
+			   procedure print_and_raise;
 			END;
 		''')
 		jdbcTemplate.execute('''
@@ -86,6 +91,14 @@ class UtplsqlRunnerTest extends AbstractJdbcTest {
 			   BEGIN
 			      COMMIT; -- will raise a warning
 				  ut.expect(1).to_equal(1);
+			   END;
+
+			   PROCEDURE print_and_raise IS
+			   BEGIN
+			      dbms_output.put_line('Now, a no_data_found exception is raised');
+			      dbms_output.put_line('dbms_output and error stack is reported for this suite.');
+			      dbms_output.put_line('A runtime error in afterall is counted as a warning.');
+			      RAISE no_data_found;
 			   END;
 			END;
 		''')
