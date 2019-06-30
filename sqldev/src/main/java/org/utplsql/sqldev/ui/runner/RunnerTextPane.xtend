@@ -53,4 +53,10 @@ class RunnerTextPane extends JTextPane implements FocusListener{
 	override focusLost(FocusEvent e) {
 		this.caret.visible = false
 	}
+	
+	override setText(String t) {
+		super.setText(t)
+		// ensure left parts of long lines are always visible
+		caretPosition = 0
+	}
 }
