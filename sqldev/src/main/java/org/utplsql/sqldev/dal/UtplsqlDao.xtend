@@ -35,6 +35,7 @@ class UtplsqlDao {
 	public static val UTPLSQL_PACKAGE_NAME = "UT"
 	public static val FIRST_VERSION_WITH_INTERNAL_ANNOTATION_API = 3000004
 	public static val FIRST_VERSION_WITH_ANNOTATION_API = 3001003
+	public static val FIRST_VERSION_WITHOUT_INTERNAL_API = 3001008
 	public static val NOT_YET_AVAILABLE = 9009009
 	var Connection conn
 	var JdbcTemplate jdbcTemplate

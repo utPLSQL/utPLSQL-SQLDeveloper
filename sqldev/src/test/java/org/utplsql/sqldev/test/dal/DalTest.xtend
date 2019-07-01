@@ -135,7 +135,10 @@ class DalTest extends AbstractJdbcTest {
 
 	@Test
 	def void containsUtplsqlTest304() {
-		containsUtplsqlTest("3.0.4")
+		val dao = new UtplsqlDao(dataSource.connection)
+		if (dao.normalizedUtPlsqlVersionNumber < UtplsqlDao.FIRST_VERSION_WITHOUT_INTERNAL_API) {
+			containsUtplsqlTest("3.0.4")
+		}
 	}
 
 	@Test
@@ -191,7 +194,10 @@ class DalTest extends AbstractJdbcTest {
 
 	@Test
 	def void annotations304() {
-		annotations("3.0.4")
+		val dao = new UtplsqlDao(dataSource.connection)
+		if (dao.normalizedUtPlsqlVersionNumber < UtplsqlDao.FIRST_VERSION_WITHOUT_INTERNAL_API) {
+			annotations("3.0.4")
+		}
 	}
 
 	@Test
@@ -234,7 +240,10 @@ class DalTest extends AbstractJdbcTest {
 
 	@Test
 	def void testablesPackages304() {
-		testablesPackages("3.0.4")
+		val dao = new UtplsqlDao(dataSource.connection)
+		if (dao.normalizedUtPlsqlVersionNumber < UtplsqlDao.FIRST_VERSION_WITHOUT_INTERNAL_API) {
+			testablesPackages("3.0.4")
+		}
 	}
 
 	@Test
@@ -270,7 +279,10 @@ class DalTest extends AbstractJdbcTest {
 
 	@Test
 	def void testablesTypes304() {
-		testablesTypes("3.0.4")
+		val dao = new UtplsqlDao(dataSource.connection)
+		if (dao.normalizedUtPlsqlVersionNumber < UtplsqlDao.FIRST_VERSION_WITHOUT_INTERNAL_API) {
+			testablesTypes("3.0.4")
+		}
 	}
 
 	@Test
@@ -299,7 +311,10 @@ class DalTest extends AbstractJdbcTest {
 
 	@Test
 	def void testablesFunctions304() {
-		testablesFunctions("3.0.4")
+		val dao = new UtplsqlDao(dataSource.connection)
+		if (dao.normalizedUtPlsqlVersionNumber < UtplsqlDao.FIRST_VERSION_WITHOUT_INTERNAL_API) {
+			testablesFunctions("3.0.4")
+		}
 	}
 
 	@Test
@@ -328,7 +343,10 @@ class DalTest extends AbstractJdbcTest {
 
 	@Test
 	def void testablesProcedures304() {
-		testablesProcedures("3.0.4")
+		val dao = new UtplsqlDao(dataSource.connection)
+		if (dao.normalizedUtPlsqlVersionNumber < UtplsqlDao.FIRST_VERSION_WITHOUT_INTERNAL_API) {
+			testablesProcedures("3.0.4")
+		}
 	}
 
 	@Test
@@ -392,7 +410,10 @@ class DalTest extends AbstractJdbcTest {
 
 	@Test
 	def void runnables304() {
-		runnables("3.0.4")
+		val dao = new UtplsqlDao(dataSource.connection)
+		if (dao.normalizedUtPlsqlVersionNumber < UtplsqlDao.FIRST_VERSION_WITHOUT_INTERNAL_API) {
+			runnables("3.0.4")
+		}
 	}
 
 	@Test
