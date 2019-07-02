@@ -258,21 +258,19 @@ class RunnerPanel implements ActionListener, MouseListener, HyperlinkListener {
 	
 	private def openLink(String link) {
 		val parts = link.split("/")
-		val ownerName = parts.get(0)
-		val objectName = parts.get(1)
-		var line = Integer.parseInt(parts.get(2))
+		val type = parts.get(0)
+		val ownerName = parts.get(1)
+		val objectName = parts.get(2)
+		var line = Integer.parseInt(parts.get(3))
 		val dao = new UtplsqlDao(Connections.instance.getConnection(currentRun.connectionName))
-		val objectType = dao.getObjectType(ownerName, objectName)
-		// links to package specification will open the body, there is no way to identify the type without context knowledge
-		// but the jump to the specification from the body is simple from SQL Developer, so it is a minor issue 
-		val fixedObjectType = '''«objectType»«IF objectType == "PACKAGE" || objectType == "TYPE"» BODY«ENDIF»'''
-		if (parts.size == 4) {
-			val procedureName = parts.get(3)
-			val source = dao.getSource(ownerName, fixedObjectType, objectName).trim
+		val objectType = if (type=="UNKNOWN") {dao.getObjectType(ownerName, objectName)} else {type}
+		if (parts.size == 5) {
+			val procedureName = parts.get(4)
+			val source = dao.getSource(ownerName, objectType, objectName).trim
 			val parser = new UtplsqlParser(source)
 			line = parser.getLineOf(procedureName)
 		}
-		openEditor(ownerName, fixedObjectType, objectName.toUpperCase, line, 1)
+		openEditor(ownerName, objectType, objectName.toUpperCase, line, 1)
 	}
 	
 	private def openEditor(String owner, String type, String name, int line, int col) {
@@ -578,12 +576,15 @@ class RunnerPanel implements ActionListener, MouseListener, HyperlinkListener {
 		// at "OWNER.PACKAGE.PROCEDURE", line 42 
 		// at "OWNER.PROCEDURE", line 42 
 		// at "OWNER.PACKAGE", line 42
-		val p1 = Pattern.compile('''\s+(&quot;(\S+?)\.(\S+?)(?:\.(\S+?))?&quot;,\s+line\s+([0-9]+))''')
+		// at package "OWNER.PACKAGE", line 42
+		val p1 = Pattern.compile('''\s+(package\s+)?(&quot;(\S+?)\.(\S+?)(?:\.(\S+?))?&quot;,\s+line\s+([0-9]+))''')
 		var localText = HtmlUtils.htmlEscape(text)
 		var m = p1.matcher(localText)
 		while(m.find) {
-			val link = ''' <a href="«m.group(2)»/«m.group(3)»/«m.group(5)»">«m.group(1)»</a>'''
-			localText = localText.replaceFirst(p1.pattern, link)
+			val link = '''<a href="«IF m.group(1) !== null»PACKAGE«ELSE»UNKNOWN«ENDIF»/«m.group(3)»/«m.group(4)»/«m.group(6)»">«m.group(2)»</a>'''
+			val start = m.start(2)
+			val end = m.end(2)
+			localText = '''«localText.substring(0, start)»«link»«localText.substring(end)»'''
 			m = p1.matcher(localText)
 		}
 		// Patterns (primarily Warnings, without line reference, calculate when opening link):
@@ -591,7 +592,7 @@ class RunnerPanel implements ActionListener, MouseListener, HyperlinkListener {
 		val p2 = Pattern.compile('''^\s{2}((\S+?)\.(\S+?)\.(\S+?))$''', Pattern.MULTILINE)
 		m = p2.matcher(localText)
 		while(m.find) {
-			val link = '''&nbsp;&nbsp;<a href="«m.group(2).toUpperCase»/«m.group(3).toUpperCase»/1/«m.group(4).toUpperCase»">«m.group(1)»</a>'''
+			val link = '''&nbsp;&nbsp;<a href="UNKNOWN/«m.group(2).toUpperCase»/«m.group(3).toUpperCase»/1/«m.group(4).toUpperCase»">«m.group(1)»</a>'''
 			val start = m.start(0)
 			val end = m.end(0)
 			localText = '''«localText.substring(0, start)»«link»«localText.substring(end)»'''
