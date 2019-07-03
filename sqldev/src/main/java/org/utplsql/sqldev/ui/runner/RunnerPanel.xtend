@@ -726,17 +726,20 @@ class RunnerPanel implements ActionListener, MouseListener, HyperlinkListener {
 		// Toolbar
 		var toolbar = new GradientToolbar
 		toolbar.floatable = false
-		toolbar.border = new EmptyBorder(new Insets(2, 2, 2, 2)) // top, left, bottom, right
+		val buttonBorder = new EmptyBorder(new Insets(2, 4, 2, 4)) // top, left, bottom, right
 		refreshButton = new ToolbarButton(UtplsqlResources.getIcon("REFRESH_ICON"))
 		refreshButton.toolTipText = UtplsqlResources.getString("RUNNER_REFRESH_TOOLTIP")
+		refreshButton.border = buttonBorder
 		refreshButton.addActionListener(this)
 		toolbar.add(refreshButton)
 		rerunButton = new ToolbarButton(UtplsqlResources.getIcon("RUN_ICON"))
 		rerunButton.toolTipText = UtplsqlResources.getString("RUNNER_RERUN_TOOLTIP")
+		rerunButton.border = buttonBorder
 		rerunButton.addActionListener(this)
 		toolbar.add(rerunButton)
 		rerunWorksheetButton = new ToolbarButton(UtplsqlResources.getIcon("RUN_WORKSHEET_ICON"))
 		rerunWorksheetButton.toolTipText = UtplsqlResources.getString("RUNNER_RERUN_WORKSHEET_TOOLTIP")
+		rerunWorksheetButton.border = buttonBorder
 		rerunWorksheetButton.addActionListener(this)
 		toolbar.add(rerunWorksheetButton)
 		toolbar.add(Box.createHorizontalGlue())
@@ -749,6 +752,7 @@ class RunnerPanel implements ActionListener, MouseListener, HyperlinkListener {
 		toolbar.add(runComboBox)
 		clearButton = new ToolbarButton(UtplsqlResources.getIcon("CLEAR_ICON"))
 		clearButton.toolTipText = UtplsqlResources.getString("RUNNER_CLEAR_HISTORY_BUTTON")
+		clearButton.border = buttonBorder
 		clearButton.addActionListener(this)
 		toolbar.add(clearButton)
 		c.gridx = 0
