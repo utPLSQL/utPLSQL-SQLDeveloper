@@ -5,7 +5,7 @@
 	<!-- The Basics -->
 	<groupId>org.utplsql</groupId>
 	<artifactId>org.utplsql.sqldev</artifactId>
-	<version>0.7.2-SNAPSHOT</version>
+	<version>1.0.0-SNAPSHOT</version>
 	<packaging>bundle</packaging>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -13,7 +13,7 @@
 		<jdk.version.test>1.8</jdk.version.test>
 		<xtend.version>2.15.0</xtend.version>
 		<!-- requires SQL Developer 4.1.0 or higher (first version based on JDK 1.8) -->
-		<sqldev.basedir>/Applications/SQLDeveloper18.3.0.app/Contents/Resources/sqldeveloper</sqldev.basedir>
+		<sqldev.basedir>/Applications/SQLDeveloper19.1.0.app/Contents/Resources/sqldeveloper</sqldev.basedir>
 		<final.name>utplsql_for_SQLDev_${project.version}</final.name>
 	</properties>
 	<dependencies>
@@ -59,13 +59,6 @@
 			<version>12.2.2</version>
 			<scope>system</scope>
 			<systemPath>${sqldev.basedir}/ide/lib/uic.jar</systemPath>
-		</dependency>
-		<dependency>
-			<groupId>oracle</groupId>
-			<artifactId>oracle.sqldeveloper.utils</artifactId>
-			<version>12.2.0</version>
-			<scope>system</scope>
-			<systemPath>${sqldev.basedir}/sqldeveloper/extensions/oracle.sqldeveloper.utils.jar</systemPath>
 		</dependency>
 		<dependency>
 			<groupId>oracle</groupId>
@@ -144,7 +137,22 @@
 			<scope>system</scope>
 			<systemPath>${sqldev.basedir}/jdev/extensions/oracle.jdeveloper.java.core.jar</systemPath>
 		</dependency>
-		<!-- SQL Developer specific dependencies part 2 (available in public maven repositories) -->
+		<!-- SQL Developer specific dependencies part 2 (used for tests only) -->
+		<dependency>
+			<groupId>oracle</groupId>
+			<artifactId>jewt4.jar</artifactId>
+			<version>12.2.1</version>
+			<scope>system</scope>
+			<systemPath>${sqldev.basedir}/modules/oracle.bali.jewt/jewt4.jar</systemPath>
+		</dependency>		
+		<dependency>
+			<groupId>oracle</groupId>
+			<artifactId>share.jar</artifactId>
+			<version>12.2.1</version>
+			<scope>system</scope>
+			<systemPath>${sqldev.basedir}/modules/oracle.bali.share/share.jar</systemPath>
+		</dependency>		
+		<!-- SQL Developer specific dependencies part 3 (available in public maven repositories) -->
 		<dependency>
 			<!-- SQL Developer is using this older version -->
 			<groupId>org.osgi</groupId>
@@ -162,6 +170,11 @@
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-jdbc</artifactId>
+			<version>5.1.0.RELEASE</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-web</artifactId>
 			<version>5.1.0.RELEASE</version>
 		</dependency>
 		<dependency>

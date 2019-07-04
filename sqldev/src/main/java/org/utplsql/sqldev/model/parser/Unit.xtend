@@ -22,4 +22,5 @@ import org.utplsql.sqldev.model.AbstractModel
 class Unit extends AbstractModel {
 	String name
 	Integer position
+	Integer positionOfName
 }

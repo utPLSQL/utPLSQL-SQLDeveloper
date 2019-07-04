@@ -88,6 +88,9 @@
 			</composite-rule>
 		</rules>
 		<triggers>
+			<dockable-factory-hook xmlns="http://xmlns.oracle.com/ide/extension">
+				<factory id="UTPLSQL_RUNNER_FACTORY" class="org.utplsql.sqldev.ui.runner.RunnerFactory" />
+			</dockable-factory-hook>
 			<actions xmlns="http://xmlns.oracle.com/jdeveloper/1013/extension">
 				<action id="utplsql.test">
 					<properties>
@@ -158,10 +161,17 @@
 			<settings-ui-hook>
 				<page id="UTPLSQL_PREFERENCES_PAGE" parent-idref="/preferences">
 					<label>${PREF_LABEL}</label>
-					<traversable-class>org.utplsql.sqldev.PreferencePanel
+					<traversable-class>org.utplsql.sqldev.ui.preference.PreferencePanel
 					</traversable-class>
 				</page>
 			</settings-ui-hook>
 		</triggers>
 	</trigger-hooks>
+
+	<hooks>
+		<dockable-hook xmlns="http://xmlns.oracle.com/ide/extension">
+			<dockable id="UTPLSQL_RUNNER_VIEW" />
+		</dockable-hook>
+	</hooks>	
+
 </extension>

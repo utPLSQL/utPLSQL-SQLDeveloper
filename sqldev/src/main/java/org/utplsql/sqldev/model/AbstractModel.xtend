@@ -17,7 +17,7 @@ package org.utplsql.sqldev.model
 
 import org.eclipse.xtext.xbase.lib.util.ToStringBuilder
 
-class AbstractModel {
+abstract class AbstractModel {
 	override toString() {
 		new ToStringBuilder(this).addAllFields.toString
 	}

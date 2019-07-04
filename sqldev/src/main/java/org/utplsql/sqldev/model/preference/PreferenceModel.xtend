@@ -33,11 +33,20 @@ class PreferenceModel extends HashStructureAdapter {
 		return new PreferenceModel(findOrCreate(prefs, DATA_KEY))
 	}
 
+	static final String KEY_USE_REALTIME_REPORTER = "useRealtimeRorter"
 	static final String KEY_UNSHARED_WORKSHEET = "unsharedWorksheet"
 	static final String KEY_RESET_PACKAGE = "resetPackage"
 	static final String KEY_CLEAR_SCREEN = "clearScreen"
 	static final String KEY_AUTO_EXECUTE = "autoExecute"
 	static final String KEY_CHECK_RUN_UTPLSQL_TEST = "checkRunUtplsqlTest"
+	static final String KEY_NUMBER_OF_RUNS_IN_HISTORY = "numberOfRunsInHistory"
+	static final String KEY_SHOW_DISABLED_COUNTER = "showDisabledCounter"
+	static final String KEY_SHOW_WARNINGS_COUNTER = "showWarningsCounter"
+	static final String KEY_SHOW_INFO_COUNTER = "showInfoCounter"
+	static final String KEY_SHOW_WARNING_INDICATOR = "showWarningIndicator"
+	static final String KEY_SHOW_INFO_INDICATOR = "showInfoIndicator"
+	static final String KEY_SHOW_TEST_DESCRIPTION = "showTestDescription"
+	static final String KEY_SYNC_DETAIL_TAB = "syncDetailTab"
 	static final String KEY_TEST_PACKAGE_PREFIX = "testPackagePrefix"
 	static final String KEY_TEST_PACKAGE_SUFFIX = "testPackageSuffix"
 	static final String KEY_TEST_UNIT_PREFIX = "testUnitPrefix"
@@ -52,6 +61,14 @@ class PreferenceModel extends HashStructureAdapter {
 	static final String KEY_OUTPUT_DIRECTORY = "outputDirectory"
 	static final String KEY_DELETE_EXISTING_FILES="deleteExistingFiles"
 	static final String KEY_ROOT_FOLDER_IN_ODDGEN_VIEW = "rootFolderInOddgenView"
+
+	def isUseRealtimeReporter() {
+		return getHashStructure.getBoolean(PreferenceModel.KEY_USE_REALTIME_REPORTER, true)
+	}
+
+	def setUseRealtimeReporter(boolean useRealtimeReporter) {
+		getHashStructure.putBoolean(PreferenceModel.KEY_USE_REALTIME_REPORTER, useRealtimeReporter)
+	}
 	
 	def isUnsharedWorksheet() {
 		return getHashStructure.getBoolean(PreferenceModel.KEY_UNSHARED_WORKSHEET, true)
@@ -91,6 +108,70 @@ class PreferenceModel extends HashStructureAdapter {
 
 	def setCheckRunUtplsqlTest(boolean checkRunUtplsqlTest) {
 		getHashStructure.putBoolean(PreferenceModel.KEY_CHECK_RUN_UTPLSQL_TEST, checkRunUtplsqlTest)
+	}
+
+	def getNumberOfRunsInHistory() {
+		return getHashStructure.getInt(PreferenceModel.KEY_NUMBER_OF_RUNS_IN_HISTORY, 10)
+	}
+
+	def setNumberOfRunsInHistory(int runs) {
+		getHashStructure.putInt(PreferenceModel.KEY_NUMBER_OF_RUNS_IN_HISTORY, runs)
+	}
+
+	def isShowDisabledCounter() {
+		return getHashStructure.getBoolean(PreferenceModel.KEY_SHOW_DISABLED_COUNTER, false)
+	}
+
+	def setShowDisabledCounter(boolean showDisabledCounter) {
+		getHashStructure.putBoolean(PreferenceModel.KEY_SHOW_DISABLED_COUNTER, showDisabledCounter)
+	}
+
+	def isShowWarningsCounter() {
+		return getHashStructure.getBoolean(PreferenceModel.KEY_SHOW_WARNINGS_COUNTER, false)
+	}
+
+	def setShowWarningsCounter(boolean showWarningCounter) {
+		getHashStructure.putBoolean(PreferenceModel.KEY_SHOW_WARNINGS_COUNTER, showWarningCounter)
+	}
+
+	def isShowInfoCounter() {
+		return getHashStructure.getBoolean(PreferenceModel.KEY_SHOW_INFO_COUNTER, false)
+	}
+
+	def setShowInfoCounter(boolean showInfoCounter) {
+		getHashStructure.putBoolean(PreferenceModel.KEY_SHOW_INFO_COUNTER, showInfoCounter)
+	}
+
+	def isShowWarningIndicator() {
+		return getHashStructure.getBoolean(PreferenceModel.KEY_SHOW_WARNING_INDICATOR, false)
+	}
+
+	def setShowWarningIndicator(boolean showWarningIndicator) {
+		getHashStructure.putBoolean(PreferenceModel.KEY_SHOW_WARNING_INDICATOR, showWarningIndicator)
+	}
+
+	def isShowInfoIndicator() {
+		return getHashStructure.getBoolean(PreferenceModel.KEY_SHOW_INFO_INDICATOR, false)
+	}
+
+	def setShowInfoIndicator(boolean showInfoIndicator) {
+		getHashStructure.putBoolean(PreferenceModel.KEY_SHOW_INFO_INDICATOR, showInfoIndicator)
+	}
+
+	def isShowTestDescription() {
+		return getHashStructure.getBoolean(PreferenceModel.KEY_SHOW_TEST_DESCRIPTION, false)
+	}
+
+	def setShowTestDescription(boolean showTestDescription) {
+		getHashStructure.putBoolean(PreferenceModel.KEY_SHOW_TEST_DESCRIPTION, showTestDescription)
+	}
+
+	def isSyncDetailTab() {
+		return getHashStructure.getBoolean(PreferenceModel.KEY_SYNC_DETAIL_TAB, true)
+	}
+
+	def setSyncDetailTab(boolean syncDetailTab) {
+		getHashStructure.putBoolean(PreferenceModel.KEY_SYNC_DETAIL_TAB, syncDetailTab)
 	}
 
 	def getTestPackagePrefix() {
