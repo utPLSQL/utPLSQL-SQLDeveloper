@@ -91,9 +91,7 @@ class RealtimeReporterDao {
 			   l_reporter ut_realtime_reporter := ut_realtime_reporter();
 			BEGIN
 			   l_reporter.set_reporter_id(?);
-			   OPEN ? FOR
-			      SELECT t.item_type, t.text
-			        FROM table(l_reporter.get_lines()) t;
+			   ? := l_reporter.get_lines_cursor();
 			END;
 		'''
 		jdbcTemplate.execute(plsql, new CallableStatementCallback<Void>() {
