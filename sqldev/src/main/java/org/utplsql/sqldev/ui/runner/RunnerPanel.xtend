@@ -751,7 +751,7 @@ class RunnerPanel implements ActionListener, MouseListener, HyperlinkListener {
 		runComboBox.addActionListener(this)
 		toolbar.add(runComboBox)
 		clearButton = new ToolbarButton(UtplsqlResources.getIcon("CLEAR_ICON"))
-		clearButton.toolTipText = UtplsqlResources.getString("RUNNER_CLEAR_HISTORY_BUTTON")
+		clearButton.toolTipText = UtplsqlResources.getString("RUNNER_CLEAR_BUTTON")
 		clearButton.border = buttonBorder
 		clearButton.addActionListener(this)
 		toolbar.add(clearButton)
