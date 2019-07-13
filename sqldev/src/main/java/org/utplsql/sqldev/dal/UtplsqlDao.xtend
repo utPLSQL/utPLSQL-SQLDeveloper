@@ -33,6 +33,7 @@ import org.utplsql.sqldev.model.ut.OutputLines
 
 class UtplsqlDao {
 	public static val UTPLSQL_PACKAGE_NAME = "UT"
+	public static val NOT_INSTALLED = 0000000
 	public static val FIRST_VERSION_WITH_INTERNAL_ANNOTATION_API = 3000004
 	public static val FIRST_VERSION_WITH_ANNOTATION_API = 3001003
 	public static val FIRST_VERSION_WITHOUT_INTERNAL_API = 3001008
@@ -60,14 +61,15 @@ class UtplsqlDao {
 	 * returns a normalized utPLSQL version in format 9.9.9
 	 */
 	def String normalizedUtPlsqlVersion() {
-		val p = Pattern.compile("(\\d+\\.\\d+\\.\\d+)")
 		val version = getUtPlsqlVersion()
-		val m = p.matcher(version)
-		if (m.find) {
-			return m.group(0)
-		} else {
-			return "0.0.0"
+		if (version !== null) {
+			val p = Pattern.compile("(\\d+\\.\\d+\\.\\d+)")
+			val m = p.matcher(version)
+			if (m.find) {
+				return m.group(0)
+			}
 		}
+		return "0.0.0"
 	}
 	
 	/**
@@ -97,14 +99,20 @@ class UtplsqlDao {
 					? := ut.version;
 				END;
 			'''
-			cachedUtPlsqlVersion = jdbcTemplate.execute(sql, new CallableStatementCallback<String>() {
-				override String doInCallableStatement(CallableStatement cs) throws SQLException, DataAccessException {
-					cs.registerOutParameter(1, Types.VARCHAR);
-					cs.execute
-					val version = cs.getString(1)
-					return version
-				}
-			})
+			try {
+				cachedUtPlsqlVersion = jdbcTemplate.execute(sql, new CallableStatementCallback<String>() {
+					override String doInCallableStatement(CallableStatement cs) throws SQLException, DataAccessException {
+						cs.registerOutParameter(1, Types.VARCHAR);
+						cs.execute
+						val version = cs.getString(1)
+						return version
+					}
+				})
+			} catch (SQLException e) {
+				// ignore error
+			} catch (DataAccessException e) {
+				// ignore error
+			}
 		}
 		return cachedUtPlsqlVersion
 	}
