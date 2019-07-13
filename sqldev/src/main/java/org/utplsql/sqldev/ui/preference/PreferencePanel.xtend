@@ -20,6 +20,7 @@ import java.awt.event.ActionListener
 import java.util.Map
 import javax.swing.JButton
 import javax.swing.JCheckBox
+import javax.swing.JOptionPane
 import javax.swing.JPanel
 import javax.swing.JSpinner
 import javax.swing.JTabbedPane
@@ -33,6 +34,7 @@ import oracle.ide.panels.TraversalException
 import oracle.javatools.ui.layout.FieldLayoutBuilder
 import org.utplsql.sqldev.model.preference.PreferenceModel
 import org.utplsql.sqldev.resources.UtplsqlResources
+import org.utplsql.sqldev.snippet.SnippetMerger
 import org.utplsql.sqldev.ui.common.DirectoryChooser
 
 class PreferencePanel extends DefaultTraversablePanel {
@@ -43,6 +45,7 @@ class PreferencePanel extends DefaultTraversablePanel {
 	val JCheckBox clearScreenCheckBox = new JCheckBox
 	val JCheckBox autoExecuteCheckBox = new JCheckBox
 	val JCheckBox checkRunUtplsqlTestCheckBox = new JCheckBox
+	val JButton importSnippetsButton = new JButton(UtplsqlResources.getString("PREF_IMPORT_SNIPPETS_BUTTON_LABEL"))
 	val JPanel realtimeReporterPanel = new JPanel
 	val SpinnerNumberModel numberOfRunsInHistoryModel = new SpinnerNumberModel(1, 1, 100, 1);
 	val JSpinner numberOfRunsInHistorySpinner = new JSpinner(numberOfRunsInHistoryModel);
@@ -101,6 +104,7 @@ class PreferencePanel extends DefaultTraversablePanel {
 		runTab.add(
 			runTab.field.label.withText(UtplsqlResources.getString("PREF_CHECK_RUN_UTPLSQL_TEST_LABEL")).component(
 				checkRunUtplsqlTestCheckBox))
+		runTab.addRow(importSnippetsButton)
 		runTab.addVerticalSpring
 		
 		// realtime reporter group
@@ -200,6 +204,13 @@ class PreferencePanel extends DefaultTraversablePanel {
 		builder.addVerticalField("", tabbedPane)
 		builder.addVerticalSpring
 		
+		// register action listener for import snippets button 
+		importSnippetsButton.addActionListener(new ActionListener() {
+			override actionPerformed(ActionEvent event) {
+				importSnippets
+			}			
+		})
+		
 		// register action listener for create code template button 
 		createCodeTemplatesButton.addActionListener(new ActionListener() {
 			override actionPerformed(ActionEvent event) {
@@ -214,6 +225,15 @@ class PreferencePanel extends DefaultTraversablePanel {
 					outputDirectoryTextField)
 			}
 		})		
+	}
+	
+	private def importSnippets() {
+		val snippetMerger = new SnippetMerger
+		snippetMerger.merge
+		val file = snippetMerger.file.absolutePath
+		val message = String.format(UtplsqlResources.getString("PREF_CONFIRM_IMPORT_MESSAGE"), file)
+		JOptionPane.showMessageDialog(null, message, UtplsqlResources.getString("PREF_CONFIRM_IMPORT_TITLE"),
+			JOptionPane.INFORMATION_MESSAGE);
 	}
 	
 	private def loadCodeTemplates() {
