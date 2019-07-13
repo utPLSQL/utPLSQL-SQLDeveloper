@@ -588,5 +588,12 @@ class DalTest extends AbstractJdbcTest {
 		Assert.assertEquals("PACKAGE", actual)
 		jdbcTemplate.execute("DROP PACKAGE junit_utplsql_test_pkg")
 	}
+	
+	@Test
+	def void normalizedUtPlsqlVersion() {
+		val dao = new UtplsqlDao(dataSource.connection)
+		val version = dao.normalizedUtPlsqlVersion
+		Assert.assertTrue(version !== null)
+	}
 
 }
