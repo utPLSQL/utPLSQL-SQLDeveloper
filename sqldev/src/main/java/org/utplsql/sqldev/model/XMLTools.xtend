@@ -14,6 +14,11 @@
  */
 package org.utplsql.sqldev.model
 
+import java.io.StringWriter
+import javax.xml.transform.OutputKeys
+import javax.xml.transform.TransformerFactory
+import javax.xml.transform.dom.DOMSource
+import javax.xml.transform.stream.StreamResult
 import javax.xml.xpath.XPathConstants
 import javax.xml.xpath.XPathFactory
 import org.w3c.dom.Node
@@ -33,5 +38,30 @@ class XMLTools {
 		val expr = xpath.compile(xpathString);
 		val Node node = expr.evaluate(doc, XPathConstants.NODE) as Node
 		return node 
+	}
+	
+	def void trimWhitespace(Node node) {
+		val children = node.childNodes
+		for (i : 0 ..< children.length) {
+			val child = children.item(i)
+			if (child.nodeType == Node.TEXT_NODE) {
+				child.textContent = child.textContent.trim
+			}
+			trimWhitespace(child);
+		}
+	}
+	
+	def nodeToString(Node node, String cdataSectionElements) {
+		node.trimWhitespace
+		val writer = new StringWriter()
+		val factory = TransformerFactory.newInstance().newTransformer()
+		factory.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes")
+		factory.setOutputProperty(OutputKeys.INDENT, "yes")
+		factory.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "3");
+		factory.setOutputProperty(OutputKeys.CDATA_SECTION_ELEMENTS, cdataSectionElements)
+		factory.transform(new DOMSource(node), new StreamResult(writer))
+		val result = writer.toString()
+		val fixedResult = result.replaceAll('''<!\[CDATA\[\s*\]\]>''',"")
+		return fixedResult
 	}
 }
