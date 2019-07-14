@@ -488,10 +488,10 @@ class DalTest extends AbstractJdbcTest {
 			END junit_utplsql_test_pkg;
 		''')
 		val dao = new UtplsqlDao(dataSource.connection)
-		val actualEmpty = dao.includes('TEST_F1')
+		val actualEmpty = dao.includes('SCOTT', 'TEST_F1')
 		Assert.assertEquals(#[], actualEmpty)
-		val actual = dao.includes('junit_utplsql_test_pkg')
-		Assert.assertEquals(#['JUNIT_UTPLSQL_TEST_PKG','JUNIT_F','UT_EXPECTATION'].sort, actual.sort)
+		val actual = dao.includes('SCOTT', 'junit_utplsql_test_pkg')
+		Assert.assertEquals(#['SCOTT.JUNIT_UTPLSQL_TEST_PKG','SCOTT.JUNIT_F','UT3_LATEST_RELEASE.UT_EXPECTATION'].sort, actual.sort)
 	}
 	
 	@Test

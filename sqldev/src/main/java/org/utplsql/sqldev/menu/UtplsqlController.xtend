@@ -313,12 +313,21 @@ class UtplsqlController implements Controller {
 			}
 		}
 	}
-	
+
 	def List<String> dependencies(String name, String connectionName) {
 		var List<String> ret = null
 		if (connectionName !== null) {
+			val owner = Connections.instance.getConnection(connectionName).schema
+			ret = dependencies(owner, name, connectionName)
+		}
+		return ret
+	}
+	
+	def List<String> dependencies(String owner, String name, String connectionName) {
+		var List<String> ret = null
+		if (connectionName !== null) {
 			val dao = new UtplsqlDao(Connections.instance.getConnection(connectionName))
-			ret = dao.includes(name)
+			ret = dao.includes(owner, name)
 		}
 		return ret
 	}
@@ -328,12 +337,12 @@ class UtplsqlController implements Controller {
 		for (i : 0 ..< context.selection.length) {
 			val element = context.selection.get(i)
 			if (element instanceof PlSqlNode) {
-				val dep = dependencies(element.objectName, connectionName)
+				val dep = dependencies(element.owner, element.objectName, connectionName)
 				for (d : dep) {
 					ret.add(d)
 				}
 			} else if (element instanceof ChildObjectElement) {
-				val dep = dependencies(element.URL.memberObject, connectionName)
+				val dep = dependencies(element.URL.schema, element.URL.memberObject, connectionName)
 				for (d : dep) {
 					ret.add(d)
 				}
