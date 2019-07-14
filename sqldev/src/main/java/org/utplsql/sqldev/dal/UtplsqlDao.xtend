@@ -922,11 +922,11 @@ class UtplsqlDao {
 	 * @param name test package name
 	 * @return list of dependencies in the current schema
 	 */
-	def List<String> includes(String name) {
+	def List<String> includes(String owner, String name) {
 		val sql = '''
-			select referenced_name
+			select referenced_owner || '.' || referenced_name AS dep_name
 			  from «IF dbaViewAccessible»dba«ELSE»all«ENDIF»_dependencies
-			  WHERE owner = user
+			  WHERE owner = upper(?)
 			    AND name = upper(?)
 			    AND referenced_owner NOT IN (
 			           'SYS', 'SYSTEM', 'XS$NULL', 'OJVMSYS', 'LBACSYS', 'OUTLN', 'SYS$UMF', 
@@ -940,7 +940,7 @@ class UtplsqlDao {
 			    AND referenced_owner NOT LIKE 'APEX\_______'
 			    AND referenced_type IN ('PACKAGE', 'TYPE', 'PROCEDURE', 'FUNCTION', 'TRIGGER')
 		'''
-		val deps = jdbcTemplate.queryForList(sql, String, #[name])
+		val deps = jdbcTemplate.queryForList(sql, String, #[owner, name])
 		return deps
 	}
 
