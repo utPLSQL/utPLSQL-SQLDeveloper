@@ -88,7 +88,7 @@ class PreferencePanel extends DefaultTraversablePanel {
 		runTab.alignLabelsLeft = true
 		runTab.add(
 			runTab.field.label.withText(UtplsqlResources.getString("PREF_USE_REALTIME_REPORTER_LABEL")).component(
-				useRealtimeReporterCheckBox))
+				useRealtimeReporterCheckBox).withHint(UtplsqlResources.getString("PREF_USE_REALTIME_REPORTER_HINT")))
 		runTab.add(
 			runTab.field.label.withText(UtplsqlResources.getString("PREF_UNSHARED_WORKSHEET_LABEL")).component(
 				unsharedWorksheetCheckBox))
