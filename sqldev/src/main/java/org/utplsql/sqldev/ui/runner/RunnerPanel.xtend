@@ -45,6 +45,7 @@ import javax.swing.JSeparator
 import javax.swing.JSplitPane
 import javax.swing.JTabbedPane
 import javax.swing.JTable
+import javax.swing.RepaintManager
 import javax.swing.SwingConstants
 import javax.swing.UIManager
 import javax.swing.border.EmptyBorder
@@ -368,8 +369,10 @@ class RunnerPanel implements ActionListener, MouseListener, HyperlinkListener {
 			testOverviewTableModel.fireTableDataChanged
 		} else {
 			if (testOverviewTableModel.rowCount > row) {
-				testOverviewTableModel.fireTableRowsUpdated(row, row)
 				val positionOfCurrentTest = testOverviewTable.getCellRect(row, 0, true);
+				testOverviewTable.scrollRectToVisible = positionOfCurrentTest
+				testOverviewTableModel.fireTableRowsUpdated(row, row)
+				Thread.sleep(5) // reduce flickering
 				testOverviewTable.scrollRectToVisible = positionOfCurrentTest
 			}
 		}
@@ -863,7 +866,8 @@ class RunnerPanel implements ActionListener, MouseListener, HyperlinkListener {
 		testOverviewTable.rowHeight = OVERVIEW_TABLE_ROW_HEIGHT
 		testOverviewTable.tableHeader.preferredSize = new Dimension(testOverviewTable.tableHeader.getPreferredSize.width, OVERVIEW_TABLE_ROW_HEIGHT)
 		testOverviewTable.selectionModel.addListSelectionListener(new TestOverviewRowListener(this))
-		testOverviewTable.addMouseListener(this)		
+		testOverviewTable.addMouseListener(this)
+		RepaintManager.currentManager(testOverviewTable).doubleBufferingEnabled = true // reduce flickering
 		val testTableHeaderRenderer = new TestTableHeaderRenderer
 		val overviewTableStatus = testOverviewTable.columnModel.getColumn(0)
 		overviewTableStatus.minWidth = INDICATOR_WIDTH
