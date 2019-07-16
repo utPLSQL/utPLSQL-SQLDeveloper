@@ -25,7 +25,6 @@ import org.springframework.jdbc.BadSqlGrammarException
 import org.utplsql.sqldev.dal.UtplsqlDao
 import org.utplsql.sqldev.model.ut.Annotation
 import org.utplsql.sqldev.test.AbstractJdbcTest
-import org.junit.Ignore
 
 class DalTest extends AbstractJdbcTest {
 	
@@ -147,9 +146,8 @@ class DalTest extends AbstractJdbcTest {
 	}
 	
 	@Test
-	@Ignore
-	def void containsUtplsqlTest999() {
-		containsUtplsqlTest("9.9.9")
+	def void containsUtplsqlTest318() {
+		containsUtplsqlTest("3.1.8")
 	}
 
 	def void annotations(String utPlsqlVersion) {
@@ -206,8 +204,8 @@ class DalTest extends AbstractJdbcTest {
 	}
 	
 	@Test
-	def void annotations999() {
-		annotations("9.9.9")
+	def void annotations318() {
+		annotations("3.1.8")
 	}
 
 	def void testablesPackages(String utPlsqlVersion) {
@@ -252,8 +250,8 @@ class DalTest extends AbstractJdbcTest {
 	}
 
 	@Test
-	def void testablesPackages999() {
-		testablesPackages("9.9.9")
+	def void testablesPackages318() {
+		testablesPackages("3.1.8")
 	}
 
 	def void testablesTypes(String utPlsqlVersion) {
@@ -291,8 +289,8 @@ class DalTest extends AbstractJdbcTest {
 	}
 
 	@Test
-	def void testablesTypes999() {
-		testablesTypes("9.9.9")
+	def void testablesTypes318() {
+		testablesTypes("3.1.8")
 	}
 
 	def void testablesFunctions(String utPlsqlVersion) {
@@ -323,8 +321,8 @@ class DalTest extends AbstractJdbcTest {
 	}
 
 	@Test
-	def void testablesFunctions999() {
-		testablesFunctions("9.9.9")
+	def void testablesFunctions318() {
+		testablesFunctions("3.1.8")
 	}
 
 	def void testablesProcedures(String utPlsqlVersion) {
@@ -355,8 +353,8 @@ class DalTest extends AbstractJdbcTest {
 	}
 
 	@Test
-	def void testablesProcedures999() {
-		testablesProcedures("9.9.9")
+	def void testablesProcedures318() {
+		testablesProcedures("3.1.8")
 	}
 
 	def void runnables(String utPlsqlVersion) {
@@ -422,8 +420,8 @@ class DalTest extends AbstractJdbcTest {
 	}
 	
 	@Test
-	def void runnables999() {
-		runnables("9.9.9")
+	def void runnables318() {
+		runnables("3.1.8")
 	}
 
 	@Test
