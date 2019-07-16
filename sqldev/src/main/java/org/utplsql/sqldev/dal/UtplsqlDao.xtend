@@ -37,7 +37,7 @@ class UtplsqlDao {
 	public static val FIRST_VERSION_WITH_INTERNAL_ANNOTATION_API = 3000004
 	public static val FIRST_VERSION_WITH_ANNOTATION_API = 3001003
 	public static val FIRST_VERSION_WITHOUT_INTERNAL_API = 3001008
-	public static val NOT_YET_AVAILABLE = 9009009
+	public static val FIRST_VERSION_WITH_HAS_SUITES_API = 3001008
 	var Connection conn
 	var JdbcTemplate jdbcTemplate
 	// cache fields
@@ -183,9 +183,8 @@ class UtplsqlDao {
 	 */
 	def boolean containsUtplsqlTest(String owner, String objectName, String subobjectName) {
 		try {
-			if (normalizedUtPlsqlVersionNumber >= NOT_YET_AVAILABLE && objectName !== null && subobjectName !== null) {
-				// use faster check function available since v3.1.3 (FIRST_VERSION_WITH_ANNOTATION_API)
-				// disabled (NOT_YET_AVAILABLE) due to wrong results in v3.1.7
+			if (normalizedUtPlsqlVersionNumber >= org.utplsql.sqldev.dal.UtplsqlDao.FIRST_VERSION_WITH_HAS_SUITES_API && objectName !== null && subobjectName !== null) {
+				// use faster check function available since v3.1.3 (reliable in v3.1.8)
 				val sql = '''
 					DECLARE
 					   l_return VARCHAR2(1) := '0';
@@ -253,9 +252,8 @@ class UtplsqlDao {
 	} 
 	
 	def boolean containsUtplsqlTest(String owner) {
-		if (normalizedUtPlsqlVersionNumber >= NOT_YET_AVAILABLE) {
-			// use faster check function available since v3.1.3 (FIRST_VERSION_WITH_ANNOTATION_API)
-			// disabled (NOT_YET_AVAILABLE) due to wrong results in v3.1.7
+		if (normalizedUtPlsqlVersionNumber >= org.utplsql.sqldev.dal.UtplsqlDao.FIRST_VERSION_WITH_HAS_SUITES_API) {
+			// use faster check function available since v3.1.3 (reliable in v3.1.8)
 			val sql = '''
 				DECLARE
 				   l_return VARCHAR2(1) := '0';
@@ -282,9 +280,8 @@ class UtplsqlDao {
 	}
 	
 	def boolean containsUtplsqlTest(String owner, String objectName) {
-		if (normalizedUtPlsqlVersionNumber >= NOT_YET_AVAILABLE) {
-			// use faster check function available since v3.1.3 (FIRST_VERSION_WITH_ANNOTATION_API)
-			// disabled (NOT_YET_AVAILABLE) due to wrong results in v3.1.7
+		if (normalizedUtPlsqlVersionNumber >= org.utplsql.sqldev.dal.UtplsqlDao.FIRST_VERSION_WITH_HAS_SUITES_API) {
+			// use faster check function available since v3.1.3 (reliable in v3.1.8)
 			val sql = '''
 				DECLARE
 				   l_return VARCHAR2(1) := '0';
