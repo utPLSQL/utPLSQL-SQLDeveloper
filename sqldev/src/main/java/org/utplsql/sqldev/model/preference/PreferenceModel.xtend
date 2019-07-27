@@ -39,6 +39,7 @@ class PreferenceModel extends HashStructureAdapter {
 	static final String KEY_CLEAR_SCREEN = "clearScreen"
 	static final String KEY_AUTO_EXECUTE = "autoExecute"
 	static final String KEY_CHECK_RUN_UTPLSQL_TEST = "checkRunUtplsqlTest"
+	static final String KEY_USE_SMART_TIMES = "useSmartTimes"
 	static final String KEY_NUMBER_OF_RUNS_IN_HISTORY = "numberOfRunsInHistory"
 	static final String KEY_SHOW_DISABLED_COUNTER = "showDisabledCounter"
 	static final String KEY_SHOW_WARNINGS_COUNTER = "showWarningsCounter"
@@ -108,6 +109,14 @@ class PreferenceModel extends HashStructureAdapter {
 
 	def setCheckRunUtplsqlTest(boolean checkRunUtplsqlTest) {
 		getHashStructure.putBoolean(PreferenceModel.KEY_CHECK_RUN_UTPLSQL_TEST, checkRunUtplsqlTest)
+	}
+
+	def isUseSmartTimes() {
+		return getHashStructure.getBoolean(PreferenceModel.KEY_USE_SMART_TIMES, false)
+	}
+
+	def setUseSmartTimes(boolean useSmartTimes) {
+		getHashStructure.putBoolean(PreferenceModel.KEY_USE_SMART_TIMES, useSmartTimes)
 	}
 
 	def getNumberOfRunsInHistory() {
