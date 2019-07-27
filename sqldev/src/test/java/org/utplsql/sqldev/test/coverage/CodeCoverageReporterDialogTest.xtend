@@ -26,7 +26,7 @@ class CodeCoverageReporterDialogTest extends AbstractJdbcTest{
 		val reporter = new CodeCoverageReporter(#["SCOTT"], #['a', 'b', 'c'], dataSource.connection)
 		reporter.showParameterWindow
 		Thread.sleep(4 * 1000)
-		reporter.frame.exit
+		reporter.frame?.exit
 	}
 	
 }

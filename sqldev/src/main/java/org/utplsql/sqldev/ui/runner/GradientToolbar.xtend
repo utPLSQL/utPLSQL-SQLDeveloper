@@ -58,7 +58,7 @@ class GradientToolbar extends JToolBar {
 			val g2d = g as Graphics2D
 			val w = width
 	        val h = height - 1
-	        val h2 = height / 2 as int
+	        val int h2 = height / 2
 	        val colorTop = new Color(237, 237, 237)
 	        val colorMiddle = new Color(244, 244, 244)
 	        val colorBottom = new Color(254, 254, 254)

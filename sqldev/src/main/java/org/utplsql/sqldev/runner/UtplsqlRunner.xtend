@@ -255,7 +255,7 @@ class UtplsqlRunner implements RealtimeReporterEventConsumer {
 	
 	private def initGUI() {
 		var RunnerView dockable = null
-		if (runningInSqlDeveloper && (dockable = RunnerFactory.dockable as RunnerView) === null) {
+		if (runningInSqlDeveloper && (dockable = RunnerFactory.dockable) === null) {
 			logger.severe('''Error getting utPLSQL dockable. Cannot run utPLSQL test.''')
 			return false
 		} else {

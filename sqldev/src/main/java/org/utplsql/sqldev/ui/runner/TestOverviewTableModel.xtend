@@ -27,6 +27,7 @@ class TestOverviewTableModel extends DefaultTableModel {
 	String commonPrefix
 	boolean commonPrefixCalculated
 	boolean showDescription
+	boolean useSmartTimes
 	
 	new() {
 		super()
@@ -40,10 +41,11 @@ class TestOverviewTableModel extends DefaultTableModel {
 		}
 	}
 	
-	def setModel(LinkedHashMap<String, Test> tests, boolean showDescription) {
+	def setModel(LinkedHashMap<String, Test> tests, boolean showDescription, boolean useSmartTimes) {
 		commonPrefixCalculated = false
 		this.tests = tests
 		this.showDescription = showDescription
+		this.useSmartTimes = useSmartTimes
 		calcCommonPrefix
 		fireTableDataChanged()
 	}
@@ -68,6 +70,11 @@ class TestOverviewTableModel extends DefaultTableModel {
 				commonPrefix
 			}
 		}
+	}
+	
+	def getTimeColumnName() {
+		val timeColumnName = '''«UtplsqlResources.getString("RUNNER_TEST_EXECUTION_TIME_COLUMN")»«IF !useSmartTimes» [s]«ENDIF»'''
+		return timeColumnName		
 	}
 	
 	def getTest(int row) {
@@ -120,7 +127,7 @@ class TestOverviewTableModel extends DefaultTableModel {
 
 	override getColumnName(int col) {
 		return #["", "", "", UtplsqlResources.getString(if (showDescription) {"RUNNER_DESCRIPTION_LABEL"} else {"RUNNER_TEST_ID_COLUMN"}),
-			UtplsqlResources.getString("RUNNER_TEST_EXECUTION_TIME_COLUMN")].get(col)
+			timeColumnName].get(col)
 	}
 
 	override isCellEditable(int row, int column) {

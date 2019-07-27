@@ -30,6 +30,7 @@ class PreferenceModelTest {
 		Assert.assertFalse(model.clearScreen)
 		Assert.assertTrue(model.autoExecute)
 		Assert.assertFalse(model.checkRunUtplsqlTest)
+		Assert.assertFalse(model.useSmartTimes)
 		Assert.assertEquals(model.numberOfRunsInHistory, 10)
 		Assert.assertFalse(model.showDisabledCounter)
 		Assert.assertFalse(model.showWarningsCounter)

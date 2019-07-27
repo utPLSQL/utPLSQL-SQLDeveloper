@@ -104,7 +104,7 @@ class RealtimeReporterFetchSizeTest extends AbstractJdbcTest {
 
 	@Test 
 	def void delayFreeStreamingConsumtion() {
-		val long TOLERANCE_MS = 400
+		val long TOLERANCE_MS = 600
 		var ds = new SingleConnectionDataSource()
 		ds.driverClassName = "oracle.jdbc.OracleDriver"
 		ds.url = dataSource.url
