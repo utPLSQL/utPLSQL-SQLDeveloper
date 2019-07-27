@@ -26,7 +26,6 @@ import java.awt.event.ActionEvent
 import java.awt.event.ActionListener
 import java.awt.event.MouseEvent
 import java.awt.event.MouseListener
-import java.text.DecimalFormat
 import java.util.ArrayList
 import java.util.regex.Pattern
 import javax.swing.BorderFactory
@@ -75,6 +74,7 @@ class RunnerPanel implements ActionListener, MouseListener, HyperlinkListener {
 	static val INDICATOR_WIDTH = 20
 	static val OVERVIEW_TABLE_ROW_HEIGHT = 20
 	static val TEXTPANE_DIM = new Dimension(100, 100)
+	static var boolean useSmartTimes
 	LimitedLinkedHashMap<String, Run> runs = new LimitedLinkedHashMap<String, Run>(10)
 	Run currentRun
 	JPanel basePanel
@@ -338,6 +338,7 @@ class RunnerPanel implements ActionListener, MouseListener, HyperlinkListener {
 		fixCheckBoxMenuItem(showInfoIndicatorCheckBoxMenuItem)
 		syncDetailTabCheckBoxMenuItem.selected = preferences.syncDetailTab
 		fixCheckBoxMenuItem(syncDetailTabCheckBoxMenuItem)
+		useSmartTimes = preferences.useSmartTimes
 	}
 		
 	def setModel(Run run) {
@@ -349,7 +350,13 @@ class RunnerPanel implements ActionListener, MouseListener, HyperlinkListener {
 	private def setCurrentRun(Run run) {
 		if (run !== currentRun) {
 			currentRun = run
-			testOverviewTableModel.setModel(run.tests, showTestDescriptionCheckBoxMenuItem.selected)
+			testOverviewTableModel.setModel(run.tests, showTestDescriptionCheckBoxMenuItem.selected, useSmartTimes)
+			val header = testOverviewTableModel.timeColumnName
+			val timeColumn = testOverviewTable.columnModel.getColumn(4)
+			if (timeColumn.headerValue != header) {
+				timeColumn.headerValue = header
+				testOverviewTable.tableHeader.repaint
+			}
 			resetDerived
 			val item = new ComboBoxItem<String, String>(currentRun.reporterId, currentRun.name)
 			runComboBox.selectedItem = item
@@ -640,12 +647,10 @@ class RunnerPanel implements ActionListener, MouseListener, HyperlinkListener {
 	}
 
    static class TimeFormatRenderer extends DefaultTableCellRenderer {
-		static val DecimalFormat formatter = new DecimalFormat("#,##0.000")
-
 		override getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus,
 			int row, int col) {
-			val renderedValue = if (value === null) {null} else {formatter.format(value as Number)}
-			return super.getTableCellRendererComponent(table, renderedValue, isSelected, hasFocus, row, col)
+			val smartTime = new SmartTime(value as Double, useSmartTimes)				
+			return super.getTableCellRendererComponent(table, smartTime.toString, isSelected, hasFocus, row, col)
 		}
 	}
 	
