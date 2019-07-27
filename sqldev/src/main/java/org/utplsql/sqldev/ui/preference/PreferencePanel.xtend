@@ -22,10 +22,12 @@ import javax.swing.JButton
 import javax.swing.JCheckBox
 import javax.swing.JOptionPane
 import javax.swing.JPanel
+import javax.swing.JSeparator
 import javax.swing.JSpinner
 import javax.swing.JTabbedPane
 import javax.swing.JTextField
 import javax.swing.SpinnerNumberModel
+import javax.swing.SwingConstants
 import javax.swing.table.DefaultTableModel
 import oracle.dbtools.raptor.templates.CodeTemplateUtil
 import oracle.ide.panels.DefaultTraversablePanel
@@ -45,6 +47,7 @@ class PreferencePanel extends DefaultTraversablePanel {
 	val JCheckBox clearScreenCheckBox = new JCheckBox
 	val JCheckBox autoExecuteCheckBox = new JCheckBox
 	val JCheckBox checkRunUtplsqlTestCheckBox = new JCheckBox
+	val JCheckBox useSmartTimesCheckBox = new JCheckBox
 	val JButton importSnippetsButton = new JButton(UtplsqlResources.getString("PREF_IMPORT_SNIPPETS_BUTTON_LABEL"))
 	val JPanel realtimeReporterPanel = new JPanel
 	val SpinnerNumberModel numberOfRunsInHistoryModel = new SpinnerNumberModel(1, 1, 100, 1);
@@ -104,6 +107,10 @@ class PreferencePanel extends DefaultTraversablePanel {
 		runTab.add(
 			runTab.field.label.withText(UtplsqlResources.getString("PREF_CHECK_RUN_UTPLSQL_TEST_LABEL")).component(
 				checkRunUtplsqlTestCheckBox))
+		runTab.add(
+			runTab.field.label.withText(UtplsqlResources.getString("PREF_USE_SMART_TIMES_LABEL")).component(
+				useSmartTimesCheckBox))
+		runTab.addRow(new JSeparator(SwingConstants.HORIZONTAL))
 		runTab.addRow(importSnippetsButton)
 		runTab.addVerticalSpring
 		
@@ -336,6 +343,7 @@ class PreferencePanel extends DefaultTraversablePanel {
 		clearScreenCheckBox.selected = info.clearScreen
 		autoExecuteCheckBox.selected = info.autoExecute
 		checkRunUtplsqlTestCheckBox.selected = info.checkRunUtplsqlTest
+		useSmartTimesCheckBox.selected = info.useSmartTimes
 		numberOfRunsInHistorySpinner.value = info.numberOfRunsInHistory
 		showDisabledCounterCheckBox.selected = info.showDisabledCounter
 		showWarningsCounterCheckBox.selected = info.showWarningsCounter
@@ -371,6 +379,7 @@ class PreferencePanel extends DefaultTraversablePanel {
 		info.autoExecute = autoExecuteCheckBox.selected
 		info.numberOfRunsInHistory = numberOfRunsInHistorySpinner.value as Integer
 		info.checkRunUtplsqlTest = checkRunUtplsqlTestCheckBox.selected
+		info.useSmartTimes = useSmartTimesCheckBox.selected
 		info.showDisabledCounter = showDisabledCounterCheckBox.selected
 		info.showWarningsCounter = showWarningsCounterCheckBox.selected
 		info.showInfoCounter = showInfoCounterCheckBox.selected
