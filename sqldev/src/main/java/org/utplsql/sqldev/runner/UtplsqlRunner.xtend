@@ -129,7 +129,7 @@ class UtplsqlRunner implements RealtimeReporterEventConsumer {
 		run.executionTime = event.executionTime
 		run.errorStack = event.errorStack
 		run.serverOutput = event.serverOutput
-		run.status = String.format(UtplsqlResources.getString("RUNNER_FINNISHED_TEXT"), event.executionTime)
+		run.status = UtplsqlResources.getString("RUNNER_FINNISHED_TEXT")
 		panel.update(reporterId)
 	}
 	
@@ -182,7 +182,7 @@ class UtplsqlRunner implements RealtimeReporterEventConsumer {
 		} else {
 			test.startTime = sysdate
 		}
-		run.status = event.id
+		run.status = '''«event.id»...'''
 		run.currentTestNumber = event.testNumber
 		run.currentTest = test
 		panel.update(reporterId)
@@ -241,6 +241,8 @@ class UtplsqlRunner implements RealtimeReporterEventConsumer {
 		}
 		if (run.totalNumberOfTests < 0) {
 			run.status = UtplsqlResources.getString("RUNNER_NO_TESTS_FOUND_TEXT")
+			run.executionTime = new Double(System.currentTimeMillis - run.start)/1000
+			run.endTime = sysdate
 			run.totalNumberOfTests = 0
 			panel.update(reporterId)
 		}
