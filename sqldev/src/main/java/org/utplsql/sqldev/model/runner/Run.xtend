@@ -37,6 +37,7 @@ class Run extends AbstractModel {
 	String serverOutput
 	LinkedHashMap<String, Test> tests
 	String status
+	Long start
 	
 	new(String reporterId, String connectionName, List<String> pathList) {
 		this.reporterId = reporterId
@@ -46,6 +47,11 @@ class Run extends AbstractModel {
 		this.tests = new LinkedHashMap<String, Test>
 	}
 	
+	def void setStartTime(String startTime) {
+		this.startTime = startTime
+		start = System.currentTimeMillis
+	}
+		
 	def getName() {
 		val time = startTime.substring(11,19)
 		val conn = connectionName?.substring(15)
