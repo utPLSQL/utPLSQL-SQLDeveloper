@@ -31,7 +31,7 @@ class SmartTime {
 		this.smart = smart
 	}
 	
-	def setMillis(Double seconds) {
+	def setSeconds(Double seconds) {
 		this.seconds = seconds
 	}
 	
