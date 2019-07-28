@@ -283,16 +283,18 @@ class UtplsqlRunner implements RealtimeReporterEventConsumer {
 	def runTestAsync() {
 		// start tests when the GUI has been successfully initialized.
 		if (initGUI) {
-			// the producer
-			val Runnable producer = [|produce]
-			producerThread = new Thread(producer)
-			producerThread.name = "realtime producer"
-			producerThread.start
 			// the consumer
 			val Runnable consumer = [|consume]
 			consumerThread = new Thread(consumer)
 			consumerThread.name = "realtime consumer"
 			consumerThread.start
+			// avoid concurrency on output header table to fix issue #80
+			Thread.sleep(100)
+			// the producer
+			val Runnable producer = [|produce]
+			producerThread = new Thread(producer)
+			producerThread.name = "realtime producer"
+			producerThread.start
 		}
 	}
 	
