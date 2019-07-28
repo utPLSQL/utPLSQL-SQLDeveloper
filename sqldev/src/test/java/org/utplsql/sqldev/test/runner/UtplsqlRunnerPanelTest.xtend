@@ -88,7 +88,8 @@ class UtplsqlRunnerPanelTest {
 		run.counter.success = run.counter.success + 1
 		run.status="utplsql.test.e"
 		val end = System.currentTimeMillis
-		run.status = String.format(UtplsqlResources.getString("RUNNER_FINNISHED_TEXT"), new Double(end-start)/1000)
+		run.executionTime = new Double(end-start)/1000
+		run.status = UtplsqlResources.getString("RUNNER_FINNISHED_TEXT")
 		panel.update(run.reporterId)
 		Thread.sleep(2000);
 		frame.dispose
