@@ -22,12 +22,10 @@ import javax.swing.JButton
 import javax.swing.JCheckBox
 import javax.swing.JOptionPane
 import javax.swing.JPanel
-import javax.swing.JSeparator
 import javax.swing.JSpinner
 import javax.swing.JTabbedPane
 import javax.swing.JTextField
 import javax.swing.SpinnerNumberModel
-import javax.swing.SwingConstants
 import javax.swing.table.DefaultTableModel
 import oracle.dbtools.raptor.templates.CodeTemplateUtil
 import oracle.ide.panels.DefaultTraversablePanel
@@ -110,7 +108,7 @@ class PreferencePanel extends DefaultTraversablePanel {
 		runTab.add(
 			runTab.field.label.withText(UtplsqlResources.getString("PREF_USE_SMART_TIMES_LABEL")).component(
 				useSmartTimesCheckBox))
-		runTab.addRow(new JSeparator(SwingConstants.HORIZONTAL))
+		runTab.addVerticalGap
 		runTab.addRow(importSnippetsButton)
 		runTab.addVerticalSpring
 		

@@ -46,6 +46,7 @@ import javax.swing.JTabbedPane
 import javax.swing.JTable
 import javax.swing.RepaintManager
 import javax.swing.SwingConstants
+import javax.swing.Timer
 import javax.swing.UIManager
 import javax.swing.border.EmptyBorder
 import javax.swing.event.HyperlinkEvent
@@ -85,6 +86,8 @@ class RunnerPanel implements ActionListener, MouseListener, HyperlinkListener {
 	ToolbarButton clearButton
 	JComboBox<ComboBoxItem<String, String>> runComboBox
 	JLabel statusLabel
+	JLabel elapsedTimeLabel
+	Timer elapsedTimeTimer
 	JLabel testCounterValueLabel
 	JLabel errorCounterValueLabel
 	JLabel failureCounterValueLabel
@@ -360,6 +363,7 @@ class RunnerPanel implements ActionListener, MouseListener, HyperlinkListener {
 			resetDerived
 			val item = new ComboBoxItem<String, String>(currentRun.reporterId, currentRun.name)
 			runComboBox.selectedItem = item
+			elapsedTimeTimer.start
 		}		
 	}
 
@@ -765,7 +769,7 @@ class RunnerPanel implements ActionListener, MouseListener, HyperlinkListener {
 		toolbar.add(clearButton)
 		c.gridx = 0
 		c.gridy = 0
-		c.gridwidth = 1
+		c.gridwidth = 2
 		c.gridheight = 1
 		c.insets = new Insets(0, 0, 0, 0) // top, left, bottom, right
 		c.anchor = GridBagConstraints::NORTH
@@ -780,12 +784,42 @@ class RunnerPanel implements ActionListener, MouseListener, HyperlinkListener {
 		c.gridy = 1
 		c.gridwidth = 1
 		c.gridheight = 1
-		c.insets = new Insets(10, 10, 10, 10) // top, left, bottom, right
+		c.insets = new Insets(10, 10, 10, 0) // top, left, bottom, right
 		c.anchor = GridBagConstraints::WEST
 		c.fill = GridBagConstraints::HORIZONTAL
 		c.weightx = 1
 		c.weighty = 0
 		basePanel.add(statusLabel, c)
+		elapsedTimeLabel = new JLabel
+		elapsedTimeLabel.preferredSize = new Dimension(60, 0)
+		c.gridx = 1
+		c.gridy = 1
+		c.gridwidth = 1
+		c.gridheight = 1
+		c.insets = new Insets(10, 10, 10, 10) // top, left, bottom, right
+		c.anchor = GridBagConstraints::WEST
+		c.fill = GridBagConstraints::NONE
+		c.weightx = 0
+		c.weighty = 0
+		basePanel.add(elapsedTimeLabel, c)
+		elapsedTimeTimer = new Timer(100, new ActionListener() {
+			override actionPerformed(ActionEvent e) {
+				if (currentRun !== null && currentRun.start !== null) {
+					val time = new SmartTime
+					time.smart = useSmartTimes
+					if (currentRun.executionTime !== null) {
+						time.seconds = currentRun.executionTime
+						elapsedTimeTimer.stop
+					} else {
+						val long now = System.currentTimeMillis
+						time.seconds = new Double(now - currentRun.start) / 1000
+					}
+					elapsedTimeLabel.text = '''«time.toString»«IF !useSmartTimes» s«ENDIF»'''
+				} else {
+					elapsedTimeLabel.text = null
+				}
+			}
+		})
 		
 		// Counters
 		// - Test counter
@@ -822,7 +856,7 @@ class RunnerPanel implements ActionListener, MouseListener, HyperlinkListener {
 		// - add everything to basePanel		
 		c.gridx = 0
 		c.gridy = 2
-		c.gridwidth = 1
+		c.gridwidth = 2
 		c.gridheight = 1
 		c.insets = new Insets(5, 0, 5, 0) // top, left, bottom, right
 		c.anchor = GridBagConstraints::WEST
@@ -854,7 +888,7 @@ class RunnerPanel implements ActionListener, MouseListener, HyperlinkListener {
 		progressBar.UI = new BasicProgressBarUI
 		c.gridx = 0
 		c.gridy = 3
-		c.gridwidth = 1
+		c.gridwidth = 2
 		c.gridheight = 1
 		c.insets = new Insets(10, 10, 10, 10) // top, left, bottom, right
 		c.anchor = GridBagConstraints::WEST
@@ -1206,7 +1240,7 @@ class RunnerPanel implements ActionListener, MouseListener, HyperlinkListener {
 		horizontalSplitPane.resizeWeight = 0.5
 		c.gridx = 0
 		c.gridy = 4
-		c.gridwidth = 1
+		c.gridwidth = 2
 		c.gridheight = 1
 		c.insets = new Insets(10, 10, 10, 10) // top, left, bottom, right
 		c.anchor = GridBagConstraints::WEST
