@@ -55,6 +55,8 @@ class PreferencePanel extends DefaultTraversablePanel {
 	val JCheckBox showInfoCounterCheckBox = new JCheckBox
 	val JCheckBox showWarningIndicatorCheckBox = new JCheckBox
 	val JCheckBox showInfoIndicatorCheckBox = new JCheckBox
+	val JCheckBox showSuccessfulTestsCheckBox = new JCheckBox
+	val JCheckBox showDisabledTestsCheckBox = new JCheckBox
 	val JCheckBox showTestDescriptionCheckBox = new JCheckBox
 	val JCheckBox syncDetailTabCheckBox = new JCheckBox
 	val JPanel generateTestPanel = new JPanel();
@@ -134,6 +136,12 @@ class PreferencePanel extends DefaultTraversablePanel {
 		rrTab.add(
 			runTab.field.label.withText(UtplsqlResources.getString("PREF_SHOW_INFO_INDICATOR_LABEL")).component(
 				showInfoIndicatorCheckBox))
+		rrTab.add(
+			runTab.field.label.withText(UtplsqlResources.getString("PREF_SHOW_SUCCESSFUL_TESTS_LABEL")).component(
+				showSuccessfulTestsCheckBox))
+		rrTab.add(
+			runTab.field.label.withText(UtplsqlResources.getString("PREF_SHOW_DISABLED_TESTS_LABEL")).component(
+				showDisabledTestsCheckBox))
 		rrTab.add(
 			runTab.field.label.withText(UtplsqlResources.getString("PREF_SHOW_TEST_DESCRIPTION_LABEL")).component(
 				showTestDescriptionCheckBox))
@@ -348,6 +356,8 @@ class PreferencePanel extends DefaultTraversablePanel {
 		showInfoCounterCheckBox.selected = info.showInfoCounter
 		showWarningIndicatorCheckBox.selected = info.showWarningIndicator
 		showInfoIndicatorCheckBox.selected = info.showInfoIndicator
+		showSuccessfulTestsCheckBox.selected = info.showSuccessfulTests
+		showDisabledTestsCheckBox.selected = info.showDisabledTests
 		showTestDescriptionCheckBox.selected = info.showTestDescription
 		syncDetailTabCheckBox.selected = info.syncDetailTab
 		testPackagePrefixTextField.text = info.testPackagePrefix
@@ -383,6 +393,8 @@ class PreferencePanel extends DefaultTraversablePanel {
 		info.showInfoCounter = showInfoCounterCheckBox.selected
 		info.showWarningIndicator = showWarningIndicatorCheckBox.selected
 		info.showInfoIndicator = showInfoIndicatorCheckBox.selected
+		info.showSuccessfulTests = showSuccessfulTestsCheckBox.selected
+		info.showDisabledTests = showDisabledTestsCheckBox.selected
 		info.showTestDescription = showTestDescriptionCheckBox.selected
 		info.syncDetailTab = syncDetailTabCheckBox.selected
 		info.testPackagePrefix = testPackagePrefixTextField.text
