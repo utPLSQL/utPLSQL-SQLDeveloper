@@ -46,6 +46,8 @@ class PreferenceModel extends HashStructureAdapter {
 	static final String KEY_SHOW_INFO_COUNTER = "showInfoCounter"
 	static final String KEY_SHOW_WARNING_INDICATOR = "showWarningIndicator"
 	static final String KEY_SHOW_INFO_INDICATOR = "showInfoIndicator"
+	static final String KEY_SHOW_SUCCESSFUL_TESTS = "showSuccessfulTests"
+	static final String KEY_SHOW_DISABLED_TESTS = "showDisabledTests"
 	static final String KEY_SHOW_TEST_DESCRIPTION = "showTestDescription"
 	static final String KEY_SYNC_DETAIL_TAB = "syncDetailTab"
 	static final String KEY_TEST_PACKAGE_PREFIX = "testPackagePrefix"
@@ -165,6 +167,22 @@ class PreferenceModel extends HashStructureAdapter {
 
 	def setShowInfoIndicator(boolean showInfoIndicator) {
 		getHashStructure.putBoolean(PreferenceModel.KEY_SHOW_INFO_INDICATOR, showInfoIndicator)
+	}
+	
+	def isShowSuccessfulTests() {
+		return getHashStructure.getBoolean(PreferenceModel.KEY_SHOW_SUCCESSFUL_TESTS, true)
+	}
+	
+	def setShowSuccessfulTests(boolean showSuccessfulTests) {
+		getHashStructure.putBoolean(PreferenceModel.KEY_SHOW_SUCCESSFUL_TESTS, showSuccessfulTests)
+	}
+	
+	def isShowDisabledTests() {
+		return getHashStructure.getBoolean(PreferenceModel.KEY_SHOW_DISABLED_TESTS, true)
+	}
+	
+	def setShowDisabledTests(boolean showDisabledTests) {
+		getHashStructure.putBoolean(PreferenceModel.KEY_SHOW_DISABLED_TESTS, showDisabledTests)
 	}
 
 	def isShowTestDescription() {
