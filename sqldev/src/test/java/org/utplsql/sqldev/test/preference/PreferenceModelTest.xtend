@@ -37,6 +37,8 @@ class PreferenceModelTest {
 		Assert.assertFalse(model.showInfoCounter)
 		Assert.assertFalse(model.showWarningIndicator)
 		Assert.assertFalse(model.showInfoIndicator)
+		Assert.assertTrue(model.showSuccessfulTests)
+		Assert.assertTrue(model.showDisabledTests)
 		Assert.assertFalse(model.isShowTestDescription)
 		Assert.assertTrue(model.syncDetailTab)
 		Assert.assertEquals("test_", model.testPackagePrefix)

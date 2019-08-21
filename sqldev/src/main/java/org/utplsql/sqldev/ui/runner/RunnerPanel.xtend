@@ -45,6 +45,7 @@ import javax.swing.JSplitPane
 import javax.swing.JTabbedPane
 import javax.swing.JTable
 import javax.swing.RepaintManager
+import javax.swing.RowFilter
 import javax.swing.SwingConstants
 import javax.swing.Timer
 import javax.swing.UIManager
@@ -55,6 +56,7 @@ import javax.swing.event.ListSelectionEvent
 import javax.swing.event.ListSelectionListener
 import javax.swing.plaf.basic.BasicProgressBarUI
 import javax.swing.table.DefaultTableCellRenderer
+import javax.swing.table.TableRowSorter
 import oracle.dbtools.raptor.controls.grid.DefaultDrillLink
 import oracle.dbtools.raptor.utils.Connections
 import oracle.ide.config.Preferences
@@ -105,6 +107,8 @@ class RunnerPanel implements ActionListener, MouseListener, HyperlinkListener {
 	JCheckBoxMenuItem showTestDescriptionCheckBoxMenuItem
 	JCheckBoxMenuItem showWarningIndicatorCheckBoxMenuItem
 	JCheckBoxMenuItem showInfoIndicatorCheckBoxMenuItem
+	JCheckBoxMenuItem showSuccessfulTestsCheckBoxMenuItem
+	JCheckBoxMenuItem showDisabledTestsCheckBoxMenuItem
 	JCheckBoxMenuItem syncDetailTabCheckBoxMenuItem
 	RunnerTextField testOwnerTextField
 	RunnerTextField testPackageTextField
@@ -219,6 +223,30 @@ class RunnerPanel implements ActionListener, MouseListener, HyperlinkListener {
 			col.maxWidth = 0
 			col.preferredWidth = 0
 		} 
+	}
+	
+	private def applyFilter(boolean showSuccessfulTests, boolean showDisabledTests) {
+		val sorter = testOverviewTable.rowSorter as TableRowSorter<TestOverviewTableModel>
+		val filter = new RowFilter<TestOverviewTableModel, Integer>() {
+			override include(Entry<? extends TestOverviewTableModel, ? extends Integer> entry) {
+				val test = entry.model.getTest(entry.identifier)
+				val counter = test.counter
+				if (counter !== null) {
+					if (counter.success > 0) {
+						if (!showSuccessfulTests) {
+							return false
+						}
+					}
+					if (counter.disabled > 0) {
+						if (!showDisabledTests) {
+							return false
+						}
+					}
+				}
+				return true
+			}
+		}
+		sorter.rowFilter = filter
 	}
 
 	private def openSelectedTest() {
@@ -338,6 +366,9 @@ class RunnerPanel implements ActionListener, MouseListener, HyperlinkListener {
 		fixCheckBoxMenuItem(showWarningIndicatorCheckBoxMenuItem)
 		showInfoIndicatorCheckBoxMenuItem.selected = preferences.showInfoIndicator
 		applyShowInfoIndicator(showInfoIndicatorCheckBoxMenuItem.selected)
+		showSuccessfulTestsCheckBoxMenuItem.selected = preferences.showSuccessfulTests
+		showDisabledTestsCheckBoxMenuItem.selected = preferences.showDisabledTests
+		applyFilter(showSuccessfulTestsCheckBoxMenuItem.selected, showDisabledTestsCheckBoxMenuItem.selected)
 		fixCheckBoxMenuItem(showInfoIndicatorCheckBoxMenuItem)
 		syncDetailTabCheckBoxMenuItem.selected = preferences.syncDetailTab
 		fixCheckBoxMenuItem(syncDetailTabCheckBoxMenuItem)
@@ -380,10 +411,13 @@ class RunnerPanel implements ActionListener, MouseListener, HyperlinkListener {
 			testOverviewTableModel.fireTableDataChanged
 		} else {
 			if (testOverviewTableModel.rowCount > row) {
-				val positionOfCurrentTest = testOverviewTable.getCellRect(row, 0, true);
+				val positionOfCurrentTest = testOverviewTable.getCellRect(testOverviewTable.convertRowIndexToView(row), 0, true);
 				testOverviewTable.scrollRectToVisible = positionOfCurrentTest
 				testOverviewTableModel.fireTableRowsUpdated(row, row)
 				Thread.sleep(5) // reduce flickering
+				if (!showSuccessfulTestsCheckBoxMenuItem.selected || !showDisabledTestsCheckBoxMenuItem.selected) {
+					applyFilter(showSuccessfulTestsCheckBoxMenuItem.selected, showDisabledTestsCheckBoxMenuItem.selected)	
+				}
 				testOverviewTable.scrollRectToVisible = positionOfCurrentTest
 			}
 		}
@@ -485,6 +519,12 @@ class RunnerPanel implements ActionListener, MouseListener, HyperlinkListener {
 		} else if (e.source == showInfoCounterCheckBoxMenuItem) {
 			applyShowInfoCounter(showInfoCounterCheckBoxMenuItem.selected)
 			fixCheckBoxMenuItem(showInfoCounterCheckBoxMenuItem)
+		} else if (e.source == showSuccessfulTestsCheckBoxMenuItem) {
+			applyFilter(showSuccessfulTestsCheckBoxMenuItem.selected, showDisabledTestsCheckBoxMenuItem.selected)
+			fixCheckBoxMenuItem(showSuccessfulTestsCheckBoxMenuItem)
+		} else if (e.source == showDisabledTestsCheckBoxMenuItem) {
+			applyFilter(showSuccessfulTestsCheckBoxMenuItem.selected, showDisabledTestsCheckBoxMenuItem.selected)
+			fixCheckBoxMenuItem(showDisabledTestsCheckBoxMenuItem)
 		} else if (e.source == showTestDescriptionCheckBoxMenuItem) {
 			applyShowTestDescription(showTestDescriptionCheckBoxMenuItem.selected)
 			fixCheckBoxMenuItem(showTestDescriptionCheckBoxMenuItem)
@@ -943,6 +983,13 @@ class RunnerPanel implements ActionListener, MouseListener, HyperlinkListener {
 		testOverviewRunWorksheetMenuItem.addActionListener(this)
 		testOverviewPopupMenu.add(testOverviewRunWorksheetMenuItem)
 		testOverviewPopupMenu.add(new JSeparator)
+		showSuccessfulTestsCheckBoxMenuItem = new JCheckBoxMenuItem(UtplsqlResources.getString("PREF_SHOW_SUCCESSFUL_TESTS_LABEL").replace("?",""), true)
+		showSuccessfulTestsCheckBoxMenuItem.addActionListener(this)
+		testOverviewPopupMenu.add(showSuccessfulTestsCheckBoxMenuItem)
+		showDisabledTestsCheckBoxMenuItem = new JCheckBoxMenuItem(UtplsqlResources.getString("PREF_SHOW_DISABLED_TESTS_LABEL").replace("?",""), true)
+		showDisabledTestsCheckBoxMenuItem.addActionListener(this)
+		testOverviewPopupMenu.add(showDisabledTestsCheckBoxMenuItem)
+		testOverviewPopupMenu.add(new JSeparator)
 		showTestDescriptionCheckBoxMenuItem = new JCheckBoxMenuItem(UtplsqlResources.getString("PREF_SHOW_TEST_DESCRIPTION_LABEL").replace("?",""), true)
 		showTestDescriptionCheckBoxMenuItem.addActionListener(this)
 		testOverviewPopupMenu.add(showTestDescriptionCheckBoxMenuItem)
@@ -956,6 +1003,7 @@ class RunnerPanel implements ActionListener, MouseListener, HyperlinkListener {
 		syncDetailTabCheckBoxMenuItem.addActionListener(this)
 		testOverviewPopupMenu.add(syncDetailTabCheckBoxMenuItem)
 		testOverviewTable.componentPopupMenu = testOverviewPopupMenu
+		testOverviewTable.tableHeader.componentPopupMenu = testOverviewPopupMenu
 
 		// Test tabbed pane (Test Properties)
 		val testInfoPanel = new ScrollablePanel
