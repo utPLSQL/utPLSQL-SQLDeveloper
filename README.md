@@ -7,6 +7,7 @@ utPLSQL for SQL Developer extends Oracle's SQL Developer to
 * run existing utPLSQL unit tests
 * run utPLSQL code coverage reports 
 * generate new utPLSQL unit tests (skeletons)
+* provide utPLSQL annotations and expectations as snippets
 
 ### Run utPLSQL test
 
@@ -43,6 +44,24 @@ Select a package, type, function or procedure to build a utPLSQL test package sk
 3. Press `Return` to paste a code template at the current cursor position
 
 ![Generate utPLSQL test](images/generate_utplsql_test_from_template.png)
+
+### Snippets
+
+Import utPLSQL snippets for annotations and expectations via the the `Import Snippets` button of the utPLSQL [preferences dialog](#preferences).
+
+Insert the snippets by drag & drop into your code.
+
+#### Annotations
+
+Annotations are used in the package specification for various test configurations.
+
+![utPLSQL Annotations](images/snippets_annotations.png)
+
+#### Expectations
+
+Expectations are used in the package body to compare actual with expected results.
+
+![utPLSQL Expectations](images/snippets_expectations.png)
 
 ### Preferences
 
