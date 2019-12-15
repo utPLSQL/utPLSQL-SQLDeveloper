@@ -399,11 +399,11 @@ class DalTest extends AbstractJdbcTest {
 		Assert.assertEquals("SCOTT:a", actual.get("SCOTT:a.b"))
 		Assert.assertEquals("SCOTT:a.b", actual.get("SCOTT:a.b.c"))
 		Assert.assertEquals("SCOTT:a.b.c", actual.get("SCOTT:a.b.c.junit_utplsql_test_pkg"))
-		Assert.assertEquals("SCOTT:a.b.c.junit_utplsql_test_pkg", actual.get("SCOTT:a.b.c.junit_utplsql_test_pkg.myContext"))
+		Assert.assertEquals("SCOTT:a.b.c.junit_utplsql_test_pkg.nested_context_#", actual.get("SCOTT:a.b.c.junit_utplsql_test_pkg.nested_context_#1"))
 		Assert.assertEquals("SCOTT:a.b.c.junit_utplsql_test_pkg", actual.get("SCOTT:a.b.c.junit_utplsql_test_pkg.t0"))
 		Assert.assertEquals("SCOTT:a.b.c.junit_utplsql_test_pkg", actual.get("SCOTT:a.b.c.junit_utplsql_test_pkg.t3"))
-		Assert.assertEquals("SCOTT:a.b.c.junit_utplsql_test_pkg.myContext", actual.get("SCOTT:a.b.c.junit_utplsql_test_pkg.myContext.t1"))
-		Assert.assertEquals("SCOTT:a.b.c.junit_utplsql_test_pkg.myContext", actual.get("SCOTT:a.b.c.junit_utplsql_test_pkg.myContext.t2"))
+		Assert.assertEquals("SCOTT:a.b.c.junit_utplsql_test_pkg.nested_context_#1", actual.get("SCOTT:a.b.c.junit_utplsql_test_pkg.nested_context_#1.t1"))
+		Assert.assertEquals("SCOTT:a.b.c.junit_utplsql_test_pkg.nested_context_#1", actual.get("SCOTT:a.b.c.junit_utplsql_test_pkg.nested_context_#1.t2"))
 	}
 
 	@Test
@@ -489,7 +489,7 @@ class DalTest extends AbstractJdbcTest {
 		val actualEmpty = dao.includes('SCOTT', 'TEST_F1')
 		Assert.assertEquals(#[], actualEmpty)
 		val actual = dao.includes('SCOTT', 'junit_utplsql_test_pkg')
-		Assert.assertEquals(#['SCOTT.JUNIT_UTPLSQL_TEST_PKG','SCOTT.JUNIT_F','UT3_LATEST_RELEASE.UT_EXPECTATION'].sort, actual.sort)
+		Assert.assertEquals(#['SCOTT.JUNIT_UTPLSQL_TEST_PKG','SCOTT.JUNIT_F','UT3_LATEST_RELEASE.UT_DATA_VALUE','UT3_LATEST_RELEASE.UT_EXPECTATION'].sort, actual.sort)
 	}
 	
 	@Test
