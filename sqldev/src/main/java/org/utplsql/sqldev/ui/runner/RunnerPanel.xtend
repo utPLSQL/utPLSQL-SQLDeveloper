@@ -66,6 +66,7 @@ import org.utplsql.sqldev.dal.UtplsqlDao
 import org.utplsql.sqldev.model.LimitedLinkedHashMap
 import org.utplsql.sqldev.model.preference.PreferenceModel
 import org.utplsql.sqldev.model.runner.Run
+import org.utplsql.sqldev.model.runner.Test
 import org.utplsql.sqldev.parser.UtplsqlParser
 import org.utplsql.sqldev.resources.UtplsqlResources
 import org.utplsql.sqldev.runner.UtplsqlRunner
@@ -248,17 +249,21 @@ class RunnerPanel implements ActionListener, MouseListener, HyperlinkListener {
 		}
 		sorter.rowFilter = filter
 	}
+	
+	private def openTest(Test test) {
+		val dao = new UtplsqlDao(Connections.instance.getConnection(currentRun.connectionName))
+		val source = dao.getSource(test.ownerName, "PACKAGE", test.objectName.toUpperCase).trim
+		val parser = new UtplsqlParser(source)
+		val line = parser.getLineOf(test.procedureName)
+		openEditor(test.ownerName, "PACKAGE", test.objectName.toUpperCase, line, 1)
+	}
 
 	private def openSelectedTest() {
 		val rowIndex = testOverviewTable.selectedRow
 		if (rowIndex != -1) {
 			val row = testOverviewTable.convertRowIndexToModel(rowIndex)
 			val test = testOverviewTableModel.getTest(row)
-			val dao = new UtplsqlDao(Connections.instance.getConnection(currentRun.connectionName))
-			val source = dao.getSource(test.ownerName, "PACKAGE", test.objectName.toUpperCase).trim
-			val parser = new UtplsqlParser(source)
-			val line = parser.getLineOf(test.procedureName)
-			openEditor(test.ownerName, "PACKAGE", test.objectName.toUpperCase, line, 1)
+			openTest(test)
 		}
 	}
 	
@@ -268,7 +273,12 @@ class RunnerPanel implements ActionListener, MouseListener, HyperlinkListener {
 			val row = failuresTable.convertRowIndexToModel(rowIndex)
 			val expectation = failuresTableModel.getExpectation(row)
 			val test = testOverviewTableModel.getTest(testOverviewTable.convertRowIndexToModel(testOverviewTable.selectedRow))
-			openEditor(test.ownerName, "PACKAGE BODY", test.objectName.toUpperCase, expectation.callerLine, 1)
+			val callerLine = expectation.callerLine
+			if (callerLine !== null) {
+				openEditor(test.ownerName, "PACKAGE BODY", test.objectName.toUpperCase, expectation.callerLine, 1)
+			} else {
+				openTest(test)
+			}
 		}
 	}
 	

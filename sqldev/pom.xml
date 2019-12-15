@@ -5,7 +5,7 @@
 	<!-- The Basics -->
 	<groupId>org.utplsql</groupId>
 	<artifactId>org.utplsql.sqldev</artifactId>
-	<version>1.1.0</version>
+	<version>1.1.1-SNAPSHOT</version>
 	<packaging>bundle</packaging>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
