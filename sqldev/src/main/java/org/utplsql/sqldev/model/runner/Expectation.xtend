@@ -28,7 +28,7 @@ class Expectation extends AbstractModel {
 	def getFailureText() {
 		return '''
 			«message.trim»
-			«caller.trim»
+			«caller?.trim»
 		'''.toString.trim
 	}
 	
@@ -38,10 +38,12 @@ class Expectation extends AbstractModel {
 	
 	def getCallerLine() {
 		var Integer line = null
-		val p = Pattern.compile("(?i)\"[^\\\"]+\",\\s+line\\s*([0-9]+)")
-		val m = p.matcher(caller)
-		if (m.find) {
-			line = Integer.valueOf(m.group(1))
+		if (caller !== null) {
+			val p = Pattern.compile("(?i)\"[^\\\"]+\",\\s+line\\s*([0-9]+)")
+			val m = p.matcher(caller)
+			if (m.find) {
+				line = Integer.valueOf(m.group(1))
+			}
 		}
 		return line
 	}
