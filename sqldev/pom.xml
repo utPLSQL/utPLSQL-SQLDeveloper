@@ -11,9 +11,9 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<jdk.version>1.8</jdk.version>
 		<jdk.version.test>1.8</jdk.version.test>
-		<xtend.version>2.18.0</xtend.version>
+		<xtend.version>2.20.0</xtend.version>
 		<!-- requires SQL Developer 4.1.0 or higher (first version based on JDK 1.8) -->
-		<sqldev.basedir>/Applications/SQLDeveloper19.1.0.app/Contents/Resources/sqldeveloper</sqldev.basedir>
+		<sqldev.basedir>/Applications/SQLDeveloper19.4.0.app/Contents/Resources/sqldeveloper</sqldev.basedir>
 		<final.name>utplsql_for_SQLDev_${project.version}</final.name>
 	</properties>
 	<dependencies>
@@ -170,12 +170,12 @@
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-jdbc</artifactId>
-			<version>5.1.8.RELEASE</version>
+			<version>5.2.4.RELEASE</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-web</artifactId>
-			<version>5.1.8.RELEASE</version>
+			<version>5.2.4.RELEASE</version>
 		</dependency>
 		<dependency>
 			<groupId>org.oddgen</groupId>
@@ -234,7 +234,7 @@
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
-				<version>3.8.0</version>
+				<version>3.8.1</version>
 				<artifactId>maven-compiler-plugin</artifactId>
 				<configuration>
 					<source>${jdk.version}</source>
@@ -337,7 +337,7 @@
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>build-helper-maven-plugin</artifactId>
-				<version>3.0.0</version>
+				<version>3.1.0</version>
 				<executions>
 					<execution>
 						<id>parse-version</id>
@@ -400,7 +400,7 @@
 			<plugin>
 				<groupId>org.apache.felix</groupId>
 				<artifactId>maven-bundle-plugin</artifactId>
-				<version>4.2.0</version>
+				<version>4.2.1</version>
 				<extensions>true</extensions>
 				<configuration>
 					<finalName>${project.name}</finalName>
@@ -450,7 +450,7 @@
 			</plugin>
 			<plugin>
 				<artifactId>maven-assembly-plugin</artifactId>
-				<version>3.1.1</version><!--$NO-MVN-MAN-VER$-->
+				<version>3.2.0</version><!--$NO-MVN-MAN-VER$-->
 				<configuration>
 					<finalName>${final.name}</finalName>
 					<appendAssemblyId>false</appendAssemblyId>
