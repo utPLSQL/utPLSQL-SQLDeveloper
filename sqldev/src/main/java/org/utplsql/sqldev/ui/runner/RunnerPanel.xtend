@@ -377,7 +377,9 @@ class RunnerPanel implements ActionListener, MouseListener, HyperlinkListener {
 		showInfoIndicatorCheckBoxMenuItem.selected = preferences.showInfoIndicator
 		applyShowInfoIndicator(showInfoIndicatorCheckBoxMenuItem.selected)
 		showSuccessfulTestsCheckBoxMenuItem.selected = preferences.showSuccessfulTests
+		fixCheckBoxMenuItem(showSuccessfulTestsCheckBoxMenuItem)
 		showDisabledTestsCheckBoxMenuItem.selected = preferences.showDisabledTests
+		fixCheckBoxMenuItem(showDisabledTestsCheckBoxMenuItem)
 		applyFilter(showSuccessfulTestsCheckBoxMenuItem.selected, showDisabledTestsCheckBoxMenuItem.selected)
 		fixCheckBoxMenuItem(showInfoIndicatorCheckBoxMenuItem)
 		syncDetailTabCheckBoxMenuItem.selected = preferences.syncDetailTab

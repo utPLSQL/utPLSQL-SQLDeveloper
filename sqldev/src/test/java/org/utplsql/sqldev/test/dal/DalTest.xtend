@@ -489,7 +489,9 @@ class DalTest extends AbstractJdbcTest {
 		val actualEmpty = dao.includes('SCOTT', 'TEST_F1')
 		Assert.assertEquals(#[], actualEmpty)
 		val actual = dao.includes('SCOTT', 'junit_utplsql_test_pkg')
-		Assert.assertEquals(#['SCOTT.JUNIT_UTPLSQL_TEST_PKG','SCOTT.JUNIT_F','UT3_LATEST_RELEASE.UT_DATA_VALUE','UT3_LATEST_RELEASE.UT_EXPECTATION'].sort, actual.sort)
+		Assert.assertTrue(actual.findFirst[it == "SCOTT.JUNIT_UTPLSQL_TEST_PKG"] !== null)
+		Assert.assertTrue(actual.findFirst[it == "SCOTT.JUNIT_F"] !== null)
+		Assert.assertTrue(actual.findFirst[it == "UT3_LATEST_RELEASE.UT_EXPECTATION"] !== null)
 	}
 	
 	@Test
