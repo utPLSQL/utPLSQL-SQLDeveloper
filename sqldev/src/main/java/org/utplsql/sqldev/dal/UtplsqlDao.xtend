@@ -859,44 +859,47 @@ class UtplsqlDao {
 	 * @throws DataAccessException if there is a problem
 	 */	
 	def String htmlCodeCoverage(List<String> pathList, List<String> schemaList, List<String> includeObjectList, List<String> excludeObjectList) {
-		enableDbmsOutput
 		val sql = '''
-			BEGIN
-				ut.run(
-					a_paths => ut_varchar2_list(
-						«FOR path : pathList SEPARATOR ", "»
-							'«path»'
-						«ENDFOR»
-					),
-					«IF schemaList.size > 0»
-						a_coverage_schemes =>  ut_varchar2_list(
-							«FOR schema : schemaList SEPARATOR ", "»
-								'«schema»'
-							«ENDFOR»
-						),
-					«ENDIF»
-					«IF includeObjectList.size > 0»
-						a_include_objects =>  ut_varchar2_list(
-							«FOR includeObject : includeObjectList SEPARATOR ", "»
-								'«includeObject»'
-							«ENDFOR»
-						),
-					«ENDIF»
-					«IF excludeObjectList.size > 0»
-						a_exclude_objects =>  ut_varchar2_list(
-							«FOR excludeObject : excludeObjectList SEPARATOR ", "»
-								'«excludeObject»'
-							«ENDFOR»
-						),
-					«ENDIF»
-					a_reporter => ut_coverage_html_reporter()
-				);
-			END;
+			SELECT column_value
+			  FROM table(
+			          ut.run(
+			             a_paths => ut_varchar2_list(
+			                «FOR path : pathList SEPARATOR ", "»
+			                   '«path»'
+			                «ENDFOR»
+			             ),
+			             «IF schemaList.size > 0»
+			                a_coverage_schemes => ut_varchar2_list(
+			                   «FOR schema : schemaList SEPARATOR ", "»
+			                      '«schema»'
+			                   «ENDFOR»
+			                ),
+			             «ENDIF»
+			             «IF includeObjectList.size > 0»
+			                a_include_objects => ut_varchar2_list(
+			                   «FOR includeObject : includeObjectList SEPARATOR ", "»
+			                      '«includeObject»'
+			                   «ENDFOR»
+			                ),
+			             «ENDIF»
+			             «IF excludeObjectList.size > 0»
+			                a_exclude_objects => ut_varchar2_list(
+			                   «FOR excludeObject : excludeObjectList SEPARATOR ", "»
+			                      '«excludeObject»'
+			                   «ENDFOR»
+			                ),
+			             «ENDIF»
+			             a_reporter => ut_coverage_html_reporter()
+			          )
+			       )
 		'''
-		jdbcTemplate.update(sql)
-		val ret = getDbmsOutput
-		disableDbmsOutput
-		return ret
+		val lines = jdbcTemplate.queryForList(sql, String)
+		val sb = new StringBuilder 
+		for (line : lines.filter[it !== null]) {
+			sb.append(line)
+			sb.append("\n")
+		}
+		return sb.toString
 	} 
 
 	/**
