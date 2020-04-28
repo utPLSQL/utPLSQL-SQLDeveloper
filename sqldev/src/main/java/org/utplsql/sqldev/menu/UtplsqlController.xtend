@@ -59,15 +59,22 @@ class UtplsqlController implements Controller {
 	public static final IdeAction UTPLSQL_GENERATE_ACTION = IdeAction.get(UtplsqlController.UTPLSQL_GENERATE_CMD_ID)
 
 	override handleEvent(IdeAction action, Context context) {
-		if (action.commandId === UTPLSQL_TEST_CMD_ID) {
-			runTest(context)
-			return true
-		} else if (action.commandId === UTPLSQL_COVERAGE_CMD_ID) {
-			codeCoverage(context)
-			return true
-		} else if (action.commandId === UTPLSQL_GENERATE_CMD_ID) {
-			generateTest(context)
-			return true
+		try {
+			if (action.commandId === UTPLSQL_TEST_CMD_ID) {
+				logger.finer("handle utplsql.test")
+				runTest(context)
+				return true
+			} else if (action.commandId === UTPLSQL_COVERAGE_CMD_ID) {
+				logger.finer("handle utplsql.coverage")
+				codeCoverage(context)
+				return true
+			} else if (action.commandId === UTPLSQL_GENERATE_CMD_ID) {
+				logger.finer("handle utplsql.generate")
+				generateTest(context)
+				return true
+			}
+		} catch (Exception e) {
+			logger.severe("Failed to handle event due to exception " + e?.message)
 		}
 		return false
 	}
@@ -376,14 +383,22 @@ class UtplsqlController implements Controller {
 				reporter.showParameterWindow
 			}
 		} else if (view instanceof DBNavigatorWindow) {
+			logger.finer("Code coverage from DB navigator")
 			val url=context.URL
 			if (url !== null) {
+				logger.finer('''url: «url»''')
 				val connectionName = url.connectionName
 				logger.fine('''connectionName: «connectionName»''')
 				val pathList=context.pathList.dedupPathList
+				logger.finer('''pathList: «pathList»''')
 				val includeObjectList = dependencies(context, connectionName)
+				logger.finer('''includeObjectList: «includeObjectList»''')
 				val reporter = new CodeCoverageReporter(pathList, includeObjectList, connectionName)
+				logger.finer("showing code coverage dialog")
 				reporter.showParameterWindow
+				logger.finer("code coverage dialog shown")
+			} else {
+				logger.warning('''url: null''')
 			}
 		}
 	}
