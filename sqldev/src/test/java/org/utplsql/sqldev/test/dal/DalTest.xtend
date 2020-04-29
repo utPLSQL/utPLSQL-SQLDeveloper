@@ -31,7 +31,7 @@ class DalTest extends AbstractJdbcTest {
 	@BeforeClass
 	@AfterClass
 	def static void setupAndTeardown() {
-		sysJdbcTemplate.execute("CREATE OR REPLACE PUBLIC SYNONYM ut FOR ut3_latest_release.ut")
+		sysJdbcTemplate.execute("CREATE OR REPLACE PUBLIC SYNONYM ut FOR ut3.ut")
 		try {
 			jdbcTemplate.execute("DROP PACKAGE junit_utplsql_test_pkg")
 		} catch (BadSqlGrammarException e) {
@@ -83,7 +83,7 @@ class DalTest extends AbstractJdbcTest {
 		val dao = new UtplsqlDao(dataSource.connection)
 		Assert.assertEquals(null, dao.utplsqlSchema)
 		setupAndTeardown
-		Assert.assertEquals("UT3_LATEST_RELEASE", dao.utplsqlSchema)
+		Assert.assertEquals("UT3", dao.utplsqlSchema)
 	}
 	
 	@Test
@@ -491,7 +491,7 @@ class DalTest extends AbstractJdbcTest {
 		val actual = dao.includes('SCOTT', 'junit_utplsql_test_pkg')
 		Assert.assertTrue(actual.findFirst[it == "SCOTT.JUNIT_UTPLSQL_TEST_PKG"] !== null)
 		Assert.assertTrue(actual.findFirst[it == "SCOTT.JUNIT_F"] !== null)
-		Assert.assertTrue(actual.findFirst[it == "UT3_LATEST_RELEASE.UT_EXPECTATION"] !== null)
+		Assert.assertTrue(actual.findFirst[it == "UT3.UT_EXPECTATION"] !== null)
 	}
 	
 	@Test

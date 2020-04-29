@@ -121,8 +121,16 @@ class UtplsqlDao {
 		if (cachedDbaViewAccessible === null) {
 			try {
 				val sql = '''
-					SELECT 1
+					SELECT 1 AS dummy
 					  FROM dba_objects
+					 WHERE 1=2
+					UNION ALL
+					SELECT 1
+					  FROM dba_synonyms
+					 WHERE 1=2
+					UNION ALL
+					SELECT 1
+					  FROM dba_dependencies
 					 WHERE 1=2
 				'''
 				jdbcTemplate.execute(sql)
