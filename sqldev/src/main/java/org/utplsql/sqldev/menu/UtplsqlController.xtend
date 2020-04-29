@@ -386,7 +386,6 @@ class UtplsqlController implements Controller {
 			logger.finer("Code coverage from DB navigator")
 			val url=context.URL
 			if (url !== null) {
-				logger.finer('''url: «url»''')
 				val connectionName = url.connectionName
 				logger.fine('''connectionName: «connectionName»''')
 				val pathList=context.pathList.dedupPathList
@@ -398,7 +397,7 @@ class UtplsqlController implements Controller {
 				reporter.showParameterWindow
 				logger.finer("code coverage dialog shown")
 			} else {
-				logger.warning('''url: null''')
+				logger.warning('''url is null''')
 			}
 		}
 	}
