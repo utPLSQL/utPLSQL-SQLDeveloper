@@ -111,7 +111,8 @@ public class CodeCoverageReporter {
                         () -> "Could not launch " + file + "in browser. No default browser defined on this system.");
             }
         } catch (Exception e) {
-            logger.severe(() -> "Error when running code coverage: " + e.getMessage());
+            logger.severe(() -> "Error while running code coverage: " + e.getMessage());
+            throw new RuntimeException(e);
         } finally {
             try {
                 conn.close();
