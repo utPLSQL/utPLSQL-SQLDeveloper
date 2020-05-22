@@ -13,140 +13,159 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.utplsql.sqldev.coverage
+package org.utplsql.sqldev.coverage;
 
-import java.awt.Desktop
-import java.io.File
-import java.net.URL
-import java.nio.charset.StandardCharsets
-import java.nio.file.Files
-import java.nio.file.Paths
-import java.sql.Connection
-import java.util.ArrayList
-import java.util.List
-import java.util.logging.Logger
-import oracle.dbtools.raptor.utils.Connections
-import org.utplsql.sqldev.dal.UtplsqlDao
-import org.utplsql.sqldev.ui.coverage.CodeCoverageReporterDialog
+import java.awt.Desktop;
+import java.io.File;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.logging.Logger;
 
-class CodeCoverageReporter {
-	static val Logger logger = Logger.getLogger(CodeCoverageReporter.name);
+import org.utplsql.sqldev.dal.UtplsqlDao;
+import org.utplsql.sqldev.ui.coverage.CodeCoverageReporterDialog;
 
-	var Connection conn
-	var List<String> pathList
-	var List<String> includeObjectList
-	var CodeCoverageReporterDialog frame
-	var String schemas
-	var String includeObjects
-	var String excludeObjects
+import oracle.dbtools.raptor.utils.Connections;
+import oracle.javatools.db.DBException;
+import oracle.jdeveloper.db.ConnectionException;
 
-	new(List<String> pathList, List<String> includeObjectList, String connectionName) {
-		this.pathList = pathList
-		this.includeObjectList = includeObjectList
-		setConnection(connectionName)
-	}
+public class CodeCoverageReporter {
+    private static final Logger logger = Logger.getLogger(CodeCoverageReporter.class.getName());
 
-	new(List<String> pathList, List<String> includeObjectList, Connection conn) {
-		this.pathList = pathList
-		this.includeObjectList = includeObjectList
-		this.conn = conn
-	}
+    private Connection conn;
+    private List<String> pathList;
+    private List<String> includeObjectList;
+    private CodeCoverageReporterDialog frame;
+    private String schemas;
+    private String includeObjects;
+    private String excludeObjects;
 
-	private def setConnection(String connectionName) {
-		if (connectionName === null) {
-			throw new RuntimeException("Cannot initialize a CodeCoverageReporter without a ConnectionName")
-		} else {
-			// must be closed manually
-			this.conn = Connections.instance.cloneConnection(Connections.instance.getConnection(connectionName))
-		}
-	}
-	
-	private def toStringList(String s) {
-		val list = new ArrayList<String>
-		if (s !== null && !s.empty) {
-			for (item : s.split(",")) {
-				if (!item.empty) {
-					list.add(item.trim)
-				}
-			}
-		}
-		return list
-	}
+    public CodeCoverageReporter(final List<String> pathList, final List<String> includeObjectList,
+            final String connectionName) {
+        this.pathList = pathList;
+        this.includeObjectList = includeObjectList;
+        this.setConnection(connectionName);
+    }
 
-	private def void run() {
-		try {
-			logger.fine('''Running code coverage reporter for «pathList»...''')
-			val dal = new UtplsqlDao(conn)
-			val content = dal.htmlCodeCoverage(pathList, toStringList(schemas), toStringList(includeObjects), toStringList(excludeObjects))
-			val file = File.createTempFile("utplsql_", ".html")
-			logger.fine('''Writing result to «file.absolutePath»...''')
-			Files.write(Paths.get(file.absolutePath), content.split(System.lineSeparator), StandardCharsets.UTF_8);
-			val url = file.toURI().toURL().toExternalForm()
-			logger.fine('''Opening «url» in browser...''')
-			val Desktop desktop = if (Desktop.isDesktopSupported()) {Desktop.getDesktop()} else {null}
-			if (desktop !== null && desktop.isSupported(Desktop.Action.BROWSE) && url !== null) {
-				desktop.browse((new URL(url)).toURI)
-				logger.fine(url + " opened in browser.");
-			} else {
-				logger.severe('''Could not launch «file» in browser. No default browser defined on this system.''')
-			}
-		} catch (Exception e) {
-			logger.severe('''Error when running code coverage: «e?.message»''')
-		}
-		finally {
-			conn.close
-			if (frame !== null) {
-				frame.exit
-			}
-		}
-	}
-	
-	def setFrame(CodeCoverageReporterDialog frame) {
-		this.frame = frame;
-	}
-	
-	def getFrame() {
-		return this.frame
-	}
-	
-	def getConnection() {
-		return conn
-	}
-	
-	def getPathList() {
-		return pathList
-	}
-	
-	def getIncludeObjectList() {
-		if (includeObjectList === null) {
-			return new ArrayList<String>
-		} else {
-			return includeObjectList
-		}
-	}
-	
-	def setSchemas(String schemas) {
-		this.schemas = schemas
-	}
-	
-	def setIncludeObjects(String includeObjects) {
-		this.includeObjects = includeObjects
-	}
-	
-	def setExcludeObjects(String excludeObjects) {
-		this.excludeObjects = excludeObjects
-	}	
+    public CodeCoverageReporter(final List<String> pathList, final List<String> includeObjectList,
+            final Connection conn) {
+        this.pathList = pathList;
+        this.includeObjectList = includeObjectList;
+        this.conn = conn;
+    }
 
-	def Thread runAsync() {
-		val Runnable runnable = [|run]
-		val thread = new Thread(runnable)
-		thread.name = "code coverage reporter"
-		thread.start
-		return thread
-	}
-	
-	def showParameterWindow() {
-		CodeCoverageReporterDialog.createAndShow(this)
-	}
-	
+    private void setConnection(final String connectionName) {
+        if (connectionName == null) {
+            throw new RuntimeException("Cannot initialize a CodeCoverageReporter without a ConnectionName");
+        } else {
+            try {
+                // must be closed manually
+                this.conn = Connections.getInstance()
+                        .cloneConnection(Connections.getInstance().getConnection(connectionName));
+            } catch (ConnectionException e) {
+                throw new RuntimeException(e);
+            } catch (DBException e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
+    private ArrayList<String> toStringList(final String s) {
+        final ArrayList<String> list = new ArrayList<>();
+        if (s != null && !s.isEmpty()) {
+            for (final String item : s.split(",")) {
+                if (!item.isEmpty()) {
+                    list.add(item.trim());
+                }
+            }
+        }
+        return list;
+    }
+
+    private void run() {
+        logger.fine(() -> "Running code coverage reporter for " + pathList + "...");
+        try {
+            final UtplsqlDao dal = new UtplsqlDao(this.conn);
+            final String content = dal.htmlCodeCoverage(this.pathList, this.toStringList(this.schemas),
+                    this.toStringList(this.includeObjects), this.toStringList(this.excludeObjects));
+            final File file = File.createTempFile("utplsql_", ".html");
+            logger.fine(() -> "Writing result to " + file + "...");
+            Files.write(file.toPath(), Arrays.asList(content.split(System.lineSeparator())), StandardCharsets.UTF_8);
+            final URL url = file.toURI().toURL();
+            logger.fine(() -> "Opening " + url.toExternalForm() + " in browser...");
+            final Desktop desktop = Desktop.isDesktopSupported() ? Desktop.getDesktop() : null;
+            if (desktop != null && desktop.isSupported(Desktop.Action.BROWSE) && url != null) {
+                desktop.browse(url.toURI());
+                logger.fine(() -> url.toExternalForm() + " opened in browser.");
+            } else {
+                logger.severe(
+                        () -> "Could not launch " + file + "in browser. No default browser defined on this system.");
+            }
+        } catch (Exception e) {
+            logger.severe(() -> "Error when running code coverage: " + e.getMessage());
+        } finally {
+            try {
+                conn.close();
+            } catch (SQLException e) {
+                // ignore
+            }
+            if (frame != null) {
+                frame.exit();
+            }
+        }
+    }
+
+    public void setFrame(final CodeCoverageReporterDialog frame) {
+        this.frame = frame;
+    }
+
+    public CodeCoverageReporterDialog getFrame() {
+        return this.frame;
+    }
+
+    public Connection getConnection() {
+        return this.conn;
+    }
+
+    public List<String> getPathList() {
+        return this.pathList;
+    }
+
+    public List<String> getIncludeObjectList() {
+        if ((this.includeObjectList == null)) {
+            return new ArrayList<String>();
+        } else {
+            return this.includeObjectList;
+        }
+    }
+
+    public void setSchemas(final String schemas) {
+        this.schemas = schemas;
+    }
+
+    public void setIncludeObjects(final String includeObjects) {
+        this.includeObjects = includeObjects;
+    }
+
+    public void setExcludeObjects(final String excludeObjects) {
+        this.excludeObjects = excludeObjects;
+    }
+
+    public Thread runAsync() {
+        final Thread thread = new Thread(() -> {
+            this.run();
+        });
+        thread.setName("code coverage reporter");
+        thread.start();
+        return thread;
+    }
+
+    public void showParameterWindow() {
+        CodeCoverageReporterDialog.createAndShow(this);
+    }
 }
