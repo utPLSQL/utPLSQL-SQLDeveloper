@@ -61,15 +61,19 @@ public class CodeCoverageReporter {
 
     private void setConnection(final String connectionName) {
         if (connectionName == null) {
-            throw new RuntimeException("Cannot initialize a CodeCoverageReporter without a ConnectionName");
+            final String msg = "Cannot initialize a CodeCoverageReporter without a ConnectionName";
+            logger.severe(() -> msg);
+            throw new RuntimeException(msg);
         } else {
             try {
                 // must be closed manually
                 this.conn = Connections.getInstance()
                         .cloneConnection(Connections.getInstance().getConnection(connectionName));
             } catch (ConnectionException e) {
+                logger.severe(() -> "ConnectionException while setting connection: " + e.getMessage());
                 throw new RuntimeException(e);
             } catch (DBException e) {
+                logger.severe(() -> "DBException while setting connection: " + e.getMessage());
                 throw new RuntimeException(e);
             }
         }
