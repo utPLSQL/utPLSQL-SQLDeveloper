@@ -49,7 +49,7 @@ public class CodeCoverageReporter {
             final String connectionName) {
         this.pathList = pathList;
         this.includeObjectList = includeObjectList;
-        this.setConnection(connectionName);
+        setConnection(connectionName);
     }
 
     public CodeCoverageReporter(final List<String> pathList, final List<String> includeObjectList,
@@ -67,7 +67,7 @@ public class CodeCoverageReporter {
         } else {
             try {
                 // must be closed manually
-                this.conn = Connections.getInstance()
+                conn = Connections.getInstance()
                         .cloneConnection(Connections.getInstance().getConnection(connectionName));
             } catch (ConnectionException e) {
                 logger.severe(() -> "ConnectionException while setting connection: " + e.getMessage());
@@ -94,9 +94,9 @@ public class CodeCoverageReporter {
     private void run() {
         logger.fine(() -> "Running code coverage reporter for " + pathList + "...");
         try {
-            final UtplsqlDao dal = new UtplsqlDao(this.conn);
-            final String content = dal.htmlCodeCoverage(this.pathList, this.toStringList(this.schemas),
-                    this.toStringList(this.includeObjects), this.toStringList(this.excludeObjects));
+            final UtplsqlDao dal = new UtplsqlDao(conn);
+            final String content = dal.htmlCodeCoverage(pathList, toStringList(schemas),
+                    toStringList(includeObjects), toStringList(excludeObjects));
             final File file = File.createTempFile("utplsql_", ".html");
             logger.fine(() -> "Writing result to " + file + "...");
             Files.write(file.toPath(), Arrays.asList(content.split(System.lineSeparator())), StandardCharsets.UTF_8);
@@ -130,22 +130,22 @@ public class CodeCoverageReporter {
     }
 
     public CodeCoverageReporterDialog getFrame() {
-        return this.frame;
+        return frame;
     }
 
     public Connection getConnection() {
-        return this.conn;
+        return conn;
     }
 
     public List<String> getPathList() {
-        return this.pathList;
+        return pathList;
     }
 
     public List<String> getIncludeObjectList() {
-        if ((this.includeObjectList == null)) {
+        if ((includeObjectList == null)) {
             return new ArrayList<String>();
         } else {
-            return this.includeObjectList;
+            return includeObjectList;
         }
     }
 
@@ -163,7 +163,7 @@ public class CodeCoverageReporter {
 
     public Thread runAsync() {
         final Thread thread = new Thread(() -> {
-            this.run();
+            run();
         });
         thread.setName("code coverage reporter");
         thread.start();
