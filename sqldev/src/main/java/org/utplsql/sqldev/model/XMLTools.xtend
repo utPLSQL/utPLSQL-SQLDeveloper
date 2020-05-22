@@ -21,6 +21,7 @@ import javax.xml.transform.dom.DOMSource
 import javax.xml.transform.stream.StreamResult
 import javax.xml.xpath.XPathConstants
 import javax.xml.xpath.XPathFactory
+import org.w3c.dom.Element
 import org.w3c.dom.Node
 import org.w3c.dom.NodeList
 
@@ -63,5 +64,25 @@ class XMLTools {
 		val result = writer.toString()
 		val fixedResult = result.replaceAll('''<!\[CDATA\[\s*\]\]>''',"")
 		return fixedResult
+	}
+	
+	def getAttributeValue(Node node, String namedItem) {
+		var String value = null
+		if (node instanceof Element) {
+			value = node.attributes?.getNamedItem(namedItem)?.nodeValue;
+		}
+		return value
+	}
+	
+	def getElementValue(Node node, String tagName) {
+		return getElementNode(node, tagName)?.textContent
+	}
+
+	def getElementNode(Node node, String tagName) {
+		var Node resultNode = null
+		if (node instanceof Element) {
+			resultNode = node.getElementsByTagName(tagName)?.item(0)
+		}
+		return resultNode
 	}
 }
