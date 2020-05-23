@@ -26,6 +26,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.logging.Logger;
 
+import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -145,7 +146,9 @@ public class RealtimeReporterDao {
     private RealtimeReporterEvent convert(final String itemType, final String text) {
         logger.fine(() -> "\n---- " + itemType + " ----\n" + text);
         try {
-            final DocumentBuilder docBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+            final DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+            factory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, Boolean.TRUE);
+            final DocumentBuilder docBuilder = factory.newDocumentBuilder();
             final Document doc = docBuilder.parse(new InputSource(new StringReader(text)));
             RealtimeReporterEvent event = null;
             if ("pre-run".equals(itemType)) {
