@@ -35,6 +35,7 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.CallableStatementCallback;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.SingleConnectionDataSource;
+import org.utplsql.sqldev.exception.GenericRuntimeException;
 import org.utplsql.sqldev.model.XMLTools;
 import org.utplsql.sqldev.model.runner.Counter;
 import org.utplsql.sqldev.model.runner.Expectation;
@@ -166,14 +167,17 @@ public class RealtimeReporterDao {
             }
             return event;
         } catch (ParserConfigurationException e) {
-            logger.severe(() -> "cannot create docBuilder, due to " + e.getMessage());
-            throw new RuntimeException(e);
+            final String msg = "cannot create docBuilder, due to " + e.getMessage();
+            logger.severe(() -> msg);
+            throw new GenericRuntimeException(msg, e);
         } catch (SAXException e) {
-            logger.severe(() -> "parse error while processing event: " + e.getMessage());
-            throw new RuntimeException(e);
+            final String msg = "parse error while processing event: " + e.getMessage();
+            logger.severe(() -> msg);
+            throw new GenericRuntimeException(msg, e);
         } catch (IOException e) {
-            logger.severe(() -> "I/O error while processing event: " + e.getMessage());
-            throw new RuntimeException(e);
+            final String msg = "I/O error while processing event: " + e.getMessage();
+            logger.severe(() -> msg);
+            throw new GenericRuntimeException(msg, e);
         }
     }
 

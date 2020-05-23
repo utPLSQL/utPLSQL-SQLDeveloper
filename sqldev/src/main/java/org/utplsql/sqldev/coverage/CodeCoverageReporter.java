@@ -28,6 +28,8 @@ import java.util.List;
 import java.util.logging.Logger;
 
 import org.utplsql.sqldev.dal.UtplsqlDao;
+import org.utplsql.sqldev.exception.GenericDatabaseAccessException;
+import org.utplsql.sqldev.exception.GenericRuntimeException;
 import org.utplsql.sqldev.ui.coverage.CodeCoverageReporterDialog;
 
 import oracle.dbtools.raptor.utils.Connections;
@@ -63,18 +65,20 @@ public class CodeCoverageReporter {
         if (connectionName == null) {
             final String msg = "Cannot initialize a CodeCoverageReporter without a ConnectionName";
             logger.severe(() -> msg);
-            throw new RuntimeException(msg);
+            throw new NullPointerException();
         } else {
             try {
                 // must be closed manually
                 conn = Connections.getInstance()
                         .cloneConnection(Connections.getInstance().getConnection(connectionName));
             } catch (ConnectionException e) {
-                logger.severe(() -> "ConnectionException while setting connection: " + e.getMessage());
-                throw new RuntimeException(e);
+                final String msg = "ConnectionException while setting connection: " + e.getMessage();
+                logger.severe(() -> msg);
+                throw new GenericDatabaseAccessException(msg, e);
             } catch (DBException e) {
-                logger.severe(() -> "DBException while setting connection: " + e.getMessage());
-                throw new RuntimeException(e);
+                final String msg = "DBException while setting connection: " + e.getMessage();
+                logger.severe(() -> msg);
+                throw new GenericDatabaseAccessException(msg, e);
             }
         }
     }
@@ -111,8 +115,9 @@ public class CodeCoverageReporter {
                         () -> "Could not launch " + file + "in browser. No default browser defined on this system.");
             }
         } catch (Exception e) {
-            logger.severe(() -> "Error while running code coverage: " + e.getMessage());
-            throw new RuntimeException(e);
+            final String msg = "Error while running code coverage: " + e.getMessage();
+            logger.severe(() -> msg);
+            throw new GenericRuntimeException(msg, e);
         } finally {
             try {
                 conn.close();
