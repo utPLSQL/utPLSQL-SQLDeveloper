@@ -318,7 +318,7 @@ public class RealtimeReporterDao {
     private void populate(final Expectation expectation, final Node node) {
         if (node instanceof Element) {
             expectation.setDescription(xmlTools.getElementValue(node, "description"));
-            expectation.setMessage(xmlTools.getElementValue(node, "description"));
+            expectation.setMessage(xmlTools.getElementValue(node, "message"));
             expectation.setCaller(xmlTools.getElementValue(node, "caller"));
         }
     }
