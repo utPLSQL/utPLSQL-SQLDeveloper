@@ -31,7 +31,6 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.CallableStatementCallback;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.SingleConnectionDataSource;
@@ -124,7 +123,7 @@ public class RealtimeReporterDao {
         final String plsql = sb.toString();
         jdbcTemplate.<Void>execute(plsql, new CallableStatementCallback<Void>() {
             @Override
-            public Void doInCallableStatement(final CallableStatement cs) throws SQLException, DataAccessException {
+            public Void doInCallableStatement(final CallableStatement cs) throws SQLException {
                 cs.setString(1, reporterId);
                 cs.registerOutParameter(2, OracleTypes.CURSOR);
                 cs.execute();
