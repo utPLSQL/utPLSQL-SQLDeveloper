@@ -13,12 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.utplsql.sqldev.dal
+package org.utplsql.sqldev.dal;
 
-import org.utplsql.sqldev.model.runner.RealtimeReporterEvent
+import org.utplsql.sqldev.model.runner.RealtimeReporterEvent;
 
-interface RealtimeReporterEventConsumer {	
-
-	def void process(RealtimeReporterEvent event)
-
+public interface RealtimeReporterEventConsumer {
+    public abstract void process(final RealtimeReporterEvent event);
 }
