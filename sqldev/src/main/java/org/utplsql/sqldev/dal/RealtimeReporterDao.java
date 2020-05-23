@@ -121,7 +121,7 @@ public class RealtimeReporterDao {
         sb.append("   ? := l_reporter.get_lines_cursor();\n");
         sb.append("END;");
         final String plsql = sb.toString();
-        jdbcTemplate.<Void>execute(plsql, new CallableStatementCallback<Void>() {
+        jdbcTemplate.execute(plsql, new CallableStatementCallback<Void>() {
             @Override
             public Void doInCallableStatement(final CallableStatement cs) throws SQLException {
                 cs.setString(1, reporterId);
