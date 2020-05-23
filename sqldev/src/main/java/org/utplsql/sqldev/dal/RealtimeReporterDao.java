@@ -22,7 +22,6 @@ import java.sql.Clob;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Collections;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -75,22 +74,6 @@ public class RealtimeReporterDao {
                 .normalizedUtPlsqlVersionNumber() >= RealtimeReporterDao.FIRST_VERSION_WITH_REALTIME_REPORTER;
     }
 
-    private static String getPathList(List<String> pathList, int indentSpaces) {
-        final StringBuilder sb = new StringBuilder();
-        final String indent = String.join("", Collections.nCopies(indentSpaces, " "));
-        for (final String path : pathList) {
-            if (sb.length() > 0) {
-                sb.append(",\n");
-            }
-            sb.append(indent);
-            sb.append("'");
-            sb.append(path);
-            sb.append("'");
-        }
-        sb.append("\n");
-        return sb.toString();
-    }
-
     public void produceReport(final String reporterId, final List<String> pathList) {
         StringBuilder sb = new StringBuilder();
         sb.append("DECLARE\n");
@@ -101,7 +84,7 @@ public class RealtimeReporterDao {
         sb.append("   sys.dbms_output.enable(NULL);\n");
         sb.append("   ut_runner.run(\n");
         sb.append("      a_paths     => ut_varchar2_list(\n");
-        sb.append(getPathList(pathList, 24));
+        sb.append(StringUtil.getCSV(pathList, 24));
         sb.append("                     ),\n");
         sb.append("      a_reporters => ut_reporters(l_reporter)\n");
         sb.append("   );\n");
