@@ -27,16 +27,27 @@ public class StringUtil {
     public static String getCSV(List<String> list, int indentSpaces) {
         final StringBuilder sb = new StringBuilder();
         final String indent = String.join("", Collections.nCopies(indentSpaces, " "));
-        for (final String path : list) {
+        for (final String item : list) {
             if (sb.length() > 0) {
                 sb.append(",\n");
             }
             sb.append(indent);
             sb.append("'");
-            sb.append(path);
+            sb.append(item);
             sb.append("'");
         }
         sb.append("\n");
+        return sb.toString();
+    }
+    
+    public static String getSimpleCSV(List<String> list) {
+        final StringBuilder sb = new StringBuilder();
+        for (final String item : list) {
+            if (sb.length() > 0) {
+                sb.append(", ");
+            }
+            sb.append(item);
+        }
         return sb.toString();
     }
 }
