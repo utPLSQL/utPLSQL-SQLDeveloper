@@ -78,8 +78,7 @@ public class PrefixTools {
                 }
             } else {
                 final String[] testArray = new String[list.size()];
-                final String prefix = commonPrefix(list.toArray(testArray), list.size());
-                return prefix;
+                return commonPrefix(list.toArray(testArray), list.size());
             }
 
         } catch (final Exception e) {
