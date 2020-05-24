@@ -729,7 +729,7 @@ public class UtplsqlDao {
             sb.append("   ),\n");
             sb.append("   gen AS (\n");
             sb.append("      SELECT rownum AS pos\n");
-            sb.append("        FROM xmltable(\'1 to 100\')\n");
+            sb.append("        FROM xmltable('1 to 100')\n");
             sb.append("   ),\n");
             sb.append("   suitepath_part AS (\n");
             sb.append("      SELECT DISTINCT\n");
