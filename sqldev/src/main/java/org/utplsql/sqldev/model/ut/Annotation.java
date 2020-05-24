@@ -13,16 +13,66 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.utplsql.sqldev.model.ut
+package org.utplsql.sqldev.model.ut;
 
-import org.eclipse.xtend.lib.annotations.Accessors
-import org.utplsql.sqldev.model.AbstractModel
+import org.springframework.core.style.ToStringCreator;
+import org.utplsql.sqldev.model.AbstractModel;
 
-@Accessors
-class Annotation extends AbstractModel {
-	String objectOwner
-	String objectName
-	String name
-	String text
-	String subobjectName
+public class Annotation extends AbstractModel {
+    private String objectOwner;
+    private String objectName;
+    private String name;
+    private String text;
+    private String subobjectName;
+
+    @Override
+    public String toString() {
+        return new ToStringCreator(this, getStyler())
+                .append("objectOwner", objectOwner)
+                .append("objectName", objectName)
+                .append("name", name)
+                .append("text", text)
+                .append("subobjectName", subobjectName)
+                .toString();
+    }    
+    
+    public String getObjectOwner() {
+        return this.objectOwner;
+    }
+
+    public void setObjectOwner(final String objectOwner) {
+        this.objectOwner = objectOwner;
+    }
+
+    public String getObjectName() {
+        return this.objectName;
+    }
+
+    public void setObjectName(final String objectName) {
+        this.objectName = objectName;
+    }
+
+    public String getName() {
+        return this.name;
+    }
+
+    public void setName(final String name) {
+        this.name = name;
+    }
+
+    public String getText() {
+        return this.text;
+    }
+
+    public void setText(final String text) {
+        this.text = text;
+    }
+
+    public String getSubobjectName() {
+        return this.subobjectName;
+    }
+
+    public void setSubobjectName(final String subobjectName) {
+        this.subobjectName = subobjectName;
+    }
 }
