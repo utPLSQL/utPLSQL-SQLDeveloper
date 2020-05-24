@@ -18,8 +18,9 @@ package org.utplsql.sqldev.model.oddgen;
 import java.sql.Connection;
 
 import org.springframework.core.style.ToStringCreator;
+import org.utplsql.sqldev.model.AbstractModel;
 
-public class GenContext {
+public class GenContext extends AbstractModel {
     private Connection conn;
     private String objectType;
     private String objectName;
@@ -39,7 +40,7 @@ public class GenContext {
 
     @Override 
     public String toString() {
-        return new ToStringCreator(this)
+        return new ToStringCreator(this, getStyler())
                 .append("conn", conn)
                 .append("objectType", objectType)
                 .append("objectName", objectName)
