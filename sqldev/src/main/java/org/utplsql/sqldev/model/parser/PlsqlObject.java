@@ -13,17 +13,59 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.utplsql.sqldev.model.parser
+package org.utplsql.sqldev.model.parser;
 
-import java.util.List
-import org.eclipse.xtend.lib.annotations.Accessors
-import org.utplsql.sqldev.model.AbstractModel
-import org.utplsql.sqldev.model.ut.Annotation
+import java.util.List;
 
-@Accessors
-class PlsqlObject extends AbstractModel {
-	String name
-	String type
-	Integer position
-	List<Annotation> annotations
+import org.springframework.core.style.ToStringCreator;
+import org.utplsql.sqldev.model.AbstractModel;
+import org.utplsql.sqldev.model.ut.Annotation;
+
+public class PlsqlObject extends AbstractModel {
+    private String name;
+    private String type;
+    private Integer position;
+    private List<Annotation> annotations;
+
+    @Override
+    public String toString() {
+        return new ToStringCreator(this, getStyler())
+                .append("name", name)
+                .append("type", type)
+                .append("position", position)
+                .append("annotations", annotations)
+                .toString();
+    }
+
+    public String getName() {
+        return this.name;
+    }
+
+    public void setName(final String name) {
+        this.name = name;
+    }
+
+    public String getType() {
+        return this.type;
+    }
+
+    public void setType(final String type) {
+        this.type = type;
+    }
+
+    public Integer getPosition() {
+        return this.position;
+    }
+
+    public void setPosition(final Integer position) {
+        this.position = position;
+    }
+
+    public List<Annotation> getAnnotations() {
+        return this.annotations;
+    }
+
+    public void setAnnotations(final List<Annotation> annotations) {
+        this.annotations = annotations;
+    }
 }
