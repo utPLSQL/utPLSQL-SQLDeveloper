@@ -16,9 +16,11 @@
 package org.utplsql.sqldev.model;
 
 import org.springframework.core.style.DefaultToStringStyler;
+import org.springframework.core.style.ToStringStyler;
 import org.springframework.util.ClassUtils;
 
 public class UtplsqlToStringStyler extends DefaultToStringStyler {
+    public static final ToStringStyler STYLER = new UtplsqlToStringStyler();
 
     public UtplsqlToStringStyler() {
         super(new UtplsqlValueStyler());
