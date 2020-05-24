@@ -32,6 +32,7 @@ import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.CallableStatementCallback;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.SingleConnectionDataSource;
+import org.utplsql.sqldev.model.StringTools;
 import org.utplsql.sqldev.model.ut.Annotation;
 import org.utplsql.sqldev.model.ut.OutputLines;
 
@@ -928,21 +929,21 @@ public class UtplsqlDao {
         sb.append("  FROM table(\n");
         sb.append("          ut.run(\n");
         sb.append("             a_paths => ut_varchar2_list(\n");
-        sb.append(StringUtil.getCSV(pathList, 16));
+        sb.append(StringTools.getCSV(pathList, 16));
         sb.append("             ),\n");
         if (schemaList.size() > 0) {
             sb.append("             a_coverage_schemes => ut_varchar2_list(\n");
-            sb.append(StringUtil.getCSV(schemaList, 16));
+            sb.append(StringTools.getCSV(schemaList, 16));
             sb.append("             ),\n");
         }
         if (includeObjectList.size() > 0) {
             sb.append("             a_include_objects => ut_varchar2_list(\n");
-            sb.append(StringUtil.getCSV(includeObjectList, 16));
+            sb.append(StringTools.getCSV(includeObjectList, 16));
             sb.append("             ),\n");
         }
         if (excludeObjectList.size() > 0) {
             sb.append("             a_exclude_objects => ut_varchar2_list(\n");
-            sb.append(StringUtil.getCSV(excludeObjectList, 16));
+            sb.append(StringTools.getCSV(excludeObjectList, 16));
             sb.append("             ),\n");
         }
         sb.append("             a_reporter => ut_coverage_html_reporter()\n");

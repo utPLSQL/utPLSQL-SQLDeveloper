@@ -34,6 +34,7 @@ import org.springframework.jdbc.core.CallableStatementCallback;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.SingleConnectionDataSource;
 import org.utplsql.sqldev.exception.GenericRuntimeException;
+import org.utplsql.sqldev.model.StringTools;
 import org.utplsql.sqldev.model.XMLTools;
 import org.utplsql.sqldev.model.runner.Counter;
 import org.utplsql.sqldev.model.runner.Expectation;
@@ -84,7 +85,7 @@ public class RealtimeReporterDao {
         sb.append("   sys.dbms_output.enable(NULL);\n");
         sb.append("   ut_runner.run(\n");
         sb.append("      a_paths     => ut_varchar2_list(\n");
-        sb.append(StringUtil.getCSV(pathList, 24));
+        sb.append(StringTools.getCSV(pathList, 24));
         sb.append("                     ),\n");
         sb.append("      a_reporters => ut_reporters(l_reporter)\n");
         sb.append("   );\n");
