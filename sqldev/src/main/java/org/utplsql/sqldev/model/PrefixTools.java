@@ -70,7 +70,7 @@ public class PrefixTools {
             if (list.size() == 0) {
                 return "";
             } else if (list.size() == 1) {
-                final int pos = list.get(0).lastIndexOf(".");
+                final int pos = list.get(0).lastIndexOf('.');
                 if (pos > 0) {
                     return list.get(0).substring(0, pos + 1);
                 } else {
