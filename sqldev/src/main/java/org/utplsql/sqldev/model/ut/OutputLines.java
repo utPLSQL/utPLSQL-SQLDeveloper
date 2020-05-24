@@ -31,7 +31,7 @@ public class OutputLines extends AbstractModel {
     }
 
     public String[] getLines() {
-        return this.lines;
+        return lines;
     }
 
     public void setLines(final String[] lines) {
@@ -39,7 +39,7 @@ public class OutputLines extends AbstractModel {
     }
 
     public Integer getNumlines() {
-        return this.numlines;
+        return numlines;
     }
 
     public void setNumlines(final Integer numlines) {

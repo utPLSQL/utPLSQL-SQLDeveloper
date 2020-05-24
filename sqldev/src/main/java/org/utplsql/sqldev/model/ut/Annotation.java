@@ -37,7 +37,7 @@ public class Annotation extends AbstractModel {
     }    
     
     public String getObjectOwner() {
-        return this.objectOwner;
+        return objectOwner;
     }
 
     public void setObjectOwner(final String objectOwner) {
@@ -45,7 +45,7 @@ public class Annotation extends AbstractModel {
     }
 
     public String getObjectName() {
-        return this.objectName;
+        return objectName;
     }
 
     public void setObjectName(final String objectName) {
@@ -53,7 +53,7 @@ public class Annotation extends AbstractModel {
     }
 
     public String getName() {
-        return this.name;
+        return name;
     }
 
     public void setName(final String name) {
@@ -61,7 +61,7 @@ public class Annotation extends AbstractModel {
     }
 
     public String getText() {
-        return this.text;
+        return text;
     }
 
     public void setText(final String text) {
@@ -69,7 +69,7 @@ public class Annotation extends AbstractModel {
     }
 
     public String getSubobjectName() {
-        return this.subobjectName;
+        return subobjectName;
     }
 
     public void setSubobjectName(final String subobjectName) {

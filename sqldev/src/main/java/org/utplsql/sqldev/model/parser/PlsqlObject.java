@@ -38,7 +38,7 @@ public class PlsqlObject extends AbstractModel {
     }
 
     public String getName() {
-        return this.name;
+        return name;
     }
 
     public void setName(final String name) {
@@ -46,7 +46,7 @@ public class PlsqlObject extends AbstractModel {
     }
 
     public String getType() {
-        return this.type;
+        return type;
     }
 
     public void setType(final String type) {
@@ -54,7 +54,7 @@ public class PlsqlObject extends AbstractModel {
     }
 
     public Integer getPosition() {
-        return this.position;
+        return position;
     }
 
     public void setPosition(final Integer position) {
@@ -62,7 +62,7 @@ public class PlsqlObject extends AbstractModel {
     }
 
     public List<Annotation> getAnnotations() {
-        return this.annotations;
+        return annotations;
     }
 
     public void setAnnotations(final List<Annotation> annotations) {

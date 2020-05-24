@@ -37,7 +37,7 @@ public class Counter extends AbstractModel {
     }
 
     public Integer getDisabled() {
-        return this.disabled;
+        return disabled;
     }
 
     public void setDisabled(final Integer disabled) {
@@ -45,7 +45,7 @@ public class Counter extends AbstractModel {
     }
 
     public Integer getSuccess() {
-        return this.success;
+        return success;
     }
 
     public void setSuccess(final Integer success) {
@@ -53,7 +53,7 @@ public class Counter extends AbstractModel {
     }
 
     public Integer getFailure() {
-        return this.failure;
+        return failure;
     }
 
     public void setFailure(final Integer failure) {
@@ -61,7 +61,7 @@ public class Counter extends AbstractModel {
     }
 
     public Integer getError() {
-        return this.error;
+        return error;
     }
 
     public void setError(final Integer error) {
@@ -69,7 +69,7 @@ public class Counter extends AbstractModel {
     }
 
     public Integer getWarning() {
-        return this.warning;
+        return warning;
     }
 
     public void setWarning(final Integer warning) {

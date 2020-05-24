@@ -33,7 +33,7 @@ public class Unit extends AbstractModel {
     }
 
     public String getName() {
-        return this.name;
+        return name;
     }
 
     public void setName(final String name) {
@@ -41,7 +41,7 @@ public class Unit extends AbstractModel {
     }
 
     public Integer getPosition() {
-        return this.position;
+        return position;
     }
 
     public void setPosition(final Integer position) {
@@ -49,7 +49,7 @@ public class Unit extends AbstractModel {
     }
 
     public Integer getPositionOfName() {
-        return this.positionOfName;
+        return positionOfName;
     }
 
     public void setPositionOfName(final Integer positionOfName) {

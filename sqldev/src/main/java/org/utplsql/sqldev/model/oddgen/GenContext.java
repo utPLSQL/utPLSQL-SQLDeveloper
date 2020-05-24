@@ -35,7 +35,7 @@ public class GenContext extends AbstractModel {
     private int indentSpaces;
 
     public Connection getConn() {
-        return this.conn;
+        return conn;
     }
 
     @Override 
@@ -61,7 +61,7 @@ public class GenContext extends AbstractModel {
     }
 
     public String getObjectType() {
-        return this.objectType;
+        return objectType;
     }
 
     public void setObjectType(final String objectType) {
@@ -69,7 +69,7 @@ public class GenContext extends AbstractModel {
     }
 
     public String getObjectName() {
-        return this.objectName;
+        return objectName;
     }
 
     public void setObjectName(final String objectName) {
@@ -77,7 +77,7 @@ public class GenContext extends AbstractModel {
     }
 
     public String getTestPackagePrefix() {
-        return this.testPackagePrefix;
+        return testPackagePrefix;
     }
 
     public void setTestPackagePrefix(final String testPackagePrefix) {
@@ -85,7 +85,7 @@ public class GenContext extends AbstractModel {
     }
 
     public String getTestPackageSuffix() {
-        return this.testPackageSuffix;
+        return testPackageSuffix;
     }
 
     public void setTestPackageSuffix(final String testPackageSuffix) {
@@ -93,7 +93,7 @@ public class GenContext extends AbstractModel {
     }
 
     public String getTestUnitPrefix() {
-        return this.testUnitPrefix;
+        return testUnitPrefix;
     }
 
     public void setTestUnitPrefix(final String testUnitPrefix) {
@@ -101,7 +101,7 @@ public class GenContext extends AbstractModel {
     }
 
     public String getTestUnitSuffix() {
-        return this.testUnitSuffix;
+        return testUnitSuffix;
     }
 
     public void setTestUnitSuffix(final String testUnitSuffix) {
@@ -109,7 +109,7 @@ public class GenContext extends AbstractModel {
     }
 
     public int getNumberOfTestsPerUnit() {
-        return this.numberOfTestsPerUnit;
+        return numberOfTestsPerUnit;
     }
 
     public void setNumberOfTestsPerUnit(final int numberOfTestsPerUnit) {
@@ -117,7 +117,7 @@ public class GenContext extends AbstractModel {
     }
 
     public boolean isGenerateComments() {
-        return this.generateComments;
+        return generateComments;
     }
 
     public void setGenerateComments(final boolean generateComments) {
@@ -125,7 +125,7 @@ public class GenContext extends AbstractModel {
     }
 
     public boolean isDisableTests() {
-        return this.disableTests;
+        return disableTests;
     }
 
     public void setDisableTests(final boolean disableTests) {
@@ -133,7 +133,7 @@ public class GenContext extends AbstractModel {
     }
 
     public String getSuitePath() {
-        return this.suitePath;
+        return suitePath;
     }
 
     public void setSuitePath(final String suitePath) {
@@ -141,7 +141,7 @@ public class GenContext extends AbstractModel {
     }
 
     public int getIndentSpaces() {
-        return this.indentSpaces;
+        return indentSpaces;
     }
 
     public void setIndentSpaces(final int indentSpaces) {
