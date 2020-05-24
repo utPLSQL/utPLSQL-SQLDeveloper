@@ -13,16 +13,66 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.utplsql.sqldev.model.runner
+package org.utplsql.sqldev.model.runner;
 
-import org.eclipse.xtend.lib.annotations.Accessors
-import org.utplsql.sqldev.model.AbstractModel
+import org.springframework.core.style.ToStringCreator;
+import org.utplsql.sqldev.model.AbstractModel;
 
-@Accessors
-class Counter extends AbstractModel {
-	Integer disabled
-	Integer success
-	Integer failure
-	Integer error
-	Integer warning
+public class Counter extends AbstractModel {
+    private Integer disabled;
+    private Integer success;
+    private Integer failure;
+    private Integer error;
+    private Integer warning;
+
+    @Override
+    public String toString() {
+        return new ToStringCreator(this, getStyler())
+                .append("disabled", disabled)
+                .append("success", success)
+                .append("failure", failure)
+                .append("error", error)
+                .append("warning", warning)
+                .toString();
+    }
+
+    public Integer getDisabled() {
+        return this.disabled;
+    }
+
+    public void setDisabled(final Integer disabled) {
+        this.disabled = disabled;
+    }
+
+    public Integer getSuccess() {
+        return this.success;
+    }
+
+    public void setSuccess(final Integer success) {
+        this.success = success;
+    }
+
+    public Integer getFailure() {
+        return this.failure;
+    }
+
+    public void setFailure(final Integer failure) {
+        this.failure = failure;
+    }
+
+    public Integer getError() {
+        return this.error;
+    }
+
+    public void setError(final Integer error) {
+        this.error = error;
+    }
+
+    public Integer getWarning() {
+        return this.warning;
+    }
+
+    public void setWarning(final Integer warning) {
+        this.warning = warning;
+    }
 }
