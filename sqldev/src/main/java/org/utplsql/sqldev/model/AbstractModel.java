@@ -13,17 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.utplsql.sqldev.model
+package org.utplsql.sqldev.model;
 
-import org.eclipse.xtext.xbase.lib.util.ToStringBuilder
+import org.springframework.core.style.ToStringStyler;
 
-abstract class AbstractModel {
-	
-	override toString() {
-		new ToStringBuilder(this).addAllFields.toString
-	}
-	
-	def getStyler() {
-		return UtplsqlToStringStyler.STYLER;
-	}
+public abstract class AbstractModel {
+
+    public ToStringStyler getStyler() {
+        return UtplsqlToStringStyler.STYLER;
+    }
 }
