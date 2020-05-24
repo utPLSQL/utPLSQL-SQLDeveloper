@@ -13,79 +13,77 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.utplsql.sqldev.model
+package org.utplsql.sqldev.model;
 
-import java.util.List
+import java.util.List;
 
-// converted to Xtend based on Java code on https://www.geeksforgeeks.org/longest-common-prefix-using-binary-search/
-class PrefixTools {
-	def static int findMinLength(String[] arr, int n) {
-		var int min = Integer.MAX_VALUE
-		for (var int i = 0; i < n; i++) {
-			if ({
-				val _rdIndx_arr = i
-				arr.get(_rdIndx_arr)
-			}.length() < min) {
-				min = {
-					val _rdIndx_arr = i
-					arr.get(_rdIndx_arr)
-				}.length()
-			}
-		}
-		return min
-	}
+//converted to Xtend based on Java code on https://www.geeksforgeeks.org/longest-common-prefix-using-binary-search/
+//converted back to Java with some amendments
+public class PrefixTools {
+    
+    // do not instantiate this class
+    private PrefixTools() {
+        super();
+    }
+    
+    public static int findMinLength(final String[] arr, final int n) {
+        int min = Integer.MAX_VALUE;
+        for (int i=0; i < n; i++) {
+            if (arr[i].length() < min) {
+                min = arr[i].length();
+            }
+        }
+        return min;
+    }
 
-	def static boolean allContainsPrefix(String[] arr, int n, String str, int start, int end) {
-		for (var int i = 0; i < n; i++) {
-			var String arr_i = {
-				val _rdIndx_arr = i
-				arr.get(_rdIndx_arr)
-			}
-			for (var int j = start; j <= end; j++) {
-				if (arr_i.charAt(j) !== str.charAt(j)) {
-					return false
-				}
-			}
-		}
-		return true
-	}
+    public static boolean allContainsPrefix(final String[] arr, final int n, final String str, final int start, final int end) {
+        for (int i=0; i < n; i++) {
+            String item = arr[i];
+            for (int j = start; j <= end; j++) {
+                if (item.charAt(j) != str.charAt(j)) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
 
-	def static String commonPrefix(String[] arr, int n) {
-		var int index = findMinLength(arr, n)
-		var String prefix = ""
-		var int low = 0
-		var int high = index
-		while (low <= high) {
-			var int mid = low + (high - low) / 2
-			if (allContainsPrefix(arr, n, arr.get(0), low, mid)) {
-				prefix = prefix + arr.get(0).substring(low, mid + 1)
-				low = mid + 1
-			} else {
-				high = mid - 1
-			}
-		}
-		return prefix
-	}
+    public static String commonPrefix(final String[] arr, final int n) {
+        int index = findMinLength(arr, n);
+        StringBuilder prefix = new StringBuilder();
+        int low = 0;
+        int high = index; // index-1 is wrong
+        while (low <= high) {
+            int mid = low + (high - low) / 2;
+            if (allContainsPrefix(arr, n, arr[0], low, mid)) {
+                prefix.append(arr[0].substring(low, mid + 1));
+                low = mid + 1;
+            } else {
+                high = mid - 1;
+            }
+        }
+        return prefix.toString();
+    }
 
-	def static String commonPrefix(List<String> list) {
-		try {
-			if (list.size === 0) {
-				return ""
-			} else if (list.size === 1) {
-				val pos = list.get(0).lastIndexOf(".");
-				if (pos > 0) {
-					return list.get(0).substring(0, pos + 1)
-				} else {
-					return ""
-				}
-			} else {
-				var String[] testArray = newArrayOfSize(list.size)
-				var prefix = commonPrefix(list.toArray(testArray), list.size)
-				return prefix
-			}
-		} catch (Exception e) {
-			return ""
-		}
-	}
+    public static String commonPrefix(final List<String> list) {
+        try {
+            if (list.size() == 0) {
+                return "";
+            } else if (list.size() == 1) {
+                final int pos = list.get(0).lastIndexOf(".");
+                if (pos > 0) {
+                    return list.get(0).substring(0, pos + 1);
+                } else {
+                    return "";
+                }
+            } else {
+                final String[] testArray = new String[list.size()];
+                final String prefix = commonPrefix(list.toArray(testArray), list.size());
+                return prefix;
+            }
 
+        } catch (final Exception e) {
+            return "";
+        }
+    }
 }
