@@ -16,9 +16,16 @@
 package org.utplsql.sqldev.model
 
 import org.eclipse.xtext.xbase.lib.util.ToStringBuilder
+import org.springframework.core.style.ToStringStyler
 
 abstract class AbstractModel {
+	static final ToStringStyler STYLER = new UtplsqlToStringStyler();
+	
 	override toString() {
 		new ToStringBuilder(this).addAllFields.toString
+	}
+	
+	def getStyler() {
+		return STYLER;
 	}
 }
