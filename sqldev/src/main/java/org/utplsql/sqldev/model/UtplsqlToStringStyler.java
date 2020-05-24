@@ -17,7 +17,6 @@ package org.utplsql.sqldev.model;
 
 import org.springframework.core.style.DefaultToStringStyler;
 import org.springframework.util.ClassUtils;
-import org.springframework.util.ObjectUtils;
 
 public class UtplsqlToStringStyler extends DefaultToStringStyler {
 
@@ -34,18 +33,10 @@ public class UtplsqlToStringStyler extends DefaultToStringStyler {
     public void styleStart(StringBuilder buffer, Object obj) {
         if (!obj.getClass().isArray()) {
             buffer.append("[").append(ClassUtils.getShortName(obj.getClass()));
-            myStyleIdentityHashCode(buffer, obj);
+            buffer.append('\n');
         } else {
-            buffer.append("[");
-            myStyleIdentityHashCode(buffer, obj);
-            buffer.append(' ');
+            buffer.append('[');
             styleValue(buffer, obj);
         }
-    }
-
-    private void myStyleIdentityHashCode(StringBuilder buffer, Object obj) {
-        buffer.append('@');
-        buffer.append(ObjectUtils.getIdentityHexString(obj));
-        buffer.append('\n');
     }
 }
