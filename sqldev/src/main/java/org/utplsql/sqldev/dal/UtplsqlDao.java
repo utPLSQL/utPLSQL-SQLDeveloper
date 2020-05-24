@@ -888,8 +888,8 @@ public class UtplsqlDao {
                     cs.setInt(2, bufferSize);
                     cs.execute();
                     final OutputLines out = new OutputLines();
-                    Object _array = cs.getArray(1).getArray();
-                    out.setLines(((String[]) _array));
+                    Object array = cs.getArray(1).getArray();
+                    out.setLines(((String[]) array));
                     out.setNumlines(Integer.valueOf(cs.getInt(2)));
                     return out;
                 }
