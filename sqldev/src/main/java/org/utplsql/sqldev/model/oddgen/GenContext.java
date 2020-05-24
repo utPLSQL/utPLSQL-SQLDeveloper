@@ -13,24 +13,137 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.utplsql.sqldev.model.oddgen
+package org.utplsql.sqldev.model.oddgen;
 
-import java.sql.Connection
-import org.eclipse.xtend.lib.annotations.Accessors
-import org.utplsql.sqldev.model.AbstractModel
+import java.sql.Connection;
 
-@Accessors
-class GenContext extends AbstractModel {
-	Connection conn
-	String objectType
-	String objectName
-	String testPackagePrefix
-	String testPackageSuffix
-	String testUnitPrefix
-	String testUnitSuffix
-	int numberOfTestsPerUnit
-	boolean generateComments
-	boolean disableTests
-	String suitePath
-	int indentSpaces
+import org.springframework.core.style.ToStringCreator;
+
+public class GenContext {
+    private Connection conn;
+    private String objectType;
+    private String objectName;
+    private String testPackagePrefix;
+    private String testPackageSuffix;
+    private String testUnitPrefix;
+    private String testUnitSuffix;
+    private int numberOfTestsPerUnit;
+    private boolean generateComments;
+    private boolean disableTests;
+    private String suitePath;
+    private int indentSpaces;
+
+    public Connection getConn() {
+        return this.conn;
+    }
+
+    @Override 
+    public String toString() {
+        return new ToStringCreator(this)
+                .append("conn", conn)
+                .append("objectType", objectType)
+                .append("objectName", objectName)
+                .append("testPackagePrefix", testPackagePrefix)
+                .append("testPackageSuffix", testPackageSuffix)
+                .append("testUnitPrefix", testUnitPrefix)
+                .append("testUnitSuffix", testUnitSuffix)
+                .append("numberOfTestsPerUnit", numberOfTestsPerUnit)
+                .append("generateComments", generateComments)
+                .append("disableTests", disableTests)
+                .append("suitePath", suitePath)
+                .append("indentSpaces", indentSpaces)
+                .toString();
+    }
+    
+    public void setConn(final Connection conn) {
+        this.conn = conn;
+    }
+
+    public String getObjectType() {
+        return this.objectType;
+    }
+
+    public void setObjectType(final String objectType) {
+        this.objectType = objectType;
+    }
+
+    public String getObjectName() {
+        return this.objectName;
+    }
+
+    public void setObjectName(final String objectName) {
+        this.objectName = objectName;
+    }
+
+    public String getTestPackagePrefix() {
+        return this.testPackagePrefix;
+    }
+
+    public void setTestPackagePrefix(final String testPackagePrefix) {
+        this.testPackagePrefix = testPackagePrefix;
+    }
+
+    public String getTestPackageSuffix() {
+        return this.testPackageSuffix;
+    }
+
+    public void setTestPackageSuffix(final String testPackageSuffix) {
+        this.testPackageSuffix = testPackageSuffix;
+    }
+
+    public String getTestUnitPrefix() {
+        return this.testUnitPrefix;
+    }
+
+    public void setTestUnitPrefix(final String testUnitPrefix) {
+        this.testUnitPrefix = testUnitPrefix;
+    }
+
+    public String getTestUnitSuffix() {
+        return this.testUnitSuffix;
+    }
+
+    public void setTestUnitSuffix(final String testUnitSuffix) {
+        this.testUnitSuffix = testUnitSuffix;
+    }
+
+    public int getNumberOfTestsPerUnit() {
+        return this.numberOfTestsPerUnit;
+    }
+
+    public void setNumberOfTestsPerUnit(final int numberOfTestsPerUnit) {
+        this.numberOfTestsPerUnit = numberOfTestsPerUnit;
+    }
+
+    public boolean isGenerateComments() {
+        return this.generateComments;
+    }
+
+    public void setGenerateComments(final boolean generateComments) {
+        this.generateComments = generateComments;
+    }
+
+    public boolean isDisableTests() {
+        return this.disableTests;
+    }
+
+    public void setDisableTests(final boolean disableTests) {
+        this.disableTests = disableTests;
+    }
+
+    public String getSuitePath() {
+        return this.suitePath;
+    }
+
+    public void setSuitePath(final String suitePath) {
+        this.suitePath = suitePath;
+    }
+
+    public int getIndentSpaces() {
+        return this.indentSpaces;
+    }
+
+    public void setIndentSpaces(final int indentSpaces) {
+        this.indentSpaces = indentSpaces;
+    }
 }
