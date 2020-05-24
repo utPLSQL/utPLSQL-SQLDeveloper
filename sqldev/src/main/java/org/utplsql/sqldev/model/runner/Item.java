@@ -13,19 +13,96 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.utplsql.sqldev.model.runner
+package org.utplsql.sqldev.model.runner;
 
-import org.eclipse.xtend.lib.annotations.Accessors
-import org.utplsql.sqldev.model.AbstractModel
+import org.springframework.core.style.ToStringCreator;
+import org.utplsql.sqldev.model.AbstractModel;
 
-@Accessors
-abstract class Item extends AbstractModel {
-	String id
-	String startTime
-	String endTime
-	Double executionTime
-	Counter counter
-	String errorStack
-	String serverOutput
-	String warnings
+public abstract class Item extends AbstractModel {
+    private String id;
+    private String startTime;
+    private String endTime;
+    private Double executionTime;
+    private Counter counter;
+    private String errorStack;
+    private String serverOutput;
+    private String warnings;
+
+    @Override
+    public String toString() {
+        return new ToStringCreator(this, getStyler())
+                .append("id", id)
+                .append("startTime", startTime)
+                .append("endTime", endTime)
+                .append("executionTime", executionTime)
+                .append("counter", counter)
+                .append("errorStack", errorStack)
+                .append("serverOutput", serverOutput)
+                .append("warnings", warnings)
+                .toString();
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(final String id) {
+        this.id = id;
+    }
+
+    public String getStartTime() {
+        return startTime;
+    }
+
+    public void setStartTime(final String startTime) {
+        this.startTime = startTime;
+    }
+
+    public String getEndTime() {
+        return endTime;
+    }
+
+    public void setEndTime(final String endTime) {
+        this.endTime = endTime;
+    }
+
+    public Double getExecutionTime() {
+        return executionTime;
+    }
+
+    public void setExecutionTime(final Double executionTime) {
+        this.executionTime = executionTime;
+    }
+
+    public Counter getCounter() {
+        return counter;
+    }
+
+    public void setCounter(final Counter counter) {
+        this.counter = counter;
+    }
+
+    public String getErrorStack() {
+        return errorStack;
+    }
+
+    public void setErrorStack(final String errorStack) {
+        this.errorStack = errorStack;
+    }
+
+    public String getServerOutput() {
+        return serverOutput;
+    }
+
+    public void setServerOutput(final String serverOutput) {
+        this.serverOutput = serverOutput;
+    }
+
+    public String getWarnings() {
+        return warnings;
+    }
+
+    public void setWarnings(final String warnings) {
+        this.warnings = warnings;
+    }
 }
