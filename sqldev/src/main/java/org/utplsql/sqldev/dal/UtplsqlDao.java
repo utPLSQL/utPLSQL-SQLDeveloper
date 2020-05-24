@@ -90,9 +90,7 @@ public class UtplsqlDao {
         final String minor = m.group();
         m.find();
         final String bugfix = m.group();
-        final int versionNumber = Integer.valueOf(major) * 1000000 + Integer.valueOf(minor) * 1000
-                + Integer.valueOf(bugfix);
-        return versionNumber;
+        return Integer.valueOf(major) * 1000000 + Integer.valueOf(minor) * 1000 + Integer.valueOf(bugfix);
     }
 
     /**
@@ -111,8 +109,7 @@ public class UtplsqlDao {
                     public String doInCallableStatement(final CallableStatement cs) throws SQLException {
                         cs.registerOutParameter(1, Types.VARCHAR);
                         cs.execute();
-                        final String version = cs.getString(1);
-                        return version;
+                        return cs.getString(1);
                     }
                 });
             } catch (DataAccessException e) {
@@ -232,7 +229,7 @@ public class UtplsqlDao {
                 sb.append("   ? := l_return;\n");
                 sb.append("END;");
                 final String sql = sb.toString();
-                final Boolean ret = jdbcTemplate.execute(sql, new CallableStatementCallback<Boolean>() {
+                return jdbcTemplate.execute(sql, new CallableStatementCallback<Boolean>() {
                     @Override
                     public Boolean doInCallableStatement(final CallableStatement cs) throws SQLException {
                         cs.setString(1, owner);
@@ -244,7 +241,6 @@ public class UtplsqlDao {
                         return Boolean.valueOf(Objects.equal(ret, "1"));
                     }
                 });
-                return ret;
             } else if (normalizedUtPlsqlVersionNumber() >= FIRST_VERSION_WITH_ANNOTATION_API) {
                 // using API available since 3.1.3, can handle nulls in objectName and subobjectName
                 StringBuilder sb = new StringBuilder();
@@ -306,7 +302,7 @@ public class UtplsqlDao {
             sb.append("   ? := l_return;\n");
             sb.append("END;");
             final String sql = sb.toString();
-            final Boolean ret = jdbcTemplate.execute(sql, new CallableStatementCallback<Boolean>() {
+            return jdbcTemplate.execute(sql, new CallableStatementCallback<Boolean>() {
                 @Override
                 public Boolean doInCallableStatement(final CallableStatement cs)
                         throws SQLException {
@@ -317,7 +313,6 @@ public class UtplsqlDao {
                     return Boolean.valueOf(Objects.equal(ret, "1"));
                 }
             });
-            return ret;
         } else {
             return containsUtplsqlTest(owner, null, null);
         }
@@ -335,7 +330,7 @@ public class UtplsqlDao {
             sb.append("   ? := l_return;\n");
             sb.append("END;");
             final String sql = sb.toString();
-            final Boolean ret = jdbcTemplate.execute(sql, new CallableStatementCallback<Boolean>() {
+            return jdbcTemplate.execute(sql, new CallableStatementCallback<Boolean>() {
                 @Override
                 public Boolean doInCallableStatement(final CallableStatement cs)
                         throws SQLException {
@@ -347,7 +342,6 @@ public class UtplsqlDao {
                     return Boolean.valueOf(Objects.equal(ret, "1"));
                 }
             });
-            return ret;
         } else {
             return containsUtplsqlTest(owner, objectName, null);
         }
@@ -388,8 +382,7 @@ public class UtplsqlDao {
         final String sql = sb.toString();
         final BeanPropertyRowMapper<Annotation> rowMapper = new BeanPropertyRowMapper<>(Annotation.class);
         final Object[] binds = new Object[] {owner, objectName};
-        final List<Annotation> result = jdbcTemplate.query(sql, rowMapper, binds);
-        return result;
+        return jdbcTemplate.query(sql, rowMapper, binds);
     }
 
     /**
@@ -415,8 +408,7 @@ public class UtplsqlDao {
             sb.append(" ORDER BY min(subprogram_id)");
             final String sql = sb.toString();
             final Object[] binds = new Object[] {objectType, objectName};
-            final List<String> result = jdbcTemplate.queryForList(sql, String.class, binds);
-            return result;
+            return jdbcTemplate.queryForList(sql, String.class, binds);
         } else {
             return CollectionLiterals.newArrayList(objectName);
         }
@@ -495,8 +487,7 @@ public class UtplsqlDao {
         final String sql = sb.toString();
         final Object[] binds = new Object[] {objectType};
         BeanPropertyRowMapper<Node> rowMapper = new BeanPropertyRowMapper<>(Node.class);
-        final List<Node> nodes = jdbcTemplate.query(sql, rowMapper, binds);
-        return nodes;
+        return jdbcTemplate.query(sql, rowMapper, binds);
     }
 
     /**
@@ -818,8 +809,7 @@ public class UtplsqlDao {
         }
         BeanPropertyRowMapper<Node> rowMapper = new BeanPropertyRowMapper<>(Node.class);
         final String sql = sb.toString();
-        final List<Node> nodes = jdbcTemplate.query(sql, rowMapper);
-        return nodes;
+        return jdbcTemplate.query(sql, rowMapper);
     }
 
     /**
@@ -931,17 +921,17 @@ public class UtplsqlDao {
         sb.append("             a_paths => ut_varchar2_list(\n");
         sb.append(StringTools.getCSV(pathList, 16));
         sb.append("             ),\n");
-        if (schemaList.size() > 0) {
+        if (!schemaList.isEmpty()) {
             sb.append("             a_coverage_schemes => ut_varchar2_list(\n");
             sb.append(StringTools.getCSV(schemaList, 16));
             sb.append("             ),\n");
         }
-        if (includeObjectList.size() > 0) {
+        if (!includeObjectList.isEmpty()) {
             sb.append("             a_include_objects => ut_varchar2_list(\n");
             sb.append(StringTools.getCSV(includeObjectList, 16));
             sb.append("             ),\n");
         }
-        if (excludeObjectList.size() > 0) {
+        if (!excludeObjectList.isEmpty()) {
             sb.append("             a_exclude_objects => ut_varchar2_list(\n");
             sb.append(StringTools.getCSV(excludeObjectList, 16));
             sb.append("             ),\n");
@@ -999,8 +989,7 @@ public class UtplsqlDao {
         sb.append("    AND referenced_type IN ('PACKAGE', 'TYPE', 'PROCEDURE', 'FUNCTION', 'TRIGGER')");
         final String sql = sb.toString();
         final Object[] binds = new Object[] {owner, name};
-        final List<String> deps = jdbcTemplate.queryForList(sql, String.class, binds);
-        return deps;
+        return jdbcTemplate.queryForList(sql, String.class, binds);
     }
 
     /**
@@ -1034,7 +1023,7 @@ public class UtplsqlDao {
         sb.append("        );\n");
         sb.append("END;");
         final String sql = sb.toString();
-        final String ret = jdbcTemplate.execute(sql, new CallableStatementCallback<String>() {
+        return jdbcTemplate.execute(sql, new CallableStatementCallback<String>() {
             @Override
             public String doInCallableStatement(final CallableStatement cs) throws SQLException {
                 cs.registerOutParameter(1, Types.CLOB);
@@ -1045,7 +1034,6 @@ public class UtplsqlDao {
                 return cs.getString(1);
             }
         });
-        return ret;
     }
 
     /**
@@ -1074,7 +1062,6 @@ public class UtplsqlDao {
         sb.append(" WHERE rownum = 1");
         final String sql = sb.toString();
         final Object[] binds = new Object[] {owner, objectName};
-        final String objectType = jdbcTemplate.queryForObject(sql, binds, String.class);
-        return objectType;
+        return jdbcTemplate.queryForObject(sql, binds, String.class);
     }
 }
