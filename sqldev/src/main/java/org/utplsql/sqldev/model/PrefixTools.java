@@ -67,7 +67,7 @@ public class PrefixTools {
 
     public static String commonPrefix(final List<String> list) {
         try {
-            if (list.size() == 0) {
+            if (list.isEmpty()) {
                 return "";
             } else if (list.size() == 1) {
                 final int pos = list.get(0).lastIndexOf('.');
