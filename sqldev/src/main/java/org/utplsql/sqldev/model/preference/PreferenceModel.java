@@ -13,309 +13,345 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.utplsql.sqldev.model.preference
+package org.utplsql.sqldev.model.preference;
 
-import java.io.File
-import oracle.javatools.data.HashStructure
-import oracle.javatools.data.HashStructureAdapter
-import oracle.javatools.data.PropertyStorage
-import org.eclipse.xtext.xbase.lib.util.ToStringBuilder
+import java.io.File;
 
-class PreferenceModel extends HashStructureAdapter {
-	public static final String DEFAULT_OUTPUT_DIRECTORY = '''«System.getProperty("user.home")»«File.separator»utplsql«File.separator»generated'''
-	static final String DATA_KEY = "utplsql"
+import org.springframework.core.style.ToStringCreator;
+import org.utplsql.sqldev.model.UtplsqlToStringStyler;
 
-	private new(HashStructure hash) {
-		super(hash)
-	}
+import oracle.javatools.data.HashStructure;
+import oracle.javatools.data.HashStructureAdapter;
+import oracle.javatools.data.PropertyStorage;
 
-	def static getInstance(PropertyStorage prefs) {
-		return new PreferenceModel(findOrCreate(prefs, DATA_KEY))
-	}
+public class PreferenceModel extends HashStructureAdapter {
+    public static final String DEFAULT_OUTPUT_DIRECTORY = System.getProperty("user.home") + File.separator + "utplsql" + File.separator + "generated";
+    private static final String DATA_KEY = "utplsql";
 
-	static final String KEY_USE_REALTIME_REPORTER = "useRealtimeRorter"
-	static final String KEY_UNSHARED_WORKSHEET = "unsharedWorksheet"
-	static final String KEY_RESET_PACKAGE = "resetPackage"
-	static final String KEY_CLEAR_SCREEN = "clearScreen"
-	static final String KEY_AUTO_EXECUTE = "autoExecute"
-	static final String KEY_CHECK_RUN_UTPLSQL_TEST = "checkRunUtplsqlTest"
-	static final String KEY_USE_SMART_TIMES = "useSmartTimes"
-	static final String KEY_NUMBER_OF_RUNS_IN_HISTORY = "numberOfRunsInHistory"
-	static final String KEY_SHOW_DISABLED_COUNTER = "showDisabledCounter"
-	static final String KEY_SHOW_WARNINGS_COUNTER = "showWarningsCounter"
-	static final String KEY_SHOW_INFO_COUNTER = "showInfoCounter"
-	static final String KEY_SHOW_WARNING_INDICATOR = "showWarningIndicator"
-	static final String KEY_SHOW_INFO_INDICATOR = "showInfoIndicator"
-	static final String KEY_SHOW_SUCCESSFUL_TESTS = "showSuccessfulTests"
-	static final String KEY_SHOW_DISABLED_TESTS = "showDisabledTests"
-	static final String KEY_SHOW_TEST_DESCRIPTION = "showTestDescription"
-	static final String KEY_SYNC_DETAIL_TAB = "syncDetailTab"
-	static final String KEY_TEST_PACKAGE_PREFIX = "testPackagePrefix"
-	static final String KEY_TEST_PACKAGE_SUFFIX = "testPackageSuffix"
-	static final String KEY_TEST_UNIT_PREFIX = "testUnitPrefix"
-	static final String KEY_TEST_UNIT_SUFFIX = "testUnitSuffix"
-	static final String KEY_NUMBER_OF_TESTS_PER_UNIT = "numberOfTestsPerUnit"
-	static final String KEY_CHECK_GENERATE_UTPLSQL_TEST = "checkGenerateUtplsqlTest"
-	static final String KEY_GENERATE_COMMENTS = "generateComments"
-	static final String KEY_DISABLE_TESTS = "disableTests"
-	static final String KEY_SUITE_PATH="suitePath"
-	static final String KEY_INDENT_SPACES="indentSpaces"
-	static final String KEY_GENERATE_FILES="generateFiles"
-	static final String KEY_OUTPUT_DIRECTORY = "outputDirectory"
-	static final String KEY_DELETE_EXISTING_FILES="deleteExistingFiles"
-	static final String KEY_ROOT_FOLDER_IN_ODDGEN_VIEW = "rootFolderInOddgenView"
+    private PreferenceModel(final HashStructure hash) {
+        super(hash);
+    }
 
-	def isUseRealtimeReporter() {
-		return getHashStructure.getBoolean(PreferenceModel.KEY_USE_REALTIME_REPORTER, true)
-	}
+    public static PreferenceModel getInstance(final PropertyStorage prefs) {
+        return new PreferenceModel(findOrCreate(prefs, DATA_KEY));
+    }
 
-	def setUseRealtimeReporter(boolean useRealtimeReporter) {
-		getHashStructure.putBoolean(PreferenceModel.KEY_USE_REALTIME_REPORTER, useRealtimeReporter)
-	}
-	
-	def isUnsharedWorksheet() {
-		return getHashStructure.getBoolean(PreferenceModel.KEY_UNSHARED_WORKSHEET, true)
-	}
+    private static final String KEY_USE_REALTIME_REPORTER = "useRealtimeRorter";
+    private static final String KEY_UNSHARED_WORKSHEET = "unsharedWorksheet";
+    private static final String KEY_RESET_PACKAGE = "resetPackage";
+    private static final String KEY_CLEAR_SCREEN = "clearScreen";
+    private static final String KEY_AUTO_EXECUTE = "autoExecute";
+    private static final String KEY_CHECK_RUN_UTPLSQL_TEST = "checkRunUtplsqlTest";
+    private static final String KEY_USE_SMART_TIMES = "useSmartTimes";
+    private static final String KEY_NUMBER_OF_RUNS_IN_HISTORY = "numberOfRunsInHistory";
+    private static final String KEY_SHOW_DISABLED_COUNTER = "showDisabledCounter";
+    private static final String KEY_SHOW_WARNINGS_COUNTER = "showWarningsCounter";
+    private static final String KEY_SHOW_INFO_COUNTER = "showInfoCounter";
+    private static final String KEY_SHOW_WARNING_INDICATOR = "showWarningIndicator";
+    private static final String KEY_SHOW_INFO_INDICATOR = "showInfoIndicator";
+    private static final String KEY_SHOW_SUCCESSFUL_TESTS = "showSuccessfulTests";
+    private static final String KEY_SHOW_DISABLED_TESTS = "showDisabledTests";
+    private static final String KEY_SHOW_TEST_DESCRIPTION = "showTestDescription";
+    private static final String KEY_SYNC_DETAIL_TAB = "syncDetailTab";
+    private static final String KEY_TEST_PACKAGE_PREFIX = "testPackagePrefix";
+    private static final String KEY_TEST_PACKAGE_SUFFIX = "testPackageSuffix";
+    private static final String KEY_TEST_UNIT_PREFIX = "testUnitPrefix";
+    private static final String KEY_TEST_UNIT_SUFFIX = "testUnitSuffix";
+    private static final String KEY_NUMBER_OF_TESTS_PER_UNIT = "numberOfTestsPerUnit";
+    private static final String KEY_CHECK_GENERATE_UTPLSQL_TEST = "checkGenerateUtplsqlTest";
+    private static final String KEY_GENERATE_COMMENTS = "generateComments";
+    private static final String KEY_DISABLE_TESTS = "disableTests";
+    private static final String KEY_SUITE_PATH = "suitePath";
+    private static final String KEY_INDENT_SPACES = "indentSpaces";
+    private static final String KEY_GENERATE_FILES = "generateFiles";
+    private static final String KEY_OUTPUT_DIRECTORY = "outputDirectory";
+    private static final String KEY_DELETE_EXISTING_FILES = "deleteExistingFiles";
+    private static final String KEY_ROOT_FOLDER_IN_ODDGEN_VIEW = "rootFolderInOddgenView";
 
-	def setUnsharedWorksheet(boolean unsharedWorksheet) {
-		getHashStructure.putBoolean(PreferenceModel.KEY_UNSHARED_WORKSHEET, unsharedWorksheet)
-	}
+    @Override
+    public String toString() {
+        return new ToStringCreator(this, UtplsqlToStringStyler.STYLER)
+                .append(KEY_USE_REALTIME_REPORTER, isUseRealtimeReporter())
+                .append(KEY_UNSHARED_WORKSHEET, isUnsharedWorksheet())
+                .append(KEY_RESET_PACKAGE, isResetPackage())
+                .append(KEY_CLEAR_SCREEN, isClearScreen())
+                .append(KEY_AUTO_EXECUTE, isAutoExecute())
+                .append(KEY_CHECK_RUN_UTPLSQL_TEST, isCheckRunUtplsqlTest())
+                .append(KEY_USE_SMART_TIMES, isUseSmartTimes())
+                .append(KEY_NUMBER_OF_RUNS_IN_HISTORY, getNumberOfRunsInHistory())
+                .append(KEY_SHOW_DISABLED_COUNTER, isShowDisabledCounter())
+                .append(KEY_SHOW_WARNINGS_COUNTER, isShowWarningsCounter())
+                .append(KEY_SHOW_INFO_COUNTER, isShowInfoCounter())
+                .append(KEY_SHOW_WARNING_INDICATOR, isShowWarningIndicator())
+                .append(KEY_SHOW_INFO_INDICATOR, isShowInfoIndicator())
+                .append(KEY_SHOW_SUCCESSFUL_TESTS, isShowSuccessfulTests())
+                .append(KEY_SHOW_DISABLED_TESTS, isShowDisabledTests())
+                .append(KEY_SHOW_TEST_DESCRIPTION, isShowTestDescription())
+                .append(KEY_SYNC_DETAIL_TAB, isSyncDetailTab())
+                .append(KEY_TEST_PACKAGE_PREFIX, getTestPackagePrefix())
+                .append(KEY_TEST_PACKAGE_SUFFIX, getTestPackageSuffix())
+                .append(KEY_TEST_UNIT_PREFIX, getTestUnitPrefix())
+                .append(KEY_TEST_UNIT_SUFFIX, getTestUnitSuffix())
+                .append(KEY_NUMBER_OF_TESTS_PER_UNIT, getNumberOfTestsPerUnit())
+                .append(KEY_CHECK_GENERATE_UTPLSQL_TEST, isCheckGenerateUtplsqlTest())
+                .append(KEY_GENERATE_COMMENTS, isGenerateComments())
+                .append(KEY_DISABLE_TESTS, isDisableTests())
+                .append(KEY_SUITE_PATH, getSuitePath())
+                .append(KEY_INDENT_SPACES, getIndentSpaces())
+                .append(KEY_GENERATE_FILES, isGenerateFiles())
+                .append(KEY_OUTPUT_DIRECTORY, getOutputDirectory())
+                .append(KEY_DELETE_EXISTING_FILES, isDeleteExistingFiles())
+                .append(KEY_ROOT_FOLDER_IN_ODDGEN_VIEW, getRootFolderInOddgenView())
+                .toString();
+    }
 
-	def isResetPackage() {
-		return getHashStructure.getBoolean(PreferenceModel.KEY_RESET_PACKAGE, false)
-	}
+    public boolean isUseRealtimeReporter() {
+        return getHashStructure().getBoolean(KEY_USE_REALTIME_REPORTER, true);
+    }
 
-	def setResetPackage(boolean resetPackage) {
-		getHashStructure.putBoolean(PreferenceModel.KEY_RESET_PACKAGE, resetPackage)
-	}
-	
-	def isClearScreen() {
-		return getHashStructure.getBoolean(PreferenceModel.KEY_CLEAR_SCREEN, false)
-	}
+    public void setUseRealtimeReporter(final boolean useRealtimeReporter) {
+        getHashStructure().putBoolean(KEY_USE_REALTIME_REPORTER, useRealtimeReporter);
+    }
 
-	def setClearScreen(boolean clearScreen) {
-		getHashStructure.putBoolean(PreferenceModel.KEY_CLEAR_SCREEN, clearScreen)
-	}
+    public boolean isUnsharedWorksheet() {
+        return getHashStructure().getBoolean(KEY_UNSHARED_WORKSHEET, true);
+    }
 
-	def isAutoExecute() {
-		return getHashStructure.getBoolean(PreferenceModel.KEY_AUTO_EXECUTE, true)
-	}
+    public void setUnsharedWorksheet(final boolean unsharedWorksheet) {
+        getHashStructure().putBoolean(KEY_UNSHARED_WORKSHEET, unsharedWorksheet);
+    }
 
-	def setAutoExecute(boolean autoExecute) {
-		getHashStructure.putBoolean(PreferenceModel.KEY_AUTO_EXECUTE, autoExecute)
-	}
+    public boolean isResetPackage() {
+        return getHashStructure().getBoolean(KEY_RESET_PACKAGE, false);
+    }
 
-	def isCheckRunUtplsqlTest() {
-		return getHashStructure.getBoolean(PreferenceModel.KEY_CHECK_RUN_UTPLSQL_TEST, false)
-	}
+    public void setResetPackage(final boolean resetPackage) {
+        getHashStructure().putBoolean(KEY_RESET_PACKAGE, resetPackage);
+    }
 
-	def setCheckRunUtplsqlTest(boolean checkRunUtplsqlTest) {
-		getHashStructure.putBoolean(PreferenceModel.KEY_CHECK_RUN_UTPLSQL_TEST, checkRunUtplsqlTest)
-	}
+    public boolean isClearScreen() {
+        return getHashStructure().getBoolean(KEY_CLEAR_SCREEN, false);
+    }
 
-	def isUseSmartTimes() {
-		return getHashStructure.getBoolean(PreferenceModel.KEY_USE_SMART_TIMES, false)
-	}
+    public void setClearScreen(final boolean clearScreen) {
+        getHashStructure().putBoolean(KEY_CLEAR_SCREEN, clearScreen);
+    }
 
-	def setUseSmartTimes(boolean useSmartTimes) {
-		getHashStructure.putBoolean(PreferenceModel.KEY_USE_SMART_TIMES, useSmartTimes)
-	}
+    public boolean isAutoExecute() {
+        return getHashStructure().getBoolean(KEY_AUTO_EXECUTE, true);
+    }
 
-	def getNumberOfRunsInHistory() {
-		return getHashStructure.getInt(PreferenceModel.KEY_NUMBER_OF_RUNS_IN_HISTORY, 10)
-	}
+    public void setAutoExecute(final boolean autoExecute) {
+        getHashStructure().putBoolean(KEY_AUTO_EXECUTE, autoExecute);
+    }
 
-	def setNumberOfRunsInHistory(int runs) {
-		getHashStructure.putInt(PreferenceModel.KEY_NUMBER_OF_RUNS_IN_HISTORY, runs)
-	}
+    public boolean isCheckRunUtplsqlTest() {
+        return getHashStructure().getBoolean(KEY_CHECK_RUN_UTPLSQL_TEST, false);
+    }
 
-	def isShowDisabledCounter() {
-		return getHashStructure.getBoolean(PreferenceModel.KEY_SHOW_DISABLED_COUNTER, false)
-	}
+    public void setCheckRunUtplsqlTest(final boolean checkRunUtplsqlTest) {
+        getHashStructure().putBoolean(KEY_CHECK_RUN_UTPLSQL_TEST, checkRunUtplsqlTest);
+    }
 
-	def setShowDisabledCounter(boolean showDisabledCounter) {
-		getHashStructure.putBoolean(PreferenceModel.KEY_SHOW_DISABLED_COUNTER, showDisabledCounter)
-	}
+    public boolean isUseSmartTimes() {
+        return getHashStructure().getBoolean(KEY_USE_SMART_TIMES, false);
+    }
 
-	def isShowWarningsCounter() {
-		return getHashStructure.getBoolean(PreferenceModel.KEY_SHOW_WARNINGS_COUNTER, false)
-	}
+    public void setUseSmartTimes(final boolean useSmartTimes) {
+        getHashStructure().putBoolean(KEY_USE_SMART_TIMES, useSmartTimes);
+    }
 
-	def setShowWarningsCounter(boolean showWarningCounter) {
-		getHashStructure.putBoolean(PreferenceModel.KEY_SHOW_WARNINGS_COUNTER, showWarningCounter)
-	}
+    public int getNumberOfRunsInHistory() {
+        return getHashStructure().getInt(KEY_NUMBER_OF_RUNS_IN_HISTORY, 10);
+    }
 
-	def isShowInfoCounter() {
-		return getHashStructure.getBoolean(PreferenceModel.KEY_SHOW_INFO_COUNTER, false)
-	}
+    public void setNumberOfRunsInHistory(final int runs) {
+        getHashStructure().putInt(KEY_NUMBER_OF_RUNS_IN_HISTORY, runs);
+    }
 
-	def setShowInfoCounter(boolean showInfoCounter) {
-		getHashStructure.putBoolean(PreferenceModel.KEY_SHOW_INFO_COUNTER, showInfoCounter)
-	}
+    public boolean isShowDisabledCounter() {
+        return getHashStructure().getBoolean(KEY_SHOW_DISABLED_COUNTER, false);
+    }
 
-	def isShowWarningIndicator() {
-		return getHashStructure.getBoolean(PreferenceModel.KEY_SHOW_WARNING_INDICATOR, false)
-	}
+    public void setShowDisabledCounter(final boolean showDisabledCounter) {
+        getHashStructure().putBoolean(KEY_SHOW_DISABLED_COUNTER, showDisabledCounter);
+    }
 
-	def setShowWarningIndicator(boolean showWarningIndicator) {
-		getHashStructure.putBoolean(PreferenceModel.KEY_SHOW_WARNING_INDICATOR, showWarningIndicator)
-	}
+    public boolean isShowWarningsCounter() {
+        return getHashStructure().getBoolean(KEY_SHOW_WARNINGS_COUNTER, false);
+    }
 
-	def isShowInfoIndicator() {
-		return getHashStructure.getBoolean(PreferenceModel.KEY_SHOW_INFO_INDICATOR, false)
-	}
+    public void setShowWarningsCounter(final boolean showWarningCounter) {
+        getHashStructure().putBoolean(KEY_SHOW_WARNINGS_COUNTER, showWarningCounter);
+    }
 
-	def setShowInfoIndicator(boolean showInfoIndicator) {
-		getHashStructure.putBoolean(PreferenceModel.KEY_SHOW_INFO_INDICATOR, showInfoIndicator)
-	}
-	
-	def isShowSuccessfulTests() {
-		return getHashStructure.getBoolean(PreferenceModel.KEY_SHOW_SUCCESSFUL_TESTS, true)
-	}
-	
-	def setShowSuccessfulTests(boolean showSuccessfulTests) {
-		getHashStructure.putBoolean(PreferenceModel.KEY_SHOW_SUCCESSFUL_TESTS, showSuccessfulTests)
-	}
-	
-	def isShowDisabledTests() {
-		return getHashStructure.getBoolean(PreferenceModel.KEY_SHOW_DISABLED_TESTS, true)
-	}
-	
-	def setShowDisabledTests(boolean showDisabledTests) {
-		getHashStructure.putBoolean(PreferenceModel.KEY_SHOW_DISABLED_TESTS, showDisabledTests)
-	}
+    public boolean isShowInfoCounter() {
+        return getHashStructure().getBoolean(KEY_SHOW_INFO_COUNTER, false);
+    }
 
-	def isShowTestDescription() {
-		return getHashStructure.getBoolean(PreferenceModel.KEY_SHOW_TEST_DESCRIPTION, false)
-	}
+    public void setShowInfoCounter(final boolean showInfoCounter) {
+        getHashStructure().putBoolean(KEY_SHOW_INFO_COUNTER, showInfoCounter);
+    }
 
-	def setShowTestDescription(boolean showTestDescription) {
-		getHashStructure.putBoolean(PreferenceModel.KEY_SHOW_TEST_DESCRIPTION, showTestDescription)
-	}
+    public boolean isShowWarningIndicator() {
+        return getHashStructure().getBoolean(KEY_SHOW_WARNING_INDICATOR, false);
+    }
 
-	def isSyncDetailTab() {
-		return getHashStructure.getBoolean(PreferenceModel.KEY_SYNC_DETAIL_TAB, true)
-	}
+    public void setShowWarningIndicator(final boolean showWarningIndicator) {
+        getHashStructure().putBoolean(KEY_SHOW_WARNING_INDICATOR, showWarningIndicator);
+    }
 
-	def setSyncDetailTab(boolean syncDetailTab) {
-		getHashStructure.putBoolean(PreferenceModel.KEY_SYNC_DETAIL_TAB, syncDetailTab)
-	}
+    public boolean isShowInfoIndicator() {
+        return getHashStructure().getBoolean(KEY_SHOW_INFO_INDICATOR, false);
+    }
 
-	def getTestPackagePrefix() {
-		return getHashStructure.getString(PreferenceModel.KEY_TEST_PACKAGE_PREFIX, "test_")
-	}
-	
-	def setTestPackagePrefix(String testPackagePrefix) {
-		getHashStructure.putString(PreferenceModel.KEY_TEST_PACKAGE_PREFIX, testPackagePrefix)
-	}
+    public void setShowInfoIndicator(final boolean showInfoIndicator) {
+        getHashStructure().putBoolean(KEY_SHOW_INFO_INDICATOR, showInfoIndicator);
+    }
 
-	def getTestPackageSuffix() {
-		return getHashStructure.getString(PreferenceModel.KEY_TEST_PACKAGE_SUFFIX, "")
-	}
-	
-	def setTestPackageSuffix(String testPackageSuffix) {
-		getHashStructure.putString(PreferenceModel.KEY_TEST_PACKAGE_SUFFIX, testPackageSuffix)
-	}
+    public boolean isShowSuccessfulTests() {
+        return getHashStructure().getBoolean(KEY_SHOW_SUCCESSFUL_TESTS, true);
+    }
 
-	def getTestUnitPrefix() {
-		return getHashStructure.getString(PreferenceModel.KEY_TEST_UNIT_PREFIX, "")
-	}
-	
-	def setTestUnitPrefix(String testUnitPrefix) {
-		getHashStructure.putString(PreferenceModel.KEY_TEST_UNIT_PREFIX, testUnitPrefix)
-	}
+    public void setShowSuccessfulTests(final boolean showSuccessfulTests) {
+        getHashStructure().putBoolean(KEY_SHOW_SUCCESSFUL_TESTS, showSuccessfulTests);
+    }
 
-	def getTestUnitSuffix() {
-		return getHashStructure.getString(PreferenceModel.KEY_TEST_UNIT_SUFFIX, "")
-	}
-	
-	def setTestUnitSuffix(String testUnitSuffix) {
-		getHashStructure.putString(PreferenceModel.KEY_TEST_UNIT_SUFFIX, testUnitSuffix)
-	}
+    public boolean isShowDisabledTests() {
+        return getHashStructure().getBoolean(KEY_SHOW_DISABLED_TESTS, true);
+    }
 
-	def getNumberOfTestsPerUnit() {
-		return getHashStructure.getInt(PreferenceModel.KEY_NUMBER_OF_TESTS_PER_UNIT, 1)
-	}
+    public void setShowDisabledTests(final boolean showDisabledTests) {
+        getHashStructure().putBoolean(KEY_SHOW_DISABLED_TESTS, showDisabledTests);
+    }
 
-	def setNumberOfTestsPerUnit(int numberOfTestsPerUnit) {
-		getHashStructure.putInt(PreferenceModel.KEY_NUMBER_OF_TESTS_PER_UNIT, numberOfTestsPerUnit)
-	}
+    public boolean isShowTestDescription() {
+        return getHashStructure().getBoolean(KEY_SHOW_TEST_DESCRIPTION, false);
+    }
 
-	def isCheckGenerateUtplsqlTest() {
-		return getHashStructure.getBoolean(PreferenceModel.KEY_CHECK_GENERATE_UTPLSQL_TEST, false)
-	}
+    public void setShowTestDescription(final boolean showTestDescription) {
+        getHashStructure().putBoolean(KEY_SHOW_TEST_DESCRIPTION, showTestDescription);
+    }
 
-	def setCheckGenerateUtplsqlTest(boolean checkGenerateUtplsqlTest) {
-		getHashStructure.putBoolean(PreferenceModel.KEY_CHECK_GENERATE_UTPLSQL_TEST, checkGenerateUtplsqlTest)
-	}
+    public boolean isSyncDetailTab() {
+        return getHashStructure().getBoolean(KEY_SYNC_DETAIL_TAB, true);
+    }
 
-	def isGenerateComments() {
-		return getHashStructure.getBoolean(PreferenceModel.KEY_GENERATE_COMMENTS, true)
-	}
+    public void setSyncDetailTab(final boolean syncDetailTab) {
+        getHashStructure().putBoolean(KEY_SYNC_DETAIL_TAB, syncDetailTab);
+    }
 
-	def setGenerateComments(boolean generateComments) {
-		getHashStructure.putBoolean(PreferenceModel.KEY_GENERATE_COMMENTS, generateComments)
-	}
+    public String getTestPackagePrefix() {
+        return getHashStructure().getString(KEY_TEST_PACKAGE_PREFIX, "test_");
+    }
 
-	def isDisableTests() {
-		return getHashStructure.getBoolean(PreferenceModel.KEY_DISABLE_TESTS, false)
-	}
+    public void setTestPackagePrefix(final String testPackagePrefix) {
+        getHashStructure().putString(KEY_TEST_PACKAGE_PREFIX, testPackagePrefix);
+    }
 
-	def setDisableTests(boolean disableTests) {
-		getHashStructure.putBoolean(PreferenceModel.KEY_DISABLE_TESTS, disableTests)
-	}
+    public String getTestPackageSuffix() {
+        return getHashStructure().getString(KEY_TEST_PACKAGE_SUFFIX, "");
+    }
 
-	def getSuitePath() {
-		return getHashStructure.getString(PreferenceModel.KEY_SUITE_PATH, "alltests")
-	}
-	
-	def setSuitePath(String suitePath) {
-		getHashStructure.putString(PreferenceModel.KEY_SUITE_PATH, suitePath)
-	}
+    public void setTestPackageSuffix(final String testPackageSuffix) {
+        getHashStructure().putString(KEY_TEST_PACKAGE_SUFFIX, testPackageSuffix);
+    }
 
-	def getIndentSpaces() {
-		return getHashStructure.getInt(PreferenceModel.KEY_INDENT_SPACES, 3)
-	}
+    public String getTestUnitPrefix() {
+        return getHashStructure().getString(KEY_TEST_UNIT_PREFIX, "");
+    }
 
-	def setIndentSpaces(int indentSpaces) {
-		getHashStructure.putInt(PreferenceModel.KEY_INDENT_SPACES, indentSpaces)
-	}
+    public void setTestUnitPrefix(final String testUnitPrefix) {
+        getHashStructure().putString(KEY_TEST_UNIT_PREFIX, testUnitPrefix);
+    }
 
-	def isGenerateFiles() {
-		return getHashStructure.getBoolean(PreferenceModel.KEY_GENERATE_FILES, true)
-	}
+    public String getTestUnitSuffix() {
+        return getHashStructure().getString(KEY_TEST_UNIT_SUFFIX, "");
+    }
 
-	def setGenerateFiles(boolean generateFiles) {
-		getHashStructure.putBoolean(PreferenceModel.KEY_GENERATE_FILES, generateFiles)
-	}
+    public void setTestUnitSuffix(final String testUnitSuffix) {
+        getHashStructure().putString(KEY_TEST_UNIT_SUFFIX, testUnitSuffix);
+    }
 
-	def getOutputDirectory() {
-		return getHashStructure.getString(PreferenceModel.KEY_OUTPUT_DIRECTORY, DEFAULT_OUTPUT_DIRECTORY)
-	}
-	
-	def setOutputDirectory(String outputDirectory) {
-		val dir = if (outputDirectory.empty) {DEFAULT_OUTPUT_DIRECTORY} else {outputDirectory}
-		getHashStructure.putString(PreferenceModel.KEY_OUTPUT_DIRECTORY, dir)
-	}
+    public int getNumberOfTestsPerUnit() {
+        return getHashStructure().getInt(KEY_NUMBER_OF_TESTS_PER_UNIT, 1);
+    }
 
-	def isDeleteExistingFiles() {
-		return getHashStructure.getBoolean(PreferenceModel.KEY_DELETE_EXISTING_FILES, false)
-	}
+    public void setNumberOfTestsPerUnit(final int numberOfTestsPerUnit) {
+        getHashStructure().putInt(KEY_NUMBER_OF_TESTS_PER_UNIT, numberOfTestsPerUnit);
+    }
 
-	def setDeleteExistingFiles(boolean deleteExistingFiles) {
-		getHashStructure.putBoolean(PreferenceModel.KEY_DELETE_EXISTING_FILES, deleteExistingFiles)
-	}
+    public boolean isCheckGenerateUtplsqlTest() {
+        return getHashStructure().getBoolean(KEY_CHECK_GENERATE_UTPLSQL_TEST, false);
+    }
 
-	def getRootFolderInOddgenView() {
-		return getHashStructure.getString(PreferenceModel.KEY_ROOT_FOLDER_IN_ODDGEN_VIEW, "utPLSQL")
-	}
-	
-	def setRootFolderInOddgenView(String rootFolder) {
-		val folder = if (rootFolder.empty) {"utPLSQL"} else {rootFolder}
-		getHashStructure.putString(PreferenceModel.KEY_ROOT_FOLDER_IN_ODDGEN_VIEW, folder)
-	}
+    public void setCheckGenerateUtplsqlTest(final boolean checkGenerateUtplsqlTest) {
+        getHashStructure().putBoolean(KEY_CHECK_GENERATE_UTPLSQL_TEST, checkGenerateUtplsqlTest);
+    }
 
-	override toString() {
-		new ToStringBuilder(this).addAllFields.toString
-	}
+    public boolean isGenerateComments() {
+        return getHashStructure().getBoolean(KEY_GENERATE_COMMENTS, true);
+    }
+
+    public void setGenerateComments(final boolean generateComments) {
+        getHashStructure().putBoolean(KEY_GENERATE_COMMENTS, generateComments);
+    }
+
+    public boolean isDisableTests() {
+        return getHashStructure().getBoolean(KEY_DISABLE_TESTS, false);
+    }
+
+    public void setDisableTests(final boolean disableTests) {
+        getHashStructure().putBoolean(KEY_DISABLE_TESTS, disableTests);
+    }
+
+    public String getSuitePath() {
+        return getHashStructure().getString(KEY_SUITE_PATH, "alltests");
+    }
+
+    public void setSuitePath(final String suitePath) {
+        getHashStructure().putString(KEY_SUITE_PATH, suitePath);
+    }
+
+    public int getIndentSpaces() {
+        return getHashStructure().getInt(KEY_INDENT_SPACES, 3);
+    }
+
+    public void setIndentSpaces(final int indentSpaces) {
+        getHashStructure().putInt(KEY_INDENT_SPACES, indentSpaces);
+    }
+
+    public boolean isGenerateFiles() {
+        return getHashStructure().getBoolean(KEY_GENERATE_FILES, true);
+    }
+
+    public void setGenerateFiles(final boolean generateFiles) {
+        getHashStructure().putBoolean(KEY_GENERATE_FILES, generateFiles);
+    }
+
+    public String getOutputDirectory() {
+        return getHashStructure().getString(KEY_OUTPUT_DIRECTORY, DEFAULT_OUTPUT_DIRECTORY);
+    }
+
+    public void setOutputDirectory(final String outputDirectory) {
+        final String dir = outputDirectory.isEmpty() ? DEFAULT_OUTPUT_DIRECTORY : outputDirectory;
+        getHashStructure().putString(KEY_OUTPUT_DIRECTORY, dir);
+    }
+
+    public boolean isDeleteExistingFiles() {
+        return getHashStructure().getBoolean(KEY_DELETE_EXISTING_FILES, false);
+    }
+
+    public void setDeleteExistingFiles(final boolean deleteExistingFiles) {
+        getHashStructure().putBoolean(KEY_DELETE_EXISTING_FILES, deleteExistingFiles);
+    }
+
+    public String getRootFolderInOddgenView() {
+        return getHashStructure().getString(KEY_ROOT_FOLDER_IN_ODDGEN_VIEW, "utPLSQL");
+    }
+
+    public void setRootFolderInOddgenView(final String rootFolder) {
+        final String folder = rootFolder.isEmpty() ? "utPLSQL" : rootFolder;
+        getHashStructure().putString(KEY_ROOT_FOLDER_IN_ODDGEN_VIEW, folder);
+    }
 }
