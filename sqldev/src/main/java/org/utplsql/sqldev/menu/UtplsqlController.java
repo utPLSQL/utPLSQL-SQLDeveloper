@@ -67,7 +67,6 @@ import oracle.javatools.db.DBException;
 @SuppressWarnings("all")
 public class UtplsqlController implements Controller {
     private static final Logger logger = Logger.getLogger(UtplsqlController.class.getName());
-    private final URLTools urlTools = new URLTools();
 
     public static int UTPLSQL_TEST_CMD_ID = (Ide.findCmdID("utplsql.test")).intValue();
     public static int UTPLSQL_COVERAGE_CMD_ID = (Ide.findCmdID("utplsql.coverage")).intValue();
@@ -140,7 +139,7 @@ public class UtplsqlController implements Controller {
                             + context.getSelection()[i].getClass().getName());
                     if (action.isEnabled()) {
                         final Object element = context.getSelection()[i];
-                        final String connectionName = urlTools.getConnectionName(getURL(context));
+                        final String connectionName = URLTools.getConnectionName(getURL(context));
                         if (Connections.getInstance().isConnectionOpen(connectionName)) {
                             Connection conn = getConnection(connectionName);
                             final UtplsqlDao dao = new UtplsqlDao(conn);
@@ -152,15 +151,15 @@ public class UtplsqlController implements Controller {
                                     final String schema = ((SchemaFolder) element).getSchemaName();
                                     action.setEnabled(dao.containsUtplsqlTest(schema));
                                 } else if ((element instanceof ObjectFolder)) {
-                                    final String schema = urlTools.getSchema(((ObjectFolder) element).getURL());
+                                    final String schema = URLTools.getSchema(((ObjectFolder) element).getURL());
                                     action.setEnabled(dao.containsUtplsqlTest(schema));
                                 } else if ((element instanceof PlSqlNode)) {
                                     final String schema = ((PlSqlNode) element).getOwner();
                                     final String objectName = ((PlSqlNode) element).getObjectName();
                                     action.setEnabled(dao.containsUtplsqlTest(schema, objectName));
                                 } else if ((element instanceof ChildObjectElement)) {
-                                    final String schema = urlTools.getSchema(((ChildObjectElement) element).getURL());
-                                    final String objectName = urlTools.getMemberObject(((ChildObjectElement) element).getURL());
+                                    final String schema = URLTools.getSchema(((ChildObjectElement) element).getURL());
+                                    final String objectName = URLTools.getMemberObject(((ChildObjectElement) element).getURL());
                                     final String subObjectName = ((ChildObjectElement) element).getShortLabel();
                                     action.setEnabled(dao.containsUtplsqlTest(schema, objectName, subObjectName));
                                 }
@@ -212,7 +211,7 @@ public class UtplsqlController implements Controller {
         } else if (element instanceof SchemaFolder) {
             path = ((SchemaFolder) element).getSchemaName();
         } else if (element instanceof ObjectFolder) {
-            path = urlTools.getSchema(((ObjectFolder) element).getURL());
+            path = URLTools.getSchema(((ObjectFolder) element).getURL());
         } else if (element instanceof PlSqlNode) {
             final StringBuilder sb = new StringBuilder();
             sb.append(((PlSqlNode) element).getOwner());
@@ -221,9 +220,9 @@ public class UtplsqlController implements Controller {
             path = sb.toString();
         } else if (element instanceof ChildObjectElement) {
             StringBuilder sb = new StringBuilder();
-            sb.append(urlTools.getSchema(((ChildObjectElement) element).getURL()));
+            sb.append(URLTools.getSchema(((ChildObjectElement) element).getURL()));
             sb.append(".");
-            sb.append(urlTools.getMemberObject(((ChildObjectElement) element).getURL()));
+            sb.append(URLTools.getMemberObject(((ChildObjectElement) element).getURL()));
             sb.append(".");
             sb.append( ((ChildObjectElement) element).getShortLabel());
             path = sb.toString();
@@ -304,7 +303,7 @@ public class UtplsqlController implements Controller {
     }
 
     private GenContext getGenContext(final Context context) {
-        final String connectionName = urlTools.getConnectionName(getURL(context));
+        final String connectionName = URLTools.getConnectionName(getURL(context));
         final GenContext genContext = new GenContext();
         if (Connections.getInstance().isConnectionOpen(connectionName)) {
             genContext.setConn(getConnection(connectionName));
@@ -391,7 +390,7 @@ public class UtplsqlController implements Controller {
         } else if (view instanceof DBNavigatorWindow) {
             final URL url = getURL(context);
             if ((url != null)) {
-                final String connectionName = urlTools.getConnectionName(url);
+                final String connectionName = URLTools.getConnectionName(url);
                 logger.fine("connectionName: " + connectionName);
                 final Connection conn = getConnection(connectionName);
                 final RealtimeReporterDao rrDao = new RealtimeReporterDao(conn);
@@ -437,8 +436,8 @@ public class UtplsqlController implements Controller {
                 ret.addAll(dep);
             } else {
                 if (element instanceof ChildObjectElement) {
-                    final String owner = urlTools.getSchema(((ChildObjectElement) element).getURL());
-                    final String objectName = urlTools.getMemberObject(((ChildObjectElement) element).getURL());
+                    final String owner = URLTools.getSchema(((ChildObjectElement) element).getURL());
+                    final String objectName = URLTools.getMemberObject(((ChildObjectElement) element).getURL());
                     final List<String> dep = dependencies(owner, objectName, connectionName);
                     ret.addAll(dep);
                 }
@@ -488,7 +487,7 @@ public class UtplsqlController implements Controller {
             logger.finer("Code coverage from DB navigator");
             final URL url = getURL(context);
             if (url != null) {
-                final String connectionName = urlTools.getConnectionName(url);
+                final String connectionName = URLTools.getConnectionName(url);
                 logger.fine(() -> "connectionName: " + connectionName);
                 final ArrayList<String> pathList = dedupPathList(getPathList(context));
                 logger.fine(() -> "pathlist: " + StringTools.getSimpleCSV(pathList));
@@ -547,7 +546,7 @@ public class UtplsqlController implements Controller {
             if (view instanceof DBNavigatorWindow) {
                 final URL url = getURL(context);
                 if (url != null) {
-                    final String connectionName = urlTools.getConnectionName(url);
+                    final String connectionName = URLTools.getConnectionName(url);
                     GenContext genContext = getGenContext(context);
                     final TestTemplate testTemplate = new TestTemplate(genContext);
                     final String code = testTemplate.generate().toString();

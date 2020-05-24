@@ -20,7 +20,13 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class URLTools {
-    public String replaceHexChars(final String input) {
+
+    // do not instantiate this class
+    private URLTools() {
+        super();
+    }
+    
+    public static String replaceHexChars(final String input) {
         String output = input;
         final Pattern p = Pattern.compile("%([0-9A-F]{2})");
         final Matcher m = p.matcher(input);
@@ -33,7 +39,7 @@ public class URLTools {
         return output;
     }
 
-    public String getConnectionName(final URL url) {
+    public static String getConnectionName(final URL url) {
         final Pattern p = Pattern.compile("(sqldev.nav:)([^/]+)(//)?");
         final Matcher m = p.matcher(url.toString());
         if (m.find()) {
@@ -43,7 +49,7 @@ public class URLTools {
         }
     }
 
-    public String getSchema(final URL url) {
+    public static String getSchema(final URL url) {
         final Pattern p = Pattern.compile("(//)([^/]+)");
         final Matcher m = p.matcher(url.toString());
         if (m.find()) {
@@ -53,7 +59,7 @@ public class URLTools {
         }
     }
 
-    public String getObjectType(final URL url) {
+    public static String getObjectType(final URL url) {
         final Pattern p = Pattern.compile("(//)([^/]+)(/)([^/]+)");
         final Matcher m = p.matcher(url.toString());
         if (m.find()) {
@@ -63,7 +69,7 @@ public class URLTools {
         }
     }
 
-    public String getMemberObject(final URL url) {
+    public static String getMemberObject(final URL url) {
         final Pattern p = Pattern.compile("(/)([^/]+)(#MEMBER)");
         final Matcher m = p.matcher(url.toString());
         if (m.find()) {

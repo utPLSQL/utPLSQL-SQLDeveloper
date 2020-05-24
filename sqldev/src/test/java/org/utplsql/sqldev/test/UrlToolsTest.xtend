@@ -20,27 +20,26 @@ import org.junit.Test
 import org.utplsql.sqldev.model.URLTools
 
 class UrlToolsTest {
-	val extension URLTools urlTools = new URLTools
 
 	@Test
 	def void replacePlusSign() {
-		Assert.assertEquals("+", "%2B".replaceHexChars)
-		Assert.assertEquals("++", "%2B%2B".replaceHexChars)
-		Assert.assertEquals("abc+%xyz", "abc%2B%xyz".replaceHexChars)
+		Assert.assertEquals("+", URLTools.replaceHexChars("%2B"))
+		Assert.assertEquals("++", URLTools.replaceHexChars("%2B%2B"))
+		Assert.assertEquals("abc+%xyz", URLTools.replaceHexChars("abc%2B%xyz"))
 	}
 
 	@Test
 	def void replaceAtSign() {
-		Assert.assertEquals("@", "%40".replaceHexChars)
-		Assert.assertEquals("@@", "%40%40".replaceHexChars)
-		Assert.assertEquals("abc@%xyz", "abc%40%xyz".replaceHexChars)
+		Assert.assertEquals("@", URLTools.replaceHexChars("%40"))
+		Assert.assertEquals("@@", URLTools.replaceHexChars("%40%40"))
+		Assert.assertEquals("abc@%xyz", URLTools.replaceHexChars("abc%40%xyz"))
 	}
 
 	@Test
 	def void replaceAtAndPlusSign() {
-		Assert.assertEquals("@+", "%40%2B".replaceHexChars)
-		Assert.assertEquals("@+@+", "%40%2B%40%2B".replaceHexChars)
-		Assert.assertEquals("abc@+%xyz", "abc%40%2B%xyz".replaceHexChars)
+		Assert.assertEquals("@+", URLTools.replaceHexChars("%40%2B"))
+		Assert.assertEquals("@+@+", URLTools.replaceHexChars("%40%2B%40%2B"))
+		Assert.assertEquals("abc@+%xyz", URLTools.replaceHexChars("abc%40%2B%xyz"))
 	}
 
 }
