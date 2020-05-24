@@ -15,6 +15,7 @@
  */
 package org.utplsql.sqldev.model;
 
+import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -34,48 +35,51 @@ public class UtplsqlValueStyler extends DefaultValueStyler {
     private static final String MAP = "map";
     private static final String EMPTY_MAP = MAP + EMPTY;
     private static final String ARRAY = "array";
-    
+
     @Override
     public String style(@Nullable Object value) {
         if (value == null) {
             return super.style(value);
+        } else if (value instanceof String) {
+            return super.style(value);
+        } else if (value instanceof Class) {
+            return super.style(value);
+        } else if (value instanceof Method) {
+            return super.style(value);
         } else if (value instanceof Map) {
-            return styleMap((Map<?, ?>) value);
+            return style((Map<?, ?>) value);
         } else if (value instanceof Map.Entry) {
-            return styleMapEntry((Map.Entry<?, ?>) value);
+            return style((Map.Entry<?, ?>) value);
         } else if (value instanceof Collection) {
-            return styleCollection((Collection<?>) value);
+            return style((Collection<?>) value);
         } else if (value.getClass().isArray()) {
-            return styleArray(ObjectUtils.toObjectArray(value));
+            return style(ObjectUtils.toObjectArray(value));
         } else {
             return super.style(value);
         }
     }
 
-    private <K, V> String styleMap(Map<K, V> value) {
+    private <K, V> String style(Map<K, V> value) {
         if (value.isEmpty()) {
             return EMPTY_MAP;
         }
-
-        StringJoiner result = new StringJoiner(",\n", "[", "]");
+        StringJoiner result = new StringJoiner(",\n", "[\n", "]");
         for (Map.Entry<K, V> entry : value.entrySet()) {
-            result.add(styleMapEntry(entry));
+            result.add(style(entry));
         }
         return MAP + result;
     }
 
-    private String styleMapEntry(Map.Entry<?, ?> value) {
+    private String style(Map.Entry<?, ?> value) {
         return style(value.getKey()) + " -> " + style(value.getValue());
     }
 
-    private String styleCollection(Collection<?> value) {
+    private String style(Collection<?> value) {
         String collectionType = getCollectionTypeString(value);
-
         if (value.isEmpty()) {
             return collectionType + EMPTY;
         }
-
-        StringJoiner result = new StringJoiner(",\n", "[", "]");
+        StringJoiner result = new StringJoiner(",\n", "[\n", "]");
         for (Object o : value) {
             result.add(style(o));
         }
@@ -92,16 +96,14 @@ public class UtplsqlValueStyler extends DefaultValueStyler {
         }
     }
 
-    private String styleArray(Object[] array) {
+    private String style(Object[] array) {
         if (array.length == 0) {
             return ARRAY + '<' + ClassUtils.getShortName(array.getClass().getComponentType()) + '>' + EMPTY;
         }
-
-        StringJoiner result = new StringJoiner(",\n ", "[", "]");
+        StringJoiner result = new StringJoiner(",\n", "[\n", "]");
         for (Object o : array) {
             result.add(style(o));
         }
         return ARRAY + '<' + ClassUtils.getShortName(array.getClass().getComponentType()) + '>' + result;
     }
-
 }
