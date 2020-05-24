@@ -816,7 +816,7 @@ public class UtplsqlDao {
             sb.append("SELECT parent_id, id, initcap(name) AS name, description, iconName, leaf, generatable, multiselectable, relevant\n");
             sb.append("  FROM tree");
         }
-        BeanPropertyRowMapper<Node> rowMapper = new BeanPropertyRowMapper<Node>(Node.class);
+        BeanPropertyRowMapper<Node> rowMapper = new BeanPropertyRowMapper<>(Node.class);
         final String sql = sb.toString();
         final List<Node> nodes = jdbcTemplate.query(sql, rowMapper);
         return nodes;
