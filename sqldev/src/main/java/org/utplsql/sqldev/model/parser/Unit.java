@@ -13,14 +13,46 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.utplsql.sqldev.model.parser
+package org.utplsql.sqldev.model.parser;
 
-import org.eclipse.xtend.lib.annotations.Accessors
-import org.utplsql.sqldev.model.AbstractModel
+import org.springframework.core.style.ToStringCreator;
+import org.utplsql.sqldev.model.AbstractModel;
 
-@Accessors
-class Unit extends AbstractModel {
-	String name
-	Integer position
-	Integer positionOfName
+public class Unit extends AbstractModel {
+    private String name;
+    private Integer position;
+    private Integer positionOfName;
+
+    @Override
+    public String toString() {
+        return new ToStringCreator(this, getStyler())
+                .append("name", name)
+                .append("position", position)
+                .append("positionOfName", positionOfName)
+                .toString();
+    }
+
+    public String getName() {
+        return this.name;
+    }
+
+    public void setName(final String name) {
+        this.name = name;
+    }
+
+    public Integer getPosition() {
+        return this.position;
+    }
+
+    public void setPosition(final Integer position) {
+        this.position = position;
+    }
+
+    public Integer getPositionOfName() {
+        return this.positionOfName;
+    }
+
+    public void setPositionOfName(final Integer positionOfName) {
+        this.positionOfName = positionOfName;
+    }
 }
