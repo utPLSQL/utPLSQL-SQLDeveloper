@@ -13,25 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.utplsql.sqldev.model
+package org.utplsql.sqldev.model;
 
-import java.util.LinkedHashMap
-import java.util.Map
+import java.util.LinkedHashMap;
+import java.util.Map;
 
-class LimitedLinkedHashMap<K, V> extends LinkedHashMap<K, V> {
-	val int maxEntries
-	
-	new (int maxEntries) {
-		super(maxEntries + 1, 1.0f, false)
-		
-		this.maxEntries = maxEntries;
-	}
-	
-	override removeEldestEntry(Map.Entry<K, V> eldest) {
-		return size > maxEntries
-	}
-	
-	def getMaxEntries() {
-		return maxEntries
-	}
+public class LimitedLinkedHashMap<K extends Object, V extends Object> extends LinkedHashMap<K, V> {
+    private static final long serialVersionUID = -4184317926729190411L;
+    private final int maxEntries;
+
+    public LimitedLinkedHashMap(final int maxEntries) {
+        super((maxEntries + 1), 1.0f, false);
+        this.maxEntries = maxEntries;
+    }
+
+    @Override
+    public boolean removeEldestEntry(final Map.Entry<K, V> eldest) {
+        return (size() > maxEntries);
+    }
+
+    public int getMaxEntries() {
+        return maxEntries;
+    }
 }
