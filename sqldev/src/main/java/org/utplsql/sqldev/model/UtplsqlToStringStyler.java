@@ -16,16 +16,36 @@
 package org.utplsql.sqldev.model;
 
 import org.springframework.core.style.DefaultToStringStyler;
+import org.springframework.util.ClassUtils;
+import org.springframework.util.ObjectUtils;
 
 public class UtplsqlToStringStyler extends DefaultToStringStyler {
 
     public UtplsqlToStringStyler() {
         super(new UtplsqlValueStyler());
     }
-    
+
     @Override
     public void styleFieldSeparator(StringBuilder buffer) {
-        buffer.append(',');
+        buffer.append(",\n");
+    }
+
+    @Override
+    public void styleStart(StringBuilder buffer, Object obj) {
+        if (!obj.getClass().isArray()) {
+            buffer.append("[").append(ClassUtils.getShortName(obj.getClass()));
+            myStyleIdentityHashCode(buffer, obj);
+        } else {
+            buffer.append("[");
+            myStyleIdentityHashCode(buffer, obj);
+            buffer.append(' ');
+            styleValue(buffer, obj);
+        }
+    }
+
+    private void myStyleIdentityHashCode(StringBuilder buffer, Object obj) {
+        buffer.append('@');
+        buffer.append(ObjectUtils.getIdentityHexString(obj));
         buffer.append('\n');
     }
 }
