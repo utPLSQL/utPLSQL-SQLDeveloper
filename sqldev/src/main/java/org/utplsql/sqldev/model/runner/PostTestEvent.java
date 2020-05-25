@@ -13,20 +13,63 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.utplsql.sqldev.model.runner
+package org.utplsql.sqldev.model.runner;
 
-import java.util.ArrayList
-import java.util.List
-import org.eclipse.xtend.lib.annotations.Accessors
+import java.util.ArrayList;
+import java.util.List;
 
-@Accessors
-class PostTestEvent extends PostEvent {
-	String id
-	Integer testNumber
-	Integer totalNumberOfTests
-	List<Expectation> failedExpectations
-	
-	new() {
-		failedExpectations = new ArrayList<Expectation>
-	}
+import org.springframework.core.style.ToStringCreator;
+import org.utplsql.sqldev.model.UtplsqlToStringStyler;
+
+public class PostTestEvent extends PostEvent {
+    private String id;
+    private Integer testNumber;
+    private Integer totalNumberOfTests;
+    private List<Expectation> failedExpectations;
+
+    @Override
+    public String toString() {
+        return new ToStringCreator(this, UtplsqlToStringStyler.INSTANCE)
+                .append("id", id)
+                .append("testNumber", testNumber)
+                .append("totalNumberOfTests", totalNumberOfTests)
+                .append("failedExpectations", failedExpectations)
+                .toString();
+    }
+
+    public PostTestEvent() {
+        failedExpectations = new ArrayList<>();
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(final String id) {
+        this.id = id;
+    }
+
+    public Integer getTestNumber() {
+        return testNumber;
+    }
+
+    public void setTestNumber(final Integer testNumber) {
+        this.testNumber = testNumber;
+    }
+
+    public Integer getTotalNumberOfTests() {
+        return totalNumberOfTests;
+    }
+
+    public void setTotalNumberOfTests(final Integer totalNumberOfTests) {
+        this.totalNumberOfTests = totalNumberOfTests;
+    }
+
+    public List<Expectation> getFailedExpectations() {
+        return failedExpectations;
+    }
+
+    public void setFailedExpectations(final List<Expectation> failedExpectations) {
+        this.failedExpectations = failedExpectations;
+    }
 }
