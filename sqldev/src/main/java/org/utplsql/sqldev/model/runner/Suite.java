@@ -33,6 +33,16 @@ public class Suite extends Item {
     @Override
     public String toString() {
         return new ToStringCreator(this, UtplsqlToStringStyler.INSTANCE)
+                // ancestor
+                .append("id", getId())
+                .append("startTime", getStartTime())
+                .append("endTime", getEndTime())
+                .append("executionTime", getExecutionTime())
+                .append("counter", getCounter())
+                .append("errorStack", getErrorStack())
+                .append("serverOutput", getServerOutput())
+                .append("warnings", getWarnings())
+                // local
                 .append("name", name)
                 .append("description", description)
                 .append("items", items)

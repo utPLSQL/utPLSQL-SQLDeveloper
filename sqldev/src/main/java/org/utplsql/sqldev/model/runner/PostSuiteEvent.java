@@ -24,6 +24,15 @@ public class PostSuiteEvent extends PostEvent {
     @Override
     public String toString() {
         return new ToStringCreator(this, UtplsqlToStringStyler.INSTANCE)
+                // ancestor
+                .append("startTime", getStartTime())
+                .append("endTime", getEndTime())
+                .append("executionTime", getExecutionTime())
+                .append("counter", getCounter())
+                .append("errorStack", getErrorStack())
+                .append("serverOutput", getServerOutput())
+                .append("warnings", getWarnings())
+                // local
                 .append("id", id)
                 .toString();
     }

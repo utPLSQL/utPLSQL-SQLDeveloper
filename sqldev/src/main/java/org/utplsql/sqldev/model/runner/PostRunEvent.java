@@ -15,5 +15,22 @@
  */
 package org.utplsql.sqldev.model.runner;
 
+import org.springframework.core.style.ToStringCreator;
+import org.utplsql.sqldev.model.UtplsqlToStringStyler;
+
 public class PostRunEvent extends PostEvent {
+
+    @Override
+    public String toString() {
+        return new ToStringCreator(this, UtplsqlToStringStyler.INSTANCE)
+                // ancestor
+                .append("startTime", getStartTime())
+                .append("endTime", getEndTime())
+                .append("executionTime", getExecutionTime())
+                .append("counter", getCounter())
+                .append("errorStack", getErrorStack())
+                .append("serverOutput", getServerOutput())
+                .append("warnings", getWarnings())
+                .toString();
+    }
 }
