@@ -23,10 +23,9 @@ public class StringTools {
     private StringTools() {
         super();
     }
-    
-    public static String getCSV(List<String> list, int indentSpaces) {
+
+    public static String getCSV(List<String> list, String indent) {
         final StringBuilder sb = new StringBuilder();
-        final String indent = String.join("", Collections.nCopies(indentSpaces, " "));
         for (final String item : list) {
             if (sb.length() > 0) {
                 sb.append(",\n");
@@ -40,6 +39,11 @@ public class StringTools {
         return sb.toString();
     }
     
+    public static String getCSV(List<String> list, int indentSpaces) {
+        final String indent = String.join("", Collections.nCopies(indentSpaces, " "));
+        return getCSV(list, indent);
+    }
+    
     public static String getSimpleCSV(List<String> list) {
         final StringBuilder sb = new StringBuilder();
         for (final String item : list) {
@@ -50,4 +54,5 @@ public class StringTools {
         }
         return sb.toString();
     }
+
 }
