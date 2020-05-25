@@ -13,21 +13,74 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.utplsql.sqldev.model.runner
+package org.utplsql.sqldev.model.runner;
 
-import org.eclipse.xtend.lib.annotations.Accessors
+public abstract class PostEvent extends RealtimeReporterEvent {
+    private String startTime;
+    private String endTime;
+    private Double executionTime;
+    private Counter counter;
+    private String errorStack;
+    private String serverOutput;
+    private String warnings;
 
-@Accessors
-abstract class PostEvent extends RealtimeReporterEvent {
-	String startTime
-	String endTime
-	Double executionTime
-	Counter counter
-	String errorStack
-	String serverOutput
-	String warnings
-	
-	new() {
-		counter = new Counter
-	}
+    public PostEvent() {
+        counter = new Counter();
+    }
+
+    public String getStartTime() {
+        return startTime;
+    }
+
+    public void setStartTime(final String startTime) {
+        this.startTime = startTime;
+    }
+
+    public String getEndTime() {
+        return endTime;
+    }
+
+    public void setEndTime(final String endTime) {
+        this.endTime = endTime;
+    }
+
+    public Double getExecutionTime() {
+        return executionTime;
+    }
+
+    public void setExecutionTime(final Double executionTime) {
+        this.executionTime = executionTime;
+    }
+
+    public Counter getCounter() {
+        return counter;
+    }
+
+    public void setCounter(final Counter counter) {
+        this.counter = counter;
+    }
+
+    public String getErrorStack() {
+        return errorStack;
+    }
+
+    public void setErrorStack(final String errorStack) {
+        this.errorStack = errorStack;
+    }
+
+    public String getServerOutput() {
+        return serverOutput;
+    }
+
+    public void setServerOutput(final String serverOutput) {
+        this.serverOutput = serverOutput;
+    }
+
+    public String getWarnings() {
+        return warnings;
+    }
+
+    public void setWarnings(final String warnings) {
+        this.warnings = warnings;
+    }
 }
