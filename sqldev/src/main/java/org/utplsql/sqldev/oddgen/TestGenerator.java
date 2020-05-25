@@ -13,272 +13,305 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.utplsql.sqldev.oddgen
+package org.utplsql.sqldev.oddgen;
 
-import java.io.File
-import java.sql.Connection
-import java.util.ArrayList
-import java.util.HashMap
-import java.util.LinkedHashMap
-import java.util.List
-import java.util.logging.Logger
-import oracle.ide.config.Preferences
-import org.oddgen.sqldev.generators.OddgenGenerator2
-import org.oddgen.sqldev.generators.model.Node
-import org.oddgen.sqldev.generators.model.NodeTools
-import org.oddgen.sqldev.plugin.templates.TemplateTools
-import org.utplsql.sqldev.dal.UtplsqlDao
-import org.utplsql.sqldev.model.oddgen.GenContext
-import org.utplsql.sqldev.model.preference.PreferenceModel
-import org.utplsql.sqldev.resources.UtplsqlResources
+import java.io.File;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.logging.Logger;
 
-class TestGenerator implements OddgenGenerator2 {
-	static final Logger logger = Logger.getLogger(TestGenerator.name);
+import org.oddgen.sqldev.generators.OddgenGenerator2;
+import org.oddgen.sqldev.generators.model.Node;
+import org.oddgen.sqldev.generators.model.NodeTools;
+import org.oddgen.sqldev.plugin.templates.TemplateTools;
+import org.utplsql.sqldev.dal.UtplsqlDao;
+import org.utplsql.sqldev.exception.GenericDatabaseAccessException;
+import org.utplsql.sqldev.model.oddgen.GenContext;
+import org.utplsql.sqldev.model.preference.PreferenceModel;
+import org.utplsql.sqldev.resources.UtplsqlResources;
 
-	public static val YES = "Yes"
-	public static val NO = "No"
-	
-	public static var GENERATE_FILES = UtplsqlResources.getString("PREF_GENERATE_FILES_LABEL")
-	public static var OUTPUT_DIRECTORY = UtplsqlResources.getString("PREF_OUTPUT_DIRECTORY_LABEL")
-	public static var DELETE_EXISTING_FILES = UtplsqlResources.getString("PREF_DELETE_EXISTING_FILES_LABEL")
-	public static var TEST_PACKAGE_PREFIX = UtplsqlResources.getString("PREF_TEST_PACKAGE_PREFIX_LABEL")
-	public static var TEST_PACKAGE_SUFFIX = UtplsqlResources.getString("PREF_TEST_PACKAGE_SUFFIX_LABEL")
-	public static var TEST_UNIT_PREFIX = UtplsqlResources.getString("PREF_TEST_UNIT_PREFIX_LABEL")
-	public static var TEST_UNIT_SUFFIX = UtplsqlResources.getString("PREF_TEST_UNIT_SUFFIX_LABEL")
-	public static var NUMBER_OF_TESTS_PER_UNIT = UtplsqlResources.getString("PREF_NUMBER_OF_TESTS_PER_UNIT_LABEL")
-	public static var GENERATE_COMMENTS = UtplsqlResources.getString("PREF_GENERATE_COMMENTS_LABEL")
-	public static var DISABLE_TESTS = UtplsqlResources.getString("PREF_DISABLE_TESTS_LABEL")
-	public static var SUITE_PATH = UtplsqlResources.getString("PREF_SUITE_PATH_LABEL")
-	public static var INDENT_SPACES = UtplsqlResources.getString("PREF_INDENT_SPACES_LABEL")
-	
-	val extension NodeTools nodeTools = new NodeTools
-	val extension TemplateTools templateTools = new TemplateTools
-	val consoleOutput = new ArrayList<String>();
+import oracle.ide.config.Preferences;
 
-	private def toContext(Node node) {
-		val context = new GenContext()
-		context.objectType = node.toObjectType
-		context.objectName = node.toObjectName
-		context.testPackagePrefix = node.params.get(TEST_PACKAGE_PREFIX).toLowerCase
-		context.testPackageSuffix = node.params.get(TEST_PACKAGE_SUFFIX).toLowerCase
-		context.testUnitPrefix = node.params.get(TEST_UNIT_PREFIX).toLowerCase
-		context.testUnitSuffix = node.params.get(TEST_UNIT_SUFFIX).toLowerCase
-		context.numberOfTestsPerUnit = Integer.valueOf(node.params.get(NUMBER_OF_TESTS_PER_UNIT))
-		context.generateComments = node.params.get(GENERATE_COMMENTS) == YES
-		context.disableTests = node.params.get(DISABLE_TESTS) == YES
-		context.suitePath = node.params.get(SUITE_PATH).toLowerCase
-		context.indentSpaces = Integer.valueOf(node.params.get(INDENT_SPACES))
-		return context
-	}
+public class TestGenerator implements OddgenGenerator2 {
+    private static final Logger logger = Logger.getLogger(TestGenerator.class.getName());
 
-	private def void resetConsoleOutput() {
-		consoleOutput.clear
-	}
+    public static final String YES = "Yes";
+    public static final String NO = "No";
 
-	private def void saveConsoleOutput(String s) {
-		if (s !== null) {
-			for (line : s.split("[\\n\\r]+")) {
-				consoleOutput.add(line)
-			}
-		}
-	}
-	
-	private def void logConsoleOutput() {
-		for (line : consoleOutput) {
-			if (line.contains("error") || line.startsWith("Cannot")) {
-				logger.severe(line)
-			} else {
-				logger.fine(line)
-			}
-		}
-	}
-	
-	private def String deleteFile(File file) {
-		var String ret
-		try {
-			if (file.delete) {
-				ret = '''«file.absoluteFile» deleted.'''
-			} else {
-				ret = '''Cannot delete file «file.absoluteFile».'''
-			}
-		} catch (Exception e) {
-			ret = '''Cannot delete file «file.absoluteFile». Got the following error message: «e.message».'''
-		}
-		return ret
-	}
-	
-	private def deleteFiles(String directory) '''
-		«val dir = new File(directory)»
-		«FOR file: dir.listFiles»
-			«IF !file.directory»
-				«IF file.name.endsWith(".pks") || file.name.endsWith(".pkb")»
-					«file.deleteFile»
-				«ENDIF»
-			«ENDIF»
-		«ENDFOR»
-	'''
+    public static final String GENERATE_FILES = UtplsqlResources.getString("PREF_GENERATE_FILES_LABEL");
+    public static final String OUTPUT_DIRECTORY = UtplsqlResources.getString("PREF_OUTPUT_DIRECTORY_LABEL");
+    public static final String DELETE_EXISTING_FILES = UtplsqlResources.getString("PREF_DELETE_EXISTING_FILES_LABEL");
+    public static final String TEST_PACKAGE_PREFIX = UtplsqlResources.getString("PREF_TEST_PACKAGE_PREFIX_LABEL");
+    public static final String TEST_PACKAGE_SUFFIX = UtplsqlResources.getString("PREF_TEST_PACKAGE_SUFFIX_LABEL");
+    public static final String TEST_UNIT_PREFIX = UtplsqlResources.getString("PREF_TEST_UNIT_PREFIX_LABEL");
+    public static final String TEST_UNIT_SUFFIX = UtplsqlResources.getString("PREF_TEST_UNIT_SUFFIX_LABEL");
+    public static final String NUMBER_OF_TESTS_PER_UNIT = UtplsqlResources.getString("PREF_NUMBER_OF_TESTS_PER_UNIT_LABEL");
+    public static final String GENERATE_COMMENTS = UtplsqlResources.getString("PREF_GENERATE_COMMENTS_LABEL");
+    public static final String DISABLE_TESTS = UtplsqlResources.getString("PREF_DISABLE_TESTS_LABEL");
+    public static final String SUITE_PATH = UtplsqlResources.getString("PREF_SUITE_PATH_LABEL");
+    public static final String INDENT_SPACES = UtplsqlResources.getString("PREF_INDENT_SPACES_LABEL");
 
-	override isSupported(Connection conn) {
-		var ret = false
-		if (conn !== null) {
-			if (conn.metaData.databaseProductName.startsWith("Oracle")) {
-				if (conn.metaData.databaseMajorVersion == 11) {
-					if (conn.metaData.databaseMinorVersion >= 2) {
-						ret = true
-					}
-				} else if (conn.metaData.databaseMajorVersion > 11) {
-					ret = true
-				}
-			}
-		}
-		return ret
-	}
+    private final NodeTools nodeTools = new NodeTools();
+    private final TemplateTools templateTools = new TemplateTools();
+    private final ArrayList<String> consoleOutput = new ArrayList<>();
 
-	override getName(Connection conn) {
-		return "Generate test"
-	}
+    private GenContext toContext(final Node node) {
+        final GenContext context = new GenContext();
+        context.setObjectType(nodeTools.toObjectType(node));
+        context.setObjectName(nodeTools.toObjectName(node));
+        context.setTestPackagePrefix(node.getParams().get(TEST_PACKAGE_PREFIX).toLowerCase());
+        context.setTestPackageSuffix(node.getParams().get(TEST_PACKAGE_SUFFIX).toLowerCase());
+        context.setTestUnitPrefix(node.getParams().get(TEST_UNIT_PREFIX).toLowerCase());
+        context.setTestUnitSuffix(node.getParams().get(TEST_UNIT_SUFFIX).toLowerCase());
+        context.setNumberOfTestsPerUnit((Integer.valueOf(node.getParams().get(NUMBER_OF_TESTS_PER_UNIT))).intValue());
+        context.setGenerateComments(YES.equals(node.getParams().get(GENERATE_COMMENTS)));
+        context.setDisableTests(YES.equals(node.getParams().get(DISABLE_TESTS)));
+        context.setSuitePath(node.getParams().get(SUITE_PATH).toLowerCase());
+        context.setIndentSpaces((Integer.valueOf(node.getParams().get(INDENT_SPACES))).intValue());
+        return context;
+    }
 
-	override getDescription(Connection conn) {
-		return "Generates utPLSQL test packages for public units in packages, types, functions and procedures found in the current schema."
-	}
+    private void resetConsoleOutput() {
+        consoleOutput.clear();
+    }
 
-	override getFolders(Connection conn) {
-		val preferences = PreferenceModel.getInstance(Preferences.preferences)
-		val folders = new ArrayList<String>
-		for (f : preferences.rootFolderInOddgenView.split(",").filter[!it.empty]) {
-			folders.add(f.trim)
-		}
-		return folders
-	}
+    private void saveConsoleOutput(final String s) {
+        if (s != null) {
+            for (final String line : s.split("[\\n\\r]+")) {
+                consoleOutput.add(line);
+            }
+        }
+    }
 
-	override getHelp(Connection conn) {
-		return "<p>not yet available</p>"
-	}
-	
-	override getNodes(Connection conn, String parentNodeId) {
-		val preferences = PreferenceModel.getInstance(Preferences.preferences)
-		val params = new LinkedHashMap<String, String>()
-		params.put(GENERATE_FILES, if (preferences.generateFiles) {YES} else {NO})
-		params.put(OUTPUT_DIRECTORY, preferences.outputDirectory)
-		params.put(DELETE_EXISTING_FILES, if (preferences.deleteExistingFiles) {YES} else {NO})
-		params.put(TEST_PACKAGE_PREFIX, preferences.testPackagePrefix)
-		params.put(TEST_PACKAGE_SUFFIX, preferences.testPackageSuffix)
-		params.put(TEST_UNIT_PREFIX, preferences.testUnitPrefix)
-		params.put(TEST_UNIT_SUFFIX, preferences.testUnitSuffix)
-		params.put(NUMBER_OF_TESTS_PER_UNIT, String.valueOf(preferences.numberOfTestsPerUnit))
-		params.put(GENERATE_COMMENTS, if(preferences.generateComments) {YES} else {NO})
-		params.put(DISABLE_TESTS, if (preferences.disableTests) {YES} else {NO})
-		params.put(SUITE_PATH, preferences.suitePath)
-		params.put(INDENT_SPACES, String.valueOf(preferences.indentSpaces))
-		if (parentNodeId === null || parentNodeId.empty) {
-			val packageNode = new Node
-			packageNode.id = "PACKAGE"
-			packageNode.params = params
-			packageNode.leaf = false
-			packageNode.generatable = true
-			packageNode.multiselectable = true
-			val typeNode = new Node
-			typeNode.id = "TYPE"
-			typeNode.params = params
-			typeNode.leaf = false
-			typeNode.generatable = true
-			typeNode.multiselectable = true
-			val functionNode = new Node
-			functionNode.id = "FUNCTION"
-			functionNode.params = params
-			functionNode.leaf = false
-			functionNode.generatable = true
-			functionNode.multiselectable = true
-			val procedureNode = new Node
-			procedureNode.id = "PROCEDURE"
-			procedureNode.params = params
-			procedureNode.leaf = false
-			procedureNode.generatable = true
-			procedureNode.multiselectable = true
-			return #[packageNode, typeNode, functionNode, procedureNode]
-		} else {
-			val UtplsqlDao dao = new UtplsqlDao(conn)
-			val nodes = dao.testables(parentNodeId)
-			for (node : nodes) {
-				node.params = params
-			}
-			return nodes
-		}
-	}
+    private void logConsoleOutput() {
+        for (final String line : consoleOutput) {
+            if ((line.contains("error") || line.startsWith("Cannot"))) {
+                logger.severe(line);
+            } else {
+                logger.fine(line);
+            }
+        }
+    }
 
-	override getLov(Connection conn, LinkedHashMap<String, String> params, List<Node> nodes) {
-		val lov = new HashMap<String, List<String>>()
-		lov.put(NUMBER_OF_TESTS_PER_UNIT, #["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"])
-		lov.put(INDENT_SPACES, #["1", "2", "3", "4", "5", "6", "7", "8"])
-		lov.put(GENERATE_COMMENTS, #[YES, NO])
-		lov.put(DISABLE_TESTS, #[YES, NO])
-		lov.put(GENERATE_FILES, #[YES, NO])
-		lov.put(DELETE_EXISTING_FILES, #[YES, NO])
-		return lov
-	}
+    private String deleteFile(final File file) {
+        String ret = null;
+        if (file.delete()) {
+            StringBuilder sb = new StringBuilder();
+            sb.append(file.getAbsoluteFile());
+            sb.append(" deleted.");
+            ret = sb.toString();
+        } else {
+            StringBuilder sb = new StringBuilder();
+            sb.append("Cannot delete file ");
+            sb.append(file.getAbsoluteFile());
+            sb.append(".");
+            ret = sb.toString();
+        }
+        return ret;
+    }
 
-	override getParamStates(Connection conn, LinkedHashMap<String, String> params, List<Node> nodes) {
-		val paramStates = new HashMap<String, Boolean>
-		paramStates.put(OUTPUT_DIRECTORY, params.get(GENERATE_FILES) == YES)
-		paramStates.put(DELETE_EXISTING_FILES, params.get(GENERATE_FILES) == YES)
-		return paramStates
-	}
-	
-	override generateProlog(Connection conn, List<Node> nodes) '''
-		«val generateFiles = nodes.get(0).params.get(GENERATE_FILES) == YES»
-		«val outputDirectory = nodes.get(0).params.get(OUTPUT_DIRECTORY)»
-		«val deleteExistingfiles = nodes.get(0).params.get(DELETE_EXISTING_FILES) == YES»
-		«IF generateFiles»
-			«resetConsoleOutput»
-			«outputDirectory.mkdirs.saveConsoleOutput»
-			«IF deleteExistingfiles»
-				«deleteFiles(outputDirectory).toString.saveConsoleOutput»
-			«ENDIF»
-			--
-			-- install generated utPLSQL test packages
-			--
-		«ENDIF»
-		«FOR node : nodes»
-			«val context = node.toContext»
-			«context.conn = conn»
-			«val testTemplate = new TestTemplate(context)»
-			«IF generateFiles»
-				«val packageName = '''«context.testPackagePrefix»«node.toObjectName»«context.testPackageSuffix»'''»
-				«writeToFile('''«outputDirectory»«File.separator»«packageName».pks'''.toString,testTemplate.generateSpec).saveConsoleOutput»
-				«writeToFile('''«outputDirectory»«File.separator»«packageName».pkb'''.toString,testTemplate.generateBody).saveConsoleOutput»
-				@«outputDirectory»«File.separator»«packageName».pks
-				@«outputDirectory»«File.separator»«packageName».pkb
-			«ELSE»
-				«testTemplate.generate»
+    private CharSequence deleteFiles(final String directory) {
+        StringBuilder sb = new StringBuilder();
+        final File dir = new File(directory);
+        for (final File file : dir.listFiles()) {
+            if (!file.isDirectory() && (file.getName().endsWith(".pks") || file.getName().endsWith(".pkb"))) {
+                sb.append(deleteFile(file));
+                sb.append('\n');
+            }
+        }
+        return sb;
+    }
 
-			«ENDIF»
-		«ENDFOR»
-		«logConsoleOutput»
-		«IF generateFiles && consoleOutput.findFirst[it.contains("error")] !== null»
+    @Override
+    public boolean isSupported(final Connection conn) {
+        try {
+            boolean ret = false;
+            if (conn != null && conn.getMetaData().getDatabaseProductName().startsWith("Oracle")
+                    && (conn.getMetaData().getDatabaseMajorVersion() == 11
+                            && conn.getMetaData().getDatabaseMinorVersion() >= 2
+                            || conn.getMetaData().getDatabaseMajorVersion() > 11)) {
+                ret = true;
+            }
+            return ret;
+        } catch (SQLException e) {
+            final String msg = "SQLException during connection check due to " + e.getMessage();
+            logger.severe(() -> msg);
+            throw new GenericDatabaseAccessException(msg, e);
+        }
+    }
 
-			--
-			-- console output produced during the generation of this script (errors found)
-			--
-			/*
-			
-			«FOR line : consoleOutput»
-				«line»
-			«ENDFOR»
-			
-			*/
-		«ENDIF»
-	'''
+    @Override
+    public String getName(final Connection conn) {
+        return "Generate test";
+    }
 
-	override generateSeparator(Connection conn) {
-		return ""
-	}
-	
-	override generateEpilog(Connection conn, List<Node> nodes) {
-		return ""
-	}
-	
-	override generate(Connection conn, Node node) {
-		return ""
-	}
-	
+    @Override
+    public String getDescription(final Connection conn) {
+        return "Generates utPLSQL test packages for public units in packages, types, functions and procedures found in the current schema.";
+    }
+
+    @Override
+    public List<String> getFolders(final Connection conn) {
+        final PreferenceModel preferences = PreferenceModel.getInstance(Preferences.getPreferences());
+        final ArrayList<String> folders = new ArrayList<>();
+        for (String f : preferences.getRootFolderInOddgenView().split(",")) {
+            if (f != null) {
+                folders.add(f.trim());
+            }
+        }
+        return folders;
+    }
+    
+    @Override
+    public String getHelp(final Connection conn) {
+        return "<p>not yet available</p>";
+    }
+
+    @Override
+    public List<Node> getNodes(final Connection conn, final String parentNodeId) {
+        final PreferenceModel preferences = PreferenceModel.getInstance(Preferences.getPreferences());
+        final LinkedHashMap<String, String> params = new LinkedHashMap<>();
+        params.put(GENERATE_FILES, preferences.isGenerateFiles() ? YES : NO);
+        params.put(OUTPUT_DIRECTORY, preferences.getOutputDirectory());
+        params.put(DELETE_EXISTING_FILES, preferences.isDeleteExistingFiles() ? YES : NO);
+        params.put(TEST_PACKAGE_PREFIX, preferences.getTestPackagePrefix());
+        params.put(TEST_PACKAGE_SUFFIX, preferences.getTestPackageSuffix());
+        params.put(TEST_UNIT_PREFIX, preferences.getTestUnitPrefix());
+        params.put(TEST_UNIT_SUFFIX, preferences.getTestUnitSuffix());
+        params.put(NUMBER_OF_TESTS_PER_UNIT, String.valueOf(preferences.getNumberOfTestsPerUnit()));
+        params.put(GENERATE_COMMENTS, preferences.isGenerateComments() ? YES : NO);
+        params.put(DISABLE_TESTS, preferences.isDisableTests() ? YES : NO);
+        params.put(SUITE_PATH, preferences.getSuitePath());
+        params.put(INDENT_SPACES, String.valueOf(preferences.getIndentSpaces()));
+        if (parentNodeId == null || parentNodeId.isEmpty()) {
+            final Node packageNode = new Node();
+            packageNode.setId("PACKAGE");
+            packageNode.setParams(params);
+            packageNode.setLeaf(Boolean.valueOf(false));
+            packageNode.setGeneratable(Boolean.valueOf(true));
+            packageNode.setMultiselectable(Boolean.valueOf(true));
+            final Node typeNode = new Node();
+            typeNode.setId("TYPE");
+            typeNode.setParams(params);
+            typeNode.setLeaf(Boolean.valueOf(false));
+            typeNode.setGeneratable(Boolean.valueOf(true));
+            typeNode.setMultiselectable(Boolean.valueOf(true));
+            final Node functionNode = new Node();
+            functionNode.setId("FUNCTION");
+            functionNode.setParams(params);
+            functionNode.setLeaf(Boolean.valueOf(false));
+            functionNode.setGeneratable(Boolean.valueOf(true));
+            functionNode.setMultiselectable(Boolean.valueOf(true));
+            final Node procedureNode = new Node();
+            procedureNode.setId("PROCEDURE");
+            procedureNode.setParams(params);
+            procedureNode.setLeaf(Boolean.valueOf(false));
+            procedureNode.setGeneratable(Boolean.valueOf(true));
+            procedureNode.setMultiselectable(Boolean.valueOf(true));
+            return Arrays.asList(packageNode, typeNode, functionNode, procedureNode);
+        } else {
+            final UtplsqlDao dao = new UtplsqlDao(conn);
+            final List<Node> nodes = dao.testables(parentNodeId);
+            for (final Node node : nodes) {
+                node.setParams(params);
+            }
+            return nodes;
+        }
+    }
+
+    @Override
+    public HashMap<String, List<String>> getLov(final Connection conn, final LinkedHashMap<String, String> params,
+            final List<Node> nodes) {
+        final HashMap<String, List<String>> lov = new HashMap<>();
+        lov.put(NUMBER_OF_TESTS_PER_UNIT, Arrays.asList("1", "2", "3", "4", "5", "6", "7", "8", "9", "10"));
+        lov.put(INDENT_SPACES, Arrays.asList("1", "2", "3", "4", "5", "6", "7", "8"));
+        lov.put(GENERATE_COMMENTS, Arrays.asList(YES, NO));
+        lov.put(DISABLE_TESTS, Arrays.asList(YES, NO));
+        lov.put(GENERATE_FILES, Arrays.asList(YES, NO));
+        lov.put(DELETE_EXISTING_FILES, Arrays.asList(YES, NO));
+        return lov;
+    }
+
+    @Override
+    public HashMap<String, Boolean> getParamStates(final Connection conn, final LinkedHashMap<String, String> params,
+            final List<Node> nodes) {
+        final HashMap<String, Boolean> paramStates = new HashMap<>();
+        paramStates.put(OUTPUT_DIRECTORY, YES.equals(params.get(GENERATE_FILES)));
+        paramStates.put(DELETE_EXISTING_FILES, YES.equals(params.get(GENERATE_FILES)));
+        return paramStates;
+    }
+
+    @Override
+    public String generateProlog(final Connection conn, final List<Node> nodes) {
+        StringBuilder sb = new StringBuilder();
+        final boolean generateFiles = YES.equals(nodes.get(0).getParams().get(GENERATE_FILES));
+        final String outputDirectory = nodes.get(0).getParams().get(OUTPUT_DIRECTORY);
+        final boolean deleteExistingfiles = YES.equals(nodes.get(0).getParams().get(DELETE_EXISTING_FILES));
+        if (generateFiles) {
+            resetConsoleOutput();
+            saveConsoleOutput(templateTools.mkdirs(outputDirectory));
+                if (deleteExistingfiles) {
+                    saveConsoleOutput(deleteFiles(outputDirectory).toString());
+                }
+            sb.append("--\n");
+            sb.append("-- install generated utPLSQL test packages\n");
+            sb.append("--\n");
+        }
+        for (final Node node : nodes) {
+            final GenContext context = toContext(node);
+            context.setConn(conn);
+            final TestTemplate testTemplate = new TestTemplate(context);
+            if (generateFiles) {
+                final String packageName = context.getTestPackagePrefix() + nodeTools.toObjectName(node)
+                        + context.getTestPackageSuffix();
+                final String packagePath = outputDirectory + File.separator + packageName;
+                saveConsoleOutput(templateTools.writeToFile(packagePath + ".pks", testTemplate.generateSpec()));
+                saveConsoleOutput(templateTools.writeToFile(packagePath + ".pkb", testTemplate.generateBody()));
+                sb.append('@');
+                sb.append(packagePath);
+                sb.append(".pks\n");
+                sb.append('@');
+                sb.append(packagePath);
+                sb.append(".pkb\n");
+            } else {
+                sb.append(testTemplate.generate());
+                sb.append('\n');
+            }
+        }
+        logConsoleOutput();
+        if (generateFiles && consoleOutput.stream().anyMatch(it -> it.contains("error"))) {
+            sb.append('\n');
+            sb.append("--\n");
+            sb.append("-- console output produced during the generation of this script (errors found)\n");
+            sb.append("--\n");
+            sb.append("/*\n\n");
+                for (final String line : consoleOutput) {
+                    sb.append(line);
+                    sb.append('\n');
+                }
+            sb.append('\n');
+            sb.append("*/\n");
+        }
+        return sb.toString();
+    }
+
+    @Override
+    public String generateSeparator(final Connection conn) {
+        return "";
+    }
+
+    @Override
+    public String generateEpilog(final Connection conn, final List<Node> nodes) {
+        return "";
+    }
+
+    @Override
+    public String generate(final Connection conn, final Node node) {
+        return "";
+    }
 }
