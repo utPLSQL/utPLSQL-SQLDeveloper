@@ -15,6 +15,9 @@
  */
 package org.utplsql.sqldev.model.runner;
 
+import org.springframework.core.style.ToStringCreator;
+import org.utplsql.sqldev.model.UtplsqlToStringStyler;
+
 public abstract class PostEvent extends RealtimeReporterEvent {
     private String startTime;
     private String endTime;
@@ -23,6 +26,19 @@ public abstract class PostEvent extends RealtimeReporterEvent {
     private String errorStack;
     private String serverOutput;
     private String warnings;
+
+    @Override
+    public String toString() {
+        return new ToStringCreator(this, UtplsqlToStringStyler.INSTANCE)
+                .append("startTime", startTime)
+                .append("endTime", endTime)
+                .append("executionTime", executionTime)
+                .append("counter", counter)
+                .append("errorStack", errorStack)
+                .append("serverOutput", serverOutput)
+                .append("warnings", warnings)
+                .toString();
+    }
 
     public PostEvent() {
         counter = new Counter();
