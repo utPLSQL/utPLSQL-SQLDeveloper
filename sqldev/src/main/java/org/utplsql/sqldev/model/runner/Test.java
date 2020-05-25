@@ -13,60 +13,160 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.utplsql.sqldev.model.runner
+package org.utplsql.sqldev.model.runner;
 
-import java.util.List
-import javax.swing.Icon
-import org.eclipse.xtend.lib.annotations.Accessors
-import org.utplsql.sqldev.resources.UtplsqlResources
+import java.util.List;
 
-@Accessors
-class Test extends Item {
-	String executableType
-	String ownerName
-	String objectName
-	String procedureName
-	Boolean disabled
-	String name
-	String description
-	Integer testNumber
-	List<Expectation> failedExpectations
-	
-	def getStatusIcon() {
-		var Icon icon = null
-		if (startTime !== null && endTime === null ) {
-			icon = UtplsqlResources.getIcon("PROGRESS_ICON")
-		} else {
-			if (counter !== null) {
-				if (counter.success > 0) {
-					icon = UtplsqlResources.getIcon("SUCCESS_ICON")
-				} else if (counter.error > 0) {
-					icon = UtplsqlResources.getIcon("ERROR_ICON")
-				} else if (counter.failure > 0) {
-					icon = UtplsqlResources.getIcon("FAILURE_ICON")
-				} else if (counter.disabled > 0) {
-					icon = UtplsqlResources.getIcon("DISABLED_ICON")
-				}		
-			}
-		}
-		return icon
-	}
-	
-	def getWarningIcon() {
-		var Icon icon = null
-		if (counter !== null) {
-			if (counter.warning > 0) {
-				icon =  UtplsqlResources.getIcon("WARNING_ICON")
-			}
-		}
-		return icon
-	}
+import javax.swing.Icon;
 
-	def getInfoIcon() {
-		var Icon icon = null
-		if (serverOutput !== null && serverOutput.length > 0) {
-			icon =  UtplsqlResources.getIcon("INFO_ICON")
-		}
-		return icon
-	}
+import org.springframework.core.style.ToStringCreator;
+import org.utplsql.sqldev.model.UtplsqlToStringStyler;
+import org.utplsql.sqldev.resources.UtplsqlResources;
+
+public class Test extends Item {
+    private String executableType;
+    private String ownerName;
+    private String objectName;
+    private String procedureName;
+    private Boolean disabled;
+    private String name;
+    private String description;
+    private Integer testNumber;
+    private List<Expectation> failedExpectations;
+
+    @Override
+    public String toString() {
+        return new ToStringCreator(this, UtplsqlToStringStyler.INSTANCE)
+                // ancestor
+                .append("id", getId())
+                .append("startTime", getStartTime())
+                .append("endTime", getEndTime())
+                .append("executionTime", getExecutionTime())
+                .append("counter", getCounter())
+                .append("errorStack", getErrorStack())
+                .append("serverOutput", getServerOutput())
+                .append("warnings", getWarnings())
+                // local
+                .append("executableType", executableType)
+                .append("ownerName", ownerName)
+                .append("objectName", objectName)
+                .append("procedureName", procedureName)
+                .append("disabled", disabled)
+                .append("name", name)
+                .append("description", description)
+                .append("testNumber", testNumber)
+                .append("failedExpectations", failedExpectations)
+                .append("statusIcon", getStatusIcon())
+                .append("warningIcon", getWarningIcon())
+                .append("infoIcon", getInfoIcon())
+                .toString();
+    }
+
+    public Icon getStatusIcon() {
+        Icon icon = null;
+        if (getStartTime() != null && getEndTime() == null) {
+            icon = UtplsqlResources.getIcon("PROGRESS_ICON");
+        } else {
+            if (getCounter() != null) {
+                if (getCounter().getSuccess() > 0) {
+                    icon = UtplsqlResources.getIcon("SUCCESS_ICON");
+                } else if (getCounter().getError() > 0) {
+                    icon = UtplsqlResources.getIcon("ERROR_ICON");
+                } else if (getCounter().getFailure() > 0) {
+                    icon = UtplsqlResources.getIcon("FAILURE_ICON");
+                } else if (getCounter().getDisabled() > 0) {
+                    icon = UtplsqlResources.getIcon("DISABLED_ICON");
+                }       
+            }
+        }
+        return icon;
+    }
+
+    public Icon getWarningIcon() {
+        Icon icon = null;
+        if (getCounter() != null && getCounter().getWarning() > 0) {
+            icon = UtplsqlResources.getIcon("WARNING_ICON");
+        }
+        return icon;
+    }
+
+    public Icon getInfoIcon() {
+        Icon icon = null;
+        if (getServerOutput() != null && getServerOutput().length() > 0) {
+            icon = UtplsqlResources.getIcon("INFO_ICON");
+        }
+        return icon;
+    }
+
+    public String getExecutableType() {
+        return executableType;
+    }
+
+    public void setExecutableType(final String executableType) {
+        this.executableType = executableType;
+    }
+
+    public String getOwnerName() {
+        return ownerName;
+    }
+
+    public void setOwnerName(final String ownerName) {
+        this.ownerName = ownerName;
+    }
+
+    public String getObjectName() {
+        return objectName;
+    }
+
+    public void setObjectName(final String objectName) {
+        this.objectName = objectName;
+    }
+
+    public String getProcedureName() {
+        return procedureName;
+    }
+
+    public void setProcedureName(final String procedureName) {
+        this.procedureName = procedureName;
+    }
+
+    public Boolean getDisabled() {
+        return disabled;
+    }
+
+    public void setDisabled(final Boolean disabled) {
+        this.disabled = disabled;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(final String name) {
+        this.name = name;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(final String description) {
+        this.description = description;
+    }
+
+    public Integer getTestNumber() {
+        return testNumber;
+    }
+
+    public void setTestNumber(final Integer testNumber) {
+        this.testNumber = testNumber;
+    }
+
+    public List<Expectation> getFailedExpectations() {
+        return failedExpectations;
+    }
+
+    public void setFailedExpectations(final List<Expectation> failedExpectations) {
+        this.failedExpectations = failedExpectations;
+    }
 }
