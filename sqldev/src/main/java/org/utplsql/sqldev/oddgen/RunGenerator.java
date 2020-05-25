@@ -177,7 +177,7 @@ public class RunGenerator implements OddgenGenerator2 {
             sb.append(getPath(dedupNodes.get(0), conn));
             sb.append("');\n");
         } else {
-            final List<String> paths = nodes.stream().map(node -> getPath(node, conn)).collect(Collectors.toList());
+            final List<String> paths = dedupNodes.stream().map(node -> getPath(node, conn)).collect(Collectors.toList());
             sb.append("BEGIN\n");
             sb.append("\tut.run(\n");
             sb.append("\t\tut_varchar2_list(\n");
