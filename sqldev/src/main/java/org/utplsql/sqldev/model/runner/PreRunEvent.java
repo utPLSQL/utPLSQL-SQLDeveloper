@@ -13,18 +13,43 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.utplsql.sqldev.model.runner
+package org.utplsql.sqldev.model.runner;
 
-import java.util.ArrayList
-import java.util.List
-import org.eclipse.xtend.lib.annotations.Accessors
+import java.util.ArrayList;
+import java.util.List;
 
-@Accessors
-class PreRunEvent extends RealtimeReporterEvent {
-	List<Item> items
-	Integer totalNumberOfTests
+import org.springframework.core.style.ToStringCreator;
+import org.utplsql.sqldev.model.UtplsqlToStringStyler;
 
-	new() {
-		items = new ArrayList<Item>
-	}	
+public class PreRunEvent extends RealtimeReporterEvent {
+    private List<Item> items;
+    private Integer totalNumberOfTests;
+
+    @Override
+    public String toString() {
+        return new ToStringCreator(this, UtplsqlToStringStyler.INSTANCE)
+                .append("items", items)
+                .append("totalNumberOfTests", totalNumberOfTests)
+                .toString();
+    }
+
+   public PreRunEvent() {
+        items = new ArrayList<>();
+    }
+
+    public List<Item> getItems() {
+        return items;
+    }
+
+    public void setItems(final List<Item> items) {
+        this.items = items;
+    }
+
+    public Integer getTotalNumberOfTests() {
+        return totalNumberOfTests;
+    }
+
+    public void setTotalNumberOfTests(final Integer totalNumberOfTests) {
+        this.totalNumberOfTests = totalNumberOfTests;
+    }
 }
