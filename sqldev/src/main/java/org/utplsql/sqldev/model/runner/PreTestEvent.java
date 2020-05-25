@@ -13,13 +13,46 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.utplsql.sqldev.model.runner
+package org.utplsql.sqldev.model.runner;
 
-import org.eclipse.xtend.lib.annotations.Accessors
+import org.springframework.core.style.ToStringCreator;
+import org.utplsql.sqldev.model.UtplsqlToStringStyler;
 
-@Accessors
-class PreTestEvent extends RealtimeReporterEvent {
-	String id
-	Integer testNumber
-	Integer totalNumberOfTests
+public class PreTestEvent extends RealtimeReporterEvent {
+    private String id;
+    private Integer testNumber;
+    private Integer totalNumberOfTests;
+
+    @Override
+    public String toString() {
+        return new ToStringCreator(this, UtplsqlToStringStyler.INSTANCE)
+                .append("id", id)
+                .append("testNumber", testNumber)
+                .append("totalNumberOfTests", totalNumberOfTests)
+                .toString();
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(final String id) {
+        this.id = id;
+    }
+
+    public Integer getTestNumber() {
+        return testNumber;
+    }
+
+    public void setTestNumber(final Integer testNumber) {
+        this.testNumber = testNumber;
+    }
+
+    public Integer getTotalNumberOfTests() {
+        return totalNumberOfTests;
+    }
+
+    public void setTotalNumberOfTests(final Integer totalNumberOfTests) {
+        this.totalNumberOfTests = totalNumberOfTests;
+    }
 }
