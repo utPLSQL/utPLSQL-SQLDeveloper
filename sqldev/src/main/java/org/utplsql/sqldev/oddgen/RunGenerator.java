@@ -141,11 +141,6 @@ public class RunGenerator implements OddgenGenerator2 {
         }
     }
 
-    private String replaceTabsWithSpaces(final CharSequence input, final int indentSpaces) {
-        final String spaces = String.format((("%1$" + Integer.valueOf(indentSpaces)) + "s"), "");
-        return input.toString().replace("\t", spaces);
-    }
-
     public ArrayList<Node> dedup(final List<Node> nodes) {
         final HashSet<String> set = new HashSet<>();
         for (final Node node : nodes) {
@@ -188,7 +183,7 @@ public class RunGenerator implements OddgenGenerator2 {
             sb.append("/\n");
         }
         final String ret = sb.toString();
-        return replaceTabsWithSpaces(ret, (Integer.valueOf(params.get(INDENT_SPACES))));
+        return StringTools.replaceTabsWithSpaces(ret, Integer.valueOf(params.get(INDENT_SPACES)));
     }
 
     @Override
