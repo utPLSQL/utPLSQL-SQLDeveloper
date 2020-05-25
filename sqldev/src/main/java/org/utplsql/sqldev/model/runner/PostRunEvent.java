@@ -13,10 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.utplsql.sqldev.model.runner
+package org.utplsql.sqldev.model.runner;
 
-import org.eclipse.xtend.lib.annotations.Accessors
-
-@Accessors
-class PostRunEvent extends PostEvent {
+public class PostRunEvent extends PostEvent {
 }
