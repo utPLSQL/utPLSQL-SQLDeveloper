@@ -100,8 +100,8 @@ public class RunGenerator implements OddgenGenerator2 {
         if (runnables == null) {
             final PreferenceModel preferences = PreferenceModel.getInstance(Preferences.getPreferences());
             final LinkedHashMap<String, String> params = new LinkedHashMap<>();
-            params.put(RESET_PACKAGE, preferences.isResetPackage() ? "YES" : "NO");
-            params.put(CLEAR_SCREEN, preferences.isClearScreen() ? "YES" : "NO");
+            params.put(RESET_PACKAGE, preferences.isResetPackage() ? YES : NO);
+            params.put(CLEAR_SCREEN, preferences.isClearScreen() ? YES : NO);
             params.put(INDENT_SPACES, String.valueOf(preferences.getIndentSpaces()));
             final UtplsqlDao dao = new UtplsqlDao(conn);
             // load node tree eagerly (all nodes in one go)
@@ -165,11 +165,11 @@ public class RunGenerator implements OddgenGenerator2 {
         final ArrayList<Node> dedupNodes = dedup(nodes);
         final LinkedHashMap<String, String> params = dedupNodes.get(0).getParams();
         final StringBuilder sb = new StringBuilder();
-        if ("YES".equals(params.get(RESET_PACKAGE))) {
+        if (YES.equals(params.get(RESET_PACKAGE))) {
             sb.append("EXECUTE dbms_session.reset_package;\n");
         }
         sb.append("SET SERVEROUTPUT ON SIZE UNLIMITED\n");
-        if ("YES".equals(params.get(CLEAR_SCREEN))) {
+        if (YES.equals(params.get(CLEAR_SCREEN))) {
             sb.append("CLEAR SCREEN\n");
         }
         if (dedupNodes.size() == 1) {
