@@ -40,8 +40,7 @@ public class StringTools {
     }
     
     public static String getCSV(List<String> list, int indentSpaces) {
-        final String indent = String.join("", Collections.nCopies(indentSpaces, " "));
-        return getCSV(list, indent);
+        return getCSV(list, repeat(" ", indentSpaces));
     }
     
     public static String getSimpleCSV(List<String> list) {
@@ -55,4 +54,12 @@ public class StringTools {
         return sb.toString();
     }
 
+    public static String repeat(String s, int times) {
+        return String.join("", Collections.nCopies(times, s));
+    }
+
+    public static String replaceTabsWithSpaces(final CharSequence input, int indentSpaces) {
+        final String spaces = StringTools.repeat(" ", indentSpaces);
+        return input.toString().replace("\t", spaces);
+    }
 }
