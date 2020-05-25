@@ -13,67 +13,220 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.utplsql.sqldev.model.runner
+package org.utplsql.sqldev.model.runner;
 
-import java.util.LinkedHashMap
-import java.util.List
-import org.eclipse.xtend.lib.annotations.Accessors
+import java.util.LinkedHashMap;
+import java.util.List;
 
-@Accessors
-class Run {
-	String reporterId
-	String connectionName
-	List<String> pathList
-	Integer currentTestNumber
-	Test currentTest
-	Integer totalNumberOfTests
-	String startTime
-	String endTime
-	Double executionTime
-	Counter counter
-	Integer infoCount
-	String errorStack
-	String serverOutput
-	LinkedHashMap<String, Test> tests
-	String status
-	Long start
-	
-	new(String reporterId, String connectionName, List<String> pathList) {
-		this.reporterId = reporterId
-		this.connectionName = connectionName
-		this.pathList = pathList
-		this.counter = new Counter
-		this.tests = new LinkedHashMap<String, Test>
-	}
-	
-	def void setStartTime(String startTime) {
-		this.startTime = startTime
-		start = System.currentTimeMillis
-	}
-		
-	def getName() {
-		val time = startTime.substring(11,19)
-		val conn = connectionName?.substring(15)
-		return '''«time» («conn»)'''
-	}
-	
-	def void put(List<Item> items) {
-		for (item : items) {
-			if (item instanceof Test) {
-				this.tests.put(item.id, item)
-			}
-			if (item instanceof Suite) {
-				item.items.put
-			}
-		}
-	}
-	
-	def getTest(String id) {
-		return tests.get(id)
-	}
+import org.springframework.core.style.ToStringCreator;
+import org.utplsql.sqldev.model.UtplsqlToStringStyler;
 
-	def getTotalNumberOfCompletedTests() {
-		return counter.disabled + counter.success + counter.failure + counter.error
-	}
-	
+public class Run {
+    private String reporterId;
+    private String connectionName;
+    private List<String> pathList;
+    private Integer currentTestNumber;
+    private Test currentTest;
+    private Integer totalNumberOfTests;
+    private String startTime;
+    private String endTime;
+    private Double executionTime;
+    private Counter counter;
+    private Integer infoCount;
+    private String errorStack;
+    private String serverOutput;
+    private LinkedHashMap<String, Test> tests;
+    private String status;
+    private Long start;
+
+    @Override
+    public String toString() {
+        return new ToStringCreator(this, UtplsqlToStringStyler.INSTANCE)
+                .append("reporterId", reporterId)
+                .append("connectionName", connectionName)
+                .append("pathList", pathList)
+                .append("currentTestNumber", currentTestNumber)
+                .append("currentTest", currentTest)
+                .append("totalNumberOfTests", totalNumberOfTests)
+                .append("startTime", startTime)
+                .append("endTime", endTime)
+                .append("executionTime", executionTime)
+                .append("counter", counter)
+                .append("infoCount", infoCount)
+                .append("errorStack", errorStack)
+                .append("serverOutput", serverOutput)
+                .append("tests", tests)
+                .append("status", status)
+                .append("start", start)
+                .append("endTime", endTime)
+                .append("totalNumberOfCompletedTests", getTotalNumberOfCompletedTests())
+                .toString();
+    }
+
+    public Run(final String reporterId, final String connectionName, final List<String> pathList) {
+        this.reporterId = reporterId;
+        this.connectionName = connectionName;
+        this.pathList = pathList;
+        counter = new Counter();
+        tests = new LinkedHashMap<>();
+    }
+
+    public void setStartTime(final String startTime) {
+        this.startTime = startTime;
+        start = Long.valueOf(System.currentTimeMillis());
+    }
+
+    public String getName() {
+        final String time = startTime.substring(11, 19);
+        final String conn = connectionName != null ? connectionName.substring(15) : null;
+        final StringBuilder sb = new StringBuilder();
+        sb.append(time);
+        sb.append(" (");
+        sb.append(conn);
+        sb.append(")");
+        return sb.toString();
+    }
+
+    public void put(final List<Item> items) {
+        for (final Item item : items) {
+            if (item instanceof Test) {
+                tests.put(((Test) item).getId(), (Test) item);
+            }
+            if (item instanceof Suite) {
+                put(((Suite) item).getItems());
+            }
+        }
+    }
+
+    public Test getTest(final String id) {
+        return tests.get(id);
+    }
+
+    public int getTotalNumberOfCompletedTests() {
+        return counter.getDisabled() + counter.getSuccess() + counter.getFailure() + counter.getError();
+    }
+
+    public String getReporterId() {
+        return reporterId;
+    }
+
+    public void setReporterId(final String reporterId) {
+        this.reporterId = reporterId;
+    }
+
+    public String getConnectionName() {
+        return connectionName;
+    }
+
+    public void setConnectionName(final String connectionName) {
+        this.connectionName = connectionName;
+    }
+
+    public List<String> getPathList() {
+        return pathList;
+    }
+
+    public void setPathList(final List<String> pathList) {
+        this.pathList = pathList;
+    }
+
+    public Integer getCurrentTestNumber() {
+        return currentTestNumber;
+    }
+
+    public void setCurrentTestNumber(final Integer currentTestNumber) {
+        this.currentTestNumber = currentTestNumber;
+    }
+
+    public Test getCurrentTest() {
+        return currentTest;
+    }
+
+    public void setCurrentTest(final Test currentTest) {
+        this.currentTest = currentTest;
+    }
+
+    public Integer getTotalNumberOfTests() {
+        return totalNumberOfTests;
+    }
+
+    public void setTotalNumberOfTests(final Integer totalNumberOfTests) {
+        this.totalNumberOfTests = totalNumberOfTests;
+    }
+
+    public String getStartTime() {
+        return startTime;
+    }
+
+    public String getEndTime() {
+        return endTime;
+    }
+
+    public void setEndTime(final String endTime) {
+        this.endTime = endTime;
+    }
+
+    public Double getExecutionTime() {
+        return executionTime;
+    }
+
+    public void setExecutionTime(final Double executionTime) {
+        this.executionTime = executionTime;
+    }
+
+    public Counter getCounter() {
+        return counter;
+    }
+
+    public void setCounter(final Counter counter) {
+        this.counter = counter;
+    }
+
+    public Integer getInfoCount() {
+        return infoCount;
+    }
+
+    public void setInfoCount(final Integer infoCount) {
+        this.infoCount = infoCount;
+    }
+
+    public String getErrorStack() {
+        return errorStack;
+    }
+
+    public void setErrorStack(final String errorStack) {
+        this.errorStack = errorStack;
+    }
+
+    public String getServerOutput() {
+        return serverOutput;
+    }
+
+    public void setServerOutput(final String serverOutput) {
+        this.serverOutput = serverOutput;
+    }
+
+    public LinkedHashMap<String, Test> getTests() {
+        return tests;
+    }
+
+    public void setTests(final LinkedHashMap<String, Test> tests) {
+        this.tests = tests;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(final String status) {
+        this.status = status;
+    }
+
+    public Long getStart() {
+        return start;
+    }
+
+    public void setStart(final Long start) {
+        this.start = start;
+    }
 }
