@@ -16,15 +16,15 @@
 package org.utplsql.sqldev.model.ut;
 
 import org.springframework.core.style.ToStringCreator;
-import org.utplsql.sqldev.model.AbstractModel;
+import org.utplsql.sqldev.model.UtplsqlToStringStyler;
 
-public class OutputLines extends AbstractModel {
+public class OutputLines {
     private String[] lines;
     private Integer numlines;
 
     @Override
     public String toString() {
-        return new ToStringCreator(this, getStyler())
+        return new ToStringCreator(this, UtplsqlToStringStyler.INSTANCE)
                 .append("lines", lines)
                 .append("numlines", numlines)
                 .toString();

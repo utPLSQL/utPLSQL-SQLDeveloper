@@ -16,9 +16,9 @@
 package org.utplsql.sqldev.model.runner;
 
 import org.springframework.core.style.ToStringCreator;
-import org.utplsql.sqldev.model.AbstractModel;
+import org.utplsql.sqldev.model.UtplsqlToStringStyler;
 
-public class Counter extends AbstractModel {
+public class Counter {
     private Integer disabled;
     private Integer success;
     private Integer failure;
@@ -27,7 +27,7 @@ public class Counter extends AbstractModel {
 
     @Override
     public String toString() {
-        return new ToStringCreator(this, getStyler())
+        return new ToStringCreator(this, UtplsqlToStringStyler.INSTANCE)
                 .append("disabled", disabled)
                 .append("success", success)
                 .append("failure", failure)

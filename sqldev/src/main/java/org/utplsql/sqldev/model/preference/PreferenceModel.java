@@ -70,7 +70,7 @@ public class PreferenceModel extends HashStructureAdapter {
 
     @Override
     public String toString() {
-        return new ToStringCreator(this, UtplsqlToStringStyler.STYLER)
+        return new ToStringCreator(this, UtplsqlToStringStyler.INSTANCE)
                 .append(KEY_USE_REALTIME_REPORTER, isUseRealtimeReporter())
                 .append(KEY_UNSHARED_WORKSHEET, isUnsharedWorksheet())
                 .append(KEY_RESET_PACKAGE, isResetPackage())

@@ -17,10 +17,9 @@ package org.utplsql.sqldev.model.runner
 
 import java.util.regex.Pattern
 import org.eclipse.xtend.lib.annotations.Accessors
-import org.utplsql.sqldev.model.AbstractModel
 
 @Accessors
-class Expectation extends AbstractModel {
+class Expectation {
 	String description
 	String message
 	String caller

@@ -16,16 +16,16 @@
 package org.utplsql.sqldev.model.parser;
 
 import org.springframework.core.style.ToStringCreator;
-import org.utplsql.sqldev.model.AbstractModel;
+import org.utplsql.sqldev.model.UtplsqlToStringStyler;
 
-public class Unit extends AbstractModel {
+public class Unit {
     private String name;
     private Integer position;
     private Integer positionOfName;
 
     @Override
     public String toString() {
-        return new ToStringCreator(this, getStyler())
+        return new ToStringCreator(this, UtplsqlToStringStyler.INSTANCE)
                 .append("name", name)
                 .append("position", position)
                 .append("positionOfName", positionOfName)

@@ -16,9 +16,9 @@
 package org.utplsql.sqldev.model.runner;
 
 import org.springframework.core.style.ToStringCreator;
-import org.utplsql.sqldev.model.AbstractModel;
+import org.utplsql.sqldev.model.UtplsqlToStringStyler;
 
-public abstract class Item extends AbstractModel {
+public abstract class Item {
     private String id;
     private String startTime;
     private String endTime;
@@ -30,7 +30,7 @@ public abstract class Item extends AbstractModel {
 
     @Override
     public String toString() {
-        return new ToStringCreator(this, getStyler())
+        return new ToStringCreator(this, UtplsqlToStringStyler.INSTANCE)
                 .append("id", id)
                 .append("startTime", startTime)
                 .append("endTime", endTime)

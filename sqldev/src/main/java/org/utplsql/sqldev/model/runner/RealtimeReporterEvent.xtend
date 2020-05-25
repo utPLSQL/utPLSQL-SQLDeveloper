@@ -15,7 +15,5 @@
  */
 package org.utplsql.sqldev.model.runner
 
-import org.utplsql.sqldev.model.AbstractModel
-
-abstract class RealtimeReporterEvent extends AbstractModel {
+abstract class RealtimeReporterEvent {
 }

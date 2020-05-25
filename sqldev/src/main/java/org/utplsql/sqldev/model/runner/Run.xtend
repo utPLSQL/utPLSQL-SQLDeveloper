@@ -18,10 +18,9 @@ package org.utplsql.sqldev.model.runner
 import java.util.LinkedHashMap
 import java.util.List
 import org.eclipse.xtend.lib.annotations.Accessors
-import org.utplsql.sqldev.model.AbstractModel
 
 @Accessors
-class Run extends AbstractModel {
+class Run {
 	String reporterId
 	String connectionName
 	List<String> pathList
