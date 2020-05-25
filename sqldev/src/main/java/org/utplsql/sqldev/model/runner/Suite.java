@@ -13,19 +13,53 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.utplsql.sqldev.model.runner
+package org.utplsql.sqldev.model.runner;
 
-import java.util.ArrayList
-import java.util.List
-import org.eclipse.xtend.lib.annotations.Accessors
+import java.util.ArrayList;
+import java.util.List;
 
-@Accessors
-class Suite extends Item {
-	String name
-	String description
-	List<Item> items
-	
-	new() {
-		items = new ArrayList<Item>
-	}
+import org.springframework.core.style.ToStringCreator;
+import org.utplsql.sqldev.model.UtplsqlToStringStyler;
+
+public class Suite extends Item {
+    private String name;
+    private String description;
+    private List<Item> items;
+
+    public Suite() {
+        items = new ArrayList<>();
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringCreator(this, UtplsqlToStringStyler.INSTANCE)
+                .append("name", name)
+                .append("description", description)
+                .append("items", items)
+                .toString();
+    }
+    
+    public String getName() {
+        return name;
+    }
+
+    public void setName(final String name) {
+        this.name = name;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(final String description) {
+        this.description = description;
+    }
+
+    public List<Item> getItems() {
+        return items;
+    }
+
+    public void setItems(final List<Item> items) {
+        this.items = items;
+    }
 }
