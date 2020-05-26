@@ -13,40 +13,44 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.utplsql.sqldev.resources
+package org.utplsql.sqldev.resources;
 
-import oracle.dbtools.raptor.utils.MessagesBase
+import java.awt.Image;
 
-class UtplsqlResources extends MessagesBase {
-	static final ClassLoader CLASS_LOADER = UtplsqlResources.classLoader
-	static final String CLASS_NAME = UtplsqlResources.canonicalName
-	static final UtplsqlResources INSTANCE = new UtplsqlResources()
+import javax.swing.Icon;
 
-	private new() {
-		super(CLASS_NAME, CLASS_LOADER)
-	}
+import oracle.dbtools.raptor.utils.MessagesBase;
 
-	def static getString(String paramString) {
-		return INSTANCE.getStringImpl(paramString)
-	}
+public class UtplsqlResources extends MessagesBase {
+    private static final ClassLoader CLASS_LOADER = UtplsqlResources.class.getClassLoader();
+    private static final String CLASS_NAME = UtplsqlResources.class.getCanonicalName();
+    private static final UtplsqlResources INSTANCE = new UtplsqlResources();
 
-	def static get(String paramString) {
-		return getString(paramString)
-	}
+    private UtplsqlResources() {
+        super(CLASS_NAME, CLASS_LOADER);
+    }
 
-	def static getImage(String paramString) {
-		return INSTANCE.getImageImpl(paramString)
-	}
+    public static String getString(final String paramString) {
+        return INSTANCE.getStringImpl(paramString);
+    }
 
-	def static format(String paramString, Object... paramVarArgs) {
-		return INSTANCE.formatImpl(paramString, paramVarArgs)
-	}
+    public static String get(final String paramString) {
+        return getString(paramString);
+    }
 
-	def static getIcon(String paramString) {
-		return INSTANCE.getIconImpl(paramString)
-	}
+    public static Image getImage(final String paramString) {
+        return INSTANCE.getImageImpl(paramString);
+    }
 
-	def static getInteger(String paramString) {
-		return INSTANCE.getIntegerImpl(paramString)
-	}
+    public static String format(final String paramString, final Object... paramVarArgs) {
+        return INSTANCE.formatImpl(paramString, paramVarArgs);
+    }
+
+    public static Icon getIcon(final String paramString) {
+        return INSTANCE.getIconImpl(paramString);
+    }
+
+    public static Integer getInteger(final String paramString) {
+        return INSTANCE.getIntegerImpl(paramString);
+    }
 }
