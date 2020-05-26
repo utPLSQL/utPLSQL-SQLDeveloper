@@ -92,7 +92,7 @@ public class UtplsqlController implements Controller {
                 return true;
             }
         } catch (Exception e) {
-            final String msg = "Failed to handle event due to exception " + e != null ? e.getMessage() : "";
+            final String msg = "Failed to handle event due to exception " + (e != null ? e.getMessage() : "") + ".";
             logger.severe(() -> msg);
             throw new GenericRuntimeException(msg, e);
         }
