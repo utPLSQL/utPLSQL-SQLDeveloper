@@ -268,7 +268,8 @@ public class UtplsqlRunner implements RealtimeReporterEventConsumer {
             dao.produceReport(reporterId, pathList);
             logger.fine(() -> "All events produced for reporter id " + reporterId + ".");
         } catch (Exception e) {
-            logger.severe(() -> "Error while producing events for reporter id " + reporterId + ": " + e != null ? e.getMessage() : "");
+            logger.severe(() -> "Error while producing events for reporter id " + reporterId + ": "
+                    + (e != null ? e.getMessage() : ""));
         }
     }
 
@@ -279,7 +280,8 @@ public class UtplsqlRunner implements RealtimeReporterEventConsumer {
             dao.consumeReport(reporterId, this);
             logger.fine(() -> "All events consumed.");
         } catch (final Exception e) {
-            logger.severe(() -> "Error while consuming events for reporter id " + reporterId + ": " + e != null ? e.getMessage() : "");
+            logger.severe(() -> "Error while consuming events for reporter id " + reporterId + ": "
+                    + (e != null ? e.getMessage() : ""));
         }
         if (run.getTotalNumberOfTests() < 0) {
             run.setStatus(UtplsqlResources.getString("RUNNER_NO_TESTS_FOUND_TEXT"));
