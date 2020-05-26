@@ -13,297 +13,341 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.utplsql.sqldev.runner
+package org.utplsql.sqldev.runner;
 
-import java.awt.Dimension
-import java.awt.Toolkit
-import java.sql.Connection
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.List
-import java.util.UUID
-import java.util.logging.Logger
-import javax.swing.JFrame
-import oracle.dbtools.raptor.utils.Connections
-import org.utplsql.sqldev.dal.RealtimeReporterDao
-import org.utplsql.sqldev.dal.RealtimeReporterEventConsumer
-import org.utplsql.sqldev.model.runner.PostRunEvent
-import org.utplsql.sqldev.model.runner.PostSuiteEvent
-import org.utplsql.sqldev.model.runner.PostTestEvent
-import org.utplsql.sqldev.model.runner.PreRunEvent
-import org.utplsql.sqldev.model.runner.PreSuiteEvent
-import org.utplsql.sqldev.model.runner.PreTestEvent
-import org.utplsql.sqldev.model.runner.RealtimeReporterEvent
-import org.utplsql.sqldev.model.runner.Run
-import org.utplsql.sqldev.resources.UtplsqlResources
-import org.utplsql.sqldev.ui.runner.RunnerFactory
-import org.utplsql.sqldev.ui.runner.RunnerPanel
-import org.utplsql.sqldev.ui.runner.RunnerView
+import java.awt.Dimension;
+import java.awt.Toolkit;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.text.SimpleDateFormat;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+import java.util.UUID;
+import java.util.logging.Logger;
 
-class UtplsqlRunner implements RealtimeReporterEventConsumer {
+import javax.swing.JFrame;
 
-	static val Logger logger = Logger.getLogger(UtplsqlRunner.name);
+import org.utplsql.sqldev.dal.RealtimeReporterDao;
+import org.utplsql.sqldev.dal.RealtimeReporterEventConsumer;
+import org.utplsql.sqldev.exception.GenericDatabaseAccessException;
+import org.utplsql.sqldev.model.runner.PostRunEvent;
+import org.utplsql.sqldev.model.runner.PostSuiteEvent;
+import org.utplsql.sqldev.model.runner.PostTestEvent;
+import org.utplsql.sqldev.model.runner.PreRunEvent;
+import org.utplsql.sqldev.model.runner.PreSuiteEvent;
+import org.utplsql.sqldev.model.runner.PreTestEvent;
+import org.utplsql.sqldev.model.runner.RealtimeReporterEvent;
+import org.utplsql.sqldev.model.runner.Run;
+import org.utplsql.sqldev.model.runner.Test;
+import org.utplsql.sqldev.resources.UtplsqlResources;
+import org.utplsql.sqldev.ui.runner.RunnerFactory;
+import org.utplsql.sqldev.ui.runner.RunnerPanel;
+import org.utplsql.sqldev.ui.runner.RunnerView;
 
-	var List<String> pathList
-	var String connectionName
-	var Connection producerConn
-	var Connection consumerConn
-	val String reporterId = UUID.randomUUID().toString.replace("-", "")
-	var Run run
-	var RunnerPanel panel
-	var Thread producerThread
-	var Thread consumerThread
+import oracle.dbtools.raptor.utils.Connections;
+import oracle.javatools.db.DBException;
+import oracle.jdeveloper.db.ConnectionException;
 
-	new(List<String> pathList, String connectionName) {
-		this.pathList = pathList
-		setConnection(connectionName)
-	}
+public class UtplsqlRunner implements RealtimeReporterEventConsumer {
+    private static final Logger logger = Logger.getLogger(UtplsqlRunner.class.getName());
 
-	/**
-	 * this constructor is intended for tests only
-	 */
-	new(List<String> pathList, Connection producerConn, Connection consumerConn) {
-		this.pathList = pathList
-		this.producerConn = producerConn
-		this.consumerConn = consumerConn
-	}
+    private List<String> pathList;
+    private String connectionName;
+    private Connection producerConn;
+    private Connection consumerConn;
+    private final String reporterId = UUID.randomUUID().toString().replace("-", "");
+    private Run run;
+    private RunnerPanel panel;
+    private Thread producerThread;
+    private Thread consumerThread;
 
-	private def setConnection(String connectionName) {
-		if (connectionName === null) {
-			throw new RuntimeException("Cannot initialize a RealtimeConsumer without a ConnectionName")
-		} else {
-			this.producerConn = Connections.instance.cloneConnection(Connections.instance.getConnection(connectionName))
-			this.consumerConn = Connections.instance.cloneConnection(Connections.instance.getConnection(connectionName))
-		}
-		this.connectionName = connectionName
-	}
-	
-	def dispose() {
-		// running in SQL Developer
-		if (!producerConn.closed) {
-			producerConn.close;
-		}
-		if (!consumerConn.closed) {
-			consumerConn.close;
-		}
-	}
-	
-	override void process(RealtimeReporterEvent event) {
-		logger.fine(event.toString)
-		event.doProcess
-	}
-	
-	private def getSysdate() {
-		val dateTime = new Date(System.currentTimeMillis);
-		val df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'000'");
-		return df.format(dateTime)
-      
-	}
-	
-	private def initRun() {
-		run = new Run(reporterId, connectionName, pathList)
-		run.startTime = sysdate
-		run.counter.disabled = 0
-		run.counter.success = 0
-		run.counter.failure = 0
-		run.counter.error = 0
-		run.counter.warning = 0
-		run.infoCount = 0
-		run.totalNumberOfTests = -1
-		run.currentTestNumber = 0
-		run.status = UtplsqlResources.getString("RUNNER_INITIALIZING_TEXT")
-		panel.model = run
-		panel.update(reporterId)
-	}
-	
-	private def dispatch doProcess(PreRunEvent event) {
-		run.totalNumberOfTests = event.totalNumberOfTests
-		run.put(event.items)
-		run.status = UtplsqlResources.getString("RUNNER_RUNNING_TEXT")
-		panel.update(reporterId)	
-	}
+    public UtplsqlRunner(final List<String> pathList, final String connectionName) {
+        this.pathList = pathList;
+        setConnection(connectionName);
+    }
 
-	private def dispatch doProcess(PostRunEvent event) {
-		run.startTime = event.startTime
-		run.endTime = event.endTime
-		run.executionTime = event.executionTime
-		run.errorStack = event.errorStack
-		run.serverOutput = event.serverOutput
-		run.status = UtplsqlResources.getString("RUNNER_FINNISHED_TEXT")
-		panel.update(reporterId)
-	}
-	
-	private def dispatch doProcess(PreSuiteEvent event) {
-		// ignore
-	}
-	
-	private def dispatch doProcess(PostSuiteEvent event) {
-		val test = run.currentTest
-		// Errors on suite levels are reported as warnings by the utPLSQL framework, 
-		// since an error on suite level does not affect a status of a test.
-		// It is possible that the test is OK, but contains error messages on suite level(s)
-		// Populating test.errorStack would be a) wrong and b) redundant
-		if (event.warnings !== null) {
-			if (test.counter.warning == 0) {
-				test.counter.warning = 1
-				run.counter.warning = run.counter.warning + 1
-			}
-			test.warnings = '''
-				«IF test.warnings !== null»
-					«test.warnings»
+    /**
+     * this constructor is intended for tests only
+     */
+    public UtplsqlRunner(final List<String> pathList, final Connection producerConn, final Connection consumerConn) {
+        this.pathList = pathList;
+        this.producerConn = producerConn;
+        this.consumerConn = consumerConn;
+    }
 
-				«ENDIF»
-				For suite «event.id»:
+    private void setConnection(final String connectionName) {
+        if (connectionName == null) {
+            throw new NullPointerException("Cannot initialize a RealtimeConsumer without a ConnectionName");
+        } else {
+            try {
+                producerConn = Connections.getInstance()
+                        .cloneConnection(Connections.getInstance().getConnection(connectionName));
+                consumerConn = Connections.getInstance()
+                        .cloneConnection(Connections.getInstance().getConnection(connectionName));
+            } catch (ConnectionException | DBException e) {
+                final String msg = "Error creating producer and consumer connections due to " + e.getMessage();
+                logger.severe(() -> msg);
+                throw new GenericDatabaseAccessException(msg, e);
+            }
+        }
+        this.connectionName = connectionName;
+    }
+    
+    private void closeConnection(Connection conn) {
+        try {
+            if (!conn.isClosed()) {
+                conn.close();
+            }
+        } catch (SQLException e) {
+            logger.warning(() -> "could not close connection");
+        }
+    }
 
-				«event.warnings»
-			'''.toString.trim
-		}
-		if (event.serverOutput !== null) {
-			if (test.serverOutput === null) {
-				run.infoCount = run.infoCount + 1
-			}
-			test.serverOutput = '''
-				«IF test.serverOutput !== null»
-					«test.serverOutput»
+    public void dispose() {
+        // running in SQL Developer
+        closeConnection(producerConn);
+        closeConnection(consumerConn);
+    }
 
-				«ENDIF»
-				For suite «event.id»:
+    @Override
+    public void process(final RealtimeReporterEvent event) {
+        logger.fine(() -> event.toString());
+        // dynamic dispatching code originally generated by Xtend
+        if (event instanceof PostRunEvent) {
+            doProcess((PostRunEvent) event);
+        } else if (event instanceof PostSuiteEvent) {
+            doProcess((PostSuiteEvent) event);
+        } else if (event instanceof PostTestEvent) {
+            doProcess((PostTestEvent) event);
+        } else if (event instanceof PreRunEvent) {
+            doProcess((PreRunEvent) event);
+        } else if (event instanceof PreSuiteEvent) {
+            doProcess((PreSuiteEvent) event);
+        } else if (event instanceof PreTestEvent) {
+            doProcess((PreTestEvent) event);
+        } else {
+            throw new IllegalArgumentException("Unhandled parameter types: " + Arrays.asList(event).toString());
+        }
+    }
 
-				«event.serverOutput»
-			'''.toString.trim
-		}
-		panel.update(reporterId)
-	}
-	
-	private def dispatch doProcess(PreTestEvent event) {
-		val test = run.getTest(event.id)
-		if (test === null) {
-			logger.severe('''Could not find test id "«event.id»" when processing PreTestEvent «event.toString».''')
-		} else {
-			test.startTime = sysdate
-		}
-		run.status = '''«event.id»...'''
-		run.currentTestNumber = event.testNumber
-		run.currentTest = test
-		panel.update(reporterId)
-	}
+    private String getSysdate() {
+        final Date dateTime = new Date(System.currentTimeMillis());
+        final SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'000'");
+        return df.format(dateTime);
+    }
 
-	private def dispatch doProcess(PostTestEvent event) {
-		val test = run.getTest(event.id)
-		if (test === null) {
-			logger.severe('''Could not find test id "«event.id»"" when processing PostTestEvent «event.toString».''')
-		} else {
-			test.startTime = event.startTime
-			test.endTime = event.endTime
-			test.executionTime = event.executionTime
-			test.counter = event.counter
-			test.errorStack = event.errorStack
-			test.serverOutput = event.serverOutput
-			if (test.serverOutput !== null) {
-				run.infoCount = run.infoCount + 1
-			}
-			test.failedExpectations = event.failedExpectations
-			test.warnings = event.warnings
-			if (test.warnings !== null) {
-				// it does not matter how many rows are used by utPLSQL to store a warning event
-				test.counter.warning = 1
-			} else {
-				test.counter.warning = 0
-			}
-		}
-		run.counter.disabled = run.counter.disabled + event.counter.disabled
-		run.counter.success = run.counter.success + event.counter.success
-		run.counter.failure = run.counter.failure + event.counter.failure
-		run.counter.error = run.counter.error + event.counter.error
-		run.counter.warning = run.counter.warning + test.counter.warning
-		panel.update(reporterId)
-	}
+    private void initRun() {
+        run = new Run(reporterId, connectionName, pathList);
+        run.setStartTime(getSysdate());
+        run.getCounter().setDisabled(0);
+        run.getCounter().setSuccess(0);
+        run.getCounter().setFailure(0);
+        run.getCounter().setError(0);
+        run.getCounter().setWarning(0);
+        run.setInfoCount(0);
+        run.setTotalNumberOfTests(-1);
+        run.setCurrentTestNumber(0);
+        run.setStatus(UtplsqlResources.getString("RUNNER_INITIALIZING_TEXT"));
+        panel.setModel(run);
+        panel.update(reporterId);
+    }
+    
+    private Object doProcess(final PreRunEvent event) {
+        run.setTotalNumberOfTests(event.getTotalNumberOfTests());
+        run.put(event.getItems());
+        run.setStatus(UtplsqlResources.getString("RUNNER_RUNNING_TEXT"));
+        panel.update(reporterId);
+        return null;
+    }
 
-	private def void produce() {
-		try {
-			logger.fine('''Running utPLSQL tests and producing events via reporter id «reporterId»...''')
-			val dao = new RealtimeReporterDao(producerConn)
-			dao.produceReport(reporterId, pathList)
-			logger.fine('''All events produced for reporter id «reporterId».''')
-		} catch (Exception e) {
-			logger.severe('''Error while producing events for reporter id «reporterId»: «e?.message»''')
-		}
-	}
+    private Object doProcess(final PostRunEvent event) {
+        run.setStartTime(event.getStartTime());
+        run.setEndTime(event.getEndTime());
+        run.setExecutionTime(event.getExecutionTime());
+        run.setErrorStack(event.getErrorStack());
+        run.setServerOutput(event.getServerOutput());
+        run.setStatus(UtplsqlResources.getString("RUNNER_FINNISHED_TEXT"));
+        panel.update(reporterId);
+        return null;
+    }
 
-	private def void consume() {
-		try {
-			logger.fine('''Consuming events from reporter id «reporterId» in realtime...''')
-			val dao = new RealtimeReporterDao(consumerConn)
-			dao.consumeReport(reporterId, this)
-			logger.fine('''All events consumed.''')
-		} catch (Exception e) {
-			logger.severe('''Error while consuming events for reporter id «reporterId»: «e?.message»''')
-		}
-		if (run.totalNumberOfTests < 0) {
-			run.status = UtplsqlResources.getString("RUNNER_NO_TESTS_FOUND_TEXT")
-			run.executionTime = new Double(System.currentTimeMillis - run.start)/1000
-			run.endTime = sysdate
-			run.totalNumberOfTests = 0
-			panel.update(reporterId)
-		}
-		if (isRunningInSqlDeveloper) {
-			dispose
-		}
-	}
-	
-	private def isRunningInSqlDeveloper() {
-		return connectionName !== null
-	}
-	
-	private def initGUI() {
-		var RunnerView dockable = null
-		if (runningInSqlDeveloper && (dockable = RunnerFactory.dockable) === null) {
-			logger.severe('''Error getting utPLSQL dockable. Cannot run utPLSQL test.''')
-			return false
-		} else {
-			if (runningInSqlDeveloper) {
-				RunnerFactory.showDockable;
-				panel = dockable.runnerPanel
-			} else {
-				val frame = new JFrame("utPLSQL Runner Panel")
-				frame.defaultCloseOperation = JFrame.EXIT_ON_CLOSE;
-				panel = new RunnerPanel
-				frame.add(panel.getGUI)
-				frame.preferredSize = new Dimension(600, 800)
-				frame.pack
-				val dim = Toolkit.getDefaultToolkit().getScreenSize();
-				frame.setLocation(dim.width / 2 - frame.getSize().width / 2, dim.height / 2 - frame.getSize().height / 2);
-				frame.setVisible(true)
-			}
-			initRun
-		}
-		return true
-	}
-	
-	def runTestAsync() {
-		// start tests when the GUI has been successfully initialized.
-		if (initGUI) {
-			// the consumer
-			val Runnable consumer = [|consume]
-			consumerThread = new Thread(consumer)
-			consumerThread.name = "realtime consumer"
-			consumerThread.start
-			// avoid concurrency on output header table to fix issue #80
-			Thread.sleep(100)
-			// the producer
-			val Runnable producer = [|produce]
-			producerThread = new Thread(producer)
-			producerThread.name = "realtime producer"
-			producerThread.start
-		}
-	}
-	
-	def getProducerThread() {
-		return producerThread
-	}
-	
-	def getConsumerThread() {
-		return consumerThread
-	}
-	
+    private void doProcess(final PreSuiteEvent event) {
+        // ignore
+    }
+
+    private void doProcess(final PostSuiteEvent event) {
+        final Test test = run.getCurrentTest();
+        // Errors on suite levels are reported as warnings by the utPLSQL framework, 
+        // since an error on suite level does not affect a status of a test.
+        // It is possible that the test is OK, but contains error messages on suite level(s)
+        // Populating test.errorStack would be a) wrong and b) redundant
+        if (event.getWarnings() != null) {
+            if (test.getCounter().getWarning() == 0) {
+                test.getCounter().setWarning(1);
+                test.getCounter().setWarning(run.getCounter().getWarning() + 1);
+            }
+            StringBuilder sb = new StringBuilder();
+            if (test.getWarnings() != null) {
+                sb.append(test.getWarnings());
+                sb.append("\n\n");
+            }
+            sb.append("For suite ");
+            sb.append(event.getId());
+            sb.append(":\n\n");
+            sb.append(event.getWarnings());
+            test.setWarnings(sb.toString());
+        }
+        if (event.getServerOutput() != null) {
+            if (test.getServerOutput() == null) {
+                run.setInfoCount(run.getInfoCount() + 1);
+            }
+            StringBuilder sb = new StringBuilder();
+            if (test.getServerOutput() != null) {
+                sb.append(test.getServerOutput());
+                sb.append("\n\n");
+            }
+            sb.append("For suite ");
+            sb.append(event.getId());
+            sb.append(":\n\n");
+            sb.append(event.getServerOutput());
+            test.setServerOutput(sb.toString());
+        }
+        panel.update(reporterId);
+    }
+
+    private void doProcess(final PreTestEvent event) {
+        final Test test = run.getTest(event.getId());
+        if (test == null) {
+            logger.severe(() -> "Could not find test id \"" + event.getId() + "\" when processing PreTestEvent "
+                    + event.toString() + ".");
+        } else {
+            test.setStartTime(getSysdate());
+        }
+        run.setStatus(event.getId() + "...");
+        run.setCurrentTestNumber(event.getTestNumber());
+        run.setCurrentTest(test);
+        panel.update(reporterId);
+    }
+
+    private void doProcess(final PostTestEvent event) {
+        final Test test = run.getTest(event.getId());
+        if (test == null) {
+            logger.severe(() -> "Could not find test id \"" + event.getId() + "\" when processing PostTestEvent "
+                    + event.toString() + ".");
+        } else {
+            test.setStartTime(event.getStartTime());
+            test.setEndTime(event.getEndTime());
+            test.setExecutionTime(event.getExecutionTime());
+            test.setCounter(event.getCounter());
+            test.setErrorStack(event.getErrorStack());
+            test.setServerOutput(event.getServerOutput());
+            if (test.getServerOutput() != null) {
+                run.setInfoCount(run.getInfoCount() + 1);
+            }
+            test.setFailedExpectations(event.getFailedExpectations());
+            test.setWarnings(event.getWarnings());
+            if (test.getWarnings() != null) {
+                test.getCounter().setWarning(1);
+            } else {
+                test.getCounter().setWarning(0);
+            }
+            run.getCounter().setWarning(run.getCounter().getWarning() + test.getCounter().getWarning());
+        }
+        run.getCounter().setDisabled(run.getCounter().getDisabled() + event.getCounter().getDisabled());
+        run.getCounter().setSuccess(run.getCounter().getSuccess() + event.getCounter().getSuccess());
+        run.getCounter().setFailure(run.getCounter().getFailure() + event.getCounter().getFailure());
+        run.getCounter().setError(run.getCounter().getError() + event.getCounter().getError());
+        panel.update(reporterId);
+    }
+
+    private void produce() {
+        try {
+            logger.fine(() -> "Running utPLSQL tests and producing events via reporter id " + reporterId + "...");
+            final RealtimeReporterDao dao = new RealtimeReporterDao(producerConn);
+            dao.produceReport(reporterId, pathList);
+            logger.fine(() -> "All events produced for reporter id " + reporterId + ".");
+        } catch (Exception e) {
+            logger.severe(() -> "Error while producing events for reporter id " + reporterId + ": " + e != null ? e.getMessage() : "");
+        }
+    }
+
+    private void consume() {
+        try {
+            logger.fine(() -> "Consuming events from reporter id " + reporterId + " in realtime...");
+            final RealtimeReporterDao dao = new RealtimeReporterDao(consumerConn);
+            dao.consumeReport(reporterId, this);
+            logger.fine(() -> "All events consumed.");
+        } catch (final Exception e) {
+            logger.severe(() -> "Error while consuming events for reporter id " + reporterId + ": " + e != null ? e.getMessage() : "");
+        }
+        if (run.getTotalNumberOfTests() < 0) {
+            run.setStatus(UtplsqlResources.getString("RUNNER_NO_TESTS_FOUND_TEXT"));
+            run.setExecutionTime(new Double(System.currentTimeMillis() - run.getStart()) / 1000);
+            run.setEndTime(getSysdate());
+            run.setTotalNumberOfTests(0);
+            panel.update(reporterId);
+        }
+        if (isRunningInSqlDeveloper()) {
+            dispose();
+        }
+    }
+
+    private boolean isRunningInSqlDeveloper() {
+        return (connectionName != null);
+    }
+
+    private boolean initGUI() {
+        RunnerView dockable = null;
+        if (isRunningInSqlDeveloper() && (dockable = RunnerFactory.getDockable()) == null) {
+            logger.severe(() -> "Error getting utPLSQL dockable. Cannot run utPLSQL test.");
+            return false;
+        } else {
+            if (isRunningInSqlDeveloper() && dockable != null) {
+                RunnerFactory.showDockable();
+                panel = dockable.getRunnerPanel();
+            } else {
+                final JFrame frame = new JFrame("utPLSQL Runner Panel");
+                frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+                panel = new RunnerPanel();
+                frame.add(panel.getGUI());
+                frame.setPreferredSize(new Dimension(600, 800));
+                frame.pack();
+                final Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
+                frame.setLocation(dim.width / 2 - frame.getSize().width / 2,
+                        dim.height / 2 - frame.getSize().height / 2);
+                frame.setVisible(true);
+            }
+            initRun();
+            return true;
+        }
+    }
+
+    public void runTestAsync() {
+        // start tests when the GUI has been successfully initialized.
+        if (initGUI()) {
+            // the consumer
+            consumerThread = new Thread(() -> consume());
+            consumerThread.setName("realtime consumer");
+            consumerThread.start();
+            // avoid concurrency on output header table to fix issue #80
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+            // the producer
+            producerThread = new Thread(() -> produce());
+            producerThread.setName("realtime producer");
+            producerThread.start();
+        }
+    }
+
+    public Thread getProducerThread() {
+        return producerThread;
+    }
+
+    public Thread getConsumerThread() {
+        return consumerThread;
+    }
 }
