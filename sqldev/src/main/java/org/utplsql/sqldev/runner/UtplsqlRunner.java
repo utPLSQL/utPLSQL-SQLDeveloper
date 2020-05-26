@@ -283,7 +283,7 @@ public class UtplsqlRunner implements RealtimeReporterEventConsumer {
         }
         if (run.getTotalNumberOfTests() < 0) {
             run.setStatus(UtplsqlResources.getString("RUNNER_NO_TESTS_FOUND_TEXT"));
-            run.setExecutionTime(new Double(System.currentTimeMillis() - run.getStart()) / 1000);
+            run.setExecutionTime(Double.valueOf(System.currentTimeMillis() - Double.valueOf(run.getStart())) / 1000);
             run.setEndTime(getSysdate());
             run.setTotalNumberOfTests(0);
             panel.update(reporterId);
