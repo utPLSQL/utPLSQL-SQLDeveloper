@@ -153,15 +153,14 @@ public class UtplsqlRunner implements RealtimeReporterEventConsumer {
         panel.update(reporterId);
     }
     
-    private Object doProcess(final PreRunEvent event) {
+    private void doProcess(final PreRunEvent event) {
         run.setTotalNumberOfTests(event.getTotalNumberOfTests());
         run.put(event.getItems());
         run.setStatus(UtplsqlResources.getString("RUNNER_RUNNING_TEXT"));
         panel.update(reporterId);
-        return null;
     }
 
-    private Object doProcess(final PostRunEvent event) {
+    private void doProcess(final PostRunEvent event) {
         run.setStartTime(event.getStartTime());
         run.setEndTime(event.getEndTime());
         run.setExecutionTime(event.getExecutionTime());
@@ -169,7 +168,6 @@ public class UtplsqlRunner implements RealtimeReporterEventConsumer {
         run.setServerOutput(event.getServerOutput());
         run.setStatus(UtplsqlResources.getString("RUNNER_FINNISHED_TEXT"));
         panel.update(reporterId);
-        return null;
     }
 
     private void doProcess(final PreSuiteEvent event) {
