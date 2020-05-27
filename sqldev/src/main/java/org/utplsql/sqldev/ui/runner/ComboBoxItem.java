@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2019 Philipp Salvisberg <philipp.salvisberg@trivadis.com>
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,14 +17,15 @@ package org.utplsql.sqldev.ui.runner;
 
 import java.util.AbstractMap;
 
-@SuppressWarnings("all")
 public class ComboBoxItem<K extends Object, V extends Object> extends AbstractMap.SimpleEntry<K, V> {
-  public ComboBoxItem(final K key, final V value) {
-    super(key, value);
-  }
-  
-  @Override
-  public String toString() {
-    return this.getValue().toString();
-  }
+    private static final long serialVersionUID = 7869442222989031548L;
+
+    public ComboBoxItem(final K key, final V value) {
+        super(key, value);
+    }
+
+    @Override
+    public String toString() {
+        return this.getValue().toString();
+    }
 }
