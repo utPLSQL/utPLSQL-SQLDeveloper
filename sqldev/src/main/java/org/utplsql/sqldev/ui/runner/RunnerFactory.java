@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2019 Philipp Salvisberg <philipp.salvisberg@trivadis.com>
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,48 +20,45 @@ import oracle.ide.docking.Dockable;
 import oracle.ide.docking.DockableFactory;
 import oracle.ide.docking.DockingParam;
 import oracle.ide.layout.ViewId;
-import org.utplsql.sqldev.ui.runner.RunnerView;
 
-@SuppressWarnings("all")
 public class RunnerFactory implements DockableFactory {
-  public static final String FACTORY_NAME = "UTPLSQL_RUNNER_FACTORY";
-  
-  private RunnerView dockable;
-  
-  @Override
-  public void install() {
-    final DockStation dockStation = DockStation.getDockStation();
-    final DockingParam dp = new DockingParam();
-    final ViewId referencedViewId = new ViewId("DatabaseNavigatorWindow", "DatabaseNavigatorWindow");
-    final Dockable referencedDockable = dockStation.findDockable(referencedViewId);
-    dp.setTabbedWith(referencedDockable);
-    dockStation.dock(this.getLocalDockable(), dp);
-  }
-  
-  @Override
-  public Dockable getDockable(final ViewId viewId) {
-    if ((viewId == RunnerView.VIEW_ID)) {
-      return this.getLocalDockable();
+    public static final String FACTORY_NAME = "UTPLSQL_RUNNER_FACTORY";
+
+    private RunnerView dockable;
+
+    @Override
+    public void install() {
+        final DockStation dockStation = DockStation.getDockStation();
+        final DockingParam dp = new DockingParam();
+        final ViewId referencedViewId = new ViewId("DatabaseNavigatorWindow", "DatabaseNavigatorWindow");
+        final Dockable referencedDockable = dockStation.findDockable(referencedViewId);
+        dp.setTabbedWith(referencedDockable);
+        dockStation.dock(getLocalDockable(), dp);
     }
-    return null;
-  }
-  
-  private RunnerView getLocalDockable() {
-    if ((this.dockable == null)) {
-      RunnerView _runnerView = new RunnerView();
-      this.dockable = _runnerView;
+
+    @Override
+    public Dockable getDockable(final ViewId viewId) {
+        if (viewId == RunnerView.VIEW_ID) {
+            return getLocalDockable();
+        }
+        return null;
     }
-    return this.dockable;
-  }
-  
-  public static RunnerView getDockable() {
-    final DockStation dockStation = DockStation.getDockStation();
-    final Dockable dockable = dockStation.findDockable(RunnerView.VIEW_ID);
-    return ((RunnerView) dockable);
-  }
-  
-  public static void showDockable() {
-    final DockStation dockStation = DockStation.getDockStation();
-    dockStation.setDockableVisible(RunnerFactory.getDockable(), true);
-  }
+
+    private RunnerView getLocalDockable() {
+        if (dockable == null) {
+            dockable = new RunnerView();
+        }
+        return dockable;
+    }
+
+    public static RunnerView getDockable() {
+        final DockStation dockStation = DockStation.getDockStation();
+        final Dockable dockable = dockStation.findDockable(RunnerView.VIEW_ID);
+        return (RunnerView) dockable;
+    }
+
+    public static void showDockable() {
+        final DockStation dockStation = DockStation.getDockStation();
+        dockStation.setDockableVisible(getDockable(), true);
+    }
 }
