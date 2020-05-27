@@ -62,4 +62,16 @@ public class StringTools {
         final String spaces = StringTools.repeat(" ", indentSpaces);
         return input.toString().replace("\t", spaces);
     }
+
+    public static String formatDateTime(final String dateTime) {
+        if (dateTime == null) {
+            return null;
+        } else {
+            if (dateTime.length() == 26) {
+                return dateTime.replace("T", " ").substring(0, 23);
+            } else {
+                return dateTime;
+            }
+        }
+    }
 }
