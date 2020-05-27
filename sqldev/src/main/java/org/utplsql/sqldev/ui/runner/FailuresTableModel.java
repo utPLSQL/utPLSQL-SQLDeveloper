@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2019 Philipp Salvisberg <philipp.salvisberg@trivadis.com>
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,78 +15,79 @@
  */
 package org.utplsql.sqldev.ui.runner;
 
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.List;
+
 import javax.swing.table.DefaultTableModel;
-import org.eclipse.xtext.xbase.lib.CollectionLiterals;
+
 import org.utplsql.sqldev.model.runner.Expectation;
 import org.utplsql.sqldev.resources.UtplsqlResources;
 
-@SuppressWarnings("all")
 public class FailuresTableModel extends DefaultTableModel {
-  private List<Expectation> failedExpectations;
-  
-  public FailuresTableModel() {
-    super();
-  }
-  
-  public List<Expectation> setModel(final List<Expectation> failedExpectations) {
-    return this.failedExpectations = failedExpectations;
-  }
-  
-  public Expectation getExpectation(final int row) {
-    return this.failedExpectations.get(row);
-  }
-  
-  @Override
-  public int getRowCount() {
-    if ((this.failedExpectations == null)) {
-      return 0;
+    private static final long serialVersionUID = 8119453059788497567L;
+    private List<Expectation> failedExpectations;
+    private List<String> columnNames = Arrays.asList("#", UtplsqlResources.getString("RUNNER_ASSERT_DESCRIPTION_COLUMN"));
+
+    public FailuresTableModel() {
+        super();
     }
-    return this.failedExpectations.size();
-  }
-  
-  @Override
-  public int getColumnCount() {
-    return 2;
-  }
-  
-  @Override
-  public Object getValueAt(final int row, final int col) {
-    final Expectation expectation = this.failedExpectations.get(row);
-    if ((expectation == null)) {
-      return null;
+
+    public void setModel(final List<Expectation> failedExpectations) {
+        this.failedExpectations = failedExpectations;
     }
-    switch (col) {
-      case 0:
-        return Integer.valueOf((row + 1));
-      case 1:
-        return expectation.getShortFailureText();
-      default:
-        return null;
+
+    public Expectation getExpectation(final int row) {
+        return failedExpectations.get(row);
     }
-  }
-  
-  @Override
-  public String getColumnName(final int col) {
-    String _string = UtplsqlResources.getString("RUNNER_ASSERT_DESCRIPTION_COLUMN");
-    return Collections.<String>unmodifiableList(CollectionLiterals.<String>newArrayList("#", _string)).get(col);
-  }
-  
-  @Override
-  public boolean isCellEditable(final int row, final int column) {
-    return false;
-  }
-  
-  @Override
-  public Class<?> getColumnClass(final int col) {
-    switch (col) {
-      case 0:
-        return Integer.class;
-      case 1:
-        return String.class;
-      default:
-        return String.class;
+
+    @Override
+    public int getRowCount() {
+        if (failedExpectations == null) {
+            return 0;
+        }
+        return failedExpectations.size();
     }
-  }
+
+    @Override
+    public int getColumnCount() {
+        return 2;
+    }
+
+    @Override
+    public Object getValueAt(final int row, final int col) {
+        final Expectation expectation = failedExpectations.get(row);
+        if (expectation == null) {
+            return null;
+        }
+        switch (col) {
+        case 0:
+            return row + 1;
+        case 1:
+            return expectation.getShortFailureText();
+        default:
+            return null;
+        }
+    }
+
+    @Override
+    public String getColumnName(final int col) {
+        return columnNames.get(col);
+    }
+
+    @Override
+    public boolean isCellEditable(final int row, final int column) {
+        return false;
+    }
+
+    @Override
+    public Class<?> getColumnClass(final int col) {
+        switch (col) {
+        case 0:
+            return Integer.class;
+        case 1:
+            return String.class;
+        default:
+            return String.class;
+        }
+    }
 }
