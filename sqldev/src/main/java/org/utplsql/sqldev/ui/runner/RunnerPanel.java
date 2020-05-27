@@ -23,10 +23,9 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.Rectangle;
-import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.List;
@@ -61,9 +60,6 @@ import javax.swing.border.Border;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.HyperlinkEvent;
-import javax.swing.event.HyperlinkListener;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
 import javax.swing.plaf.basic.BasicProgressBarUI;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellRenderer;
@@ -74,6 +70,7 @@ import org.springframework.web.util.HtmlUtils;
 import org.utplsql.sqldev.dal.UtplsqlDao;
 import org.utplsql.sqldev.exception.GenericDatabaseAccessException;
 import org.utplsql.sqldev.model.LimitedLinkedHashMap;
+import org.utplsql.sqldev.model.StringTools;
 import org.utplsql.sqldev.model.preference.PreferenceModel;
 import org.utplsql.sqldev.model.runner.Counter;
 import org.utplsql.sqldev.model.runner.Expectation;
@@ -90,7 +87,7 @@ import oracle.ide.config.Preferences;
 import oracle.javatools.db.DBException;
 import oracle.javatools.ui.table.ToolbarButton;
 
-public class RunnerPanel implements ActionListener, MouseListener, HyperlinkListener {
+public class RunnerPanel {
     private static final Logger logger = Logger.getLogger(RunnerPanel.class.getName());
     private static final Color GREEN = new Color(0, 153, 0);
     private static final Color RED = new Color(153, 0, 0);
@@ -144,74 +141,8 @@ public class RunnerPanel implements ActionListener, MouseListener, HyperlinkList
     private RunnerTextPane testServerOutputTextPane;
     private JTabbedPane testDetailTabbedPane;
 
-    public class TestOverviewRowListener implements ListSelectionListener {
-
-        private String formatDateTime(final String dateTime) {
-            if (dateTime == null) {
-                return null;
-            } else {
-                if (dateTime.length() == 26) {
-                    return dateTime.replace("T", " ").substring(0, 23);
-                } else {
-                    return dateTime;
-                }
-            }
-        }
-
-        @Override
-        public void valueChanged(final ListSelectionEvent event) {
-            final int rowIndex = testOverviewTable.getSelectedRow();
-            if (rowIndex != -1) {
-                final int row = testOverviewTable.convertRowIndexToModel(rowIndex);
-                final Test test = testOverviewTableModel.getTest(row);
-                testOwnerTextField.setText(test.getOwnerName());
-                testPackageTextField.setText(test.getObjectName());
-                testProcedureTextField.setText(test.getProcedureName());
-                testDescriptionTextArea.setText(test.getDescription() != null ? test.getDescription().trim() : null);
-                testIdTextArea.setText(test.getId());
-                testStartTextField.setText(formatDateTime(test.getStartTime()));
-                failuresTableModel.setModel(test.getFailedExpectations());
-                failuresTableModel.fireTableDataChanged();
-                testFailureMessageTextPane.setText(null);
-                if (test.getFailedExpectations() != null && !test.getFailedExpectations().isEmpty()) {
-                    failuresTable.setRowSelectionInterval(0, 0);
-                }
-                testErrorStackTextPane.setText(getHtml(test.getErrorStack() != null ? test.getErrorStack().trim() : null));
-                testWarningsTextPane.setText(getHtml(test.getWarnings() != null ? test.getWarnings().trim() : null));
-                testServerOutputTextPane.setText(getHtml(test.getServerOutput() != null ? test.getServerOutput().trim() : null));
-                syncDetailTab();
-                testOverviewRunMenuItem.setEnabled(true);
-                testOverviewRunWorksheetMenuItem.setEnabled(true);
-            }
-        }    
-    }
-
-    public class FailuresRowListener implements ListSelectionListener {
-
-        @Override
-        public void valueChanged(final ListSelectionEvent event) {
-            final int rowIndex = failuresTable.getSelectedRow();
-            if (rowIndex != -1) {
-                final int row = failuresTable.convertRowIndexToModel(rowIndex);
-                final Expectation expectation = failuresTableModel.getExpectation(row);
-                final String html = getHtml(expectation.getFailureText());
-                testFailureMessageTextPane.setText(html);
-            }
-        }
-    }
-
-    public class TimeFormatRenderer extends DefaultTableCellRenderer {
-        private static final long serialVersionUID = 7720067427609773267L;
-
-        @Override
-        public Component getTableCellRendererComponent(final JTable table, final Object value, final boolean isSelected,
-                final boolean hasFocus, final int row, final int col) {
-            final SmartTime smartTime = new SmartTime(((Double) value), useSmartTimes);
-            return super.getTableCellRendererComponent(table, smartTime.toString(), isSelected, hasFocus, row, col);
-        }
-    }
-
-    public class TestTableHeaderRenderer extends DefaultTableCellRenderer {
+    // used in multiple components, therefore an inner class
+    private class TestTableHeaderRenderer extends DefaultTableCellRenderer {
         private static final long serialVersionUID = 6295858563570577027L;
 
         @Override
@@ -240,7 +171,8 @@ public class RunnerPanel implements ActionListener, MouseListener, HyperlinkList
         }
     }
 
-    public class FailuresTableHeaderRenderer extends DefaultTableCellRenderer {
+    // used in mulitple components, therefore an inner class
+    private class FailuresTableHeaderRenderer extends DefaultTableCellRenderer {
         private static final long serialVersionUID = 5059401447983514596L;
 
         @Override
@@ -288,7 +220,9 @@ public class RunnerPanel implements ActionListener, MouseListener, HyperlinkList
 
     private void refreshRunsComboBox() {
         if (!runs.isEmpty()) {
-            runComboBox.removeActionListener(this);
+            for (ActionListener al : runComboBox.getActionListeners()) {
+                runComboBox.removeActionListener(al);
+            }
             runComboBoxModel.removeAllElements();
             List<Map.Entry<String, Run>> entries = new ArrayList<>(runs.entrySet());
             for (int i = runs.size() - 1; i >= 0; i--) {
@@ -297,7 +231,7 @@ public class RunnerPanel implements ActionListener, MouseListener, HyperlinkList
                 runComboBoxModel.addElement(item);
             }
             runComboBox.setSelectedIndex(0);
-            runComboBox.addActionListener(this);
+            runComboBox.addActionListener(event -> comboBoxAction());
         }
     }
 
@@ -648,118 +582,16 @@ public class RunnerPanel implements ActionListener, MouseListener, HyperlinkList
             }
         }
     }
-
-    @Override
-    public void actionPerformed(final ActionEvent e) {
-        if (e.getSource() == refreshButton) {
-            resetDerived();
-            testDetailTabbedPane.setSelectedIndex(0);
-            testOverviewTableModel.fireTableDataChanged();
-        } else if (e.getSource() == rerunButton) {
-            final UtplsqlRunner runner = new UtplsqlRunner(currentRun.getPathList(), currentRun.getConnectionName());
-            runner.runTestAsync();
-        } else if (e.getSource() == rerunWorksheetButton) {
-            final UtplsqlWorksheetRunner worksheet = new UtplsqlWorksheetRunner(currentRun.getPathList(),
-                    currentRun.getConnectionName());
-            worksheet.runTestAsync();
-        } else if (e.getSource() == runComboBox) {
-            if (currentRun != null) {
-                @SuppressWarnings("unchecked")
-                final ComboBoxItem<String, String> comboBoxItem = (ComboBoxItem<String, String>) runComboBox
-                        .getSelectedItem();
-                if (currentRun.getReporterId() != null && !currentRun.getReporterId().equals(comboBoxItem.getKey())) {
-                    update(comboBoxItem.getKey());
-                    testDetailTabbedPane.setSelectedIndex(0);
-                }
+    
+    private void comboBoxAction() {
+        if (currentRun != null) {
+            @SuppressWarnings("unchecked")
+            final ComboBoxItem<String, String> comboBoxItem = (ComboBoxItem<String, String>) runComboBox
+                    .getSelectedItem();
+            if (currentRun.getReporterId() != null && !currentRun.getReporterId().equals(comboBoxItem.getKey())) {
+                update(comboBoxItem.getKey());
+                testDetailTabbedPane.setSelectedIndex(0);
             }
-        } else if (e.getSource() == clearButton) {
-            final Run run = currentRun;
-            runs.clear();
-            currentRun = null;
-            setModel(run);
-            update(run.getReporterId());
-        } else if (e.getSource() == testOverviewRunMenuItem) {
-            final UtplsqlRunner runner = new UtplsqlRunner(getPathListFromSelectedTests(),
-                    currentRun.getConnectionName());
-            runner.runTestAsync();
-        } else if (e.getSource() == testOverviewRunWorksheetMenuItem) {
-            final UtplsqlWorksheetRunner worksheet = new UtplsqlWorksheetRunner(this.getPathListFromSelectedTests(),
-                    currentRun.getConnectionName());
-            worksheet.runTestAsync();
-        } else if (e.getSource() == showDisabledCounterCheckBoxMenuItem) {
-            applyShowDisabledCounter();
-            fixCheckBoxMenuItem(showDisabledCounterCheckBoxMenuItem);
-        } else if (e.getSource() == showWarningsCounterCheckBoxMenuItem) {
-            applyShowWarningsCounter();
-            fixCheckBoxMenuItem(showWarningsCounterCheckBoxMenuItem);
-        } else if (e.getSource() == showInfoCounterCheckBoxMenuItem) {
-            applyShowInfoCounter();
-            fixCheckBoxMenuItem(showInfoCounterCheckBoxMenuItem);
-        } else if (e.getSource() == showSuccessfulTestsCheckBoxMenuItem) {
-            applyFilter(showSuccessfulTestsCheckBoxMenuItem.isSelected(),
-                    showDisabledTestsCheckBoxMenuItem.isSelected());
-            fixCheckBoxMenuItem(showSuccessfulTestsCheckBoxMenuItem);
-        } else if (e.getSource() == showDisabledTestsCheckBoxMenuItem) {
-            applyFilter(showSuccessfulTestsCheckBoxMenuItem.isSelected(),
-                    showDisabledTestsCheckBoxMenuItem.isSelected());
-            fixCheckBoxMenuItem(showDisabledTestsCheckBoxMenuItem);
-        } else if (e.getSource() == showTestDescriptionCheckBoxMenuItem) {
-            applyShowTestDescription();
-            fixCheckBoxMenuItem(showTestDescriptionCheckBoxMenuItem);
-        } else if (e.getSource() == showWarningIndicatorCheckBoxMenuItem) {
-            applyShowWarningIndicator(showWarningIndicatorCheckBoxMenuItem.isSelected());
-            fixCheckBoxMenuItem(showWarningIndicatorCheckBoxMenuItem);
-        } else if (e.getSource() == showInfoIndicatorCheckBoxMenuItem) {
-            applyShowInfoIndicator(showInfoIndicatorCheckBoxMenuItem.isSelected());
-            fixCheckBoxMenuItem(showInfoIndicatorCheckBoxMenuItem);
-        } else if (e.getSource() == syncDetailTabCheckBoxMenuItem) {
-            syncDetailTab();
-            fixCheckBoxMenuItem(syncDetailTabCheckBoxMenuItem);
-        }
-    }
-
-    @Override
-    public void mouseClicked(final MouseEvent e) {
-        if (e.getClickCount() == 2) {
-            if (e.getSource() == testOverviewTable) {
-                if (failuresTable.getSelectedRowCount() == 1) {
-                    openSelectedFailure();
-                } else {
-                    openSelectedTest();
-                }
-            } else {
-                if (e.getSource() == failuresTable && failuresTable.getSelectedRowCount() == 1) {
-                    openSelectedFailure();
-                }
-            }
-        }
-    }
-
-    @Override
-    public void mouseEntered(final MouseEvent e) {
-        // ignore
-    }
-
-    @Override
-    public void mouseExited(final MouseEvent e) {
-        // ignore
-    }
-
-    @Override
-    public void mousePressed(final MouseEvent e) {
-        // ignore
-    }
-
-    @Override
-    public void mouseReleased(final MouseEvent e) {
-        // ignore
-    }
-
-    @Override
-    public void hyperlinkUpdate(final HyperlinkEvent e) {
-        if (e.getEventType() == HyperlinkEvent.EventType.ACTIVATED) {
-            final String link = e.getDescription();
-            openLink(link);
         }
     }
 
@@ -860,17 +692,28 @@ public class RunnerPanel implements ActionListener, MouseListener, HyperlinkList
         refreshButton = new ToolbarButton(UtplsqlResources.getIcon("REFRESH_ICON"));
         refreshButton.setToolTipText(UtplsqlResources.getString("RUNNER_REFRESH_TOOLTIP"));
         refreshButton.setBorder(buttonBorder);
-        refreshButton.addActionListener(this);
+        refreshButton.addActionListener(event -> {
+            resetDerived();
+            testDetailTabbedPane.setSelectedIndex(0);
+            testOverviewTableModel.fireTableDataChanged();
+        });
         toolbar.add(refreshButton);
         rerunButton = new ToolbarButton(UtplsqlResources.getIcon("RUN_ICON"));
         rerunButton.setToolTipText(UtplsqlResources.getString("RUNNER_RERUN_TOOLTIP"));
         rerunButton.setBorder(buttonBorder);
-        rerunButton.addActionListener(this);
+        rerunButton.addActionListener(event -> {
+            final UtplsqlRunner runner = new UtplsqlRunner(currentRun.getPathList(), currentRun.getConnectionName());
+            runner.runTestAsync();
+        });
         toolbar.add(rerunButton);
         rerunWorksheetButton = new ToolbarButton(UtplsqlResources.getIcon("RUN_WORKSHEET_ICON"));
         rerunWorksheetButton.setToolTipText(UtplsqlResources.getString("RUNNER_RERUN_WORKSHEET_TOOLTIP"));
         rerunWorksheetButton.setBorder(buttonBorder);
-        rerunWorksheetButton.addActionListener(this);
+        rerunWorksheetButton.addActionListener(event -> {
+            final UtplsqlWorksheetRunner worksheet = new UtplsqlWorksheetRunner(currentRun.getPathList(),
+                    currentRun.getConnectionName());
+            worksheet.runTestAsync();
+        });
         toolbar.add(rerunWorksheetButton);
         toolbar.add(Box.createHorizontalGlue());
         runComboBoxModel = new DefaultComboBoxModel<>();
@@ -878,12 +721,18 @@ public class RunnerPanel implements ActionListener, MouseListener, HyperlinkList
         runComboBox.setEditable(false);
         final Dimension comboBoxDim = new Dimension(500, 50);
         runComboBox.setMaximumSize(comboBoxDim);
-        runComboBox.addActionListener(this);
+        runComboBox.addActionListener(event -> comboBoxAction());
         toolbar.add(runComboBox);
         clearButton = new ToolbarButton(UtplsqlResources.getIcon("CLEAR_ICON"));
         clearButton.setToolTipText(UtplsqlResources.getString("RUNNER_CLEAR_BUTTON"));
         clearButton.setBorder(buttonBorder);
-        clearButton.addActionListener(this);
+        clearButton.addActionListener(event -> {
+            final Run run = currentRun;
+            runs.clear();
+            currentRun = null;
+            setModel(run);
+            update(run.getReporterId());
+        });
         toolbar.add(clearButton);
         c.gridx = 0;
         c.gridy = 0;
@@ -984,13 +833,22 @@ public class RunnerPanel implements ActionListener, MouseListener, HyperlinkList
         // Context menu for counters panel
         final JPopupMenu countersPopupMenu = new JPopupMenu();
         showDisabledCounterCheckBoxMenuItem = new JCheckBoxMenuItem(UtplsqlResources.getString("PREF_SHOW_DISABLED_COUNTER_LABEL").replace("?", ""), true);
-        showDisabledCounterCheckBoxMenuItem.addActionListener(this);
+        showDisabledCounterCheckBoxMenuItem.addActionListener(event -> {
+            applyShowDisabledCounter();
+            fixCheckBoxMenuItem(showDisabledCounterCheckBoxMenuItem);
+        });
         countersPopupMenu.add(showDisabledCounterCheckBoxMenuItem);
         showWarningsCounterCheckBoxMenuItem = new JCheckBoxMenuItem(UtplsqlResources.getString("PREF_SHOW_WARNINGS_COUNTER_LABEL").replace("?", ""), true);
-        showWarningsCounterCheckBoxMenuItem.addActionListener(this);
+        showWarningsCounterCheckBoxMenuItem.addActionListener(event -> {
+            applyShowWarningsCounter();
+            fixCheckBoxMenuItem(showWarningsCounterCheckBoxMenuItem);
+        });
         countersPopupMenu.add(showWarningsCounterCheckBoxMenuItem);
         showInfoCounterCheckBoxMenuItem = new JCheckBoxMenuItem( UtplsqlResources.getString("PREF_SHOW_INFO_COUNTER_LABEL").replace("?", ""), true);
-        showInfoCounterCheckBoxMenuItem.addActionListener(this);
+        showInfoCounterCheckBoxMenuItem.addActionListener(event -> {
+            applyShowInfoCounter();
+            fixCheckBoxMenuItem(showInfoCounterCheckBoxMenuItem);
+        });
         countersPopupMenu.add(showInfoCounterCheckBoxMenuItem);
         counterPanel.setComponentPopupMenu(countersPopupMenu);
 
@@ -1021,8 +879,45 @@ public class RunnerPanel implements ActionListener, MouseListener, HyperlinkList
         testOverviewTable.setRowHeight(OVERVIEW_TABLE_ROW_HEIGHT);
         testOverviewTable.getTableHeader().setPreferredSize(
                 new Dimension(testOverviewTable.getTableHeader().getPreferredSize().width, OVERVIEW_TABLE_ROW_HEIGHT));
-        testOverviewTable.getSelectionModel().addListSelectionListener(new TestOverviewRowListener());
-        testOverviewTable.addMouseListener(this);
+        testOverviewTable.getSelectionModel().addListSelectionListener(event -> {
+            final int rowIndex = testOverviewTable.getSelectedRow();
+            if (rowIndex != -1) {
+                final int row = testOverviewTable.convertRowIndexToModel(rowIndex);
+                final Test test = testOverviewTableModel.getTest(row);
+                testOwnerTextField.setText(test.getOwnerName());
+                testPackageTextField.setText(test.getObjectName());
+                testProcedureTextField.setText(test.getProcedureName());
+                testDescriptionTextArea.setText(test.getDescription() != null ? test.getDescription().trim() : null);
+                testIdTextArea.setText(test.getId());
+                testStartTextField.setText(StringTools.formatDateTime(test.getStartTime()));
+                failuresTableModel.setModel(test.getFailedExpectations());
+                failuresTableModel.fireTableDataChanged();
+                testFailureMessageTextPane.setText(null);
+                if (test.getFailedExpectations() != null && !test.getFailedExpectations().isEmpty()) {
+                    failuresTable.setRowSelectionInterval(0, 0);
+                }
+                testErrorStackTextPane
+                        .setText(getHtml(test.getErrorStack() != null ? test.getErrorStack().trim() : null));
+                testWarningsTextPane.setText(getHtml(test.getWarnings() != null ? test.getWarnings().trim() : null));
+                testServerOutputTextPane
+                        .setText(getHtml(test.getServerOutput() != null ? test.getServerOutput().trim() : null));
+                syncDetailTab();
+                testOverviewRunMenuItem.setEnabled(true);
+                testOverviewRunWorksheetMenuItem.setEnabled(true);
+            }
+        });
+        testOverviewTable.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(final MouseEvent e) {
+                if (e.getClickCount() == 2) {
+                    if (failuresTable.getSelectedRowCount() == 1) {
+                        openSelectedFailure();
+                    } else {
+                        openSelectedTest();
+                    }
+                }
+            }
+        });
         RepaintManager.currentManager(testOverviewTable).setDoubleBufferingEnabled(true);
         final TestTableHeaderRenderer testTableHeaderRenderer = new TestTableHeaderRenderer();
         final TableColumn overviewTableStatus = testOverviewTable.getColumnModel().getColumn(0);
@@ -1046,38 +941,76 @@ public class RunnerPanel implements ActionListener, MouseListener, HyperlinkList
         overviewTableTime.setPreferredWidth(60);
         overviewTableTime.setMaxWidth(100);
         overviewTableTime.setHeaderRenderer(testTableHeaderRenderer);
-        final TimeFormatRenderer timeFormatRenderer = new TimeFormatRenderer();
-        timeFormatRenderer.setHorizontalAlignment(JLabel.RIGHT);
-        overviewTableTime.setCellRenderer(timeFormatRenderer);
+        overviewTableTime.setCellRenderer(new DefaultTableCellRenderer() {
+            private static final long serialVersionUID = 7720067427609773267L;
+            {
+                setHorizontalAlignment(JLabel.RIGHT);
+            }
+
+            @Override
+            public Component getTableCellRendererComponent(final JTable table, final Object value,
+                    final boolean isSelected, final boolean hasFocus, final int row, final int col) {
+                final SmartTime smartTime = new SmartTime(((Double) value), useSmartTimes);
+                return super.getTableCellRendererComponent(table, smartTime.toString(), isSelected, hasFocus, row, col);
+            }
+        });
         final JScrollPane testOverviewScrollPane = new JScrollPane(testOverviewTable);
         
         // Context menu for test overview
         final JPopupMenu testOverviewPopupMenu = new JPopupMenu();
         testOverviewRunMenuItem = new JMenuItem(UtplsqlResources.getString("RUNNER_RUN_MENUITEM"), UtplsqlResources.getIcon("RUN_ICON"));
-        testOverviewRunMenuItem.addActionListener(this);
+        testOverviewRunMenuItem.addActionListener(event -> {
+            final UtplsqlRunner runner = new UtplsqlRunner(getPathListFromSelectedTests(),
+                    currentRun.getConnectionName());
+            runner.runTestAsync();
+        });
         testOverviewPopupMenu.add(testOverviewRunMenuItem);
         testOverviewRunWorksheetMenuItem = new JMenuItem(UtplsqlResources.getString("RUNNER_RUN_WORKSHEET_MENUITEM"), UtplsqlResources.getIcon("RUN_WORKSHEET_ICON"));
-        testOverviewRunWorksheetMenuItem.addActionListener(this);
+        testOverviewRunWorksheetMenuItem.addActionListener(event -> {
+            final UtplsqlWorksheetRunner worksheet = new UtplsqlWorksheetRunner(this.getPathListFromSelectedTests(),
+                    currentRun.getConnectionName());
+            worksheet.runTestAsync();
+        });
         testOverviewPopupMenu.add(testOverviewRunWorksheetMenuItem);
         testOverviewPopupMenu.add(new JSeparator());
         showSuccessfulTestsCheckBoxMenuItem = new JCheckBoxMenuItem(UtplsqlResources.getString("PREF_SHOW_SUCCESSFUL_TESTS_LABEL").replace("?", ""), true);
-        showSuccessfulTestsCheckBoxMenuItem.addActionListener(this);
+        showSuccessfulTestsCheckBoxMenuItem.addActionListener(event -> {
+            applyFilter(showSuccessfulTestsCheckBoxMenuItem.isSelected(),
+                    showDisabledTestsCheckBoxMenuItem.isSelected());
+            fixCheckBoxMenuItem(showSuccessfulTestsCheckBoxMenuItem);
+        });
         testOverviewPopupMenu.add(showSuccessfulTestsCheckBoxMenuItem);
         showDisabledTestsCheckBoxMenuItem = new JCheckBoxMenuItem(UtplsqlResources.getString("PREF_SHOW_DISABLED_TESTS_LABEL").replace("?", ""), true);
-        showDisabledTestsCheckBoxMenuItem.addActionListener(this);
+        showDisabledTestsCheckBoxMenuItem.addActionListener(event -> {
+            applyFilter(showSuccessfulTestsCheckBoxMenuItem.isSelected(),
+                    showDisabledTestsCheckBoxMenuItem.isSelected());
+            fixCheckBoxMenuItem(showDisabledTestsCheckBoxMenuItem);
+        });
         testOverviewPopupMenu.add(showDisabledTestsCheckBoxMenuItem);
         testOverviewPopupMenu.add(new JSeparator());
         showTestDescriptionCheckBoxMenuItem = new JCheckBoxMenuItem(UtplsqlResources.getString("PREF_SHOW_TEST_DESCRIPTION_LABEL").replace("?", ""), true);
-        showTestDescriptionCheckBoxMenuItem.addActionListener(this);
+        showTestDescriptionCheckBoxMenuItem.addActionListener(event -> {
+            applyShowTestDescription();
+            fixCheckBoxMenuItem(showTestDescriptionCheckBoxMenuItem);
+        });
         testOverviewPopupMenu.add(showTestDescriptionCheckBoxMenuItem);
         showWarningIndicatorCheckBoxMenuItem = new JCheckBoxMenuItem(UtplsqlResources.getString("PREF_SHOW_WARNING_INDICATOR_LABEL").replace("?", ""), true);
-        showWarningIndicatorCheckBoxMenuItem.addActionListener(this);
+        showWarningIndicatorCheckBoxMenuItem.addActionListener(event -> {
+            applyShowWarningIndicator(showWarningIndicatorCheckBoxMenuItem.isSelected());
+            fixCheckBoxMenuItem(showWarningIndicatorCheckBoxMenuItem);
+        });
         testOverviewPopupMenu.add(showWarningIndicatorCheckBoxMenuItem);
         showInfoIndicatorCheckBoxMenuItem = new JCheckBoxMenuItem(UtplsqlResources.getString("PREF_SHOW_INFO_INDICATOR_LABEL").replace("?", ""), true);
-        showInfoIndicatorCheckBoxMenuItem.addActionListener(this);
+        showInfoIndicatorCheckBoxMenuItem.addActionListener(event -> {
+            applyShowInfoIndicator(showInfoIndicatorCheckBoxMenuItem.isSelected());
+            fixCheckBoxMenuItem(showInfoIndicatorCheckBoxMenuItem);
+        });
         testOverviewPopupMenu.add(showInfoIndicatorCheckBoxMenuItem);
         syncDetailTabCheckBoxMenuItem = new JCheckBoxMenuItem(UtplsqlResources.getString("PREF_SYNC_DETAIL_TAB_LABEL").replace("?", ""), true);
-        syncDetailTabCheckBoxMenuItem.addActionListener(this);
+        syncDetailTabCheckBoxMenuItem.addActionListener(event -> {
+            syncDetailTab();
+            fixCheckBoxMenuItem(syncDetailTabCheckBoxMenuItem);
+        });
         testOverviewPopupMenu.add(syncDetailTabCheckBoxMenuItem);
         testOverviewTable.setComponentPopupMenu(testOverviewPopupMenu);
         testOverviewTable.getTableHeader().setComponentPopupMenu(testOverviewPopupMenu);
@@ -1254,8 +1187,25 @@ public class RunnerPanel implements ActionListener, MouseListener, HyperlinkList
         failuresTableModel = new FailuresTableModel();
         failuresTable = new JTable(failuresTableModel);
         failuresTable.getTableHeader().setReorderingAllowed(false);
-        failuresTable.getSelectionModel().addListSelectionListener(new FailuresRowListener());
-        failuresTable.addMouseListener(this);
+        failuresTable.getSelectionModel().addListSelectionListener(event -> {
+            final int rowIndex = failuresTable.getSelectedRow();
+            if (rowIndex != -1) {
+                final int row = failuresTable.convertRowIndexToModel(rowIndex);
+                final Expectation expectation = failuresTableModel.getExpectation(row);
+                final String html = getHtml(expectation.getFailureText());
+                testFailureMessageTextPane.setText(html);
+            }
+        });
+        failuresTable.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(final MouseEvent e) {
+                if (e.getClickCount() == 2) {
+                    if (failuresTable.getSelectedRowCount() == 1) {
+                        openSelectedFailure();
+                    }
+                }
+            }
+        });
         final FailuresTableHeaderRenderer failuresTableHeaderRenderer = new FailuresTableHeaderRenderer();
         final TableColumn failuresTableNumber = failuresTable.getColumnModel().getColumn(0);
         failuresTableNumber.setHeaderRenderer(failuresTableHeaderRenderer);
@@ -1271,7 +1221,12 @@ public class RunnerPanel implements ActionListener, MouseListener, HyperlinkList
         testFailureMessageTextPane.setContentType("text/html");
         testFailureMessageTextPane.setMinimumSize(TEXTPANE_DIM);
         testFailureMessageTextPane.setPreferredSize(TEXTPANE_DIM);
-        testFailureMessageTextPane.addHyperlinkListener(this);
+        testFailureMessageTextPane.addHyperlinkListener(event -> {
+            if (event.getEventType() == HyperlinkEvent.EventType.ACTIVATED) {
+                final String link = event.getDescription();
+                openLink(link);
+            }
+        });
         final JScrollPane testFailureMessageScrollPane = new JScrollPane(testFailureMessageTextPane);
         c.gridx = 1;
         c.gridy = 0;
@@ -1297,7 +1252,12 @@ public class RunnerPanel implements ActionListener, MouseListener, HyperlinkList
         testErrorStackTextPane.setContentType("text/html");
         testErrorStackTextPane.setMinimumSize(TEXTPANE_DIM);
         testErrorStackTextPane.setPreferredSize(TEXTPANE_DIM);
-        testErrorStackTextPane.addHyperlinkListener(this);
+        testErrorStackTextPane.addHyperlinkListener(event -> {
+            if (event.getEventType() == HyperlinkEvent.EventType.ACTIVATED) {
+                final String link = event.getDescription();
+                openLink(link);
+            }
+        });
         final JScrollPane testErrorStackScrollPane = new JScrollPane(testErrorStackTextPane);
         c.gridx = 0;
         c.gridy = 0;
@@ -1319,7 +1279,7 @@ public class RunnerPanel implements ActionListener, MouseListener, HyperlinkList
         testWarningsTextPane.setContentType("text/html");
         testWarningsTextPane.setMinimumSize(TEXTPANE_DIM);
         testWarningsTextPane.setPreferredSize(TEXTPANE_DIM);
-        testWarningsTextPane.addHyperlinkListener(this);
+        testWarningsTextPane.addHyperlinkListener(event -> openLink(event.getDescription()));
         final JScrollPane testWarningsScrollPane = new JScrollPane(testWarningsTextPane);
         c.gridx = 0;
         c.gridy = 0;
@@ -1341,7 +1301,7 @@ public class RunnerPanel implements ActionListener, MouseListener, HyperlinkList
         testServerOutputTextPane.setContentType("text/html");
         testServerOutputTextPane.setMinimumSize(TEXTPANE_DIM);
         testServerOutputTextPane.setPreferredSize(TEXTPANE_DIM);
-        testServerOutputTextPane.addHyperlinkListener(this);
+        testServerOutputTextPane.addHyperlinkListener(event -> openLink(event.getDescription()));
         final JScrollPane testServerOutputScrollPane = new JScrollPane(testServerOutputTextPane);
         c.gridx = 0;
         c.gridy = 0;
