@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright 2019 Philipp Salvisberg <philipp.salvisberg@trivadis.com>
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,16 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.utplsql.sqldev.ui.runner
+package org.utplsql.sqldev.ui.runner;
 
-import java.util.AbstractMap
+import java.util.AbstractMap;
 
-class ComboBoxItem<K,V> extends AbstractMap.SimpleEntry<K,V> {	
-	new(K key, V value) {
-		super(key, value)
-	}
-	
-	override toString() {
-		return value.toString
-	}
+@SuppressWarnings("all")
+public class ComboBoxItem<K extends Object, V extends Object> extends AbstractMap.SimpleEntry<K, V> {
+  public ComboBoxItem(final K key, final V value) {
+    super(key, value);
+  }
+  
+  @Override
+  public String toString() {
+    return this.getValue().toString();
+  }
 }
