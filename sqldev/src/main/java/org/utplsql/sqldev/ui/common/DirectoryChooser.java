@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright 2018 Philipp Salvisberg <philipp.salvisberg@trivadis.com>
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,36 +13,43 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.utplsql.sqldev.ui.common
+package org.utplsql.sqldev.ui.common;
 
-import java.io.File
-import java.util.logging.Logger
-import javax.swing.JFileChooser
-import javax.swing.JFrame
-import javax.swing.JTextField
+import java.io.File;
+import java.util.logging.Logger;
+import javax.swing.JFileChooser;
+import javax.swing.JFrame;
+import javax.swing.JTextField;
+import org.eclipse.xtend2.lib.StringConcatenation;
 
-class DirectoryChooser {
-	val static Logger logger = Logger.getLogger(DirectoryChooser.name)
-
-	def static choose (JFrame parentFrame, String title, String initialDirectory) {
-		logger.finest('''parantFrame: «parentFrame»''')
-		var String ret = null
-		val chooser = new JFileChooser()
-		chooser.currentDirectory = new File(initialDirectory)
-		chooser.dialogTitle = title
-		chooser.fileSelectionMode = JFileChooser.DIRECTORIES_ONLY
-		chooser.acceptAllFileFilterUsed = false
-		if (chooser.showOpenDialog(parentFrame) == JFileChooser.APPROVE_OPTION) {
-			ret = chooser.selectedFile.absolutePath
-		}
-		return ret
-	}
-
-	def static void choose (JFrame parentFrame, String title, JTextField textField) {
-		val dir = choose(parentFrame, title, textField.text)
-		if (dir !== null) {
-			textField.text = dir
-		}
-	}
-
+@SuppressWarnings("all")
+public class DirectoryChooser {
+  private static final Logger logger = Logger.getLogger(DirectoryChooser.class.getName());
+  
+  public static String choose(final JFrame parentFrame, final String title, final String initialDirectory) {
+    StringConcatenation _builder = new StringConcatenation();
+    _builder.append("parantFrame: ");
+    _builder.append(parentFrame);
+    DirectoryChooser.logger.finest(_builder.toString());
+    String ret = null;
+    final JFileChooser chooser = new JFileChooser();
+    File _file = new File(initialDirectory);
+    chooser.setCurrentDirectory(_file);
+    chooser.setDialogTitle(title);
+    chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+    chooser.setAcceptAllFileFilterUsed(false);
+    int _showOpenDialog = chooser.showOpenDialog(parentFrame);
+    boolean _equals = (_showOpenDialog == JFileChooser.APPROVE_OPTION);
+    if (_equals) {
+      ret = chooser.getSelectedFile().getAbsolutePath();
+    }
+    return ret;
+  }
+  
+  public static void choose(final JFrame parentFrame, final String title, final JTextField textField) {
+    final String dir = DirectoryChooser.choose(parentFrame, title, textField.getText());
+    if ((dir != null)) {
+      textField.setText(dir);
+    }
+  }
 }
