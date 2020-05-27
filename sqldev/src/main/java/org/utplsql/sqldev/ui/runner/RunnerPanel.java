@@ -99,11 +99,7 @@ public class RunnerPanel {
     private LimitedLinkedHashMap<String, Run> runs = new LimitedLinkedHashMap<>(10);
     private Run currentRun;
     private JPanel basePanel;
-    private ToolbarButton refreshButton;
-    private ToolbarButton rerunButton;
-    private ToolbarButton rerunWorksheetButton;
     private DefaultComboBoxModel<ComboBoxItem<String, String>> runComboBoxModel;
-    private ToolbarButton clearButton;
     private JComboBox<ComboBoxItem<String, String>> runComboBox;
     private JLabel statusLabel;
     private Timer elapsedTimeTimer;
@@ -689,7 +685,7 @@ public class RunnerPanel {
         final GradientToolbar toolbar = new GradientToolbar();
         toolbar.setFloatable(false);
         final EmptyBorder buttonBorder = new EmptyBorder(new Insets(2, 4, 2, 4)); // insets: top, left, bottom, right
-        refreshButton = new ToolbarButton(UtplsqlResources.getIcon("REFRESH_ICON"));
+        final ToolbarButton refreshButton = new ToolbarButton(UtplsqlResources.getIcon("REFRESH_ICON"));
         refreshButton.setToolTipText(UtplsqlResources.getString("RUNNER_REFRESH_TOOLTIP"));
         refreshButton.setBorder(buttonBorder);
         refreshButton.addActionListener(event -> {
@@ -698,7 +694,7 @@ public class RunnerPanel {
             testOverviewTableModel.fireTableDataChanged();
         });
         toolbar.add(refreshButton);
-        rerunButton = new ToolbarButton(UtplsqlResources.getIcon("RUN_ICON"));
+        final ToolbarButton rerunButton = new ToolbarButton(UtplsqlResources.getIcon("RUN_ICON"));
         rerunButton.setToolTipText(UtplsqlResources.getString("RUNNER_RERUN_TOOLTIP"));
         rerunButton.setBorder(buttonBorder);
         rerunButton.addActionListener(event -> {
@@ -706,7 +702,7 @@ public class RunnerPanel {
             runner.runTestAsync();
         });
         toolbar.add(rerunButton);
-        rerunWorksheetButton = new ToolbarButton(UtplsqlResources.getIcon("RUN_WORKSHEET_ICON"));
+        final ToolbarButton rerunWorksheetButton = new ToolbarButton(UtplsqlResources.getIcon("RUN_WORKSHEET_ICON"));
         rerunWorksheetButton.setToolTipText(UtplsqlResources.getString("RUNNER_RERUN_WORKSHEET_TOOLTIP"));
         rerunWorksheetButton.setBorder(buttonBorder);
         rerunWorksheetButton.addActionListener(event -> {
@@ -723,7 +719,7 @@ public class RunnerPanel {
         runComboBox.setMaximumSize(comboBoxDim);
         runComboBox.addActionListener(event -> comboBoxAction());
         toolbar.add(runComboBox);
-        clearButton = new ToolbarButton(UtplsqlResources.getIcon("CLEAR_ICON"));
+        final ToolbarButton clearButton = new ToolbarButton(UtplsqlResources.getIcon("CLEAR_ICON"));
         clearButton.setToolTipText(UtplsqlResources.getString("RUNNER_CLEAR_BUTTON"));
         clearButton.setBorder(buttonBorder);
         clearButton.addActionListener(event -> {
@@ -1199,10 +1195,8 @@ public class RunnerPanel {
         failuresTable.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(final MouseEvent e) {
-                if (e.getClickCount() == 2) {
-                    if (failuresTable.getSelectedRowCount() == 1) {
-                        openSelectedFailure();
-                    }
+                if (e.getClickCount() == 2 && failuresTable.getSelectedRowCount() == 1) {
+                    openSelectedFailure();
                 }
             }
         });
