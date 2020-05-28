@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright 2019 Philipp Salvisberg <philipp.salvisberg@trivadis.com>
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,50 +13,52 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package org.utplsql.sqldev.ui.runner;
 
-package org.utplsql.sqldev.ui.runner
+import java.awt.Graphics;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
+import javax.swing.JTextPane;
+import javax.swing.UIManager;
+import javax.swing.text.Caret;
 
-import java.awt.Graphics
-import java.awt.event.FocusEvent
-import java.awt.event.FocusListener
-import javax.swing.JTextPane
-import javax.swing.UIManager
-
-class RunnerTextPane extends JTextPane implements FocusListener{
-
-	new() {
-		super()
-		this.addFocusListener = this
-	}
-
-	override paintComponent(Graphics g) {
-		// default for non-opaque components
-		if (!opaque) {
-			super.paintComponent(g)
-			return
-		}
-
-		// use value of JTextField for consistency
-		g.color = UIManager.getColor("TextField.inactiveBackground")
-		g.fillRect(0, 0, width, height)
-
-		// do rest, changing opaque to ensure background is not overwritten
-		setOpaque(false)
-		super.paintComponent(g)
-		setOpaque(true)
-	}
-
-	override void focusGained(FocusEvent e) {
-		this.caret.visible = true
-	}
-
-	override focusLost(FocusEvent e) {
-		this.caret.visible = false
-	}
-	
-	override setText(String t) {
-		super.setText(t)
-		// ensure left parts of long lines are always visible
-		caretPosition = 0
-	}
+@SuppressWarnings("all")
+public class RunnerTextPane extends JTextPane implements FocusListener {
+  public RunnerTextPane() {
+    super();
+    this.addFocusListener(this);
+  }
+  
+  @Override
+  public void paintComponent(final Graphics g) {
+    boolean _isOpaque = this.isOpaque();
+    boolean _not = (!_isOpaque);
+    if (_not) {
+      super.paintComponent(g);
+      return;
+    }
+    g.setColor(UIManager.getColor("TextField.inactiveBackground"));
+    g.fillRect(0, 0, this.getWidth(), this.getHeight());
+    this.setOpaque(false);
+    super.paintComponent(g);
+    this.setOpaque(true);
+  }
+  
+  @Override
+  public void focusGained(final FocusEvent e) {
+    Caret _caret = this.getCaret();
+    _caret.setVisible(true);
+  }
+  
+  @Override
+  public void focusLost(final FocusEvent e) {
+    Caret _caret = this.getCaret();
+    _caret.setVisible(false);
+  }
+  
+  @Override
+  public void setText(final String t) {
+    super.setText(t);
+    this.setCaretPosition(0);
+  }
 }
