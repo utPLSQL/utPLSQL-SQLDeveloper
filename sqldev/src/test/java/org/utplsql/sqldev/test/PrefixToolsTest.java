@@ -1,43 +1,45 @@
-package org.utplsql.sqldev.test
+package org.utplsql.sqldev.test;
 
-import org.junit.Assert
-import org.junit.Test
-import org.utplsql.sqldev.model.PrefixTools
+import java.util.Collections;
+import org.eclipse.xtext.xbase.lib.CollectionLiterals;
+import org.junit.Assert;
+import org.junit.Test;
+import org.utplsql.sqldev.model.PrefixTools;
 
-class PrefixToolsTest {
-	@Test
-	def void two() {
-		val actual = PrefixTools.commonPrefix(#["junit.test.a", "junit.test.b"])
-		val expected = "junit.test."
-		Assert.assertEquals(expected, actual)
-	}
-
-	@Test
-	def void oneWithDot() {
-		val actual = PrefixTools.commonPrefix(#["junit.test.a"])
-		val expected = "junit.test."
-		Assert.assertEquals(expected, actual)
-	}
-
-	@Test
-	def void oneWithoutDot() {
-		val actual = PrefixTools.commonPrefix(#["junit-test-a"])
-		val expected = ""
-		Assert.assertEquals(expected, actual)
-	}
-	
-	@Test
-	def void twoOverlapLeft() {
-		val actual = PrefixTools.commonPrefix(#["a.b.c", "a.b.c.d"])
-		val expected = ""
-		Assert.assertEquals(expected, actual)
-	}
-
-	@Test
-	def void twoOverlapRight() {
-		val actual = PrefixTools.commonPrefix(#["a.b.c.d", "a.b.c"])
-		val expected = ""
-		Assert.assertEquals(expected, actual)
-	}
-
+@SuppressWarnings("all")
+public class PrefixToolsTest {
+  @Test
+  public void two() {
+    final String actual = PrefixTools.commonPrefix(Collections.<String>unmodifiableList(CollectionLiterals.<String>newArrayList("junit.test.a", "junit.test.b")));
+    final String expected = "junit.test.";
+    Assert.assertEquals(expected, actual);
+  }
+  
+  @Test
+  public void oneWithDot() {
+    final String actual = PrefixTools.commonPrefix(Collections.<String>unmodifiableList(CollectionLiterals.<String>newArrayList("junit.test.a")));
+    final String expected = "junit.test.";
+    Assert.assertEquals(expected, actual);
+  }
+  
+  @Test
+  public void oneWithoutDot() {
+    final String actual = PrefixTools.commonPrefix(Collections.<String>unmodifiableList(CollectionLiterals.<String>newArrayList("junit-test-a")));
+    final String expected = "";
+    Assert.assertEquals(expected, actual);
+  }
+  
+  @Test
+  public void twoOverlapLeft() {
+    final String actual = PrefixTools.commonPrefix(Collections.<String>unmodifiableList(CollectionLiterals.<String>newArrayList("a.b.c", "a.b.c.d")));
+    final String expected = "";
+    Assert.assertEquals(expected, actual);
+  }
+  
+  @Test
+  public void twoOverlapRight() {
+    final String actual = PrefixTools.commonPrefix(Collections.<String>unmodifiableList(CollectionLiterals.<String>newArrayList("a.b.c.d", "a.b.c")));
+    final String expected = "";
+    Assert.assertEquals(expected, actual);
+  }
 }
