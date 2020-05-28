@@ -22,8 +22,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.StringReader;
 import java.nio.charset.Charset;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -34,6 +32,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.utplsql.sqldev.exception.GenericRuntimeException;
+import org.utplsql.sqldev.model.FileTools;
 import org.utplsql.sqldev.model.XMLTools;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
@@ -66,26 +65,6 @@ public class SnippetMerger {
         userSnippetsFile = file;
     }
     
-    private byte[] readFile(Path path) {
-        try {
-            return Files.readAllBytes(path);
-        } catch (IOException e) {
-            final String msg = "Cannot read file " + path.toString() + " due to " + e.getMessage() + ".";
-            logger.severe(() -> msg);
-            throw new GenericRuntimeException(msg, e);
-        }
-    }
-    
-    private void writeFile(Path path, byte[] bytes) {
-        try {
-            Files.write(path, bytes);
-        } catch (IOException e) {
-            final String msg = "Cannot write file " + path.toString() + " due to " + e.getMessage() + ".";
-            logger.severe(() -> msg);
-            throw new GenericRuntimeException(msg, e);
-        }
-    }
-    
     private DocumentBuilder createDocumentBuilder() {
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         try {
@@ -112,7 +91,7 @@ public class SnippetMerger {
         String result = null;
         if (userSnippetsFile.exists()) {
             // file exists, proper merge required
-            final String userSnippets = new String(readFile(Paths.get(userSnippetsFile.getAbsolutePath())));
+            final String userSnippets = new String(FileTools.readFile(Paths.get(userSnippetsFile.getAbsolutePath())));
             final DocumentBuilder docBuilder = createDocumentBuilder();
             final Document userSnippetsDoc = parse(docBuilder, new InputSource(new StringReader(userSnippets)));
             final NodeList userSnippetsGroups = xmlTools.getNodeList(userSnippetsDoc,
@@ -138,7 +117,7 @@ public class SnippetMerger {
             // just copy
             result = utplsqlSnippets;
         }
-        writeFile(Paths.get(userSnippetsFile.getAbsolutePath()), result.getBytes());
+        FileTools.writeFile(Paths.get(userSnippetsFile.getAbsolutePath()), result.getBytes());
     }
 
     public String getTemplate() {

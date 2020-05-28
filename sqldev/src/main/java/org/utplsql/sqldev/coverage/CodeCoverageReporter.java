@@ -19,7 +19,6 @@ import java.awt.Desktop;
 import java.io.File;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -30,6 +29,7 @@ import java.util.logging.Logger;
 import org.utplsql.sqldev.dal.UtplsqlDao;
 import org.utplsql.sqldev.exception.GenericDatabaseAccessException;
 import org.utplsql.sqldev.exception.GenericRuntimeException;
+import org.utplsql.sqldev.model.FileTools;
 import org.utplsql.sqldev.ui.coverage.CodeCoverageReporterDialog;
 
 import oracle.dbtools.raptor.utils.Connections;
@@ -103,7 +103,7 @@ public class CodeCoverageReporter {
                     toStringList(includeObjects), toStringList(excludeObjects));
             final File file = File.createTempFile("utplsql_", ".html");
             logger.fine(() -> "Writing result to " + file + "...");
-            Files.write(file.toPath(), Arrays.asList(content.split(System.lineSeparator())), StandardCharsets.UTF_8);
+            FileTools.writeFile(file.toPath(), Arrays.asList(content.split(System.lineSeparator())), StandardCharsets.UTF_8);
             final URL url = file.toURI().toURL();
             logger.fine(() -> "Opening " + url.toExternalForm() + " in browser...");
             final Desktop desktop = Desktop.isDesktopSupported() ? Desktop.getDesktop() : null;
