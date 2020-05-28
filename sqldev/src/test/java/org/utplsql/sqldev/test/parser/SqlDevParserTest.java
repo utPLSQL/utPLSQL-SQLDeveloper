@@ -103,10 +103,12 @@ public class SqlDevParserTest {
         final SqlDevParser parser = new SqlDevParser();
         final Set<Member> actual = parser.getMembers(getPackageSpec());
         Assert.assertEquals(6, actual.size());
-        final Member first = actual.stream().findFirst().get();
+        final Member first = actual.stream().findFirst().orElse(null);
+        Assert.assertNotNull(first);
         Assert.assertEquals("PROCEDURE", first.type);
         Assert.assertEquals("test_1_ok", first.name);
-        final Member last =  actual.stream().reduce((m1, m2) -> m2).get();
+        final Member last =  actual.stream().reduce((m1, m2) -> m2).orElse(null);
+        Assert.assertNotNull(last);
         Assert.assertEquals("FUNCTION", last.type);
         Assert.assertEquals("my_Func", last.name);
     }
@@ -116,10 +118,12 @@ public class SqlDevParserTest {
         final SqlDevParser parser = new SqlDevParser();
         final Set<Member> actual = parser.getMembers(getPackageBody());
         Assert.assertEquals(6, actual.size());
-        final Member first = actual.stream().findFirst().get();
+        final Member first = actual.stream().findFirst().orElse(null);
+        Assert.assertNotNull(first);
         Assert.assertEquals("PROCEDURE", first.type);
         Assert.assertEquals("test_1_ok", first.name);
-        final Member last =  actual.stream().reduce((m1, m2) -> m2).get();
+        final Member last =  actual.stream().reduce((m1, m2) -> m2).orElse(null);
+        Assert.assertNotNull(last);
         Assert.assertEquals("FUNCTION", last.type);
         Assert.assertEquals("my_Func", last.name);
     }

@@ -93,7 +93,7 @@ public class CodeCoverageReporterTest extends AbstractJdbcTest {
                 final String msg = "Cannot get newest output file in " + dir.getAbsolutePath() + ".";
                 throw new GenericRuntimeException(msg, e);
             }
-            return last.get();
+            return last.orElse(null);
     }
 
     @Test

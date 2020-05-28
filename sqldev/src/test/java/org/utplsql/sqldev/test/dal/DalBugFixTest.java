@@ -45,7 +45,8 @@ public class DalBugFixTest extends AbstractJdbcTest {
         final UtplsqlDao dao = new UtplsqlDao(DatabaseTools.getConnection(dataSource));
         final List<Node> actualNodes = dao.runnables();
         final Node pkg = actualNodes.stream().filter(it -> it.getId().equals("SCOTT:junit_utplsql_test_pkg"))
-                .findFirst().get();
+                .findFirst().orElse(null);
+        Assert.assertNotNull(pkg);
         Assert.assertEquals("FOLDER_ICON", pkg.getIconName());
     }
 
@@ -64,7 +65,8 @@ public class DalBugFixTest extends AbstractJdbcTest {
         final UtplsqlDao dao = new UtplsqlDao(DatabaseTools.getConnection(dataSource));
         final List<Node> actualNodes = dao.runnables();
         final Node pkg = actualNodes.stream().filter(it -> it.getId().equals("SCOTT:junit_utplsql_test_pkg"))
-                .findFirst().get();
+                .findFirst().orElse(null);
+        Assert.assertNotNull(pkg);
         Assert.assertEquals("PACKAGE_ICON", pkg.getIconName());
     }
 
