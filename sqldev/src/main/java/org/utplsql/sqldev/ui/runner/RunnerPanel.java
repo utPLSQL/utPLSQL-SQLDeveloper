@@ -26,11 +26,9 @@ import java.awt.Rectangle;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -68,9 +66,10 @@ import javax.swing.table.TableRowSorter;
 
 import org.springframework.web.util.HtmlUtils;
 import org.utplsql.sqldev.dal.UtplsqlDao;
-import org.utplsql.sqldev.exception.GenericDatabaseAccessException;
+import org.utplsql.sqldev.model.DatabaseTools;
 import org.utplsql.sqldev.model.LimitedLinkedHashMap;
 import org.utplsql.sqldev.model.StringTools;
+import org.utplsql.sqldev.model.SystemTools;
 import org.utplsql.sqldev.model.preference.PreferenceModel;
 import org.utplsql.sqldev.model.runner.Counter;
 import org.utplsql.sqldev.model.runner.Expectation;
@@ -82,13 +81,10 @@ import org.utplsql.sqldev.runner.UtplsqlRunner;
 import org.utplsql.sqldev.runner.UtplsqlWorksheetRunner;
 
 import oracle.dbtools.raptor.controls.grid.DefaultDrillLink;
-import oracle.dbtools.raptor.utils.Connections;
 import oracle.ide.config.Preferences;
-import oracle.javatools.db.DBException;
 import oracle.javatools.ui.table.ToolbarButton;
 
 public class RunnerPanel {
-    private static final Logger logger = Logger.getLogger(RunnerPanel.class.getName());
     private static final Color GREEN = new Color(0, 153, 0);
     private static final Color RED = new Color(153, 0, 0);
     private static final int INDICATOR_WIDTH = 20;
@@ -312,18 +308,8 @@ public class RunnerPanel {
         sorter.setRowFilter(filter);
     }
     
-    private Connection getConnection(String name) {
-        try {
-            return Connections.getInstance().getConnection(name);
-        } catch (DBException e) {
-            final String msg = "Error getting connection with for '" + name + "' due to " + e.getMessage();
-            logger.severe(() -> msg); 
-            throw new GenericDatabaseAccessException(msg, e);
-        }
-    }
-
     private void openTest(final Test test) {
-            final UtplsqlDao dao = new UtplsqlDao(getConnection(currentRun.getConnectionName()));
+            final UtplsqlDao dao = new UtplsqlDao(DatabaseTools.getConnection(currentRun.getConnectionName()));
             final String source = dao.getSource(test.getOwnerName(), "PACKAGE", test.getObjectName().toUpperCase()).trim();
             final UtplsqlParser parser = new UtplsqlParser(source);
             final int line = parser.getLineOf(test.getProcedureName());
@@ -381,7 +367,7 @@ public class RunnerPanel {
         final String ownerName = parts[1];
         final String objectName = parts[2];
         int line = Integer.parseInt(parts[3]);
-        final UtplsqlDao dao = new UtplsqlDao(getConnection(currentRun.getConnectionName()));
+        final UtplsqlDao dao = new UtplsqlDao(DatabaseTools.getConnection(currentRun.getConnectionName()));
         final String objectType = "UNKNOWN".equals(type) ? dao.getObjectType(ownerName, objectName) : type;
         if (parts.length == 5) {
             final String procedureName = parts[4];
@@ -490,14 +476,6 @@ public class RunnerPanel {
             elapsedTimeTimer.start();
         }
     }
-    
-    private void sleep(int millis) {
-        try {
-            Thread.sleep(millis);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }        
-    }
 
     public synchronized void update(final String reporterId) {
         setCurrentRun(runs.get(reporterId));
@@ -516,7 +494,7 @@ public class RunnerPanel {
                         .getCellRect(testOverviewTable.convertRowIndexToView(row), 0, true);
                 testOverviewTable.scrollRectToVisible(positionOfCurrentTest);
                 testOverviewTableModel.fireTableRowsUpdated(row, row);
-                sleep(5);
+                SystemTools.sleep(5);
                 if (!showSuccessfulTestsCheckBoxMenuItem.isSelected()
                         || !showDisabledTestsCheckBoxMenuItem.isSelected()) {
                     applyFilter(showSuccessfulTestsCheckBoxMenuItem.isSelected(),
