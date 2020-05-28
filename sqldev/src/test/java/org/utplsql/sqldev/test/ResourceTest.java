@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2018 Philipp Salvisberg <philipp.salvisberg@trivadis.com>
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,12 +19,12 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.utplsql.sqldev.resources.UtplsqlResources;
 
-@SuppressWarnings("all")
 public class ResourceTest {
-  @Test
-  public void windowPathsLabel() {
-    final String actual = UtplsqlResources.getString("WINDOW_PATHS_LABEL");
-    final String expected = "utPLSQL paths";
-    Assert.assertEquals(expected, actual);
-  }
+
+    @Test
+    public void windowPathsLabel() {
+        final String actual = UtplsqlResources.getString("WINDOW_PATHS_LABEL");
+        final String expected = "utPLSQL paths";
+        Assert.assertEquals(expected, actual);
+    }
 }
