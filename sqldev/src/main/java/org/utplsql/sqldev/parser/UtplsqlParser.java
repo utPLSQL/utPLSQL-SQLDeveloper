@@ -16,7 +16,6 @@
 package org.utplsql.sqldev.parser;
 
 import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -26,8 +25,8 @@ import java.util.regex.Pattern;
 import javax.swing.text.JTextComponent;
 
 import org.utplsql.sqldev.dal.UtplsqlDao;
-import org.utplsql.sqldev.exception.GenericDatabaseAccessException;
 import org.utplsql.sqldev.exception.GenericRuntimeException;
+import org.utplsql.sqldev.model.DatabaseTools;
 import org.utplsql.sqldev.model.parser.PlsqlObject;
 import org.utplsql.sqldev.model.parser.Unit;
 import org.utplsql.sqldev.model.ut.Annotation;
@@ -126,14 +125,6 @@ public class UtplsqlParser {
         }
     }
     
-    private String getSchema(Connection conn) {
-        try {
-            return conn.getSchema();
-        } catch (SQLException e) {
-            throw new GenericDatabaseAccessException("getSchema failed", e);
-        }
-    }
-
     private void processAnnotations(final Connection conn, final String owner) {
         this.owner = owner;
         if (conn != null) {
@@ -141,7 +132,7 @@ public class UtplsqlParser {
             if (dao.isUtAnnotationManagerInstalled()) {
                 for (final PlsqlObject o : objects) {
                     final List<String> segments = Arrays.asList(fixName(o.getName()).split("\\."));
-                    final String schema = owner != null ? owner : getSchema(conn);
+                    final String schema = owner != null ? owner : DatabaseTools.getSchema(conn);
                     final List<Annotation> annotations = dao.annotations(schema,
                             segments.get(segments.size() - 1).toUpperCase());
                     if (annotations.stream().anyMatch(it -> it.getName().equals("suite"))) {
