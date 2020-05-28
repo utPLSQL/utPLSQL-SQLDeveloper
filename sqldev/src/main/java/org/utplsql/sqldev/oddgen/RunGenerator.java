@@ -16,20 +16,18 @@
 package org.utplsql.sqldev.oddgen;
 
 import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import org.oddgen.sqldev.generators.OddgenGenerator2;
 import org.oddgen.sqldev.generators.model.Node;
 import org.utplsql.sqldev.dal.UtplsqlDao;
-import org.utplsql.sqldev.exception.GenericDatabaseAccessException;
+import org.utplsql.sqldev.model.DatabaseTools;
 import org.utplsql.sqldev.model.StringTools;
 import org.utplsql.sqldev.model.preference.PreferenceModel;
 import org.utplsql.sqldev.resources.UtplsqlResources;
@@ -37,8 +35,6 @@ import org.utplsql.sqldev.resources.UtplsqlResources;
 import oracle.ide.config.Preferences;
 
 public class RunGenerator implements OddgenGenerator2 {
-    private static final Logger logger = Logger.getLogger(RunGenerator.class.getName());
-
     public static final String YES = "Yes";
     public static final String NO = "No";
     public static final String RESET_PACKAGE = UtplsqlResources.getString("PREF_RESET_PACKAGE_LABEL");
@@ -50,20 +46,7 @@ public class RunGenerator implements OddgenGenerator2 {
 
     @Override
     public boolean isSupported(final Connection conn) {
-        try {
-            boolean ret = false;
-            if (conn != null && conn.getMetaData().getDatabaseProductName().startsWith("Oracle")
-                    && (conn.getMetaData().getDatabaseMajorVersion() == 11
-                            && conn.getMetaData().getDatabaseMinorVersion() >= 2
-                            || conn.getMetaData().getDatabaseMajorVersion() > 11)) {
-                ret = true;
-            }
-            return ret;
-        } catch (SQLException e) {
-            final String msg = "SQLException during connection check due to " + e.getMessage();
-            logger.severe(() -> msg);
-            throw new GenericDatabaseAccessException(msg, e);
-        }
+        return DatabaseTools.isSupported(conn);
     }
 
     @Override
@@ -129,13 +112,7 @@ public class RunGenerator implements OddgenGenerator2 {
 
     private String getPath(final Node node, final Connection conn) {
         if ("SUITE".equals(node.getId()) || "SUITEPATH".equals(node.getId())) {
-            try {
-                return conn.getMetaData().getUserName();
-            } catch (SQLException e) {
-                final String msg = "SQLException during getUserName() due to " + e.getMessage();
-                logger.severe(() -> msg);
-                throw new GenericDatabaseAccessException(msg, e);
-            }
+            return DatabaseTools.getUser(conn);
         } else {
             return node.getId();
         }
