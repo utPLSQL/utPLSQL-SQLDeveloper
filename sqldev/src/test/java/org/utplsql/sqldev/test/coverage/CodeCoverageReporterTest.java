@@ -51,6 +51,7 @@ public class CodeCoverageReporterTest extends AbstractJdbcTest {
         sb.setLength(0);
         sb.append("CREATE OR REPLACE PACKAGE test_f IS\n");
         sb.append("   --%suite\n\n");
+
         sb.append("   --%test\n");
         sb.append("   PROCEDURE f;\n");
         sb.append("END test_f;");

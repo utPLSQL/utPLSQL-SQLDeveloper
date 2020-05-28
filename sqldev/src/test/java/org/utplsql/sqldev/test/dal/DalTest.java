@@ -81,10 +81,13 @@ public class DalTest extends AbstractJdbcTest {
         StringBuilder sb = new StringBuilder();
         sb.append("CREATE OR REPLACE PACKAGE junit_utplsql_test_pkg IS\n");
         sb.append("   -- %suite\n\n");
+
         sb.append("   -- %test\n");
         sb.append("   PROCEDURE t1;\n\n");
+
         sb.append("   -- %Test\n");
         sb.append("   PROCEDURE t2;\n\n");
+
         sb.append("   PROCEDURE t3;\n");
         sb.append("END junit_utplsql_test_pkg;");
         jdbcTemplate.execute(sb.toString());
@@ -120,8 +123,10 @@ public class DalTest extends AbstractJdbcTest {
         sb.append("CREATE OR REPLACE PACKAGE junit_utplsql_test_pkg IS\n");
         sb.append("   -- %test\n");
         sb.append("   PROCEDURE t1;\n\n");
+
         sb.append("   -- %Test\n");
         sb.append("   PROCEDURE t2;\n\n");
+
         sb.append("   PROCEDURE t3;\n");
         sb.append("END junit_utplsql_test_pkg;");
         jdbcTemplate.execute(sb.toString());
@@ -156,10 +161,13 @@ public class DalTest extends AbstractJdbcTest {
         StringBuilder sb = new StringBuilder();
         sb.append("CREATE OR REPLACE PACKAGE junit_utplsql_test_pkg IS\n");
         sb.append("   -- %suite\n\n");
+
         sb.append("   -- %test\n");
         sb.append("   PROCEDURE t1;\n\n");
+
         sb.append("   -- %Test\n");
         sb.append("   PROCEDURE t2;\n\n");
+
         sb.append("   PROCEDURE t3;\n");
         sb.append("END junit_utplsql_test_pkg;");
         jdbcTemplate.execute(sb.toString());
@@ -210,11 +218,15 @@ public class DalTest extends AbstractJdbcTest {
         StringBuilder sb = new StringBuilder();
         sb.append("CREATE OR REPLACE PACKAGE junit_utplsql_test_pkg IS\n");
         sb.append("   -- %suite\n\n");
+
         sb.append("   -- %test\n");
         sb.append("   PROCEDURE t1;\n\n");
+
         sb.append("   -- %Test\n");
         sb.append("   PROCEDURE t2;\n\n");
+
         sb.append("   PROCEDURE t3;\n\n");
+
         sb.append("END junit_utplsql_test_pkg;");
         jdbcTemplate.execute(sb.toString());
         final List<Node> actual = dao.testables("PACKAGE");
@@ -245,6 +257,7 @@ public class DalTest extends AbstractJdbcTest {
         StringBuilder sb = new StringBuilder();
         sb.append("CREATE OR REPLACE PACKAGE junit_no_test_pkg IS\n");
         sb.append("   PROCEDURE p1;\n\n");
+
         sb.append("   PROCEDURE p2;\n");
         sb.append("END junit_no_test_pkg;");
         jdbcTemplate.execute(sb.toString());
@@ -378,14 +391,20 @@ public class DalTest extends AbstractJdbcTest {
         sb.append("CREATE OR REPLACE PACKAGE junit_utplsql_test_pkg IS\n");
         sb.append("   -- %suite\n");
         sb.append("   -- %suitepath(a.B.c)\n\n");
+
         sb.append("   -- %test\n");
         sb.append("   PROCEDURE T0;\n\n");
+
         sb.append("   -- %context(myContext)\n\n");
+
         sb.append("   -- %test(t1: test One)\n");
         sb.append("   PROCEDURE t1;\n\n");
+
         sb.append("   -- %test(t2: test Two)\n");
         sb.append("   PROCEDURE t2;\n\n");
+
         sb.append("   -- %endcontext\n\n");
+
         sb.append("   -- %test\n");
         sb.append("   PROCEDURE t3;\n");
         sb.append("END junit_utplsql_test_pkg;");
@@ -443,11 +462,11 @@ public class DalTest extends AbstractJdbcTest {
         dao.enableDbmsOutput();
         StringBuilder sb = new StringBuilder();
         sb.append("BEGIN\n");
-        sb.append("   sys.dbms_output.put_line(\'line1\');\n");
-        sb.append("   sys.dbms_output.put_line(\'line2\');\n");
+        sb.append("   sys.dbms_output.put_line('line1');\n");
+        sb.append("   sys.dbms_output.put_line('line2');\n");
         sb.append("   sys.dbms_output.put_line(null);\n");
-        sb.append("   sys.dbms_output.put_line(\'line4\');\n");
-        sb.append("   sys.dbms_output.put_line(\'line5\');\n");
+        sb.append("   sys.dbms_output.put_line('line4');\n");
+        sb.append("   sys.dbms_output.put_line('line5');\n");
         sb.append("END;");
         jdbcTemplate.execute(sb.toString());
         final String actual = dao.getDbmsOutput(2);
@@ -475,6 +494,7 @@ public class DalTest extends AbstractJdbcTest {
         sb.setLength(0);
         sb.append("CREATE OR REPLACE PACKAGE junit_utplsql_test_pkg IS\n");
         sb.append("   -- %suite\n\n");
+
         sb.append("   -- %test\n");
         sb.append("   PROCEDURE f1;\n");
         sb.append("END junit_utplsql_test_pkg;");
@@ -546,6 +566,7 @@ public class DalTest extends AbstractJdbcTest {
         StringBuilder sb = new StringBuilder();
         sb.append("CREATE OR REPLACE PACKAGE junit_utplsql_test_pkg IS\n");
         sb.append("   -- %suite\n\n");
+
         sb.append("   -- %test\n");
         sb.append("   PROCEDURE p1;\n");
         sb.append("END junit_utplsql_test_pkg;");
@@ -580,6 +601,7 @@ public class DalTest extends AbstractJdbcTest {
         StringBuilder sb = new StringBuilder();
         sb.append("CREATE OR REPLACE PACKAGE junit_utplsql_test_pkg IS\n");
         sb.append("   -- %suite\n\n");
+
         sb.append("   -- %test\n");
         sb.append("   PROCEDURE p1;\n");
         sb.append("END junit_utplsql_test_pkg;");

@@ -36,14 +36,19 @@ public class RealtimeReporterFetchSizeTest extends AbstractJdbcTest {
         StringBuilder sb = new StringBuilder();
         sb.append("CREATE OR REPLACE PACKAGE junit_utplsql_fetch_size_pkg is\n");
         sb.append("   --%suite(JUnit testing)\n\n");
+
         sb.append("   --%test(test 1 - 0 seconds)\n");
         sb.append("   PROCEDURE test_1_0;\n\n");
+
         sb.append("   --%test(test 2 - 1 seconds)\n");
         sb.append("   PROCEDURE test_2_1;\n\n");
+
         sb.append("   --%test(test 3 - 2 seconds)\n");
         sb.append("   PROCEDURE test_3_2;\n\n");
+
         sb.append("   --%test(test 4 - 0 seconds)\n");
         sb.append("   PROCEDURE test_4_0;\n\n");
+
         sb.append("   --%test(test 5 - 0 seconds)\n");
         sb.append("   PROCEDURE test_5_0;\n");
         sb.append("END;");
@@ -54,18 +59,22 @@ public class RealtimeReporterFetchSizeTest extends AbstractJdbcTest {
         sb.append("   BEGIN\n");
         sb.append("     NULL;\n");
         sb.append("   END;\n\n");
+
         sb.append("   PROCEDURE test_2_1 IS\n");
         sb.append("   BEGIN\n");
         sb.append("     dbms_session.sleep(1);\n");
         sb.append("   END;\n\n");
+
         sb.append("   PROCEDURE test_3_2 IS\n");
         sb.append("   BEGIN\n");
         sb.append("     dbms_session.sleep(2);\n");
         sb.append("   END;\n\n");
+
         sb.append("   PROCEDURE test_4_0 IS\n");
         sb.append("   BEGIN\n");
         sb.append("     NULL;\n");
         sb.append("   END;\n\n");
+
         sb.append("   PROCEDURE test_5_0 IS\n");
         sb.append("   BEGIN\n");
         sb.append("     NULL;\n");

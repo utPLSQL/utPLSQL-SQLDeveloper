@@ -39,6 +39,7 @@ public class DalBugFixTest extends AbstractJdbcTest {
         StringBuilder sb = new StringBuilder();
         sb.append("CREATE OR REPLACE PACKAGE junit_utplsql_test_pkg IS\n");
         sb.append("   -- %suite\n\n");
+
         sb.append("END junit_utplsql_test_pkg;");
         jdbcTemplate.execute(sb.toString());
         final UtplsqlDao dao = new UtplsqlDao(DatabaseTools.getConnection(dataSource));
@@ -54,8 +55,10 @@ public class DalBugFixTest extends AbstractJdbcTest {
         StringBuilder sb = new StringBuilder();
         sb.append("CREATE OR REPLACE PACKAGE junit_utplsql_test_pkg IS\n");
         sb.append("   -- %suite\n\n");
+
         sb.append("   -- %test\n");
         sb.append("   PROCEDURE t1;\n\n");
+        
         sb.append("END junit_utplsql_test_pkg;");
         jdbcTemplate.execute(sb.toString());
         final UtplsqlDao dao = new UtplsqlDao(DatabaseTools.getConnection(dataSource));
@@ -71,6 +74,7 @@ public class DalBugFixTest extends AbstractJdbcTest {
         StringBuilder sb = new StringBuilder();
         sb.append("CREATE OR REPLACE PACKAGE junit_utplsql_test_pkg IS\n");
         sb.append("   -- %suite\n\n");
+        
         sb.append("END junit_utplsql_test_pkg;");
         jdbcTemplate.execute(sb.toString());
         final UtplsqlDao dao = new UtplsqlDao(DatabaseTools.getConnection(dataSource));
@@ -84,6 +88,7 @@ public class DalBugFixTest extends AbstractJdbcTest {
         StringBuilder sb = new StringBuilder();
         sb.append("CREATE OR REPLACE PACKAGE junit_utplsql_test_pkg IS\n");
         sb.append("   -- %suite\n\n");
+        
         sb.append("END junit_utplsql_test_pkg;");
         jdbcTemplate.execute(sb.toString());
         final UtplsqlDao dao = new UtplsqlDao(DatabaseTools.getConnection(dataSource));

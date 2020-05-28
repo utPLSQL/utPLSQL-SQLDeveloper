@@ -42,11 +42,15 @@ public class RealtimeReporterTest extends AbstractJdbcTest {
         sb.append("CREATE OR REPLACE PACKAGE junit_utplsql_test1_pkg is\n");
         sb.append("   --%suite(JUnit testing)\n");
         sb.append("   --%suitepath(a)\n\n");
+
         sb.append("   --%context(test context)\n\n");
+
         sb.append("   --%test(test 1 - OK)\n");
         sb.append("   PROCEDURE test_1_ok;\n\n");
+
         sb.append("   --%test(test 2 - NOK)\n");
         sb.append("   PROCEDURE test_2_nok;\n\n");
+
         sb.append("   --%endcontext\n");
         sb.append("END;");
         jdbcTemplate.execute(sb.toString());
@@ -56,6 +60,7 @@ public class RealtimeReporterTest extends AbstractJdbcTest {
         sb.append("   BEGIN\n");
         sb.append("      ut.expect(1).to_equal(1);\n");
         sb.append("   END;\n\n");
+
         sb.append("   PROCEDURE test_2_nok IS\n");
         sb.append("   BEGIN\n");
         sb.append("      ut.expect(1).to_equal(2);\n");
@@ -66,10 +71,13 @@ public class RealtimeReporterTest extends AbstractJdbcTest {
         sb.append("CREATE OR REPLACE PACKAGE junit_utplsql_test2_pkg IS\n");
         sb.append("   --%suite\n");
         sb.append("   --%suitepath(b)\n\n");
+
         sb.append("   --%test\n");
         sb.append("   PROCEDURE test_3_ok;\n\n");
+
         sb.append("   --%test\n");
         sb.append("   PROCEDURE test_4_nok;\n\n");
+
         sb.append("   --%test\n");
         sb.append("   --%disabled\n");
         sb.append("   PROCEDURE test_5;\n");
@@ -81,11 +89,13 @@ public class RealtimeReporterTest extends AbstractJdbcTest {
         sb.append("   BEGIN\n");
         sb.append("      ut3.ut.expect(2).to_equal(2);\n");
         sb.append("   END;\n\n");
+
         sb.append("   PROCEDURE test_4_nok IS\n");
         sb.append("   BEGIN\n");
         sb.append("      ut3.ut.expect(2).to_equal(3);\n");
         sb.append("      ut3.ut.expect(2).to_equal(4);\n");
         sb.append("   END;\n\n");
+
         sb.append("   PROCEDURE test_5 IS\n");
         sb.append("   BEGIN\n");
         sb.append("      NULL;\n");
@@ -96,10 +106,13 @@ public class RealtimeReporterTest extends AbstractJdbcTest {
         sb.append("CREATE OR REPLACE PACKAGE junit_utplsql_test3_pkg IS\n");
         sb.append("   --%suite\n");
         sb.append("   --%suitepath(b)\n\n");
+
         sb.append("   --%test\n");
         sb.append("   PROCEDURE test_6_with_runtime_error;\n\n");
+
         sb.append("   --%test\n");
         sb.append("   PROCEDURE test_7_with_serveroutput;\n\n");
+
         sb.append("   --%afterall\n");
         sb.append("   PROCEDURE print_and_raise;\n");
         sb.append("END;");
@@ -109,20 +122,22 @@ public class RealtimeReporterTest extends AbstractJdbcTest {
         sb.append("   PROCEDURE test_6_with_runtime_error IS\n");
         sb.append("      l_actual INTEGER;\n");
         sb.append("   BEGIN\n");
-        sb.append("      EXECUTE IMMEDIATE \'select 6 from non_existing_table\' INTO l_actual;\n");
+        sb.append("      EXECUTE IMMEDIATE 'select 6 from non_existing_table' INTO l_actual;\n");
         sb.append("      ut3.ut.expect(6).to_equal(l_actual);\n");
         sb.append("   END\n\n;");
+
         sb.append("   PROCEDURE test_7_with_serveroutput IS\n");
         sb.append("   BEGIN\n");
-        sb.append("      dbms_output.put_line(\'before test 7\');\n");
+        sb.append("      dbms_output.put_line('before test 7');\n");
         sb.append("      ut3.ut.expect(7).to_equal(7);\n");
-        sb.append("      dbms_output.put_line(\'after test 7\');\n");
+        sb.append("      dbms_output.put_line('after test 7');\n");
         sb.append("   END;\n\n");
+
         sb.append("   PROCEDURE print_and_raise IS\n");
         sb.append("   BEGIN\n");
-        sb.append("      dbms_output.put_line(\'Now, a no_data_found exception is raised\');\n");
-        sb.append("      dbms_output.put_line(\'dbms_output and error stack is reported for this suite.\');\n");
-        sb.append("      dbms_output.put_line(\'A runtime error in afterall is counted as a warning.\');\n");
+        sb.append("      dbms_output.put_line('Now, a no_data_found exception is raised');\n");
+        sb.append("      dbms_output.put_line('dbms_output and error stack is reported for this suite.');\n");
+        sb.append("      dbms_output.put_line('A runtime error in afterall is counted as a warning.');\n");
         sb.append("      RAISE no_data_found;\n");
         sb.append("    END;\n");
         sb.append("END;");
