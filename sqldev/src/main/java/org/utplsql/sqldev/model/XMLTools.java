@@ -15,10 +15,14 @@
  */
 package org.utplsql.sqldev.model;
 
+import java.io.IOException;
 import java.io.StringWriter;
 import java.util.logging.Logger;
 
 import javax.xml.XMLConstants;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
@@ -32,10 +36,13 @@ import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
 import org.utplsql.sqldev.exception.GenericRuntimeException;
+import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 
 public class XMLTools {
     private static final Logger logger = Logger.getLogger(XMLTools.class.getName());
@@ -47,7 +54,7 @@ public class XMLTools {
             final XPathExpression expr = xpath.compile(xpathString);
             return ((NodeList) expr.evaluate(doc, XPathConstants.NODESET));
         } catch (XPathExpressionException e) {
-            final String msg = "XPathExpressionException for " + xpathString + " due to " + e.getMessage();
+            final String msg = "XPathExpressionException for " + xpathString + ".";
             logger.severe(() -> msg);
             throw new GenericRuntimeException(msg, e);
         }
@@ -58,7 +65,7 @@ public class XMLTools {
             final XPathExpression expr = xpath.compile(xpathString);
             return ((Node) expr.evaluate(doc, XPathConstants.NODE));
         } catch (XPathExpressionException e) {
-            final String msg = "XPathExpressionException for " + xpathString + " due to " + e.getMessage();
+            final String msg = "XPathExpressionException for " + xpathString + ".";
             logger.severe(() -> msg);
             throw new GenericRuntimeException(msg, e);
         }
@@ -90,7 +97,7 @@ public class XMLTools {
             final String result = writer.toString();
             return result.replaceAll("<!\\[CDATA\\[\\s*\\]\\]>", "");
         } catch (TransformerException  e) {
-            final String msg = "TransformerException for " + cdataSectionElements + " due to " + e.getMessage();
+            final String msg = "TransformerException for " + cdataSectionElements + ".";
             logger.severe(() -> msg);
             throw new GenericRuntimeException(msg, e);
         }
@@ -128,5 +135,27 @@ public class XMLTools {
             }
         }
         return resultNode;
+    }
+
+    public DocumentBuilder createDocumentBuilder() {
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        try {
+            factory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, Boolean.TRUE);
+            return factory.newDocumentBuilder();
+        } catch (ParserConfigurationException e) {
+            final String msg = "Could not create no document builder.";
+            logger.severe(() -> msg);
+            throw new GenericRuntimeException(msg, e);
+        }
+    }
+
+    public Document parse(final DocumentBuilder builder, final InputSource inputSource) {
+        try {
+            return builder.parse(inputSource);
+        } catch (SAXException | IOException e) {
+            final String msg = "Could not parse XML input.";
+            logger.severe(() -> msg);
+            throw new GenericRuntimeException(msg, e);
+        }
     }
 }
