@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2019 Philipp Salvisberg <philipp.salvisberg@trivadis.com>
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,37 +17,39 @@ package org.utplsql.sqldev.ui.runner;
 
 import java.awt.Dimension;
 import java.awt.Rectangle;
+
 import javax.swing.JPanel;
 import javax.swing.Scrollable;
 
 /**
- * Fixes resizing issues of JTextArea when put into JPanel and JPanel into JScrollPane
+ * Fixes resizing issues of JTextArea when put into JPanel and JPanel into JScrollPane 
  * Solution is based on https://stackoverflow.com/questions/15783014/jtextarea-on-jpanel-inside-jscrollpane-does-not-resize-properly/15786939
  */
-@SuppressWarnings("all")
 public class ScrollablePanel extends JPanel implements Scrollable {
-  @Override
-  public Dimension getPreferredScrollableViewportSize() {
-    return super.getPreferredSize();
-  }
-  
-  @Override
-  public int getScrollableUnitIncrement(final Rectangle visibleRect, final int orientation, final int direction) {
-    return 0;
-  }
-  
-  @Override
-  public int getScrollableBlockIncrement(final Rectangle visibleRect, final int orientation, final int direction) {
-    return 0;
-  }
-  
-  @Override
-  public boolean getScrollableTracksViewportWidth() {
-    return true;
-  }
-  
-  @Override
-  public boolean getScrollableTracksViewportHeight() {
-    return false;
-  }
+    private static final long serialVersionUID = -8074226692678606351L;
+
+    @Override
+    public Dimension getPreferredScrollableViewportSize() {
+        return super.getPreferredSize();
+    }
+
+    @Override
+    public int getScrollableUnitIncrement(final Rectangle visibleRect, final int orientation, final int direction) {
+        return 0;
+    }
+
+    @Override
+    public int getScrollableBlockIncrement(final Rectangle visibleRect, final int orientation, final int direction) {
+        return 0;
+    }
+
+    @Override
+    public boolean getScrollableTracksViewportWidth() {
+        return true;
+    }
+
+    @Override
+    public boolean getScrollableTracksViewportHeight() {
+        return false;
+    }
 }
