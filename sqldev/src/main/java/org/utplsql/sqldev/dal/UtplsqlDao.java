@@ -436,7 +436,7 @@ public class UtplsqlDao {
                 sb.append("       object_type || '.' || object_name AS id,\n");
                 sb.append("       object_type AS parent_id,\n");
                 sb.append("       1 AS leaf,\n");
-                sb.append("       1 AS generatable\n,");
+                sb.append("       1 AS generatable,\n");
                 sb.append("       1 AS multiselectable\n");
                 sb.append("  FROM user_procedures\n");
                 sb.append(" WHERE object_type = ?\n");
