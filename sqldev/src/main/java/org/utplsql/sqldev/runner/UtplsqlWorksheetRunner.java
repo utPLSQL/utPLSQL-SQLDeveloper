@@ -22,11 +22,12 @@ import java.util.logging.Logger;
 import javax.swing.JSplitPane;
 
 import org.utplsql.sqldev.exception.GenericDatabaseAccessException;
+import org.utplsql.sqldev.model.DatabaseTools;
 import org.utplsql.sqldev.model.StringTools;
+import org.utplsql.sqldev.model.SystemTools;
 import org.utplsql.sqldev.model.preference.PreferenceModel;
 import org.utplsql.sqldev.resources.UtplsqlResources;
 
-import oracle.dbtools.raptor.utils.Connections;
 import oracle.dbtools.worksheet.WorksheetResultPanel;
 import oracle.dbtools.worksheet.editor.OpenWorksheetWizard;
 import oracle.dbtools.worksheet.editor.Worksheet;
@@ -34,7 +35,6 @@ import oracle.dbtools.worksheet.utils.WorksheetUtil;
 import oracle.ide.Ide;
 import oracle.ide.config.Preferences;
 import oracle.ide.controller.IdeAction;
-import oracle.jdeveloper.db.ConnectionException;
 
 public class UtplsqlWorksheetRunner {
     private static final Logger logger = Logger.getLogger(UtplsqlWorksheetRunner.class.getName());
@@ -51,18 +51,12 @@ public class UtplsqlWorksheetRunner {
 
     private void setConnection(final String connectionName) {
         if (connectionName != null && preferences.isUnsharedWorksheet()) {
-            // fix for issue #47 - private connections are not closed in SQLDev >= 17.4.0
             try {
-                this.connectionName = Connections.getInstance().createTemporaryConnection(connectionName);
-            } catch (Throwable t) {
-                // private connection is closed when worksheet is closed in SQLDev < 17.4.0
-                try {
-                    this.connectionName = Connections.getInstance().createPrivateConnection(connectionName);
-                } catch (ConnectionException e) {
-                    final String msg = "failed to create private connection due to " + e.getMessage();
-                    logger.severe(() -> msg);
-                    throw new GenericDatabaseAccessException(msg, e);
-                }
+                this.connectionName = DatabaseTools.createTemporaryOrPrivateConnection(connectionName);
+            } catch (GenericDatabaseAccessException e) {
+                final String msg = "Failed to create temporary/private connection based on " + connectionName + ".";
+                logger.severe(() -> msg);
+                throw new GenericDatabaseAccessException(msg, e);
             }
         } else {
             this.connectionName = connectionName;
@@ -103,17 +97,9 @@ public class UtplsqlWorksheetRunner {
         worksheet.getContext().getNode().markDirty(false);
         return worksheet;
     }
-    
-    private void sleep(int millis) {
-        try {
-            Thread.sleep(millis);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }        
-    }
 
     private void resizeResultPanel(final Worksheet worksheet) {
-        sleep(200);
+        SystemTools.sleep(200);
         Container splitPane = null;
         WorksheetResultPanel selectedResultPanel = worksheet.getSelectedResultPanel();
         if (selectedResultPanel != null && selectedResultPanel.getGUI() != null && selectedResultPanel.getGUI().getParent() != null
@@ -131,13 +117,13 @@ public class UtplsqlWorksheetRunner {
 
     private void runScript(final Worksheet worksheet) {
         if (preferences.isAutoExecute()) {
-            sleep(100);
+            SystemTools.sleep(100);
             final IdeAction action = ((IdeAction) Ide.getIdeActionMap().get(Ide.findCmdID("Worksheet.RunScript")));
             if ((action != null)) {
                 try {
                     action.performAction(worksheet.getContext());
                 } catch (Exception e) {
-                    logger.severe(() -> "Could not run script due to " + (e != null ? e.getMessage() : "???") + ".");
+                    logger.severe(() -> "Could not run script in worksheet due to " + (e != null ? e.getMessage() : "???") + ".");
                 }
                 resizeResultPanel(worksheet);
             }
