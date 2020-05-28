@@ -58,4 +58,12 @@ public class DatabaseTools {
             throw new GenericDatabaseAccessException(msg, e);
         }
     }
+    
+    public static boolean isConnectionClosed(Connection conn) {
+        try {
+            return conn.isClosed();
+        } catch (SQLException e) {
+            throw new GenericDatabaseAccessException("Error getting status of connection.", e);
+        }
+    }
 }
