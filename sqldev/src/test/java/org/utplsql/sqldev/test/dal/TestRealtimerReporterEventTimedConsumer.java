@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2019 Philipp Salvisberg <philipp.salvisberg@trivadis.com>
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,22 +16,22 @@
 package org.utplsql.sqldev.test.dal;
 
 import java.util.HashMap;
+
 import org.utplsql.sqldev.dal.RealtimeReporterEventConsumer;
 import org.utplsql.sqldev.model.runner.PostTestEvent;
 import org.utplsql.sqldev.model.runner.RealtimeReporterEvent;
 
-@SuppressWarnings("all")
 public class TestRealtimerReporterEventTimedConsumer implements RealtimeReporterEventConsumer {
-  private final HashMap<String, Long> postTestEvents = new HashMap<String, Long>();
-  
-  public HashMap<String, Long> getPostTestEvents() {
-    return this.postTestEvents;
-  }
-  
-  @Override
-  public void process(final RealtimeReporterEvent event) {
-    if ((event instanceof PostTestEvent)) {
-      this.postTestEvents.put(((PostTestEvent)event).getId(), Long.valueOf(System.currentTimeMillis()));
+    private final HashMap<String, Long> postTestEvents = new HashMap<>();
+
+    public HashMap<String, Long> getPostTestEvents() {
+        return postTestEvents;
     }
-  }
+
+    @Override
+    public void process(final RealtimeReporterEvent event) {
+        if (event instanceof PostTestEvent) {
+            postTestEvents.put(((PostTestEvent) event).getId(), System.currentTimeMillis());
+        }
+    }
 }
