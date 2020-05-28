@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
+import org.springframework.jdbc.BadSqlGrammarException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.SingleConnectionDataSource;
 import org.utplsql.sqldev.exception.GenericRuntimeException;
@@ -72,5 +73,13 @@ public abstract class AbstractJdbcTest {
             }
         }
         return stmts;
+    }
+    
+    public static void executeAndIgnore(JdbcTemplate template, String sql) {
+        try {
+            template.execute(sql);
+        } catch (BadSqlGrammarException e) {
+            // ignore
+        }
     }
 }
