@@ -150,15 +150,15 @@ public class RealtimeReporterDao {
             }
             return event;
         } catch (ParserConfigurationException e) {
-            final String msg = "cannot create docBuilder, due to " + e.getMessage();
+            final String msg = "Cannot create docBuilder for " + itemType + " with content: " + text;
             logger.severe(() -> msg);
             throw new GenericRuntimeException(msg, e);
         } catch (SAXException e) {
-            final String msg = "parse error while processing event: " + e.getMessage();
+            final String msg = "Parse error while processing " + itemType + " with content: " + text;
             logger.severe(() -> msg);
             throw new GenericRuntimeException(msg, e);
         } catch (IOException e) {
-            final String msg = "I/O error while processing event: " + e.getMessage();
+            final String msg = "I/O error while processing " + itemType + " with content: " + text;
             logger.severe(() -> msg);
             throw new GenericRuntimeException(msg, e);
         }
