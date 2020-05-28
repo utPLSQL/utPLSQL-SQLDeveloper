@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2019 Philipp Salvisberg <philipp.salvisberg@trivadis.com>
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,197 +15,156 @@
  */
 package org.utplsql.sqldev.ui.runner;
 
-import com.google.common.base.Objects;
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.Map.Entry;
+
 import javax.swing.Icon;
 import javax.swing.table.DefaultTableModel;
-import org.eclipse.xtend2.lib.StringConcatenation;
-import org.eclipse.xtext.xbase.lib.CollectionLiterals;
-import org.eclipse.xtext.xbase.lib.Conversions;
-import org.eclipse.xtext.xbase.lib.IterableExtensions;
+
 import org.utplsql.sqldev.model.PrefixTools;
 import org.utplsql.sqldev.model.runner.Test;
 import org.utplsql.sqldev.resources.UtplsqlResources;
 
-@SuppressWarnings("all")
 public class TestOverviewTableModel extends DefaultTableModel {
-  private LinkedHashMap<String, Test> tests;
-  
-  private String commonPrefix;
-  
-  private boolean commonPrefixCalculated;
-  
-  private boolean showDescription;
-  
-  private boolean useSmartTimes;
-  
-  public TestOverviewTableModel() {
-    super();
-  }
-  
-  private boolean calcCommonPrefix() {
-    boolean _xifexpression = false;
-    if ((((!this.commonPrefixCalculated) && (this.tests != null)) && (this.tests.size() > 0))) {
-      boolean _xblockexpression = false;
-      {
-        this.commonPrefix = PrefixTools.commonPrefix(IterableExtensions.<String>toList(this.tests.keySet()));
-        this.fireTableDataChanged();
-        _xblockexpression = this.commonPrefixCalculated = true;
-      }
-      _xifexpression = _xblockexpression;
+    private static final long serialVersionUID = -4087082648970132657L;
+
+    private LinkedHashMap<String, Test> tests;
+    private String commonPrefix;
+    private boolean commonPrefixCalculated;
+    private boolean showDescription;
+    private boolean useSmartTimes;
+
+    public TestOverviewTableModel() {
+        super();
     }
-    return _xifexpression;
-  }
-  
-  public void setModel(final LinkedHashMap<String, Test> tests, final boolean showDescription, final boolean useSmartTimes) {
-    this.commonPrefixCalculated = false;
-    this.tests = tests;
-    this.showDescription = showDescription;
-    this.useSmartTimes = useSmartTimes;
-    this.calcCommonPrefix();
-    this.fireTableDataChanged();
-  }
-  
-  public void updateModel(final boolean showDescription) {
-    this.showDescription = showDescription;
-    this.fireTableDataChanged();
-  }
-  
-  public CharSequence getTestIdColumnName() {
-    CharSequence _xblockexpression = null;
-    {
-      this.calcCommonPrefix();
-      CharSequence _xifexpression = null;
-      if (((this.commonPrefix == null) || Objects.equal(this.commonPrefix, ""))) {
-        String _xifexpression_1 = null;
-        if (this.showDescription) {
-          _xifexpression_1 = UtplsqlResources.getString("RUNNER_DESCRIPTION_LABEL");
-        } else {
-          _xifexpression_1 = UtplsqlResources.getString("RUNNER_TEST_ID_COLUMN");
+
+    private void calcCommonPrefix() {
+        if (!commonPrefixCalculated && tests != null && tests.size() > 0) {
+            commonPrefix = PrefixTools.commonPrefix(new ArrayList<String>(tests.keySet()));
+            fireTableDataChanged();
+            commonPrefixCalculated = true;
         }
-        _xifexpression = _xifexpression_1;
-      } else {
-        CharSequence _xifexpression_2 = null;
-        if (this.showDescription) {
-          StringConcatenation _builder = new StringConcatenation();
-          String _string = UtplsqlResources.getString("RUNNER_DESCRIPTION_LABEL");
-          _builder.append(_string);
-          _builder.append(" (");
-          _builder.append(this.commonPrefix);
-          _builder.append(")");
-          _xifexpression_2 = _builder;
+    }
+
+    public void setModel(final LinkedHashMap<String, Test> tests, final boolean showDescription,
+            final boolean useSmartTimes) {
+        commonPrefixCalculated = false;
+        this.tests = tests;
+        this.showDescription = showDescription;
+        this.useSmartTimes = useSmartTimes;
+        calcCommonPrefix();
+        fireTableDataChanged();
+    }
+
+    public void updateModel(final boolean showDescription) {
+        this.showDescription = showDescription;
+        fireTableDataChanged();
+    }
+
+    public CharSequence getTestIdColumnName() {
+        StringBuilder sb = new StringBuilder();
+        calcCommonPrefix();
+        if (commonPrefix == null || commonPrefix.isEmpty()) {
+            if (showDescription) {
+                sb.append(UtplsqlResources.getString("RUNNER_DESCRIPTION_LABEL"));
+            } else {
+                sb.append(UtplsqlResources.getString("RUNNER_TEST_ID_COLUMN"));
+            }
         } else {
-          _xifexpression_2 = this.commonPrefix;
+            if (showDescription) {
+                sb.append(UtplsqlResources.getString("RUNNER_DESCRIPTION_LABEL"));
+                sb.append(" (");
+                sb.append(commonPrefix);
+                sb.append(")");
+            } else {
+                sb.append(commonPrefix);
+            }
         }
-        _xifexpression = _xifexpression_2;
-      }
-      _xblockexpression = _xifexpression;
+        return sb.toString();
     }
-    return _xblockexpression;
-  }
-  
-  public String getTimeColumnName() {
-    StringConcatenation _builder = new StringConcatenation();
-    String _string = UtplsqlResources.getString("RUNNER_TEST_EXECUTION_TIME_COLUMN");
-    _builder.append(_string);
-    {
-      if ((!this.useSmartTimes)) {
-        _builder.append(" [s]");
-      }
+
+    public String getTimeColumnName() {
+        return UtplsqlResources.getString("RUNNER_TEST_EXECUTION_TIME_COLUMN") + (!useSmartTimes ? " [s]" : "");
     }
-    final String timeColumnName = _builder.toString();
-    return timeColumnName;
-  }
-  
-  public Test getTest(final int row) {
-    final Map.Entry<String, Test> entry = ((Map.Entry<String, Test>[])Conversions.unwrapArray(this.tests.entrySet(), Map.Entry.class))[row];
-    final Test test = this.tests.get(entry.getKey());
-    return test;
-  }
-  
-  @Override
-  public int getRowCount() {
-    if ((this.tests == null)) {
-      return 0;
+
+    public Test getTest(final int row) {
+        return new ArrayList<Entry<String, Test>>(tests.entrySet()).get(row).getValue();
     }
-    return this.tests.size();
-  }
-  
-  @Override
-  public int getColumnCount() {
-    return 5;
-  }
-  
-  @Override
-  public Object getValueAt(final int row, final int col) {
-    final Test test = ((Map.Entry<String, Test>[])Conversions.unwrapArray(this.tests.entrySet(), Map.Entry.class))[row].getValue();
-    if ((test == null)) {
-      return null;
-    }
-    switch (col) {
-      case 0:
-        return test.getStatusIcon();
-      case 1:
-        return test.getWarningIcon();
-      case 2:
-        return test.getInfoIcon();
-      case 3:
-        String _xifexpression = null;
-        if ((this.showDescription && (test.getDescription() != null))) {
-          _xifexpression = test.getDescription();
-        } else {
-          String _id = test.getId();
-          int _xifexpression_1 = (int) 0;
-          if ((this.commonPrefix == null)) {
-            _xifexpression_1 = 0;
-          } else {
-            _xifexpression_1 = this.commonPrefix.length();
-          }
-          _xifexpression = _id.substring(_xifexpression_1);
+
+    @Override
+    public int getRowCount() {
+        if (tests == null) {
+            return 0;
         }
-        return _xifexpression;
-      case 4:
-        return test.getExecutionTime();
-      default:
-        return null;
+        return tests.size();
     }
-  }
-  
-  @Override
-  public String getColumnName(final int col) {
-    String _xifexpression = null;
-    if (this.showDescription) {
-      _xifexpression = "RUNNER_DESCRIPTION_LABEL";
-    } else {
-      _xifexpression = "RUNNER_TEST_ID_COLUMN";
+
+    @Override
+    public int getColumnCount() {
+        return 5;
     }
-    String _string = UtplsqlResources.getString(_xifexpression);
-    String _timeColumnName = this.getTimeColumnName();
-    return Collections.<String>unmodifiableList(CollectionLiterals.<String>newArrayList("", "", "", _string, _timeColumnName)).get(col);
-  }
-  
-  @Override
-  public boolean isCellEditable(final int row, final int column) {
-    return false;
-  }
-  
-  @Override
-  public Class<?> getColumnClass(final int col) {
-    switch (col) {
-      case 0:
-        return Icon.class;
-      case 1:
-        return Icon.class;
-      case 2:
-        return Icon.class;
-      case 3:
-        return String.class;
-      case 4:
-        return Double.class;
-      default:
-        return String.class;
+
+    @Override
+    public Object getValueAt(final int row, final int col) {
+        final Test test = getTest(row);
+        switch (col) {
+        case 0:
+            return test.getStatusIcon();
+        case 1:
+            return test.getWarningIcon();
+        case 2:
+            return test.getInfoIcon();
+        case 3:
+            if (showDescription && test.getDescription() != null) {
+                return test.getDescription();
+            } else {
+                return test.getId().substring(commonPrefix == null ? 0 : commonPrefix.length());
+            }
+        case 4:
+            return test.getExecutionTime();
+        default:
+            return null;
+        }
     }
-  }
+
+    @Override
+    public String getColumnName(final int col) {
+        switch (col) {
+        case 0:
+        case 1:
+        case 2:
+            return ""; // icons are used instead of descriptions
+        case 3:
+            return UtplsqlResources.getString(showDescription ? "RUNNER_DESCRIPTION_LABEL" : "RUNNER_TEST_ID_COLUMN");
+        case 4:
+            return getTimeColumnName();
+        default:
+            return null;
+        }
+    
+    }
+
+    @Override
+    public boolean isCellEditable(final int row, final int column) {
+        return false;
+    }
+
+    @Override
+    public Class<?> getColumnClass(final int col) {
+        switch (col) {
+        case 0:
+            return Icon.class;
+        case 1:
+            return Icon.class;
+        case 2:
+            return Icon.class;
+        case 3:
+            return String.class;
+        case 4:
+            return Double.class;
+        default:
+            return String.class;
+        }
+    }
 }
