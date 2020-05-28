@@ -28,4 +28,12 @@ public class SystemTools {
             Thread.currentThread().interrupt();
         }        
     }
+    
+    public static void waitForThread(Thread thread, int maxTimeInMillis) {
+        try {
+            thread.join(maxTimeInMillis);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+    }
 }
