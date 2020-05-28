@@ -28,9 +28,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.WindowEvent;
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.util.logging.Logger;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -43,15 +40,13 @@ import javax.swing.JTextField;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingUtilities;
 
-import org.springframework.core.task.SimpleAsyncTaskExecutor;
 import org.utplsql.sqldev.coverage.CodeCoverageReporter;
-import org.utplsql.sqldev.exception.GenericDatabaseAccessException;
+import org.utplsql.sqldev.model.DatabaseTools;
 import org.utplsql.sqldev.model.StringTools;
 import org.utplsql.sqldev.resources.UtplsqlResources;
 
 public class CodeCoverageReporterDialog extends JFrame implements ActionListener, FocusListener {
     private static final long serialVersionUID = 5503685225300993401L;
-    private static final Logger logger = Logger.getLogger(CodeCoverageReporterDialog.class.getName());
 
     private CodeCoverageReporter reporter;
     private JButton runButton;
@@ -180,16 +175,6 @@ public class CodeCoverageReporterDialog extends JFrame implements ActionListener
         dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
     }
     
-    private void abortConnection(final Connection conn, final SimpleAsyncTaskExecutor taskExecutor) {
-        try {
-            conn.abort(taskExecutor);
-        } catch (SQLException e) {
-            final String msg = "Error aborting connection due to " + e.getMessage();
-            logger.severe(() -> msg);
-            throw new GenericDatabaseAccessException(msg, e);
-        }
-    }
-
     @Override
     public void actionPerformed(final ActionEvent e) {
         if (e.getSource() == runButton) {
@@ -212,7 +197,7 @@ public class CodeCoverageReporterDialog extends JFrame implements ActionListener
                     // database session is not cancelled. This is not a bug.
                     // to cancel the session you have to kill it via "ALTER SYSTEM KILL SESSION".
                     // However, the abort frees all resources on the client side. 
-                    abortConnection(reporter.getConnection(), new SimpleAsyncTaskExecutor());
+                    DatabaseTools.abortConnection(reporter.getConnection());
                 }
             }
         }
