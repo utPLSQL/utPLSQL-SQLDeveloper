@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright 2018 Philipp Salvisberg <philipp.salvisberg@trivadis.com>
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,18 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.utplsql.sqldev.test
+package org.utplsql.sqldev.test;
 
-import org.junit.Assert
-import org.junit.Test
-import org.utplsql.sqldev.resources.UtplsqlResources
+import org.junit.Assert;
+import org.junit.Test;
+import org.utplsql.sqldev.resources.UtplsqlResources;
 
-class ResourceTest {
-
-	@Test
-	def void windowPathsLabel() {
-		val actual = UtplsqlResources.getString("WINDOW_PATHS_LABEL")
-		val expected = "utPLSQL paths"
-		Assert.assertEquals(expected, actual)
-	}	
+@SuppressWarnings("all")
+public class ResourceTest {
+  @Test
+  public void windowPathsLabel() {
+    final String actual = UtplsqlResources.getString("WINDOW_PATHS_LABEL");
+    final String expected = "utPLSQL paths";
+    Assert.assertEquals(expected, actual);
+  }
 }
