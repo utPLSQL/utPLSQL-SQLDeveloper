@@ -20,7 +20,6 @@ import java.io.File;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -29,12 +28,9 @@ import java.util.logging.Logger;
 import org.utplsql.sqldev.dal.UtplsqlDao;
 import org.utplsql.sqldev.exception.GenericDatabaseAccessException;
 import org.utplsql.sqldev.exception.GenericRuntimeException;
+import org.utplsql.sqldev.model.DatabaseTools;
 import org.utplsql.sqldev.model.FileTools;
 import org.utplsql.sqldev.ui.coverage.CodeCoverageReporterDialog;
-
-import oracle.dbtools.raptor.utils.Connections;
-import oracle.javatools.db.DBException;
-import oracle.jdeveloper.db.ConnectionException;
 
 public class CodeCoverageReporter {
     private static final Logger logger = Logger.getLogger(CodeCoverageReporter.class.getName());
@@ -67,19 +63,8 @@ public class CodeCoverageReporter {
             logger.severe(() -> msg);
             throw new NullPointerException();
         } else {
-            try {
-                // must be closed manually
-                conn = Connections.getInstance()
-                        .cloneConnection(Connections.getInstance().getConnection(connectionName));
-            } catch (ConnectionException e) {
-                final String msg = "ConnectionException while setting connection: " + e.getMessage();
-                logger.severe(() -> msg);
-                throw new GenericDatabaseAccessException(msg, e);
-            } catch (DBException e) {
-                final String msg = "DBException while setting connection: " + e.getMessage();
-                logger.severe(() -> msg);
-                throw new GenericDatabaseAccessException(msg, e);
-            }
+            // must be closed manually
+            conn = DatabaseTools.cloneConnection(connectionName);
         }
     }
 
@@ -115,13 +100,13 @@ public class CodeCoverageReporter {
                         () -> "Could not launch " + file + "in browser. No default browser defined on this system.");
             }
         } catch (Exception e) {
-            final String msg = "Error while running code coverage: " + e.getMessage();
+            final String msg = "Error while running code coverage for " + pathList + ".";
             logger.severe(() -> msg);
             throw new GenericRuntimeException(msg, e);
         } finally {
             try {
-                conn.close();
-            } catch (SQLException e) {
+                DatabaseTools.closeConnection(conn);
+            } catch (GenericDatabaseAccessException e) {
                 // ignore
             }
             if (frame != null) {
