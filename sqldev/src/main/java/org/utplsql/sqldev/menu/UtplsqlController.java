@@ -16,10 +16,8 @@
 package org.utplsql.sqldev.menu;
 
 import java.awt.Component;
-import java.io.IOException;
 import java.net.URL;
 import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -35,6 +33,7 @@ import org.utplsql.sqldev.coverage.CodeCoverageReporter;
 import org.utplsql.sqldev.dal.RealtimeReporterDao;
 import org.utplsql.sqldev.dal.UtplsqlDao;
 import org.utplsql.sqldev.exception.GenericRuntimeException;
+import org.utplsql.sqldev.model.DatabaseTools;
 import org.utplsql.sqldev.model.StringTools;
 import org.utplsql.sqldev.model.URLTools;
 import org.utplsql.sqldev.model.oddgen.GenContext;
@@ -62,7 +61,6 @@ import oracle.ide.controller.IdeAction;
 import oracle.ide.editor.Editor;
 import oracle.ide.model.Node;
 import oracle.ide.view.View;
-import oracle.javatools.db.DBException;
 
 @SuppressWarnings("all")
 public class UtplsqlController implements Controller {
@@ -92,7 +90,7 @@ public class UtplsqlController implements Controller {
                 return true;
             }
         } catch (Exception e) {
-            final String msg = "Failed to handle event due to exception " + (e != null ? e.getMessage() : "") + ".";
+            final String msg = "Failed to handle event for action " +  action.toString() + ".";
             logger.severe(() -> msg);
             throw new GenericRuntimeException(msg, e);
         }
@@ -122,7 +120,7 @@ public class UtplsqlController implements Controller {
                         }
                         logger.fine("connectionName: " + connectionName);
                         final String text = ((JEditorPane) component).getText();
-                        final Connection conn = getConnection(connectionName);
+                        final Connection conn = DatabaseTools.getConnection(connectionName);
                         final UtplsqlParser parser = new UtplsqlParser(text, conn, owner);
                         if (!parser.getPathAt(((JEditorPane) component).getCaretPosition()).isEmpty()) {
                             action.setEnabled(true);
@@ -141,11 +139,11 @@ public class UtplsqlController implements Controller {
                         final Object element = context.getSelection()[i];
                         final String connectionName = URLTools.getConnectionName(getURL(context));
                         if (Connections.getInstance().isConnectionOpen(connectionName)) {
-                            Connection conn = getConnection(connectionName);
+                            Connection conn = DatabaseTools.getConnection(connectionName);
                             final UtplsqlDao dao = new UtplsqlDao(conn);
                             if (preferences.isCheckRunUtplsqlTest() && dao.isUtAnnotationManagerInstalled()) {
                                 if (element instanceof DatabaseConnection) {
-                                    final String schema = getSchema(getConnection((DatabaseConnection) element));
+                                    final String schema = DatabaseTools.getSchema((DatabaseConnection) element);
                                     action.setEnabled(dao.containsUtplsqlTest(schema));
                                 } else if ((element instanceof SchemaFolder)) {
                                     final String schema = ((SchemaFolder) element).getSchemaName();
@@ -207,7 +205,7 @@ public class UtplsqlController implements Controller {
     private String getPath(final Object element) {
         String path = null;
         if (element instanceof DatabaseConnection) {
-            path = getSchema(getConnection(((DatabaseConnection) element)));
+            path = DatabaseTools.getSchema((DatabaseConnection) element);
         } else if (element instanceof SchemaFolder) {
             path = ((SchemaFolder) element).getSchemaName();
         } else if (element instanceof ObjectFolder) {
@@ -306,7 +304,7 @@ public class UtplsqlController implements Controller {
         final String connectionName = URLTools.getConnectionName(getURL(context));
         final GenContext genContext = new GenContext();
         if (Connections.getInstance().isConnectionOpen(connectionName)) {
-            genContext.setConn(getConnection(connectionName));
+            genContext.setConn(DatabaseTools.getConnection(connectionName));
             final Object element = context.getSelection()[0];
             if ((element instanceof PlSqlNode)) {
                 genContext.setObjectType(((PlSqlNode) element).getObjectType().replace(" BODY", ""));
@@ -317,37 +315,7 @@ public class UtplsqlController implements Controller {
         }
         return genContext;
     }
-
-    private Connection getConnection(String connectionName) {
-        try {
-            return Connections.getInstance().getConnection(connectionName);
-        } catch (DBException e) {
-            final String msg = "DBException while getting connection for " + connectionName + " due to " + e.getMessage();
-            logger.severe(() -> msg);
-            throw new GenericRuntimeException(msg, e);
-        }
-    }
     
-    private Connection getConnection(DatabaseConnection dbconn) {
-        try {
-            return dbconn.getConnection();
-        } catch (IOException e) {
-            final String msg = "IOException while getting connection for " + dbconn.getConnectionName() + " due to " + e.getMessage();
-            logger.severe(() -> msg);
-            throw new GenericRuntimeException(msg, e);
-        }
-    }
-    
-    private String getSchema(Connection conn) {
-        try {
-            return conn.getSchema();
-        } catch (SQLException e) {
-            final String msg = "SQLException while getting schema for connection due to " + e.getMessage();
-            logger.severe(() -> msg);
-            throw new GenericRuntimeException(msg, e);
-        }
-    }
-
     public void runTest(final Context context) {
         final View view = context.getView();
         final Node node = context.getNode();
@@ -373,7 +341,7 @@ public class UtplsqlController implements Controller {
                     }
                 }
                 logger.fine("connectionName: " + connectionName);
-                final Connection conn = getConnection(connectionName);
+                final Connection conn = DatabaseTools.getConnection(connectionName);
                 String text = ((JEditorPane) component).getText();
                 final UtplsqlParser parser = new UtplsqlParser(text, conn, owner);
                 final int position = ((JEditorPane) component).getCaretPosition();
@@ -392,7 +360,7 @@ public class UtplsqlController implements Controller {
             if ((url != null)) {
                 final String connectionName = URLTools.getConnectionName(url);
                 logger.fine("connectionName: " + connectionName);
-                final Connection conn = getConnection(connectionName);
+                final Connection conn = DatabaseTools.getConnection(connectionName);
                 final RealtimeReporterDao rrDao = new RealtimeReporterDao(conn);
                 final ArrayList<String> pathList = dedupPathList(getPathList(context));
                 if (preferences.isUseRealtimeReporter() && rrDao.isSupported()) {
@@ -409,7 +377,7 @@ public class UtplsqlController implements Controller {
     public List<String> dependencies(final String name, final String connectionName) {
         List<String> ret = null;
         if (connectionName != null) {
-            final String owner = getSchema(getConnection(connectionName));
+            final String owner = DatabaseTools.getSchema(connectionName);
             ret = dependencies(owner, name, connectionName);
         }
         return ret;
@@ -418,7 +386,7 @@ public class UtplsqlController implements Controller {
     public List<String> dependencies(final String owner, final String name, final String connectionName) {
         List<String> ret = null;
         if (connectionName != null) {
-            Connection conn = getConnection(connectionName);
+            Connection conn = DatabaseTools.getConnection(connectionName);
             final UtplsqlDao dao = new UtplsqlDao(conn);
             ret = dao.includes(owner, name);
         }
@@ -471,7 +439,7 @@ public class UtplsqlController implements Controller {
                 String text = ((JEditorPane) component).getText();
                 Connection conn = null;
                 if (preferences.isCheckRunUtplsqlTest()) {
-                    conn = getConnection(connectionName);
+                    conn = DatabaseTools.getConnection(connectionName);
                 } else {
                     conn = null;
                 }
@@ -525,7 +493,7 @@ public class UtplsqlController implements Controller {
                 if (connectionName != null) {
                     if (Connections.getInstance().isConnectionOpen(connectionName)) {
                         final GenContext genContext = new GenContext();
-                        genContext.setConn(getConnection(connectionName));
+                        genContext.setConn(DatabaseTools.getConnection(connectionName));
                         String text = ((JEditorPane) component).getText();
                         final UtplsqlParser parser = new UtplsqlParser(text);
                         final int position = ((JEditorPane) component).getCaretPosition();
