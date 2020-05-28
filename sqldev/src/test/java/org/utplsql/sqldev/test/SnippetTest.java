@@ -67,7 +67,7 @@ public class SnippetTest {
     public void mergeRemoveExisting() {
         USER_SNIPPETS_FILE.delete();
         StringBuilder sb = new StringBuilder();
-        sb.append("<?xml version = \'1.0\' encoding = \'UTF-8\'?>\n");
+        sb.append("<?xml version = '1.0' encoding = 'UTF-8'?>\n");
         sb.append("<snippets>\n");
         sb.append("   <group category=\"utPLSQL Annotations\" language=\"XYZ\"/>\n");
         sb.append("   <group category=\"utPLSQL Expectations\" language=\"XYZ\"/>\n");
