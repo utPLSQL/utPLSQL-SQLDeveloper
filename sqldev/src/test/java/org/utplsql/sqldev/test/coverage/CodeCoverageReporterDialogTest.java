@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2018 Philipp Salvisberg <philipp.salvisberg@trivadis.com>
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,30 +15,25 @@
  */
 package org.utplsql.sqldev.test.coverage;
 
-import java.sql.Connection;
-import java.util.Collections;
-import org.eclipse.xtext.xbase.lib.CollectionLiterals;
-import org.eclipse.xtext.xbase.lib.Exceptions;
+import java.util.Arrays;
+
+import org.junit.Assert;
 import org.junit.Test;
 import org.utplsql.sqldev.coverage.CodeCoverageReporter;
+import org.utplsql.sqldev.model.DatabaseTools;
+import org.utplsql.sqldev.model.SystemTools;
 import org.utplsql.sqldev.test.AbstractJdbcTest;
-import org.utplsql.sqldev.ui.coverage.CodeCoverageReporterDialog;
 
-@SuppressWarnings("all")
+
 public class CodeCoverageReporterDialogTest extends AbstractJdbcTest {
-  @Test
-  public void layout() {
-    try {
-      Connection _connection = AbstractJdbcTest.dataSource.getConnection();
-      final CodeCoverageReporter reporter = new CodeCoverageReporter(Collections.<String>unmodifiableList(CollectionLiterals.<String>newArrayList("SCOTT")), Collections.<String>unmodifiableList(CollectionLiterals.<String>newArrayList("a", "b", "c")), _connection);
-      reporter.showParameterWindow();
-      Thread.sleep((4 * 1000));
-      CodeCoverageReporterDialog _frame = reporter.getFrame();
-      if (_frame!=null) {
-        _frame.exit();
-      }
-    } catch (Throwable _e) {
-      throw Exceptions.sneakyThrow(_e);
+
+    @Test
+    public void layout() {
+        final CodeCoverageReporter reporter = new CodeCoverageReporter(Arrays.asList("SCOTT"),
+                Arrays.asList("a", "b", "c"), DatabaseTools.getConnection(dataSource));
+        reporter.showParameterWindow();
+        SystemTools.sleep(4 * 1000);
+        Assert.assertNotNull(reporter.getFrame());
+        reporter.getFrame().exit();
     }
-  }
 }
