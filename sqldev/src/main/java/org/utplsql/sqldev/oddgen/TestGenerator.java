@@ -17,7 +17,6 @@ package org.utplsql.sqldev.oddgen;
 
 import java.io.File;
 import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -30,7 +29,7 @@ import org.oddgen.sqldev.generators.model.Node;
 import org.oddgen.sqldev.generators.model.NodeTools;
 import org.oddgen.sqldev.plugin.templates.TemplateTools;
 import org.utplsql.sqldev.dal.UtplsqlDao;
-import org.utplsql.sqldev.exception.GenericDatabaseAccessException;
+import org.utplsql.sqldev.model.DatabaseTools;
 import org.utplsql.sqldev.model.oddgen.GenContext;
 import org.utplsql.sqldev.model.preference.PreferenceModel;
 import org.utplsql.sqldev.resources.UtplsqlResources;
@@ -129,20 +128,7 @@ public class TestGenerator implements OddgenGenerator2 {
 
     @Override
     public boolean isSupported(final Connection conn) {
-        try {
-            boolean ret = false;
-            if (conn != null && conn.getMetaData().getDatabaseProductName().startsWith("Oracle")
-                    && (conn.getMetaData().getDatabaseMajorVersion() == 11
-                            && conn.getMetaData().getDatabaseMinorVersion() >= 2
-                            || conn.getMetaData().getDatabaseMajorVersion() > 11)) {
-                ret = true;
-            }
-            return ret;
-        } catch (SQLException e) {
-            final String msg = "SQLException during connection check due to " + e.getMessage();
-            logger.severe(() -> msg);
-            throw new GenericDatabaseAccessException(msg, e);
-        }
+        return DatabaseTools.isSupported(conn);
     }
 
     @Override
