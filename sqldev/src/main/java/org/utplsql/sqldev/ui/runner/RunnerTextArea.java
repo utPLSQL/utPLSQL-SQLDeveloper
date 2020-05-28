@@ -1,47 +1,60 @@
+/*
+ * Copyright 2019 Philipp Salvisberg <philipp.salvisberg@trivadis.com>
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.utplsql.sqldev.ui.runner;
 
 import java.awt.Graphics;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
+
 import javax.swing.JTextArea;
 import javax.swing.UIManager;
-import javax.swing.text.Caret;
 
-@SuppressWarnings("all")
 public class RunnerTextArea extends JTextArea implements FocusListener {
-  public RunnerTextArea() {
-    super();
-    this.addFocusListener(this);
-  }
-  
-  @Override
-  public void paintComponent(final Graphics g) {
-    boolean _isOpaque = this.isOpaque();
-    boolean _not = (!_isOpaque);
-    if (_not) {
-      super.paintComponent(g);
-      return;
+    private static final long serialVersionUID = -1536393556223117580L;
+
+    public RunnerTextArea() {
+        super();
+        addFocusListener(this);
     }
-    g.setColor(UIManager.getColor("TextField.inactiveBackground"));
-    int _width = this.getWidth();
-    int _minus = (_width - 6);
-    int _height = this.getHeight();
-    int _minus_1 = (_height - 6);
-    g.fillRect(3, 3, _minus, _minus_1);
-    this.setOpaque(false);
-    super.paintComponent(g);
-    this.setOpaque(true);
-  }
-  
-  @Override
-  public void focusGained(final FocusEvent e) {
-    Caret _caret = this.getCaret();
-    _caret.setVisible(true);
-  }
-  
-  @Override
-  public void focusLost(final FocusEvent e) {
-    Caret _caret = this.getCaret();
-    _caret.setVisible(false);
-  }
+
+    @Override
+    public void paintComponent(final Graphics g) {
+        // default for non-opaque components
+        if (!isOpaque()) {
+            super.paintComponent(g);
+            return;
+        }
+        
+        // use value of JTextField for consistency
+        g.setColor(UIManager.getColor("TextField.inactiveBackground"));
+        g.fillRect(3, 3, getWidth() - 6, getHeight() - 6);
+        
+        // do rest, changing opaque to ensure background is not overwritten
+        setOpaque(false);
+        super.paintComponent(g);
+        setOpaque(true);
+    }
+
+    @Override
+    public void focusGained(final FocusEvent e) {
+        getCaret().setVisible(true);
+    }
+
+    @Override
+    public void focusLost(final FocusEvent e) {
+        getCaret().setVisible(false);
+    }
 }
