@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright 2018 Philipp Salvisberg <philipp.salvisberg@trivadis.com>
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,20 +13,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.utplsql.sqldev.test.coverage
+package org.utplsql.sqldev.test.coverage;
 
-import org.junit.Test
-import org.utplsql.sqldev.coverage.CodeCoverageReporter
-import org.utplsql.sqldev.test.AbstractJdbcTest
+import java.sql.Connection;
+import java.util.Collections;
+import org.eclipse.xtext.xbase.lib.CollectionLiterals;
+import org.eclipse.xtext.xbase.lib.Exceptions;
+import org.junit.Test;
+import org.utplsql.sqldev.coverage.CodeCoverageReporter;
+import org.utplsql.sqldev.test.AbstractJdbcTest;
+import org.utplsql.sqldev.ui.coverage.CodeCoverageReporterDialog;
 
-class CodeCoverageReporterDialogTest extends AbstractJdbcTest{
-	
-	@Test
-	def void layout() {
-		val reporter = new CodeCoverageReporter(#["SCOTT"], #['a', 'b', 'c'], dataSource.connection)
-		reporter.showParameterWindow
-		Thread.sleep(4 * 1000)
-		reporter.frame?.exit
-	}
-	
+@SuppressWarnings("all")
+public class CodeCoverageReporterDialogTest extends AbstractJdbcTest {
+  @Test
+  public void layout() {
+    try {
+      Connection _connection = AbstractJdbcTest.dataSource.getConnection();
+      final CodeCoverageReporter reporter = new CodeCoverageReporter(Collections.<String>unmodifiableList(CollectionLiterals.<String>newArrayList("SCOTT")), Collections.<String>unmodifiableList(CollectionLiterals.<String>newArrayList("a", "b", "c")), _connection);
+      reporter.showParameterWindow();
+      Thread.sleep((4 * 1000));
+      CodeCoverageReporterDialog _frame = reporter.getFrame();
+      if (_frame!=null) {
+        _frame.exit();
+      }
+    } catch (Throwable _e) {
+      throw Exceptions.sneakyThrow(_e);
+    }
+  }
 }
