@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright 2018 Philipp Salvisberg <philipp.salvisberg@trivadis.com>
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,22 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.utplsql.sqldev.test.dal
+package org.utplsql.sqldev.test.dal;
 
-import java.util.ArrayList
-import org.utplsql.sqldev.dal.RealtimeReporterEventConsumer
-import org.utplsql.sqldev.model.runner.RealtimeReporterEvent
+import java.util.ArrayList;
+import org.utplsql.sqldev.dal.RealtimeReporterEventConsumer;
+import org.utplsql.sqldev.model.runner.RealtimeReporterEvent;
 
-class TestRealtimerReporterEventConsumer implements RealtimeReporterEventConsumer {
-	
-	val consumedList = new ArrayList<RealtimeReporterEvent>
-	
-	def getConsumedList() {
-		return consumedList
-	}
-	
-	override void process(RealtimeReporterEvent event) {
-		consumedList.add(event)
-	}
-
+@SuppressWarnings("all")
+public class TestRealtimerReporterEventConsumer implements RealtimeReporterEventConsumer {
+  private final ArrayList<RealtimeReporterEvent> consumedList = new ArrayList<RealtimeReporterEvent>();
+  
+  public ArrayList<RealtimeReporterEvent> getConsumedList() {
+    return this.consumedList;
+  }
+  
+  @Override
+  public void process(final RealtimeReporterEvent event) {
+    this.consumedList.add(event);
+  }
 }
