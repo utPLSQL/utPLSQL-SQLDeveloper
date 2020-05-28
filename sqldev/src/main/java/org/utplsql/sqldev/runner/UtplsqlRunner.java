@@ -18,7 +18,6 @@ package org.utplsql.sqldev.runner;
 import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.sql.Connection;
-import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
@@ -30,7 +29,7 @@ import javax.swing.JFrame;
 
 import org.utplsql.sqldev.dal.RealtimeReporterDao;
 import org.utplsql.sqldev.dal.RealtimeReporterEventConsumer;
-import org.utplsql.sqldev.exception.GenericDatabaseAccessException;
+import org.utplsql.sqldev.model.DatabaseTools;
 import org.utplsql.sqldev.model.runner.PostRunEvent;
 import org.utplsql.sqldev.model.runner.PostSuiteEvent;
 import org.utplsql.sqldev.model.runner.PostTestEvent;
@@ -44,10 +43,6 @@ import org.utplsql.sqldev.resources.UtplsqlResources;
 import org.utplsql.sqldev.ui.runner.RunnerFactory;
 import org.utplsql.sqldev.ui.runner.RunnerPanel;
 import org.utplsql.sqldev.ui.runner.RunnerView;
-
-import oracle.dbtools.raptor.utils.Connections;
-import oracle.javatools.db.DBException;
-import oracle.jdeveloper.db.ConnectionException;
 
 public class UtplsqlRunner implements RealtimeReporterEventConsumer {
     private static final Logger logger = Logger.getLogger(UtplsqlRunner.class.getName());
@@ -80,34 +75,16 @@ public class UtplsqlRunner implements RealtimeReporterEventConsumer {
         if (connectionName == null) {
             throw new NullPointerException("Cannot initialize a RealtimeConsumer without a ConnectionName");
         } else {
-            try {
-                producerConn = Connections.getInstance()
-                        .cloneConnection(Connections.getInstance().getConnection(connectionName));
-                consumerConn = Connections.getInstance()
-                        .cloneConnection(Connections.getInstance().getConnection(connectionName));
-            } catch (ConnectionException | DBException e) {
-                final String msg = "Error creating producer and consumer connections due to " + e.getMessage();
-                logger.severe(() -> msg);
-                throw new GenericDatabaseAccessException(msg, e);
-            }
+            producerConn = DatabaseTools.cloneConnection(connectionName);
+            consumerConn = DatabaseTools.cloneConnection(connectionName);
         }
         this.connectionName = connectionName;
-    }
-    
-    private void closeConnection(Connection conn) {
-        try {
-            if (!conn.isClosed()) {
-                conn.close();
-            }
-        } catch (SQLException e) {
-            logger.warning(() -> "could not close connection");
-        }
     }
 
     public void dispose() {
         // running in SQL Developer
-        closeConnection(producerConn);
-        closeConnection(consumerConn);
+        DatabaseTools.closeConnection(producerConn);
+        DatabaseTools.closeConnection(consumerConn);
     }
 
     @Override
@@ -267,7 +244,7 @@ public class UtplsqlRunner implements RealtimeReporterEventConsumer {
             logger.fine(() -> "All events produced for reporter id " + reporterId + ".");
         } catch (Exception e) {
             logger.severe(() -> "Error while producing events for reporter id " + reporterId + ": "
-                    + (e != null ? e.getMessage() : ""));
+                    + (e != null ? e.getMessage() : "???"));
         }
     }
 
@@ -277,9 +254,9 @@ public class UtplsqlRunner implements RealtimeReporterEventConsumer {
             final RealtimeReporterDao dao = new RealtimeReporterDao(consumerConn);
             dao.consumeReport(reporterId, this);
             logger.fine(() -> "All events consumed.");
-        } catch (final Exception e) {
+        } catch (Exception e) {
             logger.severe(() -> "Error while consuming events for reporter id " + reporterId + ": "
-                    + (e != null ? e.getMessage() : ""));
+                    + (e != null ? e.getMessage() : "???"));
         }
         if (run.getTotalNumberOfTests() < 0) {
             run.setStatus(UtplsqlResources.getString("RUNNER_NO_TESTS_FOUND_TEXT"));
