@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright 2018 Philipp Salvisberg <philipp.salvisberg@trivadis.com>
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,95 +13,149 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- package org.utplsql.sqldev.test.dal
+package org.utplsql.sqldev.test.dal;
 
-import org.junit.AfterClass
-import org.junit.Assert
-import org.junit.BeforeClass
-import org.junit.Test
-import org.springframework.jdbc.BadSqlGrammarException
-import org.utplsql.sqldev.dal.UtplsqlDao
-import org.utplsql.sqldev.test.AbstractJdbcTest
+import com.google.common.base.Objects;
+import java.sql.Connection;
+import java.util.List;
+import org.eclipse.xtend2.lib.StringConcatenation;
+import org.eclipse.xtext.xbase.lib.Exceptions;
+import org.eclipse.xtext.xbase.lib.Functions.Function1;
+import org.eclipse.xtext.xbase.lib.IterableExtensions;
+import org.junit.AfterClass;
+import org.junit.Assert;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.oddgen.sqldev.generators.model.Node;
+import org.springframework.jdbc.BadSqlGrammarException;
+import org.utplsql.sqldev.dal.UtplsqlDao;
+import org.utplsql.sqldev.test.AbstractJdbcTest;
 
-class DalBugFixTest extends AbstractJdbcTest {
-	
-	@BeforeClass
-	@AfterClass
-	def static void setupAndTeardown() {
-		try {
-			jdbcTemplate.execute("DROP PACKAGE junit_utplsql_test_pkg")
-		} catch (BadSqlGrammarException e) {
-			// ignore
-		}
-	}
-
-	@Test
-	// https://github.com/utPLSQL/utPLSQL-SQLDeveloper/issues/54
-	def void issue54FolderIconForSuitesWithoutTests() {
-		setupAndTeardown
-		jdbcTemplate.execute('''
-			CREATE OR REPLACE PACKAGE junit_utplsql_test_pkg IS
-			   -- %suite
-
-			END junit_utplsql_test_pkg;
-		''')
-		val dao = new UtplsqlDao(dataSource.connection)
-		val actualNodes = dao.runnables()		
-		Assert.assertEquals(4, actualNodes.size)
-		val pkg = actualNodes.findFirst[it.id == "SCOTT:junit_utplsql_test_pkg"]
-		Assert.assertEquals("FOLDER_ICON", pkg.iconName)
-		jdbcTemplate.execute("DROP PACKAGE junit_utplsql_test_pkg")
-	}
-
-	@Test
-	// https://github.com/utPLSQL/utPLSQL-SQLDeveloper/issues/54
-	def void issue54PackageIconForSuitesWithTests() {
-		setupAndTeardown
-		jdbcTemplate.execute('''
-			CREATE OR REPLACE PACKAGE junit_utplsql_test_pkg IS
-			   -- %suite
-
-			   -- %test
-			   PROCEDURE t1;
-
-			END junit_utplsql_test_pkg;
-		''')
-		val dao = new UtplsqlDao(dataSource.connection)
-		val actualNodes = dao.runnables()		
-		Assert.assertEquals(6, actualNodes.size)
-		val pkg = actualNodes.findFirst[it.id == "SCOTT:junit_utplsql_test_pkg"]
-		Assert.assertEquals("PACKAGE_ICON", pkg.iconName)
-		jdbcTemplate.execute("DROP PACKAGE junit_utplsql_test_pkg")
-	}
-
-	@Test
-	// https://github.com/utPLSQL/utPLSQL-SQLDeveloper/issues/55
-	def void issue55SuiteWithoutTests() {
-		setupAndTeardown
-		jdbcTemplate.execute('''
-			CREATE OR REPLACE PACKAGE junit_utplsql_test_pkg IS
-			   -- %suite
-
-			END junit_utplsql_test_pkg;
-		''')
-		val dao = new UtplsqlDao(dataSource.connection)
-		val actualNodes = dao.runnables()		
-		Assert.assertEquals(4, actualNodes.size)
-		jdbcTemplate.execute("DROP PACKAGE junit_utplsql_test_pkg")
-	}
-	
-	@Test
-	// https://github.com/utPLSQL/utPLSQL-SQLDeveloper/issues/56
-	def void issue56SuiteWithoutTests() {
-		jdbcTemplate.execute('''
-			CREATE OR REPLACE PACKAGE junit_utplsql_test_pkg IS
-			   -- %suite
-
-			END junit_utplsql_test_pkg;
-		''')
-		val dao = new UtplsqlDao(dataSource.connection)
-		Assert.assertTrue(dao.containsUtplsqlTest("scott", "junit_utplsql_test_pkg"))			
-		jdbcTemplate.execute("DROP PACKAGE junit_utplsql_test_pkg")
-	}
-
+@SuppressWarnings("all")
+public class DalBugFixTest extends AbstractJdbcTest {
+  @BeforeClass
+  @AfterClass
+  public static void setupAndTeardown() {
+    try {
+      AbstractJdbcTest.jdbcTemplate.execute("DROP PACKAGE junit_utplsql_test_pkg");
+    } catch (final Throwable _t) {
+      if (_t instanceof BadSqlGrammarException) {
+      } else {
+        throw Exceptions.sneakyThrow(_t);
+      }
+    }
+  }
+  
+  @Test
+  public void issue54FolderIconForSuitesWithoutTests() {
+    try {
+      DalBugFixTest.setupAndTeardown();
+      StringConcatenation _builder = new StringConcatenation();
+      _builder.append("CREATE OR REPLACE PACKAGE junit_utplsql_test_pkg IS");
+      _builder.newLine();
+      _builder.append("   ");
+      _builder.append("-- %suite");
+      _builder.newLine();
+      _builder.newLine();
+      _builder.append("END junit_utplsql_test_pkg;");
+      _builder.newLine();
+      AbstractJdbcTest.jdbcTemplate.execute(_builder.toString());
+      Connection _connection = AbstractJdbcTest.dataSource.getConnection();
+      final UtplsqlDao dao = new UtplsqlDao(_connection);
+      final List<Node> actualNodes = dao.runnables();
+      Assert.assertEquals(4, actualNodes.size());
+      final Function1<Node, Boolean> _function = (Node it) -> {
+        String _id = it.getId();
+        return Boolean.valueOf(Objects.equal(_id, "SCOTT:junit_utplsql_test_pkg"));
+      };
+      final Node pkg = IterableExtensions.<Node>findFirst(actualNodes, _function);
+      Assert.assertEquals("FOLDER_ICON", pkg.getIconName());
+      AbstractJdbcTest.jdbcTemplate.execute("DROP PACKAGE junit_utplsql_test_pkg");
+    } catch (Throwable _e) {
+      throw Exceptions.sneakyThrow(_e);
+    }
+  }
+  
+  @Test
+  public void issue54PackageIconForSuitesWithTests() {
+    try {
+      DalBugFixTest.setupAndTeardown();
+      StringConcatenation _builder = new StringConcatenation();
+      _builder.append("CREATE OR REPLACE PACKAGE junit_utplsql_test_pkg IS");
+      _builder.newLine();
+      _builder.append("   ");
+      _builder.append("-- %suite");
+      _builder.newLine();
+      _builder.newLine();
+      _builder.append("   ");
+      _builder.append("-- %test");
+      _builder.newLine();
+      _builder.append("   ");
+      _builder.append("PROCEDURE t1;");
+      _builder.newLine();
+      _builder.newLine();
+      _builder.append("END junit_utplsql_test_pkg;");
+      _builder.newLine();
+      AbstractJdbcTest.jdbcTemplate.execute(_builder.toString());
+      Connection _connection = AbstractJdbcTest.dataSource.getConnection();
+      final UtplsqlDao dao = new UtplsqlDao(_connection);
+      final List<Node> actualNodes = dao.runnables();
+      Assert.assertEquals(6, actualNodes.size());
+      final Function1<Node, Boolean> _function = (Node it) -> {
+        String _id = it.getId();
+        return Boolean.valueOf(Objects.equal(_id, "SCOTT:junit_utplsql_test_pkg"));
+      };
+      final Node pkg = IterableExtensions.<Node>findFirst(actualNodes, _function);
+      Assert.assertEquals("PACKAGE_ICON", pkg.getIconName());
+      AbstractJdbcTest.jdbcTemplate.execute("DROP PACKAGE junit_utplsql_test_pkg");
+    } catch (Throwable _e) {
+      throw Exceptions.sneakyThrow(_e);
+    }
+  }
+  
+  @Test
+  public void issue55SuiteWithoutTests() {
+    try {
+      DalBugFixTest.setupAndTeardown();
+      StringConcatenation _builder = new StringConcatenation();
+      _builder.append("CREATE OR REPLACE PACKAGE junit_utplsql_test_pkg IS");
+      _builder.newLine();
+      _builder.append("   ");
+      _builder.append("-- %suite");
+      _builder.newLine();
+      _builder.newLine();
+      _builder.append("END junit_utplsql_test_pkg;");
+      _builder.newLine();
+      AbstractJdbcTest.jdbcTemplate.execute(_builder.toString());
+      Connection _connection = AbstractJdbcTest.dataSource.getConnection();
+      final UtplsqlDao dao = new UtplsqlDao(_connection);
+      final List<Node> actualNodes = dao.runnables();
+      Assert.assertEquals(4, actualNodes.size());
+      AbstractJdbcTest.jdbcTemplate.execute("DROP PACKAGE junit_utplsql_test_pkg");
+    } catch (Throwable _e) {
+      throw Exceptions.sneakyThrow(_e);
+    }
+  }
+  
+  @Test
+  public void issue56SuiteWithoutTests() {
+    try {
+      StringConcatenation _builder = new StringConcatenation();
+      _builder.append("CREATE OR REPLACE PACKAGE junit_utplsql_test_pkg IS");
+      _builder.newLine();
+      _builder.append("   ");
+      _builder.append("-- %suite");
+      _builder.newLine();
+      _builder.newLine();
+      _builder.append("END junit_utplsql_test_pkg;");
+      _builder.newLine();
+      AbstractJdbcTest.jdbcTemplate.execute(_builder.toString());
+      Connection _connection = AbstractJdbcTest.dataSource.getConnection();
+      final UtplsqlDao dao = new UtplsqlDao(_connection);
+      Assert.assertTrue(dao.containsUtplsqlTest("scott", "junit_utplsql_test_pkg"));
+      AbstractJdbcTest.jdbcTemplate.execute("DROP PACKAGE junit_utplsql_test_pkg");
+    } catch (Throwable _e) {
+      throw Exceptions.sneakyThrow(_e);
+    }
+  }
 }
