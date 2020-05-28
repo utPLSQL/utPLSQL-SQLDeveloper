@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2018 Philipp Salvisberg <philipp.salvisberg@trivadis.com>
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,26 +19,26 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.utplsql.sqldev.model.URLTools;
 
-@SuppressWarnings("all")
 public class UrlToolsTest {
-  @Test
-  public void replacePlusSign() {
-    Assert.assertEquals("+", URLTools.replaceHexChars("%2B"));
-    Assert.assertEquals("++", URLTools.replaceHexChars("%2B%2B"));
-    Assert.assertEquals("abc+%xyz", URLTools.replaceHexChars("abc%2B%xyz"));
-  }
-  
-  @Test
-  public void replaceAtSign() {
-    Assert.assertEquals("@", URLTools.replaceHexChars("%40"));
-    Assert.assertEquals("@@", URLTools.replaceHexChars("%40%40"));
-    Assert.assertEquals("abc@%xyz", URLTools.replaceHexChars("abc%40%xyz"));
-  }
-  
-  @Test
-  public void replaceAtAndPlusSign() {
-    Assert.assertEquals("@+", URLTools.replaceHexChars("%40%2B"));
-    Assert.assertEquals("@+@+", URLTools.replaceHexChars("%40%2B%40%2B"));
-    Assert.assertEquals("abc@+%xyz", URLTools.replaceHexChars("abc%40%2B%xyz"));
-  }
+
+    @Test
+    public void replacePlusSign() {
+        Assert.assertEquals("+", URLTools.replaceHexChars("%2B"));
+        Assert.assertEquals("++", URLTools.replaceHexChars("%2B%2B"));
+        Assert.assertEquals("abc+%xyz", URLTools.replaceHexChars("abc%2B%xyz"));
+    }
+
+    @Test
+    public void replaceAtSign() {
+        Assert.assertEquals("@", URLTools.replaceHexChars("%40"));
+        Assert.assertEquals("@@", URLTools.replaceHexChars("%40%40"));
+        Assert.assertEquals("abc@%xyz", URLTools.replaceHexChars("abc%40%xyz"));
+    }
+
+    @Test
+    public void replaceAtAndPlusSign() {
+        Assert.assertEquals("@+", URLTools.replaceHexChars("%40%2B"));
+        Assert.assertEquals("@+@+", URLTools.replaceHexChars("%40%2B%40%2B"));
+        Assert.assertEquals("abc@+%xyz", URLTools.replaceHexChars("abc%40%2B%xyz"));
+    }
 }
