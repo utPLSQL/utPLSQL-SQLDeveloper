@@ -81,7 +81,7 @@ public class PrefixTools {
                 return commonPrefix(list.toArray(testArray), list.size());
             }
 
-        } catch (final Exception e) {
+        } catch (Exception e) {
             return "";
         }
     }
