@@ -78,7 +78,7 @@ public class Run {
 
     public String getName() {
         final String time = startTime.substring(11, 19);
-        final String conn = connectionName != null ? connectionName.substring(15) : null;
+        final String conn = connectionName != null ? connectionName.substring(15) : "n/a";
         final StringBuilder sb = new StringBuilder();
         sb.append(time);
         sb.append(" (");
