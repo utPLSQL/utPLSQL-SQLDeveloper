@@ -25,10 +25,7 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.logging.Logger;
 
-import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 
 import org.springframework.jdbc.core.CallableStatementCallback;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -130,9 +127,7 @@ public class RealtimeReporterDao {
     private RealtimeReporterEvent convert(final String itemType, final String text) {
         logger.fine(() -> "\n---- " + itemType + " ----\n" + text);
         try {
-            final DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-            factory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, Boolean.TRUE);
-            final DocumentBuilder docBuilder = factory.newDocumentBuilder();
+            final DocumentBuilder docBuilder = xmlTools.createDocumentBuilder();
             final Document doc = docBuilder.parse(new InputSource(new StringReader(text)));
             RealtimeReporterEvent event = null;
             if ("pre-run".equals(itemType)) {
@@ -149,10 +144,6 @@ public class RealtimeReporterDao {
                 event = convertToPostTestEvent(doc);
             }
             return event;
-        } catch (ParserConfigurationException e) {
-            final String msg = "Cannot create docBuilder for " + itemType + " with content: " + text;
-            logger.severe(() -> msg);
-            throw new GenericRuntimeException(msg, e);
         } catch (SAXException e) {
             final String msg = "Parse error while processing " + itemType + " with content: " + text;
             logger.severe(() -> msg);
