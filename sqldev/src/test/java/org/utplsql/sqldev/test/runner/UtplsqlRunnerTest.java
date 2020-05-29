@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2018 Philipp Salvisberg <philipp.salvisberg@trivadis.com>
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,248 +16,128 @@
 package org.utplsql.sqldev.test.runner;
 
 import java.sql.Connection;
-import java.util.Collections;
-import org.eclipse.xtend2.lib.StringConcatenation;
-import org.eclipse.xtext.xbase.lib.CollectionLiterals;
-import org.eclipse.xtext.xbase.lib.Exceptions;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
+import java.util.Arrays;
+
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
-import org.springframework.jdbc.BadSqlGrammarException;
 import org.springframework.jdbc.datasource.SingleConnectionDataSource;
+import org.utplsql.sqldev.model.DatabaseTools;
+import org.utplsql.sqldev.model.SystemTools;
 import org.utplsql.sqldev.runner.UtplsqlRunner;
 import org.utplsql.sqldev.test.AbstractJdbcTest;
 
-@SuppressWarnings("all")
 public class UtplsqlRunnerTest extends AbstractJdbcTest {
-  @BeforeClass
-  public static void setup() {
-    StringConcatenation _builder = new StringConcatenation();
-    _builder.append("CREATE OR REPLACE PACKAGE junit_utplsql_test1_pkg is");
-    _builder.newLine();
-    _builder.append("   ");
-    _builder.append("--%suite(JUnit testing)");
-    _builder.newLine();
-    _builder.append("   ");
-    _builder.append("--%suitepath(a)");
-    _builder.newLine();
-    _builder.append("   ");
-    _builder.append("/* tags annotation without parameter will raise a warning */");
-    _builder.newLine();
-    _builder.append("   ");
-    _builder.append("--%tags");
-    _builder.newLine();
-    _builder.newLine();
-    _builder.append("   ");
-    _builder.append("--%context(test context)");
-    _builder.newLine();
-    _builder.newLine();
-    _builder.append("   ");
-    _builder.append("--%test(test 1 - OK) ");
-    _builder.newLine();
-    _builder.append("   ");
-    _builder.append("PROCEDURE test_1_ok;");
-    _builder.newLine();
-    _builder.newLine();
-    _builder.append("   ");
-    _builder.append("--%test(test 2 - NOK)");
-    _builder.newLine();
-    _builder.append("   ");
-    _builder.append("PROCEDURE test_2_nok;");
-    _builder.newLine();
-    _builder.newLine();
-    _builder.append("   ");
-    _builder.append("--%test(test 3 - disabled)");
-    _builder.newLine();
-    _builder.append("   ");
-    _builder.append("--%disabled");
-    _builder.newLine();
-    _builder.append("   ");
-    _builder.append("PROCEDURE test_3_disabled;");
-    _builder.newLine();
-    _builder.newLine();
-    _builder.append("   ");
-    _builder.append("--%test(test 4 - errored)");
-    _builder.newLine();
-    _builder.append("   ");
-    _builder.append("PROCEDURE test_4_errored;");
-    _builder.newLine();
-    _builder.append("   ");
-    _builder.newLine();
-    _builder.append("   ");
-    _builder.append("--%test(test 5 - warnings)");
-    _builder.newLine();
-    _builder.append("   ");
-    _builder.append("PROCEDURE test_5_warnings;");
-    _builder.newLine();
-    _builder.newLine();
-    _builder.append("   ");
-    _builder.append("--%endcontext");
-    _builder.newLine();
-    _builder.newLine();
-    _builder.append("   ");
-    _builder.append("--%afterall");
-    _builder.newLine();
-    _builder.append("   ");
-    _builder.append("procedure print_and_raise;");
-    _builder.newLine();
-    _builder.append("END;");
-    _builder.newLine();
-    AbstractJdbcTest.jdbcTemplate.execute(_builder.toString());
-    StringConcatenation _builder_1 = new StringConcatenation();
-    _builder_1.append("CREATE OR REPLACE PACKAGE BODY junit_utplsql_test1_pkg IS");
-    _builder_1.newLine();
-    _builder_1.append("   ");
-    _builder_1.append("PROCEDURE test_1_ok IS");
-    _builder_1.newLine();
-    _builder_1.append("   ");
-    _builder_1.append("BEGIN");
-    _builder_1.newLine();
-    _builder_1.append("      ");
-    _builder_1.append("dbms_output.put_line(\'start test 1\');");
-    _builder_1.newLine();
-    _builder_1.append("      ");
-    _builder_1.append("dbms_session.sleep(1);");
-    _builder_1.newLine();
-    _builder_1.append("      ");
-    _builder_1.append("ut.expect(1).to_equal(1);");
-    _builder_1.newLine();
-    _builder_1.append("      ");
-    _builder_1.append("dbms_output.put_line(\'end test 1\');");
-    _builder_1.newLine();
-    _builder_1.append("   ");
-    _builder_1.append("END;");
-    _builder_1.newLine();
-    _builder_1.newLine();
-    _builder_1.append("   ");
-    _builder_1.append("PROCEDURE test_2_nok IS");
-    _builder_1.newLine();
-    _builder_1.append("   ");
-    _builder_1.append("BEGIN");
-    _builder_1.newLine();
-    _builder_1.append("      ");
-    _builder_1.append("dbms_output.put_line(\'start test 2\');");
-    _builder_1.newLine();
-    _builder_1.append("      ");
-    _builder_1.append("dbms_session.sleep(2);");
-    _builder_1.newLine();
-    _builder_1.append("      ");
-    _builder_1.append("ut.expect(1, \'first assert.\').to_equal(2);");
-    _builder_1.newLine();
-    _builder_1.append("      ");
-    _builder_1.append("ut.expect(1, \'second assert.\').to_equal(2);");
-    _builder_1.newLine();
-    _builder_1.append("      ");
-    _builder_1.append("dbms_output.put_line(\'end test 2\');");
-    _builder_1.newLine();
-    _builder_1.append("   ");
-    _builder_1.append("END;");
-    _builder_1.newLine();
-    _builder_1.append("   ");
-    _builder_1.newLine();
-    _builder_1.append("   ");
-    _builder_1.append("PROCEDURE test_3_disabled IS");
-    _builder_1.newLine();
-    _builder_1.append("   ");
-    _builder_1.append("BEGIN");
-    _builder_1.newLine();
-    _builder_1.append("      ");
-    _builder_1.append("NULL;");
-    _builder_1.newLine();
-    _builder_1.append("   ");
-    _builder_1.append("END;");
-    _builder_1.newLine();
-    _builder_1.newLine();
-    _builder_1.append("   ");
-    _builder_1.append("PROCEDURE test_4_errored IS");
-    _builder_1.newLine();
-    _builder_1.append("   ");
-    _builder_1.append("BEGIN");
-    _builder_1.newLine();
-    _builder_1.append("      ");
-    _builder_1.append("EXECUTE IMMEDIATE \'bla bla\';");
-    _builder_1.newLine();
-    _builder_1.append("   ");
-    _builder_1.append("END;");
-    _builder_1.newLine();
-    _builder_1.newLine();
-    _builder_1.append("   ");
-    _builder_1.append("PROCEDURE test_5_warnings IS");
-    _builder_1.newLine();
-    _builder_1.append("   ");
-    _builder_1.append("BEGIN");
-    _builder_1.newLine();
-    _builder_1.append("      ");
-    _builder_1.append("COMMIT; -- will raise a warning");
-    _builder_1.newLine();
-    _builder_1.append("\t  ");
-    _builder_1.append("ut.expect(1).to_equal(1);");
-    _builder_1.newLine();
-    _builder_1.append("   ");
-    _builder_1.append("END;");
-    _builder_1.newLine();
-    _builder_1.newLine();
-    _builder_1.append("   ");
-    _builder_1.append("PROCEDURE print_and_raise IS");
-    _builder_1.newLine();
-    _builder_1.append("   ");
-    _builder_1.append("BEGIN");
-    _builder_1.newLine();
-    _builder_1.append("      ");
-    _builder_1.append("dbms_output.put_line(\'Now, a no_data_found exception is raised\');");
-    _builder_1.newLine();
-    _builder_1.append("      ");
-    _builder_1.append("dbms_output.put_line(\'dbms_output and error stack is reported for this suite.\');");
-    _builder_1.newLine();
-    _builder_1.append("      ");
-    _builder_1.append("dbms_output.put_line(\'A runtime error in afterall is counted as a warning.\');");
-    _builder_1.newLine();
-    _builder_1.append("      ");
-    _builder_1.append("RAISE no_data_found;");
-    _builder_1.newLine();
-    _builder_1.append("   ");
-    _builder_1.append("END;");
-    _builder_1.newLine();
-    _builder_1.append("END;");
-    _builder_1.newLine();
-    AbstractJdbcTest.jdbcTemplate.execute(_builder_1.toString());
-  }
-  
-  @AfterClass
-  public static void teardown() {
-    try {
-      AbstractJdbcTest.jdbcTemplate.execute("DROP PACKAGE junit_utplsql_test1_pkg");
-    } catch (final Throwable _t) {
-      if (_t instanceof BadSqlGrammarException) {
-      } else {
-        throw Exceptions.sneakyThrow(_t);
-      }
+
+    @Before
+    public void setup() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("CREATE OR REPLACE PACKAGE junit_utplsql_test1_pkg is\n");
+        sb.append("   --%suite(JUnit testing)\n");
+        sb.append("   --%suitepath(a)\n");
+        sb.append("   /* tags annotation without parameter will raise a warning */\n");
+        sb.append("   --%tags\n\n");
+
+        sb.append("   --%context(test context)\n\n");
+
+        sb.append("   --%test(test 1 - OK)\n");
+        sb.append("   PROCEDURE test_1_ok;\n\n");
+
+        sb.append("   --%test(test 2 - NOK)\n");
+        sb.append("   PROCEDURE test_2_nok;\n\n");
+
+        sb.append("   --%test(test 3 - disabled)\n");
+        sb.append("   --%disabled\n");
+        sb.append("   PROCEDURE test_3_disabled;\n\n");
+
+        sb.append("   --%test(test 4 - errored)\n");
+        sb.append("   PROCEDURE test_4_errored;\n\n");
+
+        sb.append("   --%test(test 5 - warnings)\n");
+        sb.append("   PROCEDURE test_5_warnings;\n\n");
+
+        sb.append("   --%endcontext\n\n");
+
+        sb.append("   --%afterall\n");
+        sb.append("   procedure print_and_raise;\n");
+        sb.append("END;");
+        jdbcTemplate.execute(sb.toString());
+
+        sb.setLength(0);
+        sb.append("CREATE OR REPLACE PACKAGE BODY junit_utplsql_test1_pkg IS\n");
+        sb.append("   PROCEDURE test_1_ok IS\n");
+        sb.append("   BEGIN\n");
+        sb.append("      dbms_output.put_line('start test 1');\n");
+        sb.append("      dbms_session.sleep(1);\n");
+        sb.append("      ut.expect(1).to_equal(1);\n");
+        sb.append("      dbms_output.put_line('end test 1');\n");
+        sb.append("   END;\n\n");
+
+        sb.append("   PROCEDURE test_2_nok IS\n");
+        sb.append("   BEGIN\n");
+        sb.append("      dbms_output.put_line('start test 2');\n");
+        sb.append("      dbms_session.sleep(2);\n");
+        sb.append("      ut.expect(1, 'first assert.').to_equal(2);\n");
+        sb.append("      ut.expect(1, 'second assert.').to_equal(2);\n");
+        sb.append("      dbms_output.put_line('end test 2');\n");
+        sb.append("   END;\n\n");
+
+        sb.append("   PROCEDURE test_3_disabled IS\n");
+        sb.append("   BEGIN\n");
+        sb.append("      NULL;\n");
+        sb.append("   END;\n\n");
+
+        sb.append("   PROCEDURE test_4_errored IS\n");
+        sb.append("   BEGIN\n");
+        sb.append("      EXECUTE IMMEDIATE 'bla bla';\n");
+        sb.append("   END;\n\n");
+
+        sb.append("   PROCEDURE test_5_warnings IS\n");
+        sb.append("   BEGIN\n");
+        sb.append("      COMMIT; -- will raise a warning\n");
+        sb.append("      ut.expect(1).to_equal(1);\n");
+        sb.append("   END;\n\n");
+
+        sb.append("   PROCEDURE print_and_raise IS\n");
+        sb.append("   BEGIN\n");
+        sb.append("      dbms_output.put_line('Now, a no_data_found exception is raised');\n");
+        sb.append("      dbms_output.put_line('dbms_output and error stack is reported for this suite.');\n");
+        sb.append("      dbms_output.put_line('A runtime error in afterall is counted as a warning.');\n");
+        sb.append("      RAISE no_data_found;\n");
+        sb.append("   END;\n");
+        sb.append("END;");
+        jdbcTemplate.execute(sb.toString());
     }
-  }
-  
-  @Test
-  public void runTestsWithMaxTime() {
-    try {
-      SingleConnectionDataSource ds1 = new SingleConnectionDataSource();
-      ds1.setDriverClassName("oracle.jdbc.OracleDriver");
-      ds1.setUrl(AbstractJdbcTest.dataSource.getUrl());
-      ds1.setUsername(AbstractJdbcTest.dataSource.getUsername());
-      ds1.setPassword(AbstractJdbcTest.dataSource.getPassword());
-      SingleConnectionDataSource ds2 = new SingleConnectionDataSource();
-      ds2.setDriverClassName("oracle.jdbc.OracleDriver");
-      ds2.setUrl(AbstractJdbcTest.dataSource.getUrl());
-      ds2.setUsername(AbstractJdbcTest.dataSource.getUsername());
-      ds2.setPassword(AbstractJdbcTest.dataSource.getPassword());
-      Connection _connection = ds1.getConnection();
-      Connection _connection_1 = ds2.getConnection();
-      UtplsqlRunner runner = new UtplsqlRunner(Collections.<String>unmodifiableList(CollectionLiterals.<String>newArrayList(":a")), _connection, _connection_1);
-      runner.runTestAsync();
-      runner.getProducerThread().join(200000);
-      runner.getConsumerThread().join(200000);
-      Thread.sleep((4 * 1000));
-      runner.dispose();
-    } catch (Throwable _e) {
-      throw Exceptions.sneakyThrow(_e);
+
+    @After
+    public void teardown() {
+        executeAndIgnore(jdbcTemplate, "DROP PACKAGE junit_utplsql_test1_pkg");
     }
-  }
+
+    @Test
+    public void runTestsWithMaxTime() {
+        final SingleConnectionDataSource ds1 = new SingleConnectionDataSource();
+        ds1.setDriverClassName("oracle.jdbc.OracleDriver");
+        ds1.setUrl(dataSource.getUrl());
+        ds1.setUsername(dataSource.getUsername());
+        ds1.setPassword(dataSource.getPassword());
+        final Connection producerConn = DatabaseTools.getConnection(ds1);
+
+        final SingleConnectionDataSource ds2 = new SingleConnectionDataSource();
+        ds2.setDriverClassName("oracle.jdbc.OracleDriver");
+        ds2.setUrl(dataSource.getUrl());
+        ds2.setUsername(dataSource.getUsername());
+        ds2.setPassword(dataSource.getPassword());
+        final Connection consumerConn = DatabaseTools.getConnection(ds2);
+
+        UtplsqlRunner runner = new UtplsqlRunner(Arrays.asList(":a"), producerConn, consumerConn);
+        runner.runTestAsync();
+
+        SystemTools.waitForThread(runner.getProducerThread(), 200000);
+        SystemTools.waitForThread(runner.getConsumerThread(), 200000);
+        SystemTools.sleep(4 * 1000);
+        Assert.assertNotNull(runner);
+        runner.dispose();
+    }
 }
