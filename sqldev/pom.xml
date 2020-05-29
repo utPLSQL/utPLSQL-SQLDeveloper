@@ -16,123 +16,126 @@
 		<final.name>utplsql_for_SQLDev_${project.version}</final.name>
 	</properties>
 	<dependencies>
-		<!-- SQL Developer specific dependencies part 1 (not available in public maven repositories) -->
+		<!-- SQL Developer specific dependencies part 1 (not available in public Maven repositories) -->
+		<!-- Versions of scope system are based on SQL Developer 19.4.0. -->
+		<!-- The actual version is not that important, since the these libraries are provided. -->
+		<!-- Therefore it is not planned to update them with every change of sqldev.basedir. -->
 		<dependency>
 			<groupId>oracle</groupId>
 			<artifactId>idert</artifactId>
-			<version>12.2.0</version>
+			<version>13.0.0</version>
 			<scope>system</scope>
 			<systemPath>${sqldev.basedir}/ide/lib/idert.jar</systemPath>
 		</dependency>
 		<dependency>
 			<groupId>oracle</groupId>
 			<artifactId>javatools-nodeps</artifactId>
-			<version>12.2.0</version>
+			<version>13.0.0</version>
 			<scope>system</scope>
 			<systemPath>${sqldev.basedir}/modules/oracle.javatools/javatools-nodeps.jar</systemPath>
 		</dependency>
 		<dependency>
 			<groupId>oracle</groupId>
 			<artifactId>javatools</artifactId>
-			<version>12.2.0</version>
+			<version>13.0.0</version>
 			<scope>system</scope>
 			<systemPath>${sqldev.basedir}/ide/lib/javatools.jar</systemPath>
 		</dependency>
 		<dependency>
 			<groupId>oracle</groupId>
 			<artifactId>oracle.ide.ceditor</artifactId>
-			<version>12.2.0</version>
+			<version>13.0.0</version>
 			<scope>system</scope>
 			<systemPath>${sqldev.basedir}/ide/extensions/oracle.ide.ceditor.jar</systemPath>
 		</dependency>
 		<dependency>
 			<groupId>oracle</groupId>
 			<artifactId>oracle.ide</artifactId>
-			<version>12.2.0</version>
+			<version>13.0.0</version>
 			<scope>system</scope>
 			<systemPath>${sqldev.basedir}/ide/extensions/oracle.ide.jar</systemPath>
 		</dependency>
 		<dependency>
 			<groupId>oracle</groupId>
 			<artifactId>uic</artifactId>
-			<version>12.2.2</version>
+			<version>13.0.0</version>
 			<scope>system</scope>
 			<systemPath>${sqldev.basedir}/ide/lib/uic.jar</systemPath>
 		</dependency>
 		<dependency>
 			<groupId>oracle</groupId>
 			<artifactId>oracle.ide.navigator</artifactId>
-			<version>12.2.0</version>
+			<version>13.0.0</version>
 			<scope>system</scope>
 			<systemPath>${sqldev.basedir}/ide/extensions/oracle.ide.navigator.jar</systemPath>
 		</dependency>
 		<dependency>
 			<groupId>oracle</groupId>
 			<artifactId>javax-ide</artifactId>
-			<version>12.2.0</version>
+			<version>13.0.0</version>
 			<scope>system</scope>
 			<systemPath>${sqldev.basedir}/ide/lib/javax-ide.jar</systemPath>
 		</dependency>
 		<dependency>
 			<groupId>oracle</groupId>
 			<artifactId>oracle.dbtools-common</artifactId>
-			<version>12.2.0</version>
+			<version>19.4.0</version>
 			<scope>system</scope>
 			<systemPath>${sqldev.basedir}/sqldeveloper/lib/dbtools-common.jar</systemPath>
 		</dependency>
 		<dependency>
 			<groupId>oracle</groupId>
 			<artifactId>oracle.sqldeveloper</artifactId>
-			<version>12.2.0</version>
+			<version>19.3.0</version>
 			<scope>system</scope>
 			<systemPath>${sqldev.basedir}/sqldeveloper/extensions/oracle.sqldeveloper.jar</systemPath>
 		</dependency>
 		<dependency>
 			<groupId>oracle</groupId>
 			<artifactId>oracle.sqldeveloper.utils</artifactId>
-			<version>12.2.0</version>
+			<version>19.3.0</version>
 			<scope>system</scope>
 			<systemPath>${sqldev.basedir}/sqldeveloper/extensions/oracle.sqldeveloper.utils.jar</systemPath>
 		</dependency>
 		<dependency>
 			<groupId>oracle</groupId>
 			<artifactId>oracle.sqldeveloper.worksheet</artifactId>
-			<version>12.2.0</version>
+			<version>19.3.0</version>
 			<scope>system</scope>
 			<systemPath>${sqldev.basedir}/sqldeveloper/extensions/oracle.sqldeveloper.worksheet.jar</systemPath>
 		</dependency>
 		<dependency>
 			<groupId>oracle</groupId>
 			<artifactId>ojdbc8</artifactId>
-			<version>12.2.0.1.0</version>
+			<version>19.3.0</version>
 			<scope>system</scope>
 			<systemPath>${sqldev.basedir}/jdbc/lib/ojdbc8.jar</systemPath>
 		</dependency>
 		<dependency>
 			<groupId>oracle</groupId>
 			<artifactId>dbapi</artifactId>
-			<version>12.2.1</version>
+			<version>19.3.0</version>
 			<scope>system</scope>
 			<systemPath>${sqldev.basedir}/ide/lib/dbapi.jar</systemPath>
 		</dependency>
 		<dependency>
 			<groupId>oracle</groupId>
 			<artifactId>oracle.ide.db</artifactId>
-			<version>12.2.1</version>
+			<version>19.3.0</version>
 			<scope>system</scope>
 			<systemPath>${sqldev.basedir}/ide/extensions/oracle.ide.db.jar</systemPath>
 		</dependency>
 		<dependency>
 			<groupId>oracle</groupId>
 			<artifactId>oracle.jdeveloper.db.connection</artifactId>
-			<version>12.2.1</version>
+			<version>19.3.0</version>
 			<scope>system</scope>
 			<systemPath>${sqldev.basedir}/jdev/extensions/oracle.jdeveloper.db.connection.jar</systemPath>
 		</dependency>
 		<dependency>
 			<groupId>oracle</groupId>
 			<artifactId>oracle.jdeveloper.java.core.jar</artifactId>
-			<version>12.2.1</version>
+			<version>13.0.0</version>
 			<scope>system</scope>
 			<systemPath>${sqldev.basedir}/jdev/extensions/oracle.jdeveloper.java.core.jar</systemPath>
 		</dependency>
@@ -140,14 +143,14 @@
 		<dependency>
 			<groupId>oracle</groupId>
 			<artifactId>jewt4.jar</artifactId>
-			<version>12.2.1</version>
+			<version>13.0.0</version>
 			<scope>system</scope>
 			<systemPath>${sqldev.basedir}/modules/oracle.bali.jewt/jewt4.jar</systemPath>
 		</dependency>		
 		<dependency>
 			<groupId>oracle</groupId>
 			<artifactId>share.jar</artifactId>
-			<version>12.2.1</version>
+			<version>13.0.0</version>
 			<scope>system</scope>
 			<systemPath>${sqldev.basedir}/modules/oracle.bali.share/share.jar</systemPath>
 		</dependency>		
@@ -161,16 +164,19 @@
 		</dependency>
 		<!-- other dependencies -->
 		<dependency>
+			<!-- used mainly to access the database via JdbcTemplate -->
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-jdbc</artifactId>
 			<version>5.2.6.RELEASE</version>
 		</dependency>
 		<dependency>
+			<!-- used for HtmlUtils.htmlEscape in RunnerPanel -->
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-web</artifactId>
 			<version>5.2.6.RELEASE</version>
 		</dependency>
 		<dependency>
+			<!-- optional, for RunGenerator and TestGenerator -->
 			<groupId>org.oddgen</groupId>
 			<artifactId>org.oddgen.sqldev</artifactId>
 			<version>0.3.1</version>
@@ -261,7 +267,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-antrun-plugin</artifactId>
-				<version>1.8</version><!--$NO-MVN-MAN-VER$-->
+				<version>3.0.0</version><!--$NO-MVN-MAN-VER$-->
 				<executions>
 					<execution>
 						<phase>prepare-package</phase>
@@ -395,7 +401,7 @@
 							org.aspectj.lang.reflect
 						</_exportcontents>
 						<Require-Bundle>
-							oracle.javatools-nodeps,
+							oracle.javatools,
 							oracle.jdeveloper.db.connection,
 							oracle.idert,
 							oracle.ide,
@@ -414,7 +420,7 @@
 			</plugin>
 			<plugin>
 				<artifactId>maven-assembly-plugin</artifactId>
-				<version>3.2.0</version><!--$NO-MVN-MAN-VER$-->
+				<version>3.3.0</version><!--$NO-MVN-MAN-VER$-->
 				<configuration>
 					<finalName>${final.name}</finalName>
 					<appendAssemblyId>false</appendAssemblyId>
@@ -436,7 +442,7 @@
 			<plugin>
 				<groupId>net.nicoulaj.maven.plugins</groupId>
 				<artifactId>checksum-maven-plugin</artifactId>
-				<version>1.8</version>
+				<version>1.9</version>
 				<executions>
 					<execution>
 						<id>calculate-checksums</id>
@@ -451,6 +457,7 @@
 		<pluginManagement>
 			<plugins>
 				<plugin>
+					<!-- Dummy plugin used in Eclipse IDE only -->
 					<groupId>org.eclipse.m2e</groupId>
 					<artifactId>lifecycle-mapping</artifactId>
 					<version>1.0.0</version>
@@ -461,7 +468,7 @@
 									<pluginExecutionFilter>
 										<groupId>org.apache.maven.plugins</groupId>
 										<artifactId>maven-dependency-plugin</artifactId>
-										<versionRange>[3.1.1,)</versionRange>
+										<versionRange>[3.1.2,)</versionRange>
 										<goals>
 											<goal>copy-dependencies</goal>
 										</goals>
@@ -479,7 +486,7 @@
 											build-helper-maven-plugin
 										</artifactId>
 										<versionRange>
-											[3.0.0,)
+											[3.1.0,)
 										</versionRange>
 										<goals>
 											<goal>parse-version</goal>
