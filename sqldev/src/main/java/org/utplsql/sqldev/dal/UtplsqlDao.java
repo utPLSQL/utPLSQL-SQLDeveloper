@@ -23,7 +23,6 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.eclipse.xtend2.lib.StringConcatenation;
 import org.eclipse.xtext.xbase.lib.CollectionLiterals;
 import org.oddgen.sqldev.generators.model.Node;
 import org.springframework.dao.DataAccessException;
@@ -254,7 +253,7 @@ public class UtplsqlDao {
                 return found > 0;
             } else {
                 // using internal API (deprecated, not accessible in latest version)
-                StringConcatenation sb = new StringConcatenation();
+                StringBuilder sb = new StringBuilder();
                 sb.append("SELECT count(\n");
                 sb.append("          CASE\n");
                 sb.append("             WHEN a.name = 'test'\n");
@@ -428,7 +427,7 @@ public class UtplsqlDao {
      *             if there is a problem
      */
     public List<Node> testables(final String objectType) {
-        StringConcatenation sb = new StringConcatenation();
+        StringBuilder sb = new StringBuilder();
         if ("PACKAGE".equals(objectType)) {
             if (normalizedUtPlsqlVersionNumber() >= FIRST_VERSION_WITH_ANNOTATION_API) {
                 // using API available since 3.1.3
@@ -1049,7 +1048,7 @@ public class UtplsqlDao {
      * @return the object type, e.g. PACKAGE BODY, TYPE BODY, PROCEDURE, FUNCTION
      */
     public String getObjectType(final String owner, final String objectName) {
-        StringConcatenation sb = new StringConcatenation();
+        StringBuilder sb = new StringBuilder();
         sb.append("SELECT object_type\n");
         sb.append("  FROM (\n");
         sb.append("          SELECT object_type\n");

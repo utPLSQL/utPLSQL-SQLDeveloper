@@ -28,7 +28,6 @@ import java.util.stream.Collectors;
 
 import javax.swing.JEditorPane;
 
-import org.eclipse.xtend2.lib.StringConcatenation;
 import org.utplsql.sqldev.coverage.CodeCoverageReporter;
 import org.utplsql.sqldev.dal.RealtimeReporterDao;
 import org.utplsql.sqldev.dal.UtplsqlDao;
@@ -320,7 +319,7 @@ public class UtplsqlController implements Controller {
         final View view = context.getView();
         final Node node = context.getNode();
         final PreferenceModel preferences = PreferenceModel.getInstance(Preferences.getPreferences());
-        final StringConcatenation sb = new StringConcatenation();
+        final StringBuilder sb = new StringBuilder();
         sb.append("Run utPLSQL from view ");
         sb.append(view != null ? view.getClass().getName() : "???");
         sb.append(" and node ");
@@ -417,7 +416,7 @@ public class UtplsqlController implements Controller {
     public void codeCoverage(final Context context) {
         final View view = context.getView();
         final Node node = context.getNode();
-        final StringConcatenation sb = new StringConcatenation();
+        final StringBuilder sb = new StringBuilder();
         sb.append("Code coverage from view ");
         sb.append(view != null ? view.getClass().getName() : "???");
         sb.append(" and node ");
@@ -474,7 +473,7 @@ public class UtplsqlController implements Controller {
     public void generateTest(final Context context) {
         final View view = context.getView();
         final Node node = context.getNode();
-        final StringConcatenation sb = new StringConcatenation();
+        final StringBuilder sb = new StringBuilder();
         sb.append("Generate utPLSQL test from view ");
         sb.append(view != null ? view.getClass().getName() : "???");
         sb.append(" and node ");

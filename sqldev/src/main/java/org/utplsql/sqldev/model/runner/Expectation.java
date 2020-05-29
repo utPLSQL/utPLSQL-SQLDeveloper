@@ -18,7 +18,6 @@ package org.utplsql.sqldev.model.runner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.eclipse.xtend2.lib.StringConcatenation;
 import org.springframework.core.style.ToStringCreator;
 import org.utplsql.sqldev.model.UtplsqlToStringStyler;
 
@@ -50,7 +49,7 @@ public class Expectation {
     }
 
     public String getShortFailureText() {
-        final StringConcatenation sb = new StringConcatenation();
+        final StringBuilder sb = new StringBuilder();
         if (description != null) {
             sb.append(description);
             sb.append(" (line ");
