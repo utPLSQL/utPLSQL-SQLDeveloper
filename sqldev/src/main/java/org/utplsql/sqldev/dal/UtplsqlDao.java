@@ -35,8 +35,6 @@ import org.utplsql.sqldev.model.StringTools;
 import org.utplsql.sqldev.model.ut.Annotation;
 import org.utplsql.sqldev.model.ut.OutputLines;
 
-import com.google.common.base.Objects;
-
 public class UtplsqlDao {
     public static final String UTPLSQL_PACKAGE_NAME = "UT";
     public static final int NOT_INSTALLED = 0;
@@ -237,7 +235,7 @@ public class UtplsqlDao {
                         cs.registerOutParameter(4, Types.VARCHAR);
                         cs.execute();
                         final String ret = cs.getString(4);
-                        return Boolean.valueOf(Objects.equal(ret, "1"));
+                        return Boolean.valueOf("1".equals(ret));
                     }
                 });
             } else if (normalizedUtPlsqlVersionNumber() >= FIRST_VERSION_WITH_ANNOTATION_API) {
@@ -309,7 +307,7 @@ public class UtplsqlDao {
                     cs.registerOutParameter(2, Types.VARCHAR);
                     cs.execute();
                     final String ret = cs.getString(2);
-                    return Boolean.valueOf(Objects.equal(ret, "1"));
+                    return Boolean.valueOf("1".equals(ret));
                 }
             });
         } else {
@@ -338,7 +336,7 @@ public class UtplsqlDao {
                     cs.registerOutParameter(3, Types.VARCHAR);
                     cs.execute();
                     final String ret = cs.getString(3);
-                    return Boolean.valueOf(Objects.equal(ret, "1"));
+                    return Boolean.valueOf("1".equals(ret));
                 }
             });
         } else {
