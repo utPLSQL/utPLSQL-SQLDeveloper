@@ -16,7 +16,7 @@
 package org.utplsql.sqldev.model.runner;
 
 import org.springframework.core.style.ToStringCreator;
-import org.utplsql.sqldev.model.UtplsqlToStringStyler;
+import org.utplsql.sqldev.model.JsonToStringStyler;
 
 public abstract class PostEvent extends RealtimeReporterEvent {
     private String startTime;
@@ -29,7 +29,7 @@ public abstract class PostEvent extends RealtimeReporterEvent {
 
     @Override
     public String toString() {
-        return new ToStringCreator(this, UtplsqlToStringStyler.INSTANCE)
+        return new ToStringCreator(this, JsonToStringStyler.INSTANCE)
                 .append("startTime", startTime)
                 .append("endTime", endTime)
                 .append("executionTime", executionTime)

@@ -18,7 +18,7 @@ package org.utplsql.sqldev.model.parser;
 import java.util.List;
 
 import org.springframework.core.style.ToStringCreator;
-import org.utplsql.sqldev.model.UtplsqlToStringStyler;
+import org.utplsql.sqldev.model.JsonToStringStyler;
 import org.utplsql.sqldev.model.ut.Annotation;
 
 public class PlsqlObject {
@@ -29,7 +29,7 @@ public class PlsqlObject {
 
     @Override
     public String toString() {
-        return new ToStringCreator(this, UtplsqlToStringStyler.INSTANCE)
+        return new ToStringCreator(this, JsonToStringStyler.INSTANCE)
                 .append("name", name)
                 .append("type", type)
                 .append("position", position)

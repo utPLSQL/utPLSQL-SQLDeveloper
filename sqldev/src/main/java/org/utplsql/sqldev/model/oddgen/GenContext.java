@@ -18,7 +18,7 @@ package org.utplsql.sqldev.model.oddgen;
 import java.sql.Connection;
 
 import org.springframework.core.style.ToStringCreator;
-import org.utplsql.sqldev.model.UtplsqlToStringStyler;
+import org.utplsql.sqldev.model.JsonToStringStyler;
 
 public class GenContext {
     private Connection conn;
@@ -40,7 +40,7 @@ public class GenContext {
 
     @Override 
     public String toString() {
-        return new ToStringCreator(this, UtplsqlToStringStyler.INSTANCE)
+        return new ToStringCreator(this, JsonToStringStyler.INSTANCE)
                 .append("conn", conn)
                 .append("objectType", objectType)
                 .append("objectName", objectName)

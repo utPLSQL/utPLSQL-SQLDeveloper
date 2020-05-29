@@ -16,7 +16,7 @@
 package org.utplsql.sqldev.model.runner;
 
 import org.springframework.core.style.ToStringCreator;
-import org.utplsql.sqldev.model.UtplsqlToStringStyler;
+import org.utplsql.sqldev.model.JsonToStringStyler;
 
 public class Counter {
     private Integer disabled;
@@ -27,7 +27,7 @@ public class Counter {
 
     @Override
     public String toString() {
-        return new ToStringCreator(this, UtplsqlToStringStyler.INSTANCE)
+        return new ToStringCreator(this, JsonToStringStyler.INSTANCE)
                 .append("disabled", disabled)
                 .append("success", success)
                 .append("failure", failure)

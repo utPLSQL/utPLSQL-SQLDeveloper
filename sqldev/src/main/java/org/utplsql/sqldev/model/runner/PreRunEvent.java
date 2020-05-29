@@ -19,7 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.core.style.ToStringCreator;
-import org.utplsql.sqldev.model.UtplsqlToStringStyler;
+import org.utplsql.sqldev.model.JsonToStringStyler;
 
 public class PreRunEvent extends RealtimeReporterEvent {
     private List<Item> items;
@@ -27,7 +27,7 @@ public class PreRunEvent extends RealtimeReporterEvent {
 
     @Override
     public String toString() {
-        return new ToStringCreator(this, UtplsqlToStringStyler.INSTANCE)
+        return new ToStringCreator(this, JsonToStringStyler.INSTANCE)
                 .append("items", items)
                 .append("totalNumberOfTests", totalNumberOfTests)
                 .toString();

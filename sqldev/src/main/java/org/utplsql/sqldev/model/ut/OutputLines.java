@@ -16,7 +16,7 @@
 package org.utplsql.sqldev.model.ut;
 
 import org.springframework.core.style.ToStringCreator;
-import org.utplsql.sqldev.model.UtplsqlToStringStyler;
+import org.utplsql.sqldev.model.JsonToStringStyler;
 
 public class OutputLines {
     private String[] lines;
@@ -24,7 +24,7 @@ public class OutputLines {
 
     @Override
     public String toString() {
-        return new ToStringCreator(this, UtplsqlToStringStyler.INSTANCE)
+        return new ToStringCreator(this, JsonToStringStyler.INSTANCE)
                 .append("lines", lines)
                 .append("numlines", numlines)
                 .toString();

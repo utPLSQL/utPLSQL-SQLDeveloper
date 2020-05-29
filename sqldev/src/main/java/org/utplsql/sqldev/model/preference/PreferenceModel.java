@@ -18,7 +18,7 @@ package org.utplsql.sqldev.model.preference;
 import java.io.File;
 
 import org.springframework.core.style.ToStringCreator;
-import org.utplsql.sqldev.model.UtplsqlToStringStyler;
+import org.utplsql.sqldev.model.JsonToStringStyler;
 
 import oracle.javatools.data.HashStructure;
 import oracle.javatools.data.HashStructureAdapter;
@@ -70,7 +70,7 @@ public class PreferenceModel extends HashStructureAdapter {
 
     @Override
     public String toString() {
-        return new ToStringCreator(this, UtplsqlToStringStyler.INSTANCE)
+        return new ToStringCreator(this, JsonToStringStyler.INSTANCE)
                 .append(KEY_USE_REALTIME_REPORTER, isUseRealtimeReporter())
                 .append(KEY_UNSHARED_WORKSHEET, isUnsharedWorksheet())
                 .append(KEY_RESET_PACKAGE, isResetPackage())

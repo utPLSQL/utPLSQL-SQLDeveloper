@@ -16,7 +16,7 @@
 package org.utplsql.sqldev.model.runner;
 
 import org.springframework.core.style.ToStringCreator;
-import org.utplsql.sqldev.model.UtplsqlToStringStyler;
+import org.utplsql.sqldev.model.JsonToStringStyler;
 
 public abstract class Item {
     private String id;
@@ -30,7 +30,7 @@ public abstract class Item {
 
     @Override
     public String toString() {
-        return new ToStringCreator(this, UtplsqlToStringStyler.INSTANCE)
+        return new ToStringCreator(this, JsonToStringStyler.INSTANCE)
                 .append("id", id)
                 .append("startTime", startTime)
                 .append("endTime", endTime)

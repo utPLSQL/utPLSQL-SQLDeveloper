@@ -19,7 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.core.style.ToStringCreator;
-import org.utplsql.sqldev.model.UtplsqlToStringStyler;
+import org.utplsql.sqldev.model.JsonToStringStyler;
 
 public class PostTestEvent extends PostEvent {
     private String id;
@@ -29,7 +29,7 @@ public class PostTestEvent extends PostEvent {
 
     @Override
     public String toString() {
-        return new ToStringCreator(this, UtplsqlToStringStyler.INSTANCE)
+        return new ToStringCreator(this, JsonToStringStyler.INSTANCE)
                 // ancestor
                 .append("startTime", getStartTime())
                 .append("endTime", getEndTime())

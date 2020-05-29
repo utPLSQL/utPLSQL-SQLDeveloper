@@ -16,7 +16,7 @@
 package org.utplsql.sqldev.model.ut;
 
 import org.springframework.core.style.ToStringCreator;
-import org.utplsql.sqldev.model.UtplsqlToStringStyler;
+import org.utplsql.sqldev.model.JsonToStringStyler;
 
 public class Annotation {
     private String objectOwner;
@@ -27,7 +27,7 @@ public class Annotation {
 
     @Override
     public String toString() {
-        return new ToStringCreator(this, UtplsqlToStringStyler.INSTANCE)
+        return new ToStringCreator(this, JsonToStringStyler.INSTANCE)
                 .append("objectOwner", objectOwner)
                 .append("objectName", objectName)
                 .append("name", name)

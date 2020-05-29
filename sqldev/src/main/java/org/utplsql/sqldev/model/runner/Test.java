@@ -20,7 +20,7 @@ import java.util.List;
 import javax.swing.Icon;
 
 import org.springframework.core.style.ToStringCreator;
-import org.utplsql.sqldev.model.UtplsqlToStringStyler;
+import org.utplsql.sqldev.model.JsonToStringStyler;
 import org.utplsql.sqldev.resources.UtplsqlResources;
 
 public class Test extends Item {
@@ -36,7 +36,7 @@ public class Test extends Item {
 
     @Override
     public String toString() {
-        return new ToStringCreator(this, UtplsqlToStringStyler.INSTANCE)
+        return new ToStringCreator(this, JsonToStringStyler.INSTANCE)
                 // ancestor
                 .append("id", getId())
                 .append("startTime", getStartTime())

@@ -16,7 +16,7 @@
 package org.utplsql.sqldev.model.parser;
 
 import org.springframework.core.style.ToStringCreator;
-import org.utplsql.sqldev.model.UtplsqlToStringStyler;
+import org.utplsql.sqldev.model.JsonToStringStyler;
 
 public class Unit {
     private String name;
@@ -25,7 +25,7 @@ public class Unit {
 
     @Override
     public String toString() {
-        return new ToStringCreator(this, UtplsqlToStringStyler.INSTANCE)
+        return new ToStringCreator(this, JsonToStringStyler.INSTANCE)
                 .append("name", name)
                 .append("position", position)
                 .append("positionOfName", positionOfName)
