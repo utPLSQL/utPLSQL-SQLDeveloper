@@ -19,7 +19,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 
 import org.springframework.core.style.ToStringCreator;
-import org.utplsql.sqldev.model.UtplsqlToStringStyler;
+import org.utplsql.sqldev.model.JsonToStringStyler;
 
 public class Run {
     private String reporterId;
@@ -41,7 +41,7 @@ public class Run {
 
     @Override
     public String toString() {
-        return new ToStringCreator(this, UtplsqlToStringStyler.INSTANCE)
+        return new ToStringCreator(this, JsonToStringStyler.INSTANCE)
                 .append("reporterId", reporterId)
                 .append("connectionName", connectionName)
                 .append("pathList", pathList)
@@ -103,6 +103,10 @@ public class Run {
     }
 
     public int getTotalNumberOfCompletedTests() {
+        if (counter.getDisabled() == null || counter.getSuccess() == null || counter.getFailure() == null
+                || counter.getError() == null) {
+            return -1;
+        }
         return counter.getDisabled() + counter.getSuccess() + counter.getFailure() + counter.getError();
     }
 
