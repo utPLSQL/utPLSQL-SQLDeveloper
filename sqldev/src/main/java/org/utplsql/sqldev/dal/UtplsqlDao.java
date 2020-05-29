@@ -19,11 +19,11 @@ import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Types;
+import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.eclipse.xtext.xbase.lib.CollectionLiterals;
 import org.oddgen.sqldev.generators.model.Node;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -409,7 +409,7 @@ public class UtplsqlDao {
             final Object[] binds = new Object[] {objectType, objectName};
             return jdbcTemplate.queryForList(sql, String.class, binds);
         } else {
-            return CollectionLiterals.newArrayList(objectName);
+            return Arrays.asList(objectName);
         }
     }
 
