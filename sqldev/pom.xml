@@ -14,6 +14,9 @@
 		<!-- requires SQL Developer 4.1.0 or higher (first version based on JDK 1.8) -->
 		<sqldev.basedir>/Applications/SQLDeveloper19.4.0.app/Contents/Resources/sqldeveloper</sqldev.basedir>
 		<final.name>utplsql_for_SQLDev_${project.version}</final.name>
+		<!-- arguments to by added by jacoco plugin for test runs with coverage -->
+		<!-- -noverify is required in some environments to avoid java.lang.VerifyError -->
+		<argLine>-noverify -Djava.util.logging.config.file=${project.basedir}/src/test/resources/logging.conf</argLine>
 	</properties>
 	<dependencies>
 		<!-- SQL Developer specific dependencies part 1 (not available in public Maven repositories) -->
@@ -237,9 +240,7 @@
 				<artifactId>maven-surefire-plugin</artifactId>
 				<version>2.22.2</version>
 				<configuration>
-					<!-- -noverify is required in some environments to avoid java.lang.VerifyError -->
-					<argLine>-noverify
-						-Djava.util.logging.config.file=${project.basedir}/src/test/resources/logging.conf</argLine>
+					<!-- argline moved to properties, to make it work with jacoco plugin -->
 					<includes>
 						<include>**/*.java</include>
 					</includes>
@@ -449,6 +450,25 @@
 						<phase>package</phase>
 						<goals>
 							<goal>artifacts</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.jacoco</groupId>
+				<artifactId>jacoco-maven-plugin</artifactId>
+				<version>0.8.5</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>prepare-agent</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>report</id>
+						<phase>prepare-package</phase>
+						<goals>
+							<goal>report</goal>
 						</goals>
 					</execution>
 				</executions>
