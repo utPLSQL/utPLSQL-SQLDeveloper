@@ -5,13 +5,12 @@
 	<!-- The Basics -->
 	<groupId>org.utplsql</groupId>
 	<artifactId>org.utplsql.sqldev</artifactId>
-	<version>1.1.2-SNAPSHOT</version>
+	<version>1.2.0-SNAPSHOT</version>
 	<packaging>bundle</packaging>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<jdk.version>1.8</jdk.version>
 		<jdk.version.test>1.8</jdk.version.test>
-		<xtend.version>2.20.0</xtend.version>
 		<!-- requires SQL Developer 4.1.0 or higher (first version based on JDK 1.8) -->
 		<sqldev.basedir>/Applications/SQLDeveloper19.4.0.app/Contents/Resources/sqldeveloper</sqldev.basedir>
 		<final.name>utplsql_for_SQLDev_${project.version}</final.name>
@@ -162,20 +161,14 @@
 		</dependency>
 		<!-- other dependencies -->
 		<dependency>
-			<!-- Xtend comes with some runtime dependencies... -->
-			<groupId>org.eclipse.xtend</groupId>
-			<artifactId>org.eclipse.xtend.lib</artifactId>
-			<version>${xtend.version}</version>
-		</dependency>
-		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-jdbc</artifactId>
-			<version>5.2.4.RELEASE</version>
+			<version>5.2.6.RELEASE</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-web</artifactId>
-			<version>5.2.4.RELEASE</version>
+			<version>5.2.6.RELEASE</version>
 		</dependency>
 		<dependency>
 			<groupId>org.oddgen</groupId>
@@ -204,34 +197,6 @@
 			</resource>
 		</resources>
 		<plugins>
-			<plugin>
-				<groupId>org.eclipse.xtend</groupId>
-				<artifactId>xtend-maven-plugin</artifactId>
-				<!-- change version might need "mvn -U" to update snapshots -->
-				<version>${xtend.version}</version>
-				<executions>
-					<execution>
-						<id>main</id>
-						<goals>
-							<goal>compile</goal>
-						</goals>
-						<configuration>
-							<javaSourceVersion>${jdk.version}</javaSourceVersion>
-							<outputDirectory>${project.basedir}/src/main/xtend-gen</outputDirectory>
-						</configuration>
-					</execution>
-					<execution>
-						<id>test</id>
-						<goals>
-							<goal>testCompile</goal>
-						</goals>
-						<configuration>
-							<javaSourceVersion>${jdk.version.test}</javaSourceVersion>
-							<testOutputDirectory>${project.basedir}/src/test/xtend-gen</testOutputDirectory>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<version>3.8.1</version>
@@ -424,7 +389,6 @@
 							org.utplsql.sqldev.resources
 						</Export-Package>
 						<_exportcontents>
-							org.eclipse.xtext.xbase.lib,
 							org.aspectj.runtime.internal,
 							org.aspectj.lang,
 							org.aspectj.runtime,
