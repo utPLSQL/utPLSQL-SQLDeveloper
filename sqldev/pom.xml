@@ -403,6 +403,7 @@
 						</_exportcontents>
 						<Require-Bundle>
 							oracle.javatools,
+							oracle.javatools-nodeps,
 							oracle.jdeveloper.db.connection,
 							oracle.idert,
 							oracle.ide,
