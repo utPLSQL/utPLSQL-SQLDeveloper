@@ -30,6 +30,7 @@ import javax.swing.JFrame;
 import org.utplsql.sqldev.dal.RealtimeReporterDao;
 import org.utplsql.sqldev.dal.RealtimeReporterEventConsumer;
 import org.utplsql.sqldev.model.DatabaseTools;
+import org.utplsql.sqldev.model.SystemTools;
 import org.utplsql.sqldev.model.runner.PostRunEvent;
 import org.utplsql.sqldev.model.runner.PostSuiteEvent;
 import org.utplsql.sqldev.model.runner.PostTestEvent;
@@ -308,11 +309,7 @@ public class UtplsqlRunner implements RealtimeReporterEventConsumer {
             consumerThread.setName("realtime consumer");
             consumerThread.start();
             // avoid concurrency on output header table to fix issue #80
-            try {
-                Thread.sleep(100);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-            }
+            SystemTools.sleep(100);
             // the producer
             producerThread = new Thread(() -> produce());
             producerThread.setName("realtime producer");
