@@ -73,7 +73,7 @@ public class Run {
 
     public void setStartTime(final String startTime) {
         this.startTime = startTime;
-        start = Long.valueOf(System.currentTimeMillis());
+        start = System.currentTimeMillis();
     }
 
     public String getName() {

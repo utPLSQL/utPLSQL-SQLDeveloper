@@ -570,7 +570,7 @@ public class RunnerPanel {
     }
 
     private String getLinkedAndFormattedText(final String text) {
-        if ((text == null)) {
+        if (text == null) {
             return "";
         }
         // Patterns (primarily Asserts, Errors, ServerOutput): 

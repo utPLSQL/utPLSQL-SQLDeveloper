@@ -132,7 +132,7 @@ public class CodeCoverageReporter {
     }
 
     public List<String> getIncludeObjectList() {
-        if ((includeObjectList == null)) {
+        if (includeObjectList == null) {
             return new ArrayList<>();
         } else {
             return includeObjectList;

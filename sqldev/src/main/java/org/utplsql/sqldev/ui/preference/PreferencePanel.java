@@ -367,7 +367,7 @@ public class PreferencePanel extends DefaultTraversablePanel {
         autoExecuteCheckBox.setSelected(info.isAutoExecute());
         checkRunUtplsqlTestCheckBox.setSelected(info.isCheckRunUtplsqlTest());
         useSmartTimesCheckBox.setSelected(info.isUseSmartTimes());
-        numberOfRunsInHistorySpinner.setValue(Integer.valueOf(info.getNumberOfRunsInHistory()));
+        numberOfRunsInHistorySpinner.setValue(info.getNumberOfRunsInHistory());
         showDisabledCounterCheckBox.setSelected(info.isShowDisabledCounter());
         showWarningsCounterCheckBox.setSelected(info.isShowWarningsCounter());
         showInfoCounterCheckBox.setSelected(info.isShowInfoCounter());
@@ -381,13 +381,13 @@ public class PreferencePanel extends DefaultTraversablePanel {
         testPackageSuffixTextField.setText(info.getTestPackageSuffix());
         testUnitPrefixTextField.setText(info.getTestUnitPrefix());
         testUnitSuffixTextField.setText(info.getTestUnitSuffix());
-        numberOfTestsPerUnitSpinner.setValue(Integer.valueOf(info.getNumberOfTestsPerUnit()));
+        numberOfTestsPerUnitSpinner.setValue(info.getNumberOfTestsPerUnit());
         checkGenerateUtplsqlTestCheckBox.setSelected(info.isCheckGenerateUtplsqlTest());
         loadCodeTemplates();
         generateCommentsCheckBox.setSelected(info.isGenerateComments());
         disableTestsCheckBox.setSelected(info.isDisableTests());
         suitePathTextField.setText(info.getSuitePath());
-        indentSpacesSpinner.setValue(Integer.valueOf(info.getIndentSpaces()));
+        indentSpacesSpinner.setValue(info.getIndentSpaces());
         rootFolderInOddgenViewTextField.setText(info.getRootFolderInOddgenView());
         generateFilesCheckBox.setSelected(info.isGenerateFiles());
         outputDirectoryTextField.setText(info.getOutputDirectory());

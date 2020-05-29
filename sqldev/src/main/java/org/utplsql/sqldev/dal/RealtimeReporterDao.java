@@ -114,7 +114,7 @@ public class RealtimeReporterDao {
                     final Clob textClob = rs.getClob("text");
                     final String textString = textClob.getSubString(1, ((int) textClob.length()));
                     final RealtimeReporterEvent event = convert(itemType, textString);
-                    if ((event != null)) {
+                    if (event != null) {
                         consumer.process(event);
                     }
                 }
@@ -264,7 +264,7 @@ public class RealtimeReporterDao {
             test.setOwnerName(xmlTools.getElementValue(node, "ownerName"));
             test.setObjectName(xmlTools.getElementValue(node, "objectName"));
             test.setProcedureName(xmlTools.getElementValue(node, "procedureName"));
-            test.setDisabled(Boolean.valueOf("true".equals(xmlTools.getElementValue(node, "disabled"))));
+            test.setDisabled("true".equals(xmlTools.getElementValue(node, "disabled")));
             test.setName(xmlTools.getElementValue(node, "name"));
             test.setDescription(xmlTools.getElementValue(node, "description"));
             test.setTestNumber(Integer.valueOf(xmlTools.getElementValue(node, "testNumber")));

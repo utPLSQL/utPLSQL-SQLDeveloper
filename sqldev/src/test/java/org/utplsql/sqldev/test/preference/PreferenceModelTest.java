@@ -53,7 +53,7 @@ public class PreferenceModelTest {
         Assert.assertEquals(3, model.getIndentSpaces());
         Assert.assertTrue(model.isGenerateFiles());
         Assert.assertEquals(PreferenceModel.DEFAULT_OUTPUT_DIRECTORY, model.getOutputDirectory());
-        Assert.assertEquals(Boolean.valueOf(false), Boolean.valueOf(model.isDeleteExistingFiles()));
+        Assert.assertEquals(false, model.isDeleteExistingFiles());
         Assert.assertEquals("utPLSQL", model.getRootFolderInOddgenView());
     }
 }

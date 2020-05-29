@@ -89,7 +89,7 @@ public class TestGenerator implements OddgenGenerator2 {
 
     private void logConsoleOutput() {
         for (final String line : consoleOutput) {
-            if ((line.contains("error") || line.startsWith("Cannot"))) {
+            if (line.contains("error") || line.startsWith("Cannot")) {
                 logger.severe(line);
             } else {
                 logger.fine(line);
@@ -178,27 +178,27 @@ public class TestGenerator implements OddgenGenerator2 {
             final Node packageNode = new Node();
             packageNode.setId("PACKAGE");
             packageNode.setParams(params);
-            packageNode.setLeaf(Boolean.valueOf(false));
-            packageNode.setGeneratable(Boolean.valueOf(true));
-            packageNode.setMultiselectable(Boolean.valueOf(true));
+            packageNode.setLeaf(false);
+            packageNode.setGeneratable(true);
+            packageNode.setMultiselectable(true);
             final Node typeNode = new Node();
             typeNode.setId("TYPE");
             typeNode.setParams(params);
-            typeNode.setLeaf(Boolean.valueOf(false));
-            typeNode.setGeneratable(Boolean.valueOf(true));
-            typeNode.setMultiselectable(Boolean.valueOf(true));
+            typeNode.setLeaf(false);
+            typeNode.setGeneratable(true);
+            typeNode.setMultiselectable(true);
             final Node functionNode = new Node();
             functionNode.setId("FUNCTION");
             functionNode.setParams(params);
-            functionNode.setLeaf(Boolean.valueOf(false));
-            functionNode.setGeneratable(Boolean.valueOf(true));
-            functionNode.setMultiselectable(Boolean.valueOf(true));
+            functionNode.setLeaf(false);
+            functionNode.setGeneratable(true);
+            functionNode.setMultiselectable(true);
             final Node procedureNode = new Node();
             procedureNode.setId("PROCEDURE");
             procedureNode.setParams(params);
-            procedureNode.setLeaf(Boolean.valueOf(false));
-            procedureNode.setGeneratable(Boolean.valueOf(true));
-            procedureNode.setMultiselectable(Boolean.valueOf(true));
+            procedureNode.setLeaf(false);
+            procedureNode.setGeneratable(true);
+            procedureNode.setMultiselectable(true);
             return Arrays.asList(packageNode, typeNode, functionNode, procedureNode);
         } else {
             final UtplsqlDao dao = new UtplsqlDao(conn);

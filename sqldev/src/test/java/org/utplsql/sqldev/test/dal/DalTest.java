@@ -614,6 +614,6 @@ public class DalTest extends AbstractJdbcTest {
     public void normalizedUtPlsqlVersion() {
         final UtplsqlDao dao = new UtplsqlDao(DatabaseTools.getConnection(dataSource));
         final String version = dao.normalizedUtPlsqlVersion();
-        Assert.assertTrue((version != null));
+        Assert.assertTrue(version != null);
     }
 }

@@ -64,7 +64,7 @@ public class UtplsqlDao {
      */
     public String normalizedUtPlsqlVersion() {
         final String version = this.getUtPlsqlVersion();
-        if ((version != null)) {
+        if (version != null) {
             final Pattern p = Pattern.compile("(\\d+\\.\\d+\\.\\d+)");
             final Matcher m = p.matcher(version);
             if (m.find()) {
@@ -117,7 +117,7 @@ public class UtplsqlDao {
     }
 
     public boolean isDbaViewAccessible() {
-        if ((cachedDbaViewAccessible == null)) {
+        if (cachedDbaViewAccessible == null) {
             try {
                 final StringBuilder sb = new StringBuilder();
                 sb.append("SELECT 1 AS dummy\n");
@@ -161,7 +161,7 @@ public class UtplsqlDao {
      *             if there is a problem
      */
     public String getUtplsqlSchema() {
-        if ((cachedUtplsqlSchema == null)) {
+        if (cachedUtplsqlSchema == null) {
             final StringBuilder sb = new StringBuilder();
             sb.append("SELECT table_owner\n");
             sb.append("  FROM ");
@@ -235,7 +235,7 @@ public class UtplsqlDao {
                         cs.registerOutParameter(4, Types.VARCHAR);
                         cs.execute();
                         final String ret = cs.getString(4);
-                        return Boolean.valueOf("1".equals(ret));
+                        return "1".equals(ret);
                     }
                 });
             } else if (normalizedUtPlsqlVersionNumber() >= FIRST_VERSION_WITH_ANNOTATION_API) {
@@ -307,7 +307,7 @@ public class UtplsqlDao {
                     cs.registerOutParameter(2, Types.VARCHAR);
                     cs.execute();
                     final String ret = cs.getString(2);
-                    return Boolean.valueOf("1".equals(ret));
+                    return "1".equals(ret);
                 }
             });
         } else {
@@ -336,7 +336,7 @@ public class UtplsqlDao {
                     cs.registerOutParameter(3, Types.VARCHAR);
                     cs.execute();
                     final String ret = cs.getString(3);
-                    return Boolean.valueOf("1".equals(ret));
+                    return "1".equals(ret);
                 }
             });
         } else {
@@ -876,14 +876,14 @@ public class UtplsqlDao {
                     cs.execute();
                     final OutputLines out = new OutputLines();
                     Object array = cs.getArray(1).getArray();
-                    out.setLines(((String[]) array));
-                    out.setNumlines(Integer.valueOf(cs.getInt(2)));
+                    out.setLines((String[]) array);
+                    out.setNumlines(cs.getInt(2));
                     return out;
                 }
             });
             for (int i = 0; i < ret.getNumlines(); i++) {
                 final String line = ret.getLines()[i];
-                if ((line != null)) {
+                if (line != null) {
                     resultSb.append(ret.getLines()[i]);
                 }
                 resultSb.append(System.lineSeparator());

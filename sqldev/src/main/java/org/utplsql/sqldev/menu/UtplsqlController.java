@@ -113,7 +113,7 @@ public class UtplsqlController implements Controller {
                             connectionName = ((DatabaseSourceNode) node).getConnectionName();
                             owner = ((DatabaseSourceNode) node).getOwner();
                         } else {
-                            if ((view instanceof Worksheet)) {
+                            if (view instanceof Worksheet) {
                                 connectionName = ((Worksheet) view).getConnectionName();
                             }
                         }
@@ -144,17 +144,17 @@ public class UtplsqlController implements Controller {
                                 if (element instanceof DatabaseConnection) {
                                     final String schema = DatabaseTools.getSchema((DatabaseConnection) element);
                                     action.setEnabled(dao.containsUtplsqlTest(schema));
-                                } else if ((element instanceof SchemaFolder)) {
+                                } else if (element instanceof SchemaFolder) {
                                     final String schema = ((SchemaFolder) element).getSchemaName();
                                     action.setEnabled(dao.containsUtplsqlTest(schema));
-                                } else if ((element instanceof ObjectFolder)) {
+                                } else if (element instanceof ObjectFolder) {
                                     final String schema = URLTools.getSchema(((ObjectFolder) element).getURL());
                                     action.setEnabled(dao.containsUtplsqlTest(schema));
-                                } else if ((element instanceof PlSqlNode)) {
+                                } else if (element instanceof PlSqlNode) {
                                     final String schema = ((PlSqlNode) element).getOwner();
                                     final String objectName = ((PlSqlNode) element).getObjectName();
                                     action.setEnabled(dao.containsUtplsqlTest(schema, objectName));
-                                } else if ((element instanceof ChildObjectElement)) {
+                                } else if (element instanceof ChildObjectElement) {
                                     final String schema = URLTools.getSchema(((ChildObjectElement) element).getURL());
                                     final String objectName = URLTools.getMemberObject(((ChildObjectElement) element).getURL());
                                     final String subObjectName = ((ChildObjectElement) element).getShortLabel();
@@ -305,7 +305,7 @@ public class UtplsqlController implements Controller {
         if (Connections.getInstance().isConnectionOpen(connectionName)) {
             genContext.setConn(DatabaseTools.getConnection(connectionName));
             final Object element = context.getSelection()[0];
-            if ((element instanceof PlSqlNode)) {
+            if (element instanceof PlSqlNode) {
                 genContext.setObjectType(((PlSqlNode) element).getObjectType().replace(" BODY", ""));
                 genContext.setObjectName(((PlSqlNode) element).getObjectName());
                 final PreferenceModel preferences = PreferenceModel.getInstance(Preferences.getPreferences());
@@ -326,7 +326,7 @@ public class UtplsqlController implements Controller {
         sb.append(node != null ? node.getClass().getName() : "???");
         sb.append(".");
         logger.finer(() -> sb.toString());
-        if ((view instanceof Editor)) {
+        if (view instanceof Editor) {
             final Component component = ((Editor) view).getDefaultFocusComponent();
             if (component instanceof JEditorPane) {
                 String connectionName = null;
@@ -356,7 +356,7 @@ public class UtplsqlController implements Controller {
             }
         } else if (view instanceof DBNavigatorWindow) {
             final URL url = getURL(context);
-            if ((url != null)) {
+            if (url != null) {
                 final String connectionName = URLTools.getConnectionName(url);
                 logger.fine("connectionName: " + connectionName);
                 final Connection conn = DatabaseTools.getConnection(connectionName);
@@ -450,7 +450,7 @@ public class UtplsqlController implements Controller {
                 final CodeCoverageReporter reporter = new CodeCoverageReporter(getPathList(path), includeObjectList, connectionName);
                 reporter.showParameterWindow();
             }
-        } else if ((view instanceof DBNavigatorWindow)) {
+        } else if (view instanceof DBNavigatorWindow) {
             logger.finer("Code coverage from DB navigator");
             final URL url = getURL(context);
             if (url != null) {

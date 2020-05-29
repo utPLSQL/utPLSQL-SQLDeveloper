@@ -108,7 +108,7 @@ public class UtplsqlParser {
             final PlsqlObject o = new PlsqlObject();
             o.setType(m.group(4).toUpperCase());
             o.setName(m.group(6));
-            o.setPosition(Integer.valueOf(m.start()));
+            o.setPosition(m.start());
             objects.add(o);
         }
     }

@@ -106,7 +106,7 @@ public class UtplsqlWorksheetRunner {
                 && selectedResultPanel.getGUI().getParent().getParent() != null && selectedResultPanel.getGUI().getParent().getParent().getParent() != null) {
             splitPane = selectedResultPanel.getGUI().getParent().getParent().getParent();
         }
-        if ((splitPane instanceof JSplitPane)) {
+        if (splitPane instanceof JSplitPane) {
             ((JSplitPane) splitPane).setDividerLocation(0.15);
         } else {
             final String msg = "Could not adjust size of worksheet. Expected JSplitPane but got "
@@ -119,7 +119,7 @@ public class UtplsqlWorksheetRunner {
         if (preferences.isAutoExecute()) {
             SystemTools.sleep(100);
             final IdeAction action = ((IdeAction) Ide.getIdeActionMap().get(Ide.findCmdID("Worksheet.RunScript")));
-            if ((action != null)) {
+            if (action != null) {
                 try {
                     action.performAction(worksheet.getContext());
                 } catch (Exception e) {
