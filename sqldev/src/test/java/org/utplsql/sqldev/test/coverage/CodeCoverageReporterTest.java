@@ -112,7 +112,7 @@ public class CodeCoverageReporterTest extends AbstractJdbcTest {
     public void defaultSchemaCalculationMixedCase() {
         final CodeCoverageReporter reporter = new CodeCoverageReporter(Arrays.asList(":something"),
                 Arrays.asList("scott.a", "scott.b", "hR.a", "HR.B", "hr.c"), DatabaseTools.getConnection(dataSource));
-        Assert.assertEquals("HR", reporter.getSchemas());
+        Assert.assertEquals("HR, SCOTT", reporter.getSchemas());
     }
 
     @Test
@@ -126,7 +126,7 @@ public class CodeCoverageReporterTest extends AbstractJdbcTest {
     public void defaultSchemaCalculationWithoutOwnerInformation() {
         final CodeCoverageReporter reporter = new CodeCoverageReporter(Arrays.asList(":something"),
                 Arrays.asList("a", "b", "c"), DatabaseTools.getConnection(dataSource));
-        Assert.assertEquals(null, reporter.getSchemas());
+        Assert.assertEquals("", reporter.getSchemas());
     }
 
     @Test
