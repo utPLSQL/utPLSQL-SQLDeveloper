@@ -22,7 +22,11 @@ import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.logging.Logger;
 
 import org.utplsql.sqldev.dal.RealtimeReporterDao;
@@ -53,6 +57,7 @@ public class CodeCoverageReporter {
             final String connectionName) {
         this.pathList = pathList;
         this.includeObjectList = includeObjectList;
+        setDefaultSchema();
         setConnection(connectionName);
     }
 
@@ -62,6 +67,7 @@ public class CodeCoverageReporter {
         this.pathList = pathList;
         this.includeObjectList = includeObjectList;
         this.conn = conn;
+        setDefaultSchema();
     }
 
     private void setConnection(final String connectionName) {
@@ -73,6 +79,31 @@ public class CodeCoverageReporter {
             // must be closed manually
             this.connectionName = connectionName;
             this.conn = DatabaseTools.getConnection(connectionName);
+        }
+    }
+    
+    private void setDefaultSchema() {
+        if (includeObjectList != null && !includeObjectList.isEmpty()) {
+            // use the owner with the most hits in includeObjectList
+            HashMap<String, Integer> owners = new HashMap<>();
+            for (String entry : includeObjectList) {
+                String[] obj = entry.toUpperCase().split("\\.");
+                if (obj.length == 2) {
+                    // only if objectOwner and objectName are available
+                    Integer count = owners.get(obj[0]);
+                    if (count == null) {
+                        count = 1;
+                    } else {
+                        count++;
+                    }
+                    owners.put(obj[0], count);
+                }
+            }
+            Optional<Entry<String, Integer>> top = owners.entrySet().stream()
+                    .sorted(Map.Entry.<String, Integer>comparingByValue().reversed()).findFirst();
+            if (top.isPresent()) {
+                schemas = top.get().getKey();
+            }
         }
     }
 
@@ -92,8 +123,14 @@ public class CodeCoverageReporter {
         logger.fine(() -> "Running code coverage reporter for " + pathList + "...");
         try {
             final RealtimeReporterDao dao = new RealtimeReporterDao(conn);
-            final PreferenceModel preferences = PreferenceModel.getInstance(Preferences.getPreferences());
-            if (preferences.isUseRealtimeReporter() && dao.isSupported()) {
+            PreferenceModel preferences;
+            try {
+                preferences = PreferenceModel.getInstance(Preferences.getPreferences());
+            } catch (NoClassDefFoundError error) {
+                // not running in SQL Developer (in tests)
+                preferences = PreferenceModel.getInstance(null);
+            }
+            if (preferences.isUseRealtimeReporter() && dao.isSupported() && connectionName != null) {
                 runCodeCoverageWithRealtimeReporter();
             } else {
                 runCodeCoverageStandalone();
@@ -179,6 +216,10 @@ public class CodeCoverageReporter {
 
     public void setSchemas(final String schemas) {
         this.schemas = schemas;
+    }
+
+    public String getSchemas() {
+        return schemas;
     }
 
     public void setIncludeObjects(final String includeObjects) {
