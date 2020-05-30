@@ -32,6 +32,7 @@ import org.utplsql.sqldev.model.runner.PreRunEvent;
 import org.utplsql.sqldev.model.runner.PreSuiteEvent;
 import org.utplsql.sqldev.model.runner.PreTestEvent;
 import org.utplsql.sqldev.test.AbstractJdbcTest;
+import org.utplsql.sqldev.test.coverage.CodeCoverageReporterTest;
 
 public class RealtimeReporterTest extends AbstractJdbcTest {
     private static final Logger logger = Logger.getLogger(RealtimeReporterTest.class.getName());
@@ -142,13 +143,16 @@ public class RealtimeReporterTest extends AbstractJdbcTest {
         sb.append("    END;\n");
         sb.append("END;");
         jdbcTemplate.execute(sb.toString());
-    }
 
+        new CodeCoverageReporterTest().setup();
+    }
+    
     @After
     public void teardown() {
         executeAndIgnore(jdbcTemplate, "DROP PACKAGE junit_utplsql_test1_pkg");
         executeAndIgnore(jdbcTemplate, "DROP PACKAGE junit_utplsql_test2_pkg");
         executeAndIgnore(jdbcTemplate, "DROP PACKAGE junit_utplsql_test3_pkg");
+        new CodeCoverageReporterTest().teardown();
     }
 
     @Test
@@ -167,5 +171,19 @@ public class RealtimeReporterTest extends AbstractJdbcTest {
         Assert.assertEquals(7, consumer.getConsumedList().stream().filter(it -> it instanceof PreTestEvent).count());
         Assert.assertEquals(7, consumer.getConsumedList().stream().filter(it -> it instanceof PostTestEvent).count());
         Assert.assertEquals(28, consumer.getConsumedList().size());
+    }
+    
+    @Test
+    public void produceAndConsumeWithCoverage() {
+        final RealtimeReporterDao dao = new RealtimeReporterDao(DatabaseTools.getConnection(dataSource));
+        final String realtimeReporterId = UUID.randomUUID().toString().replace("-", "");
+        final String coverageReporterId = UUID.randomUUID().toString().replace("-", "");
+        final TestRealtimerReporterEventConsumer consumer = new TestRealtimerReporterEventConsumer();
+        dao.produceReportWithCoverage(realtimeReporterId, coverageReporterId, Arrays.asList(":test_f"), null, null, null);
+        dao.consumeReport(realtimeReporterId, consumer);
+        logger.fine(consumer.getConsumedList().toString());
+        Assert.assertEquals(6, consumer.getConsumedList().size());
+        final String html = dao.getHtmlCoverage(coverageReporterId);
+        Assert.assertTrue(html.trim().endsWith("</html>"));
     }
 }

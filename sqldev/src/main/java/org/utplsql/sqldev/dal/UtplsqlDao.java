@@ -42,6 +42,7 @@ public class UtplsqlDao {
     public static final int FIRST_VERSION_WITH_ANNOTATION_API = 3001003;
     public static final int FIRST_VERSION_WITHOUT_INTERNAL_API = 3001008;
     public static final int FIRST_VERSION_WITH_HAS_SUITES_API = 3001008;
+    public static final int FETCH_ROWS = 100;
     private JdbcTemplate jdbcTemplate;
     // cache fields
     private Boolean cachedDbaViewAccessible;
@@ -50,6 +51,7 @@ public class UtplsqlDao {
 
     public UtplsqlDao(final Connection conn) {
         jdbcTemplate = new JdbcTemplate(new SingleConnectionDataSource(conn, true));
+        jdbcTemplate.setFetchSize(FETCH_ROWS);
     }
 
     /**
@@ -918,17 +920,17 @@ public class UtplsqlDao {
         sb.append("             a_paths => ut_varchar2_list(\n");
         sb.append(StringTools.getCSV(pathList, 16));
         sb.append("             ),\n");
-        if (!schemaList.isEmpty()) {
+        if (schemaList != null && !schemaList.isEmpty()) {
             sb.append("             a_coverage_schemes => ut_varchar2_list(\n");
             sb.append(StringTools.getCSV(schemaList, 16));
             sb.append("             ),\n");
         }
-        if (!includeObjectList.isEmpty()) {
+        if (includeObjectList != null && !includeObjectList.isEmpty()) {
             sb.append("             a_include_objects => ut_varchar2_list(\n");
             sb.append(StringTools.getCSV(includeObjectList, 16));
             sb.append("             ),\n");
         }
-        if (!excludeObjectList.isEmpty()) {
+        if (excludeObjectList != null && excludeObjectList.isEmpty()) {
             sb.append("             a_exclude_objects => ut_varchar2_list(\n");
             sb.append(StringTools.getCSV(excludeObjectList, 16));
             sb.append("             ),\n");

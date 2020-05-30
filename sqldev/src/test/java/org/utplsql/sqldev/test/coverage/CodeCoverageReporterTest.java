@@ -20,17 +20,15 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.sql.Connection;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
-import org.junit.AfterClass;
+import org.junit.After;
 import org.junit.Assert;
-import org.junit.BeforeClass;
+import org.junit.Before;
 import org.junit.Test;
-import org.springframework.jdbc.datasource.SingleConnectionDataSource;
 import org.utplsql.sqldev.coverage.CodeCoverageReporter;
 import org.utplsql.sqldev.exception.GenericRuntimeException;
 import org.utplsql.sqldev.model.DatabaseTools;
@@ -40,8 +38,8 @@ import org.utplsql.sqldev.test.AbstractJdbcTest;
 
 public class CodeCoverageReporterTest extends AbstractJdbcTest {
 
-    @BeforeClass
-    public static void setup() {
+    @Before
+    public void setup() {
         StringBuilder sb = new StringBuilder();
         sb.append("CREATE OR REPLACE FUNCTION f RETURN INTEGER IS\n");
         sb.append("BEGIN\n");
@@ -98,28 +96,48 @@ public class CodeCoverageReporterTest extends AbstractJdbcTest {
 
     @Test
     public void produceReportAndCloseConnection() {
-        // create temporary dataSource, closed by reporter
-        SingleConnectionDataSource ds = new SingleConnectionDataSource();
-        ds.setDriverClassName("oracle.jdbc.OracleDriver");
-        ds.setUrl(dataSource.getUrl());
-        ds.setUsername(dataSource.getUsername());
-        ds.setPassword(dataSource.getPassword());
-        final Connection conn = DatabaseTools.getConnection(ds);
         final List<String> pathList = Arrays.asList(":test_f");
         final List<String> includeObjectList = Arrays.asList("f");
-        final CodeCoverageReporter reporter = new CodeCoverageReporter(pathList, includeObjectList, conn);
+        final CodeCoverageReporter reporter = new CodeCoverageReporter(pathList, includeObjectList, DatabaseTools.getConnection(dataSource));
         final Thread run = reporter.runAsync();
         SystemTools.waitForThread(run, 20000);
-        Assert.assertTrue(DatabaseTools.isConnectionClosed(conn));
         final Path outputFile = this.getNewestOutputFile();
         Assert.assertNotNull(outputFile);
         final String content = new String(FileTools.readFile(outputFile), StandardCharsets.UTF_8);
         Assert.assertTrue(
                 content.contains("<h3>SCOTT.F</h3><h4><span class=\"green\">100 %</span> lines covered</h4>"));
     }
+    
+    @Test
+    public void defaultSchemaCalculationMixedCase() {
+        final CodeCoverageReporter reporter = new CodeCoverageReporter(Arrays.asList(":something"),
+                Arrays.asList("scott.a", "scott.b", "hR.a", "HR.B", "hr.c"), DatabaseTools.getConnection(dataSource));
+        Assert.assertEquals("HR, SCOTT", reporter.getSchemas());
+    }
 
-    @AfterClass
-    public static void teardown() {
+    @Test
+    public void defaultSchemaCalculationWithoutIncludeObjects() {
+        final CodeCoverageReporter reporter = new CodeCoverageReporter(Arrays.asList(":something"),
+                Arrays.asList(), DatabaseTools.getConnection(dataSource));
+        Assert.assertEquals(null, reporter.getSchemas());
+    }
+
+    @Test
+    public void defaultSchemaCalculationWithoutOwnerInformation() {
+        final CodeCoverageReporter reporter = new CodeCoverageReporter(Arrays.asList(":something"),
+                Arrays.asList("a", "b", "c"), DatabaseTools.getConnection(dataSource));
+        Assert.assertEquals("", reporter.getSchemas());
+    }
+
+    @Test
+    public void defaultSchemaCalculationWithJustOneOwner() {
+        final CodeCoverageReporter reporter = new CodeCoverageReporter(Arrays.asList(":something"),
+                Arrays.asList("a", "b", "scott.c"), DatabaseTools.getConnection(dataSource));
+        Assert.assertEquals("SCOTT", reporter.getSchemas());
+    }
+    
+    @After
+    public void teardown() {
         executeAndIgnore(jdbcTemplate, "DROP PACKAGE test_f");
         executeAndIgnore(jdbcTemplate, "DROP FUNCTION f");
     }

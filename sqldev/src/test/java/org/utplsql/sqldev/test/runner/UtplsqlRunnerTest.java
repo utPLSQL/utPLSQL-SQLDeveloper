@@ -27,6 +27,7 @@ import org.utplsql.sqldev.model.DatabaseTools;
 import org.utplsql.sqldev.model.SystemTools;
 import org.utplsql.sqldev.runner.UtplsqlRunner;
 import org.utplsql.sqldev.test.AbstractJdbcTest;
+import org.utplsql.sqldev.test.coverage.CodeCoverageReporterTest;
 
 public class UtplsqlRunnerTest extends AbstractJdbcTest {
 
@@ -108,11 +109,13 @@ public class UtplsqlRunnerTest extends AbstractJdbcTest {
         sb.append("   END;\n");
         sb.append("END;");
         jdbcTemplate.execute(sb.toString());
+        new CodeCoverageReporterTest().setup();
     }
 
     @After
     public void teardown() {
         executeAndIgnore(jdbcTemplate, "DROP PACKAGE junit_utplsql_test1_pkg");
+        new CodeCoverageReporterTest().teardown();
     }
 
     @Test
@@ -132,6 +135,32 @@ public class UtplsqlRunnerTest extends AbstractJdbcTest {
         final Connection consumerConn = DatabaseTools.getConnection(ds2);
 
         UtplsqlRunner runner = new UtplsqlRunner(Arrays.asList(":a"), producerConn, consumerConn);
+        runner.runTestAsync();
+
+        SystemTools.waitForThread(runner.getProducerThread(), 200000);
+        SystemTools.waitForThread(runner.getConsumerThread(), 200000);
+        SystemTools.sleep(4 * 1000);
+        Assert.assertNotNull(runner);
+        runner.dispose();
+    }
+
+    @Test
+    public void runTestsWithCodeCoverage() {
+        final SingleConnectionDataSource ds1 = new SingleConnectionDataSource();
+        ds1.setDriverClassName("oracle.jdbc.OracleDriver");
+        ds1.setUrl(dataSource.getUrl());
+        ds1.setUsername(dataSource.getUsername());
+        ds1.setPassword(dataSource.getPassword());
+        final Connection producerConn = DatabaseTools.getConnection(ds1);
+
+        final SingleConnectionDataSource ds2 = new SingleConnectionDataSource();
+        ds2.setDriverClassName("oracle.jdbc.OracleDriver");
+        ds2.setUrl(dataSource.getUrl());
+        ds2.setUsername(dataSource.getUsername());
+        ds2.setPassword(dataSource.getPassword());
+        final Connection consumerConn = DatabaseTools.getConnection(ds2);
+
+        UtplsqlRunner runner = new UtplsqlRunner(Arrays.asList(":test_f"), null, null, null, producerConn, consumerConn);
         runner.runTestAsync();
 
         SystemTools.waitForThread(runner.getProducerThread(), 200000);

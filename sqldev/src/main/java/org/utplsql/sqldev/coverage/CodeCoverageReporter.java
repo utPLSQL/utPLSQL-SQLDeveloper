@@ -22,19 +22,28 @@ import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
+import org.utplsql.sqldev.dal.RealtimeReporterDao;
 import org.utplsql.sqldev.dal.UtplsqlDao;
 import org.utplsql.sqldev.exception.GenericDatabaseAccessException;
 import org.utplsql.sqldev.exception.GenericRuntimeException;
 import org.utplsql.sqldev.model.DatabaseTools;
 import org.utplsql.sqldev.model.FileTools;
+import org.utplsql.sqldev.model.preference.PreferenceModel;
+import org.utplsql.sqldev.runner.UtplsqlRunner;
 import org.utplsql.sqldev.ui.coverage.CodeCoverageReporterDialog;
+
+import oracle.ide.config.Preferences;
 
 public class CodeCoverageReporter {
     private static final Logger logger = Logger.getLogger(CodeCoverageReporter.class.getName());
 
+    private String connectionName;
     private Connection conn;
     private List<String> pathList;
     private List<String> includeObjectList;
@@ -47,14 +56,17 @@ public class CodeCoverageReporter {
             final String connectionName) {
         this.pathList = pathList;
         this.includeObjectList = includeObjectList;
+        setDefaultSchema();
         setConnection(connectionName);
     }
 
+    // constructor for testing purposes only
     public CodeCoverageReporter(final List<String> pathList, final List<String> includeObjectList,
             final Connection conn) {
         this.pathList = pathList;
         this.includeObjectList = includeObjectList;
         this.conn = conn;
+        setDefaultSchema();
     }
 
     private void setConnection(final String connectionName) {
@@ -64,7 +76,32 @@ public class CodeCoverageReporter {
             throw new NullPointerException();
         } else {
             // must be closed manually
-            conn = DatabaseTools.cloneConnection(connectionName);
+            this.connectionName = connectionName;
+            this.conn = DatabaseTools.getConnection(connectionName);
+        }
+    }
+    
+    private void setDefaultSchema() {
+        if (includeObjectList != null && !includeObjectList.isEmpty()) {
+            // use the owner with the most hits in includeObjectList
+            HashMap<String, Integer> owners = new HashMap<>();
+            for (String entry : includeObjectList) {
+                String[] obj = entry.toUpperCase().split("\\.");
+                if (obj.length == 2) {
+                    // only if objectOwner and objectName are available
+                    Integer count = owners.get(obj[0]);
+                    if (count == null) {
+                        count = 1;
+                    } else {
+                        count++;
+                    }
+                    owners.put(obj[0], count);
+                }
+            }
+            List<String> sortedOwners = owners.entrySet().stream()
+                    .sorted(Map.Entry.<String, Integer>comparingByValue().reversed()).map(Map.Entry::getKey)
+                    .collect(Collectors.toList());
+            schemas = String.join(", ", sortedOwners);
         }
     }
 
@@ -83,12 +120,57 @@ public class CodeCoverageReporter {
     private void run() {
         logger.fine(() -> "Running code coverage reporter for " + pathList + "...");
         try {
-            final UtplsqlDao dal = new UtplsqlDao(conn);
-            final String content = dal.htmlCodeCoverage(pathList, toStringList(schemas),
+            final RealtimeReporterDao dao = new RealtimeReporterDao(conn);
+            PreferenceModel preferences;
+            try {
+                preferences = PreferenceModel.getInstance(Preferences.getPreferences());
+            } catch (NoClassDefFoundError error) {
+                // not running in SQL Developer (in tests)
+                preferences = PreferenceModel.getInstance(null);
+            }
+            if (preferences.isUseRealtimeReporter() && dao.isSupported() && connectionName != null) {
+                runCodeCoverageWithRealtimeReporter();
+            } else {
+                runCodeCoverageStandalone();
+            }
+        } finally {
+            if (frame != null) {
+                frame.exit();
+            }
+        }
+    }
+    
+    private void runCodeCoverageWithRealtimeReporter() {
+        final UtplsqlRunner runner = new UtplsqlRunner(pathList, toStringList(schemas), toStringList(includeObjects),
+                toStringList(excludeObjects), connectionName);
+        runner.runTestAsync();
+    }
+    
+    private void runCodeCoverageStandalone() {
+        Connection coverageConn = null;
+        try {
+            coverageConn = conn != null ? conn : DatabaseTools.cloneConnection(connectionName);
+            final UtplsqlDao dao = new UtplsqlDao(coverageConn);
+            final String html = dao.htmlCodeCoverage(pathList, toStringList(schemas),
                     toStringList(includeObjects), toStringList(excludeObjects));
+            openInBrowser(html);
+        } finally {
+            try {
+                if (coverageConn != null && conn == null) {
+                    // close only if connection has been cloned
+                    DatabaseTools.closeConnection(coverageConn);
+                }
+            } catch (GenericDatabaseAccessException e) {
+                // ignore
+            }
+        }
+    }
+    
+    public static void openInBrowser(String html) {
+        try {
             final File file = File.createTempFile("utplsql_", ".html");
             logger.fine(() -> "Writing result to " + file + "...");
-            FileTools.writeFile(file.toPath(), Arrays.asList(content.split(System.lineSeparator())), StandardCharsets.UTF_8);
+            FileTools.writeFile(file.toPath(), Arrays.asList(html.split(System.lineSeparator())), StandardCharsets.UTF_8);
             final URL url = file.toURI().toURL();
             logger.fine(() -> "Opening " + url.toExternalForm() + " in browser...");
             final Desktop desktop = Desktop.isDesktopSupported() ? Desktop.getDesktop() : null;
@@ -97,21 +179,12 @@ public class CodeCoverageReporter {
                 logger.fine(() -> url.toExternalForm() + " opened in browser.");
             } else {
                 logger.severe(
-                        () -> "Could not launch " + file + "in browser. No default browser defined on this system.");
+                        () -> "Could not launch " + file + " in browser. No default browser defined on this system.");
             }
         } catch (Exception e) {
-            final String msg = "Error while running code coverage for " + pathList + ".";
+            final String msg = "Error while opening code coverage HTML report in browser.";
             logger.severe(() -> msg);
             throw new GenericRuntimeException(msg, e);
-        } finally {
-            try {
-                DatabaseTools.closeConnection(conn);
-            } catch (GenericDatabaseAccessException e) {
-                // ignore
-            }
-            if (frame != null) {
-                frame.exit();
-            }
         }
     }
 
@@ -141,6 +214,10 @@ public class CodeCoverageReporter {
 
     public void setSchemas(final String schemas) {
         this.schemas = schemas;
+    }
+
+    public String getSchemas() {
+        return schemas;
     }
 
     public void setIncludeObjects(final String includeObjects) {
