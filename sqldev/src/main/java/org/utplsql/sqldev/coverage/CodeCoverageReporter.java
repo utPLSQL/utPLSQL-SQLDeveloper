@@ -25,9 +25,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Optional;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 import org.utplsql.sqldev.dal.RealtimeReporterDao;
 import org.utplsql.sqldev.dal.UtplsqlDao;
@@ -99,11 +98,10 @@ public class CodeCoverageReporter {
                     owners.put(obj[0], count);
                 }
             }
-            Optional<Entry<String, Integer>> top = owners.entrySet().stream()
-                    .sorted(Map.Entry.<String, Integer>comparingByValue().reversed()).findFirst();
-            if (top.isPresent()) {
-                schemas = top.get().getKey();
-            }
+            List<String> sortedOwners = owners.entrySet().stream()
+                    .sorted(Map.Entry.<String, Integer>comparingByValue().reversed()).map(Map.Entry::getKey)
+                    .collect(Collectors.toList());
+            schemas = String.join(", ", sortedOwners);
         }
     }
 
