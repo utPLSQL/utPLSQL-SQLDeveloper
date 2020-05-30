@@ -93,6 +93,47 @@ public class RealtimeReporterDao {
         jdbcTemplate.update(plsql, binds);
     }
 
+    public void produceReportWithCoverage(final String realtimeReporterId, final String coverageReporterId,
+            final List<String> pathList, final List<String> schemaList, final List<String> includeObjectList,
+            final List<String> excludeObjectList) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("DECLARE\n");
+        sb.append("   l_rt_rep  ut_realtime_reporter      := ut_realtime_reporter();\n");
+        sb.append("   l_cov_rep ut_coverage_html_reporter := ut_coverage_html_reporter();\n");
+        sb.append("BEGIN\n");
+        sb.append("   l_rt_rep.set_reporter_id(?);\n");
+        sb.append("   l_rt_rep.output_buffer.init();\n");
+        sb.append("   l_cov_rep.set_reporter_id(?);\n");
+        sb.append("   l_cov_rep.output_buffer.init();\n");
+        sb.append("   sys.dbms_output.enable(NULL);\n");
+        sb.append("   ut_runner.run(\n");
+        sb.append("      a_paths            => ut_varchar2_list(\n");
+        sb.append(StringTools.getCSV(pathList, 31));
+        sb.append("                            ),\n");
+        if (!schemaList.isEmpty()) {
+            sb.append("      a_coverage_schemes => ut_varchar2_list(\n");
+            sb.append(StringTools.getCSV(schemaList, 31));
+            sb.append("                            ),\n");
+        }
+        if (!includeObjectList.isEmpty()) {
+            sb.append("     a_include_objects   => ut_varchar2_list(\n");
+            sb.append(StringTools.getCSV(includeObjectList, 31));
+            sb.append("                            ),\n");
+        }
+        if (!excludeObjectList.isEmpty()) {
+            sb.append("     a_exclude_objects   => ut_varchar2_list(\n");
+            sb.append(StringTools.getCSV(excludeObjectList, 31));
+            sb.append("                            ),\n");
+        }
+        sb.append("      a_reporters        => ut_reporters(l_rt_rep, l_cov_rep)\n");
+        sb.append("   );\n");
+        sb.append("   sys.dbms_output.disable;\n");
+        sb.append("END;");
+        final String plsql = sb.toString();
+        final Object[] binds = { realtimeReporterId, coverageReporterId };
+        jdbcTemplate.update(plsql, binds);
+    }
+
     public void consumeReport(final String reporterId, final RealtimeReporterEventConsumer consumer) {
         StringBuilder sb = new StringBuilder();
         sb.append("DECLARE\n");
@@ -108,7 +149,7 @@ public class RealtimeReporterDao {
                 cs.setString(1, reporterId);
                 cs.registerOutParameter(2, OracleTypes.CURSOR);
                 cs.execute();
-                final ResultSet rs = ((ResultSet) cs.getObject(2));
+                final ResultSet rs = (ResultSet) cs.getObject(2);
                 while (rs.next()) {
                     final String itemType = rs.getString("item_type");
                     final Clob textClob = rs.getClob("text");
@@ -124,6 +165,36 @@ public class RealtimeReporterDao {
         });
     }
 
+    public String getHtmlCoverage(final String reporterId) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("DECLARE\n");
+        sb.append("   l_reporter ut_coverage_html_reporter := ut_coverage_html_reporter();\n");
+        sb.append("BEGIN\n");
+        sb.append("   l_reporter.set_reporter_id(?);\n");
+        sb.append("   ? := l_reporter.get_lines_cursor();\n");
+        sb.append("END;");
+        final String plsql = sb.toString();
+        return jdbcTemplate.execute(plsql, new CallableStatementCallback<String>() {
+            @Override
+            public String doInCallableStatement(final CallableStatement cs) throws SQLException {
+                cs.setString(1, reporterId);
+                cs.registerOutParameter(2, OracleTypes.CURSOR);
+                cs.execute();
+                final StringBuilder sb = new StringBuilder();
+                final ResultSet rs = (ResultSet) cs.getObject(2);
+                while (rs.next()) {
+                    final String text = rs.getString("text");
+                    if (text != null) {
+                        sb.append(text);
+                        sb.append('\n');
+                    }
+                }
+                rs.close();
+                return sb.toString();
+            }
+        });
+    }    
+    
     private RealtimeReporterEvent convert(final String itemType, final String text) {
         logger.fine(() -> "\n---- " + itemType + " ----\n" + text);
         try {
