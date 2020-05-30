@@ -26,9 +26,9 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
-import org.junit.AfterClass;
+import org.junit.After;
 import org.junit.Assert;
-import org.junit.BeforeClass;
+import org.junit.Before;
 import org.junit.Test;
 import org.springframework.jdbc.datasource.SingleConnectionDataSource;
 import org.utplsql.sqldev.coverage.CodeCoverageReporter;
@@ -40,8 +40,8 @@ import org.utplsql.sqldev.test.AbstractJdbcTest;
 
 public class CodeCoverageReporterTest extends AbstractJdbcTest {
 
-    @BeforeClass
-    public static void setup() {
+    @Before
+    public void setup() {
         StringBuilder sb = new StringBuilder();
         sb.append("CREATE OR REPLACE FUNCTION f RETURN INTEGER IS\n");
         sb.append("BEGIN\n");
@@ -118,8 +118,8 @@ public class CodeCoverageReporterTest extends AbstractJdbcTest {
                 content.contains("<h3>SCOTT.F</h3><h4><span class=\"green\">100 %</span> lines covered</h4>"));
     }
 
-    @AfterClass
-    public static void teardown() {
+    @After
+    public void teardown() {
         executeAndIgnore(jdbcTemplate, "DROP PACKAGE test_f");
         executeAndIgnore(jdbcTemplate, "DROP FUNCTION f");
     }
