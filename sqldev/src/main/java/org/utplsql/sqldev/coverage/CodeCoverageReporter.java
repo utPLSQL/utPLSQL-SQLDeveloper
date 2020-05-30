@@ -84,25 +84,9 @@ public class CodeCoverageReporter {
         logger.fine(() -> "Running code coverage reporter for " + pathList + "...");
         try {
             final UtplsqlDao dal = new UtplsqlDao(conn);
-            final String content = dal.htmlCodeCoverage(pathList, toStringList(schemas),
+            final String html = dal.htmlCodeCoverage(pathList, toStringList(schemas),
                     toStringList(includeObjects), toStringList(excludeObjects));
-            final File file = File.createTempFile("utplsql_", ".html");
-            logger.fine(() -> "Writing result to " + file + "...");
-            FileTools.writeFile(file.toPath(), Arrays.asList(content.split(System.lineSeparator())), StandardCharsets.UTF_8);
-            final URL url = file.toURI().toURL();
-            logger.fine(() -> "Opening " + url.toExternalForm() + " in browser...");
-            final Desktop desktop = Desktop.isDesktopSupported() ? Desktop.getDesktop() : null;
-            if (desktop != null && desktop.isSupported(Desktop.Action.BROWSE) && url != null) {
-                desktop.browse(url.toURI());
-                logger.fine(() -> url.toExternalForm() + " opened in browser.");
-            } else {
-                logger.severe(
-                        () -> "Could not launch " + file + "in browser. No default browser defined on this system.");
-            }
-        } catch (Exception e) {
-            final String msg = "Error while running code coverage for " + pathList + ".";
-            logger.severe(() -> msg);
-            throw new GenericRuntimeException(msg, e);
+            openInBrowser(html);
         } finally {
             try {
                 DatabaseTools.closeConnection(conn);
@@ -112,6 +96,28 @@ public class CodeCoverageReporter {
             if (frame != null) {
                 frame.exit();
             }
+        }
+    }
+    
+    public static void openInBrowser(String html) {
+        try {
+            final File file = File.createTempFile("utplsql_", ".html");
+            logger.fine(() -> "Writing result to " + file + "...");
+            FileTools.writeFile(file.toPath(), Arrays.asList(html.split(System.lineSeparator())), StandardCharsets.UTF_8);
+            final URL url = file.toURI().toURL();
+            logger.fine(() -> "Opening " + url.toExternalForm() + " in browser...");
+            final Desktop desktop = Desktop.isDesktopSupported() ? Desktop.getDesktop() : null;
+            if (desktop != null && desktop.isSupported(Desktop.Action.BROWSE) && url != null) {
+                desktop.browse(url.toURI());
+                logger.fine(() -> url.toExternalForm() + " opened in browser.");
+            } else {
+                logger.severe(
+                        () -> "Could not launch " + file + " in browser. No default browser defined on this system.");
+            }
+        } catch (Exception e) {
+            final String msg = "Error while opening code coverage HTML report in browser.";
+            logger.severe(() -> msg);
+            throw new GenericRuntimeException(msg, e);
         }
     }
 
