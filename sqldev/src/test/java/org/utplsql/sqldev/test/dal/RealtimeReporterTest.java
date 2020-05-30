@@ -168,4 +168,19 @@ public class RealtimeReporterTest extends AbstractJdbcTest {
         Assert.assertEquals(7, consumer.getConsumedList().stream().filter(it -> it instanceof PostTestEvent).count());
         Assert.assertEquals(28, consumer.getConsumedList().size());
     }
+    
+    @Test
+    public void produceAndConsumeWithCoverage() {
+        final RealtimeReporterDao dao = new RealtimeReporterDao(DatabaseTools.getConnection(dataSource));
+        final String realtimeReporterId = UUID.randomUUID().toString().replace("-", "");
+        final String coverageReporterId = UUID.randomUUID().toString().replace("-", "");
+        final TestRealtimerReporterEventConsumer consumer = new TestRealtimerReporterEventConsumer();
+        dao.produceReportWithCoverage(realtimeReporterId, coverageReporterId, Arrays.asList(":a", ":b"),
+                Arrays.asList(), Arrays.asList(), Arrays.asList());
+        dao.consumeReport(realtimeReporterId, consumer);
+        logger.fine(consumer.getConsumedList().toString());
+        Assert.assertEquals(28, consumer.getConsumedList().size());
+        final String html = dao.getHtmlCoverage(coverageReporterId);
+        Assert.assertTrue(html.trim().endsWith("</html>"));
+    }
 }
