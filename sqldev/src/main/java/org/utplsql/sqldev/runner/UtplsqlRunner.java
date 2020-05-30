@@ -27,6 +27,7 @@ import java.util.logging.Logger;
 
 import javax.swing.JFrame;
 
+import org.utplsql.sqldev.coverage.CodeCoverageReporter;
 import org.utplsql.sqldev.dal.RealtimeReporterDao;
 import org.utplsql.sqldev.dal.RealtimeReporterEventConsumer;
 import org.utplsql.sqldev.model.DatabaseTools;
@@ -48,26 +49,65 @@ import org.utplsql.sqldev.ui.runner.RunnerView;
 public class UtplsqlRunner implements RealtimeReporterEventConsumer {
     private static final Logger logger = Logger.getLogger(UtplsqlRunner.class.getName());
 
-    private List<String> pathList;
+    private final boolean withCodeCoverage;
+    private final List<String> pathList;
+    private final List<String> schemaList;
+    private final List<String> includeObjectList;
+    private final List<String> excludeObjectList;
     private String connectionName;
     private Connection producerConn;
     private Connection consumerConn;
-    private final String reporterId = UUID.randomUUID().toString().replace("-", "");
+    private final String realtimeReporterId = UUID.randomUUID().toString().replace("-", "");
+    private final String coverageReporterId =  UUID.randomUUID().toString().replace("-", "");
     private Run run;
     private RunnerPanel panel;
+    private JFrame frame; // for testing purposes only (outside of SQL Developer)
     private Thread producerThread;
     private Thread consumerThread;
 
     public UtplsqlRunner(final List<String> pathList, final String connectionName) {
+        this.withCodeCoverage = false;
         this.pathList = pathList;
+        this.schemaList = null;
+        this.includeObjectList = null;
+        this.excludeObjectList = null;
+        setConnection(connectionName);
+    }
+    
+    public UtplsqlRunner(final List<String> pathList, final List<String> schemaList,
+            final List<String> includeObjectList, final List<String> excludeObjectList, final String connectionName) {
+        this.withCodeCoverage = true;
+        this.pathList = pathList;
+        this.schemaList = schemaList;
+        this.includeObjectList = includeObjectList;
+        this.excludeObjectList = excludeObjectList;
         setConnection(connectionName);
     }
 
     /**
-     * this constructor is intended for tests only
+     * this constructor is intended for tests only (without code coverage)
      */
     public UtplsqlRunner(final List<String> pathList, final Connection producerConn, final Connection consumerConn) {
+        this.withCodeCoverage = false;
         this.pathList = pathList;
+        this.schemaList = null;
+        this.includeObjectList = null;
+        this.excludeObjectList = null;
+        this.producerConn = producerConn;
+        this.consumerConn = consumerConn;
+    }
+
+    /**
+     * this constructor is intended for tests only (with code coverage)
+     */
+    public UtplsqlRunner(final List<String> pathList, final List<String> schemaList,
+            final List<String> includeObjectList, final List<String> excludeObjectList, final Connection producerConn,
+            final Connection consumerConn) {
+        this.withCodeCoverage = true;
+        this.pathList = pathList;
+        this.schemaList = schemaList;
+        this.includeObjectList = includeObjectList;
+        this.excludeObjectList = excludeObjectList;
         this.producerConn = producerConn;
         this.consumerConn = consumerConn;
     }
@@ -86,6 +126,9 @@ public class UtplsqlRunner implements RealtimeReporterEventConsumer {
         // running in SQL Developer
         DatabaseTools.closeConnection(producerConn);
         DatabaseTools.closeConnection(consumerConn);
+        if (frame != null) {
+            frame.setVisible(false);
+        }
     }
 
     @Override
@@ -116,7 +159,7 @@ public class UtplsqlRunner implements RealtimeReporterEventConsumer {
     }
 
     private void initRun() {
-        run = new Run(reporterId, connectionName, pathList);
+        run = new Run(realtimeReporterId, connectionName, pathList);
         run.setStartTime(getSysdate());
         run.getCounter().setDisabled(0);
         run.getCounter().setSuccess(0);
@@ -128,14 +171,14 @@ public class UtplsqlRunner implements RealtimeReporterEventConsumer {
         run.setCurrentTestNumber(0);
         run.setStatus(UtplsqlResources.getString("RUNNER_INITIALIZING_TEXT"));
         panel.setModel(run);
-        panel.update(reporterId);
+        panel.update(realtimeReporterId);
     }
     
     private void doProcess(final PreRunEvent event) {
         run.setTotalNumberOfTests(event.getTotalNumberOfTests());
         run.put(event.getItems());
         run.setStatus(UtplsqlResources.getString("RUNNER_RUNNING_TEXT"));
-        panel.update(reporterId);
+        panel.update(realtimeReporterId);
     }
 
     private void doProcess(final PostRunEvent event) {
@@ -145,7 +188,7 @@ public class UtplsqlRunner implements RealtimeReporterEventConsumer {
         run.setErrorStack(event.getErrorStack());
         run.setServerOutput(event.getServerOutput());
         run.setStatus(UtplsqlResources.getString("RUNNER_FINNISHED_TEXT"));
-        panel.update(reporterId);
+        panel.update(realtimeReporterId);
     }
 
     private void doProcess(final PreSuiteEvent event) {
@@ -189,7 +232,7 @@ public class UtplsqlRunner implements RealtimeReporterEventConsumer {
             sb.append(event.getServerOutput());
             test.setServerOutput(sb.toString());
         }
-        panel.update(reporterId);
+        panel.update(realtimeReporterId);
     }
 
     private void doProcess(final PreTestEvent event) {
@@ -203,7 +246,7 @@ public class UtplsqlRunner implements RealtimeReporterEventConsumer {
         run.setStatus(event.getId() + "...");
         run.setCurrentTestNumber(event.getTestNumber());
         run.setCurrentTest(test);
-        panel.update(reporterId);
+        panel.update(realtimeReporterId);
     }
 
     private void doProcess(final PostTestEvent event) {
@@ -234,29 +277,37 @@ public class UtplsqlRunner implements RealtimeReporterEventConsumer {
         run.getCounter().setSuccess(run.getCounter().getSuccess() + event.getCounter().getSuccess());
         run.getCounter().setFailure(run.getCounter().getFailure() + event.getCounter().getFailure());
         run.getCounter().setError(run.getCounter().getError() + event.getCounter().getError());
-        panel.update(reporterId);
+        panel.update(realtimeReporterId);
     }
 
     private void produce() {
         try {
-            logger.fine(() -> "Running utPLSQL tests and producing events via reporter id " + reporterId + "...");
+            logger.fine(() -> "Running utPLSQL tests and producing events via reporter id " + realtimeReporterId + "...");
             final RealtimeReporterDao dao = new RealtimeReporterDao(producerConn);
-            dao.produceReport(reporterId, pathList);
-            logger.fine(() -> "All events produced for reporter id " + reporterId + ".");
+            if (withCodeCoverage) {
+                dao.produceReportWithCoverage(realtimeReporterId, coverageReporterId, pathList, schemaList, includeObjectList, excludeObjectList);
+            } else {
+                dao.produceReport(realtimeReporterId, pathList);
+            }
+            logger.fine(() -> "All events produced for reporter id " + realtimeReporterId + ".");
         } catch (Exception e) {
-            logger.severe(() -> "Error while producing events for reporter id " + reporterId + ": "
+            logger.severe(() -> "Error while producing events for reporter id " + realtimeReporterId + ": "
                     + (e != null ? e.getMessage() : "???"));
         }
     }
 
     private void consume() {
         try {
-            logger.fine(() -> "Consuming events from reporter id " + reporterId + " in realtime...");
+            logger.fine(() -> "Consuming events from reporter id " + realtimeReporterId + " in realtime...");
             final RealtimeReporterDao dao = new RealtimeReporterDao(consumerConn);
-            dao.consumeReport(reporterId, this);
+            dao.consumeReport(realtimeReporterId, this);
             logger.fine(() -> "All events consumed.");
+            if (withCodeCoverage) {
+                String html = dao.getHtmlCoverage(coverageReporterId);
+                CodeCoverageReporter.openInBrowser(html);
+            }
         } catch (Exception e) {
-            logger.severe(() -> "Error while consuming events for reporter id " + reporterId + ": "
+            logger.severe(() -> "Error while consuming events for reporter id " + realtimeReporterId + ": "
                     + (e != null ? e.getMessage() : "???"));
         }
         if (run.getTotalNumberOfTests() < 0) {
@@ -264,7 +315,7 @@ public class UtplsqlRunner implements RealtimeReporterEventConsumer {
             run.setExecutionTime(Double.valueOf(System.currentTimeMillis() - Double.valueOf(run.getStart())) / 1000);
             run.setEndTime(getSysdate());
             run.setTotalNumberOfTests(0);
-            panel.update(reporterId);
+            panel.update(realtimeReporterId);
         }
         if (isRunningInSqlDeveloper()) {
             dispose();
@@ -285,7 +336,7 @@ public class UtplsqlRunner implements RealtimeReporterEventConsumer {
                 RunnerFactory.showDockable();
                 panel = dockable.getRunnerPanel();
             } else {
-                final JFrame frame = new JFrame("utPLSQL Runner Panel");
+                frame = new JFrame("utPLSQL Runner Panel");
                 frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
                 panel = new RunnerPanel();
                 frame.add(panel.getGUI());
