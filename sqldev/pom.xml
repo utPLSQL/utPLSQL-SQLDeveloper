@@ -5,135 +5,140 @@
 	<!-- The Basics -->
 	<groupId>org.utplsql</groupId>
 	<artifactId>org.utplsql.sqldev</artifactId>
-	<version>1.1.2-SNAPSHOT</version>
+	<version>1.2.0-SNAPSHOT</version>
 	<packaging>bundle</packaging>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<jdk.version>1.8</jdk.version>
 		<jdk.version.test>1.8</jdk.version.test>
-		<xtend.version>2.20.0</xtend.version>
 		<!-- requires SQL Developer 4.1.0 or higher (first version based on JDK 1.8) -->
 		<sqldev.basedir>/Applications/SQLDeveloper19.4.0.app/Contents/Resources/sqldeveloper</sqldev.basedir>
 		<final.name>utplsql_for_SQLDev_${project.version}</final.name>
+		<!-- arguments to by added by jacoco plugin for test runs with coverage -->
+		<!-- -noverify is required in some environments to avoid java.lang.VerifyError -->
+		<argLine>-noverify -Djava.util.logging.config.file=${project.basedir}/src/test/resources/logging.conf</argLine>
 	</properties>
 	<dependencies>
-		<!-- SQL Developer specific dependencies part 1 (not available in public maven repositories) -->
+		<!-- SQL Developer specific dependencies part 1 (not available in public Maven repositories) -->
+		<!-- Versions of scope system are based on SQL Developer 19.4.0. -->
+		<!-- The actual version is not that important, since the these libraries are provided. -->
+		<!-- Therefore it is not planned to update them with every change of sqldev.basedir. -->
 		<dependency>
 			<groupId>oracle</groupId>
 			<artifactId>idert</artifactId>
-			<version>12.2.0</version>
+			<version>13.0.0</version>
 			<scope>system</scope>
 			<systemPath>${sqldev.basedir}/ide/lib/idert.jar</systemPath>
 		</dependency>
 		<dependency>
 			<groupId>oracle</groupId>
 			<artifactId>javatools-nodeps</artifactId>
-			<version>12.2.0</version>
+			<version>13.0.0</version>
 			<scope>system</scope>
 			<systemPath>${sqldev.basedir}/modules/oracle.javatools/javatools-nodeps.jar</systemPath>
 		</dependency>
 		<dependency>
 			<groupId>oracle</groupId>
 			<artifactId>javatools</artifactId>
-			<version>12.2.0</version>
+			<version>13.0.0</version>
 			<scope>system</scope>
 			<systemPath>${sqldev.basedir}/ide/lib/javatools.jar</systemPath>
 		</dependency>
 		<dependency>
 			<groupId>oracle</groupId>
 			<artifactId>oracle.ide.ceditor</artifactId>
-			<version>12.2.0</version>
+			<version>13.0.0</version>
 			<scope>system</scope>
 			<systemPath>${sqldev.basedir}/ide/extensions/oracle.ide.ceditor.jar</systemPath>
 		</dependency>
 		<dependency>
 			<groupId>oracle</groupId>
 			<artifactId>oracle.ide</artifactId>
-			<version>12.2.0</version>
+			<version>13.0.0</version>
 			<scope>system</scope>
 			<systemPath>${sqldev.basedir}/ide/extensions/oracle.ide.jar</systemPath>
 		</dependency>
 		<dependency>
 			<groupId>oracle</groupId>
 			<artifactId>uic</artifactId>
-			<version>12.2.2</version>
+			<version>13.0.0</version>
 			<scope>system</scope>
 			<systemPath>${sqldev.basedir}/ide/lib/uic.jar</systemPath>
 		</dependency>
 		<dependency>
 			<groupId>oracle</groupId>
 			<artifactId>oracle.ide.navigator</artifactId>
-			<version>12.2.0</version>
+			<version>13.0.0</version>
 			<scope>system</scope>
 			<systemPath>${sqldev.basedir}/ide/extensions/oracle.ide.navigator.jar</systemPath>
 		</dependency>
 		<dependency>
 			<groupId>oracle</groupId>
 			<artifactId>javax-ide</artifactId>
-			<version>12.2.0</version>
+			<version>13.0.0</version>
 			<scope>system</scope>
 			<systemPath>${sqldev.basedir}/ide/lib/javax-ide.jar</systemPath>
 		</dependency>
 		<dependency>
 			<groupId>oracle</groupId>
 			<artifactId>oracle.dbtools-common</artifactId>
-			<version>12.2.0</version>
+			<version>19.4.0</version>
 			<scope>system</scope>
 			<systemPath>${sqldev.basedir}/sqldeveloper/lib/dbtools-common.jar</systemPath>
 		</dependency>
 		<dependency>
 			<groupId>oracle</groupId>
 			<artifactId>oracle.sqldeveloper</artifactId>
-			<version>12.2.0</version>
+			<version>19.3.0</version>
 			<scope>system</scope>
 			<systemPath>${sqldev.basedir}/sqldeveloper/extensions/oracle.sqldeveloper.jar</systemPath>
 		</dependency>
 		<dependency>
 			<groupId>oracle</groupId>
 			<artifactId>oracle.sqldeveloper.utils</artifactId>
-			<version>12.2.0</version>
+			<version>19.3.0</version>
 			<scope>system</scope>
 			<systemPath>${sqldev.basedir}/sqldeveloper/extensions/oracle.sqldeveloper.utils.jar</systemPath>
 		</dependency>
 		<dependency>
 			<groupId>oracle</groupId>
 			<artifactId>oracle.sqldeveloper.worksheet</artifactId>
-			<version>12.2.0</version>
+			<version>19.3.0</version>
 			<scope>system</scope>
 			<systemPath>${sqldev.basedir}/sqldeveloper/extensions/oracle.sqldeveloper.worksheet.jar</systemPath>
 		</dependency>
 		<dependency>
 			<groupId>oracle</groupId>
 			<artifactId>ojdbc8</artifactId>
-			<version>12.2.0.1.0</version>
+			<version>19.3.0</version>
 			<scope>system</scope>
 			<systemPath>${sqldev.basedir}/jdbc/lib/ojdbc8.jar</systemPath>
 		</dependency>
 		<dependency>
 			<groupId>oracle</groupId>
 			<artifactId>dbapi</artifactId>
-			<version>12.2.1</version>
+			<version>19.3.0</version>
 			<scope>system</scope>
 			<systemPath>${sqldev.basedir}/ide/lib/dbapi.jar</systemPath>
 		</dependency>
 		<dependency>
 			<groupId>oracle</groupId>
 			<artifactId>oracle.ide.db</artifactId>
-			<version>12.2.1</version>
+			<version>19.3.0</version>
 			<scope>system</scope>
 			<systemPath>${sqldev.basedir}/ide/extensions/oracle.ide.db.jar</systemPath>
 		</dependency>
 		<dependency>
 			<groupId>oracle</groupId>
 			<artifactId>oracle.jdeveloper.db.connection</artifactId>
-			<version>12.2.1</version>
+			<version>19.3.0</version>
 			<scope>system</scope>
 			<systemPath>${sqldev.basedir}/jdev/extensions/oracle.jdeveloper.db.connection.jar</systemPath>
 		</dependency>
 		<dependency>
 			<groupId>oracle</groupId>
 			<artifactId>oracle.jdeveloper.java.core.jar</artifactId>
-			<version>12.2.1</version>
+			<version>13.0.0</version>
 			<scope>system</scope>
 			<systemPath>${sqldev.basedir}/jdev/extensions/oracle.jdeveloper.java.core.jar</systemPath>
 		</dependency>
@@ -141,14 +146,14 @@
 		<dependency>
 			<groupId>oracle</groupId>
 			<artifactId>jewt4.jar</artifactId>
-			<version>12.2.1</version>
+			<version>13.0.0</version>
 			<scope>system</scope>
 			<systemPath>${sqldev.basedir}/modules/oracle.bali.jewt/jewt4.jar</systemPath>
 		</dependency>		
 		<dependency>
 			<groupId>oracle</groupId>
 			<artifactId>share.jar</artifactId>
-			<version>12.2.1</version>
+			<version>13.0.0</version>
 			<scope>system</scope>
 			<systemPath>${sqldev.basedir}/modules/oracle.bali.share/share.jar</systemPath>
 		</dependency>		
@@ -162,22 +167,19 @@
 		</dependency>
 		<!-- other dependencies -->
 		<dependency>
-			<!-- Xtend comes with some runtime dependencies... -->
-			<groupId>org.eclipse.xtend</groupId>
-			<artifactId>org.eclipse.xtend.lib</artifactId>
-			<version>${xtend.version}</version>
-		</dependency>
-		<dependency>
+			<!-- used mainly to access the database via JdbcTemplate -->
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-jdbc</artifactId>
-			<version>5.2.4.RELEASE</version>
+			<version>5.2.6.RELEASE</version>
 		</dependency>
 		<dependency>
+			<!-- used for HtmlUtils.htmlEscape in RunnerPanel -->
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-web</artifactId>
-			<version>5.2.4.RELEASE</version>
+			<version>5.2.6.RELEASE</version>
 		</dependency>
 		<dependency>
+			<!-- optional, for RunGenerator and TestGenerator -->
 			<groupId>org.oddgen</groupId>
 			<artifactId>org.oddgen.sqldev</artifactId>
 			<version>0.3.1</version>
@@ -204,34 +206,6 @@
 			</resource>
 		</resources>
 		<plugins>
-			<plugin>
-				<groupId>org.eclipse.xtend</groupId>
-				<artifactId>xtend-maven-plugin</artifactId>
-				<!-- change version might need "mvn -U" to update snapshots -->
-				<version>${xtend.version}</version>
-				<executions>
-					<execution>
-						<id>main</id>
-						<goals>
-							<goal>compile</goal>
-						</goals>
-						<configuration>
-							<javaSourceVersion>${jdk.version}</javaSourceVersion>
-							<outputDirectory>${project.basedir}/src/main/xtend-gen</outputDirectory>
-						</configuration>
-					</execution>
-					<execution>
-						<id>test</id>
-						<goals>
-							<goal>testCompile</goal>
-						</goals>
-						<configuration>
-							<javaSourceVersion>${jdk.version.test}</javaSourceVersion>
-							<testOutputDirectory>${project.basedir}/src/test/xtend-gen</testOutputDirectory>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<version>3.8.1</version>
@@ -266,9 +240,7 @@
 				<artifactId>maven-surefire-plugin</artifactId>
 				<version>2.22.2</version>
 				<configuration>
-					<!-- -noverify is required in some environments to avoid java.lang.VerifyError -->
-					<argLine>-noverify
-						-Djava.util.logging.config.file=${project.basedir}/src/test/resources/logging.conf</argLine>
+					<!-- argline moved to properties, to make it work with jacoco plugin -->
 					<includes>
 						<include>**/*.java</include>
 					</includes>
@@ -296,7 +268,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-antrun-plugin</artifactId>
-				<version>1.8</version><!--$NO-MVN-MAN-VER$-->
+				<version>3.0.0</version><!--$NO-MVN-MAN-VER$-->
 				<executions>
 					<execution>
 						<phase>prepare-package</phase>
@@ -424,13 +396,13 @@
 							org.utplsql.sqldev.resources
 						</Export-Package>
 						<_exportcontents>
-							org.eclipse.xtext.xbase.lib,
 							org.aspectj.runtime.internal,
 							org.aspectj.lang,
 							org.aspectj.runtime,
 							org.aspectj.lang.reflect
 						</_exportcontents>
 						<Require-Bundle>
+							oracle.javatools,
 							oracle.javatools-nodeps,
 							oracle.jdeveloper.db.connection,
 							oracle.idert,
@@ -450,7 +422,7 @@
 			</plugin>
 			<plugin>
 				<artifactId>maven-assembly-plugin</artifactId>
-				<version>3.2.0</version><!--$NO-MVN-MAN-VER$-->
+				<version>3.3.0</version><!--$NO-MVN-MAN-VER$-->
 				<configuration>
 					<finalName>${final.name}</finalName>
 					<appendAssemblyId>false</appendAssemblyId>
@@ -472,7 +444,7 @@
 			<plugin>
 				<groupId>net.nicoulaj.maven.plugins</groupId>
 				<artifactId>checksum-maven-plugin</artifactId>
-				<version>1.8</version>
+				<version>1.9</version>
 				<executions>
 					<execution>
 						<id>calculate-checksums</id>
@@ -483,10 +455,30 @@
 					</execution>
 				</executions>
 			</plugin>
+			<plugin>
+				<groupId>org.jacoco</groupId>
+				<artifactId>jacoco-maven-plugin</artifactId>
+				<version>0.8.5</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>prepare-agent</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>report</id>
+						<phase>prepare-package</phase>
+						<goals>
+							<goal>report</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
 		</plugins>
 		<pluginManagement>
 			<plugins>
 				<plugin>
+					<!-- Dummy plugin used in Eclipse IDE only -->
 					<groupId>org.eclipse.m2e</groupId>
 					<artifactId>lifecycle-mapping</artifactId>
 					<version>1.0.0</version>
@@ -497,7 +489,7 @@
 									<pluginExecutionFilter>
 										<groupId>org.apache.maven.plugins</groupId>
 										<artifactId>maven-dependency-plugin</artifactId>
-										<versionRange>[3.1.1,)</versionRange>
+										<versionRange>[3.1.2,)</versionRange>
 										<goals>
 											<goal>copy-dependencies</goal>
 										</goals>
@@ -515,7 +507,7 @@
 											build-helper-maven-plugin
 										</artifactId>
 										<versionRange>
-											[3.0.0,)
+											[3.1.0,)
 										</versionRange>
 										<goals>
 											<goal>parse-version</goal>
