@@ -25,16 +25,22 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Logger;
 
+import org.utplsql.sqldev.dal.RealtimeReporterDao;
 import org.utplsql.sqldev.dal.UtplsqlDao;
 import org.utplsql.sqldev.exception.GenericDatabaseAccessException;
 import org.utplsql.sqldev.exception.GenericRuntimeException;
 import org.utplsql.sqldev.model.DatabaseTools;
 import org.utplsql.sqldev.model.FileTools;
+import org.utplsql.sqldev.model.preference.PreferenceModel;
+import org.utplsql.sqldev.runner.UtplsqlRunner;
 import org.utplsql.sqldev.ui.coverage.CodeCoverageReporterDialog;
+
+import oracle.ide.config.Preferences;
 
 public class CodeCoverageReporter {
     private static final Logger logger = Logger.getLogger(CodeCoverageReporter.class.getName());
 
+    private String connectionName;
     private Connection conn;
     private List<String> pathList;
     private List<String> includeObjectList;
@@ -50,6 +56,7 @@ public class CodeCoverageReporter {
         setConnection(connectionName);
     }
 
+    // constructor for testing purposes only
     public CodeCoverageReporter(final List<String> pathList, final List<String> includeObjectList,
             final Connection conn) {
         this.pathList = pathList;
@@ -64,7 +71,8 @@ public class CodeCoverageReporter {
             throw new NullPointerException();
         } else {
             // must be closed manually
-            conn = DatabaseTools.cloneConnection(connectionName);
+            this.connectionName = connectionName;
+            this.conn = DatabaseTools.getConnection(connectionName);
         }
     }
 
@@ -83,18 +91,42 @@ public class CodeCoverageReporter {
     private void run() {
         logger.fine(() -> "Running code coverage reporter for " + pathList + "...");
         try {
-            final UtplsqlDao dal = new UtplsqlDao(conn);
-            final String html = dal.htmlCodeCoverage(pathList, toStringList(schemas),
+            final RealtimeReporterDao dao = new RealtimeReporterDao(conn);
+            final PreferenceModel preferences = PreferenceModel.getInstance(Preferences.getPreferences());
+            if (preferences.isUseRealtimeReporter() && dao.isSupported()) {
+                runCodeCoverageWithRealtimeReporter();
+            } else {
+                runCodeCoverageStandalone();
+            }
+        } finally {
+            if (frame != null) {
+                frame.exit();
+            }
+        }
+    }
+    
+    private void runCodeCoverageWithRealtimeReporter() {
+        final UtplsqlRunner runner = new UtplsqlRunner(pathList, toStringList(schemas), toStringList(includeObjects),
+                toStringList(excludeObjects), connectionName);
+        runner.runTestAsync();
+    }
+    
+    private void runCodeCoverageStandalone() {
+        Connection coverageConn = null;
+        try {
+            coverageConn = conn != null ? conn : DatabaseTools.cloneConnection(connectionName);
+            final UtplsqlDao dao = new UtplsqlDao(coverageConn);
+            final String html = dao.htmlCodeCoverage(pathList, toStringList(schemas),
                     toStringList(includeObjects), toStringList(excludeObjects));
             openInBrowser(html);
         } finally {
             try {
-                DatabaseTools.closeConnection(conn);
+                if (coverageConn != null && conn == null) {
+                    // close only if connection has been cloned
+                    DatabaseTools.closeConnection(coverageConn);
+                }
             } catch (GenericDatabaseAccessException e) {
                 // ignore
-            }
-            if (frame != null) {
-                frame.exit();
             }
         }
     }
