@@ -20,7 +20,6 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.sql.Connection;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
@@ -30,7 +29,6 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.springframework.jdbc.datasource.SingleConnectionDataSource;
 import org.utplsql.sqldev.coverage.CodeCoverageReporter;
 import org.utplsql.sqldev.exception.GenericRuntimeException;
 import org.utplsql.sqldev.model.DatabaseTools;
@@ -98,19 +96,11 @@ public class CodeCoverageReporterTest extends AbstractJdbcTest {
 
     @Test
     public void produceReportAndCloseConnection() {
-        // create temporary dataSource, closed by reporter
-        SingleConnectionDataSource ds = new SingleConnectionDataSource();
-        ds.setDriverClassName("oracle.jdbc.OracleDriver");
-        ds.setUrl(dataSource.getUrl());
-        ds.setUsername(dataSource.getUsername());
-        ds.setPassword(dataSource.getPassword());
-        final Connection conn = DatabaseTools.getConnection(ds);
         final List<String> pathList = Arrays.asList(":test_f");
         final List<String> includeObjectList = Arrays.asList("f");
-        final CodeCoverageReporter reporter = new CodeCoverageReporter(pathList, includeObjectList, conn);
+        final CodeCoverageReporter reporter = new CodeCoverageReporter(pathList, includeObjectList, DatabaseTools.getConnection(dataSource));
         final Thread run = reporter.runAsync();
         SystemTools.waitForThread(run, 20000);
-        Assert.assertTrue(DatabaseTools.isConnectionClosed(conn));
         final Path outputFile = this.getNewestOutputFile();
         Assert.assertNotNull(outputFile);
         final String content = new String(FileTools.readFile(outputFile), StandardCharsets.UTF_8);
