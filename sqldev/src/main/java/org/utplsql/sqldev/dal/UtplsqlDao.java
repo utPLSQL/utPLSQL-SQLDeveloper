@@ -42,6 +42,7 @@ public class UtplsqlDao {
     public static final int FIRST_VERSION_WITH_ANNOTATION_API = 3001003;
     public static final int FIRST_VERSION_WITHOUT_INTERNAL_API = 3001008;
     public static final int FIRST_VERSION_WITH_HAS_SUITES_API = 3001008;
+    public static final int FETCH_ROWS = 100;
     private JdbcTemplate jdbcTemplate;
     // cache fields
     private Boolean cachedDbaViewAccessible;
@@ -50,6 +51,7 @@ public class UtplsqlDao {
 
     public UtplsqlDao(final Connection conn) {
         jdbcTemplate = new JdbcTemplate(new SingleConnectionDataSource(conn, true));
+        jdbcTemplate.setFetchSize(FETCH_ROWS);
     }
 
     /**

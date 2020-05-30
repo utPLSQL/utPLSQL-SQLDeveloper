@@ -64,7 +64,7 @@ public class RealtimeReporterDao {
     public RealtimeReporterDao(final Connection conn) {
         this.conn = conn;
         jdbcTemplate = new JdbcTemplate(new SingleConnectionDataSource(conn, true));
-        jdbcTemplate.setFetchSize(1);
+        jdbcTemplate.setFetchSize(UtplsqlDao.FETCH_ROWS);
     }
 
     public boolean isSupported() {
@@ -143,26 +143,31 @@ public class RealtimeReporterDao {
         sb.append("   ? := l_reporter.get_lines_cursor();\n");
         sb.append("END;");
         final String plsql = sb.toString();
-        jdbcTemplate.execute(plsql, new CallableStatementCallback<Void>() {
-            @Override
-            public Void doInCallableStatement(final CallableStatement cs) throws SQLException {
-                cs.setString(1, reporterId);
-                cs.registerOutParameter(2, OracleTypes.CURSOR);
-                cs.execute();
-                final ResultSet rs = (ResultSet) cs.getObject(2);
-                while (rs.next()) {
-                    final String itemType = rs.getString("item_type");
-                    final Clob textClob = rs.getClob("text");
-                    final String textString = textClob.getSubString(1, ((int) textClob.length()));
-                    final RealtimeReporterEvent event = convert(itemType, textString);
-                    if (event != null) {
-                        consumer.process(event);
+        jdbcTemplate.setFetchSize(1);
+        try {
+            jdbcTemplate.execute(plsql, new CallableStatementCallback<Void>() {
+                @Override
+                public Void doInCallableStatement(final CallableStatement cs) throws SQLException {
+                    cs.setString(1, reporterId);
+                    cs.registerOutParameter(2, OracleTypes.CURSOR);
+                    cs.execute();
+                    final ResultSet rs = (ResultSet) cs.getObject(2);
+                    while (rs.next()) {
+                        final String itemType = rs.getString("item_type");
+                        final Clob textClob = rs.getClob("text");
+                        final String textString = textClob.getSubString(1, ((int) textClob.length()));
+                        final RealtimeReporterEvent event = convert(itemType, textString);
+                        if (event != null) {
+                            consumer.process(event);
+                        }
                     }
+                    rs.close();
+                    return null;
                 }
-                rs.close();
-                return null;
-            }
-        });
+            });
+        } finally {
+            jdbcTemplate.setFetchSize(UtplsqlDao.FETCH_ROWS);
+        }
     }
 
     public String getHtmlCoverage(final String reporterId) {
