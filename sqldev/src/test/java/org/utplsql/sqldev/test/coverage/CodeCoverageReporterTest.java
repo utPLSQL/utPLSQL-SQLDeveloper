@@ -107,7 +107,35 @@ public class CodeCoverageReporterTest extends AbstractJdbcTest {
         Assert.assertTrue(
                 content.contains("<h3>SCOTT.F</h3><h4><span class=\"green\">100 %</span> lines covered</h4>"));
     }
+    
+    @Test
+    public void defaultSchemaCalculationMixedCase() {
+        final CodeCoverageReporter reporter = new CodeCoverageReporter(Arrays.asList(":something"),
+                Arrays.asList("scott.a", "scott.b", "hR.a", "HR.B", "hr.c"), DatabaseTools.getConnection(dataSource));
+        Assert.assertEquals("HR", reporter.getSchemas());
+    }
 
+    @Test
+    public void defaultSchemaCalculationWithoutIncludeObjects() {
+        final CodeCoverageReporter reporter = new CodeCoverageReporter(Arrays.asList(":something"),
+                Arrays.asList(), DatabaseTools.getConnection(dataSource));
+        Assert.assertEquals(null, reporter.getSchemas());
+    }
+
+    @Test
+    public void defaultSchemaCalculationWithoutOwnerInformation() {
+        final CodeCoverageReporter reporter = new CodeCoverageReporter(Arrays.asList(":something"),
+                Arrays.asList("a", "b", "c"), DatabaseTools.getConnection(dataSource));
+        Assert.assertEquals(null, reporter.getSchemas());
+    }
+
+    @Test
+    public void defaultSchemaCalculationWithJustOneOwner() {
+        final CodeCoverageReporter reporter = new CodeCoverageReporter(Arrays.asList(":something"),
+                Arrays.asList("a", "b", "scott.c"), DatabaseTools.getConnection(dataSource));
+        Assert.assertEquals("SCOTT", reporter.getSchemas());
+    }
+    
     @After
     public void teardown() {
         executeAndIgnore(jdbcTemplate, "DROP PACKAGE test_f");
