@@ -918,17 +918,17 @@ public class UtplsqlDao {
         sb.append("             a_paths => ut_varchar2_list(\n");
         sb.append(StringTools.getCSV(pathList, 16));
         sb.append("             ),\n");
-        if (!schemaList.isEmpty()) {
+        if (schemaList != null && !schemaList.isEmpty()) {
             sb.append("             a_coverage_schemes => ut_varchar2_list(\n");
             sb.append(StringTools.getCSV(schemaList, 16));
             sb.append("             ),\n");
         }
-        if (!includeObjectList.isEmpty()) {
+        if (includeObjectList != null && !includeObjectList.isEmpty()) {
             sb.append("             a_include_objects => ut_varchar2_list(\n");
             sb.append(StringTools.getCSV(includeObjectList, 16));
             sb.append("             ),\n");
         }
-        if (!excludeObjectList.isEmpty()) {
+        if (excludeObjectList != null && excludeObjectList.isEmpty()) {
             sb.append("             a_exclude_objects => ut_varchar2_list(\n");
             sb.append(StringTools.getCSV(excludeObjectList, 16));
             sb.append("             ),\n");
