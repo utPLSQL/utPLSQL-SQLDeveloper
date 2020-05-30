@@ -26,11 +26,14 @@ import java.awt.Rectangle;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.sql.Connection;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -65,6 +68,7 @@ import javax.swing.table.TableColumn;
 import javax.swing.table.TableRowSorter;
 
 import org.springframework.web.util.HtmlUtils;
+import org.utplsql.sqldev.coverage.CodeCoverageReporter;
 import org.utplsql.sqldev.dal.UtplsqlDao;
 import org.utplsql.sqldev.model.DatabaseTools;
 import org.utplsql.sqldev.model.LimitedLinkedHashMap;
@@ -689,6 +693,32 @@ public class RunnerPanel {
             worksheet.runTestAsync();
         });
         toolbar.add(rerunWorksheetButton);
+        final ToolbarButton codeCoverageButton = new ToolbarButton(UtplsqlResources.getIcon("CODE_COVERAGE_ICON"));
+        codeCoverageButton.setToolTipText(UtplsqlResources.getString("RUNNER_CODE_COVERAGE_TOOLTIP"));
+        codeCoverageButton.setBorder(buttonBorder);
+        codeCoverageButton.addActionListener(event -> {
+            final Connection conn = DatabaseTools.getConnection(currentRun.getConnectionName());
+            final UtplsqlDao dao = new UtplsqlDao(conn);
+            final HashSet<String> testPackages = new HashSet<>();
+            // create unique list of all test packages
+            for (Test t : currentRun.getTests().values()) {
+                testPackages.add(t.getOwnerName() + "." + t.getObjectName());
+            }
+            // add dependencies of every test package
+            final HashSet<String> includeObjects = new HashSet<>();
+            for (String testPackage : testPackages) {
+                String[] obj = testPackage.split("\\.");
+                includeObjects.addAll(dao.includes(obj[0], obj[1]));
+            }
+            // remove test packages
+            for (String testPackage : testPackages) {
+                includeObjects.remove(testPackage.toUpperCase());
+            }
+            final CodeCoverageReporter reporter = new CodeCoverageReporter(currentRun.getPathList(),
+                    includeObjects.stream().sorted().collect(Collectors.toList()), currentRun.getConnectionName());
+            reporter.showParameterWindow();
+        });
+        toolbar.add(codeCoverageButton);
         toolbar.add(Box.createHorizontalGlue());
         runComboBoxModel = new DefaultComboBoxModel<>();
         runComboBox = new JComboBox<>(runComboBoxModel);
