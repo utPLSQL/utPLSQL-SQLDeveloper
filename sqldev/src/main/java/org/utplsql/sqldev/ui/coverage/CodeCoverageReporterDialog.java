@@ -86,7 +86,7 @@ public class CodeCoverageReporterDialog extends JFrame implements ActionListener
         pathsTextArea.setEditable(false);
         pathsTextArea.setEnabled(false);
         addParam(UtplsqlResources.getString("WINDOW_PATHS_LABEL"), StringTools.getSimpleCSV(reporter.getPathList()), pathsTextArea, 50, 2);
-        addParam(UtplsqlResources.getString("WINDOW_SCHEMAS_LABEL"), "", schemasTextField, 0, 0);
+        addParam(UtplsqlResources.getString("WINDOW_SCHEMAS_LABEL"), reporter.getSchemas(), schemasTextField, 0, 0);
         addParam(UtplsqlResources.getString("WINDOW_INCLUDE_OBJECS_LABEL"), StringTools.getSimpleCSV(reporter.getIncludeObjectList()), includeObjectsTextArea, 66, 4);
         addParam(UtplsqlResources.getString("WINDOW_EXCLUDE_OBJECS_LABEL"), "", excludeObjectsTextArea, 34, 1);
         final JScrollPane scrollPane = new JScrollPane(paneParams);
