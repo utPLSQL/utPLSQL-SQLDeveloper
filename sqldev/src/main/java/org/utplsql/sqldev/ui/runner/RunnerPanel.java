@@ -117,6 +117,7 @@ public class RunnerPanel {
     private JTable testOverviewTable;
     private JMenuItem testOverviewRunMenuItem;
     private JMenuItem testOverviewRunWorksheetMenuItem;
+    private JMenuItem testOverviewCodeCoverageMenuItem;
     private JCheckBoxMenuItem showTestDescriptionCheckBoxMenuItem;
     private JCheckBoxMenuItem showWarningIndicatorCheckBoxMenuItem;
     private JCheckBoxMenuItem showInfoIndicatorCheckBoxMenuItem;
@@ -200,6 +201,7 @@ public class RunnerPanel {
         testOverviewTable.getRowSorter().setSortKeys(null);
         testOverviewRunMenuItem.setEnabled(false);
         testOverviewRunWorksheetMenuItem.setEnabled(false);
+        testOverviewCodeCoverageMenuItem.setEnabled(false);
         testIdTextArea.setText(null);
         testOwnerTextField.setText(null);
         testPackageTextField.setText(null);
@@ -656,6 +658,42 @@ public class RunnerPanel {
         groupPanel.setPreferredSize(dim);
         return groupPanel;
     }
+    
+    private void runCodeCoverage(boolean selectedOnly) {
+        final Connection conn = DatabaseTools.getConnection(currentRun.getConnectionName());
+        final UtplsqlDao dao = new UtplsqlDao(conn);
+        final List<String> pathList = new ArrayList<>();
+        final HashSet<String> testPackages = new HashSet<>();
+        if (selectedOnly) {
+            // pathList and unique testPackages based on selected tests
+            for (final int rowIndex : testOverviewTable.getSelectedRows()) {
+                final int row = testOverviewTable.convertRowIndexToModel(rowIndex);
+                final Test test = testOverviewTableModel.getTest(row);
+                final String path = test.getOwnerName() + "." + test.getObjectName() + "." + test.getProcedureName();
+                pathList.add(path);
+                testPackages.add(test.getOwnerName() + "." + test.getObjectName());
+            }
+        } else {
+            // pathList and unique testPackages based on currentRun
+            pathList.addAll(currentRun.getPathList());
+            for (Test t : currentRun.getTests().values()) {
+                testPackages.add(t.getOwnerName() + "." + t.getObjectName());
+            }
+        } 
+        // add dependencies of every test package (one DB call per test package)
+        final HashSet<String> includeObjects = new HashSet<>();
+        for (String testPackage : testPackages) {
+            String[] obj = testPackage.split("\\.");
+            includeObjects.addAll(dao.includes(obj[0], obj[1]));
+        }
+        // remove test packages
+        for (String testPackage : testPackages) {
+            includeObjects.remove(testPackage.toUpperCase());
+        }
+        final CodeCoverageReporter reporter = new CodeCoverageReporter(pathList,
+                includeObjects.stream().sorted().collect(Collectors.toList()), currentRun.getConnectionName());
+        reporter.showParameterWindow();
+    }
 
     private void initializeGUI() {
         // Base panel containing all components 
@@ -696,28 +734,7 @@ public class RunnerPanel {
         final ToolbarButton codeCoverageButton = new ToolbarButton(UtplsqlResources.getIcon("CODE_COVERAGE_ICON"));
         codeCoverageButton.setToolTipText(UtplsqlResources.getString("RUNNER_CODE_COVERAGE_TOOLTIP"));
         codeCoverageButton.setBorder(buttonBorder);
-        codeCoverageButton.addActionListener(event -> {
-            final Connection conn = DatabaseTools.getConnection(currentRun.getConnectionName());
-            final UtplsqlDao dao = new UtplsqlDao(conn);
-            final HashSet<String> testPackages = new HashSet<>();
-            // create unique list of all test packages
-            for (Test t : currentRun.getTests().values()) {
-                testPackages.add(t.getOwnerName() + "." + t.getObjectName());
-            }
-            // add dependencies of every test package
-            final HashSet<String> includeObjects = new HashSet<>();
-            for (String testPackage : testPackages) {
-                String[] obj = testPackage.split("\\.");
-                includeObjects.addAll(dao.includes(obj[0], obj[1]));
-            }
-            // remove test packages
-            for (String testPackage : testPackages) {
-                includeObjects.remove(testPackage.toUpperCase());
-            }
-            final CodeCoverageReporter reporter = new CodeCoverageReporter(currentRun.getPathList(),
-                    includeObjects.stream().sorted().collect(Collectors.toList()), currentRun.getConnectionName());
-            reporter.showParameterWindow();
-        });
+        codeCoverageButton.addActionListener(event -> runCodeCoverage(false));
         toolbar.add(codeCoverageButton);
         toolbar.add(Box.createHorizontalGlue());
         runComboBoxModel = new DefaultComboBoxModel<>();
@@ -908,6 +925,7 @@ public class RunnerPanel {
                 syncDetailTab();
                 testOverviewRunMenuItem.setEnabled(true);
                 testOverviewRunWorksheetMenuItem.setEnabled(true);
+                testOverviewCodeCoverageMenuItem.setEnabled(true);
             }
         });
         testOverviewTable.addMouseListener(new MouseAdapter() {
@@ -976,6 +994,9 @@ public class RunnerPanel {
             worksheet.runTestAsync();
         });
         testOverviewPopupMenu.add(testOverviewRunWorksheetMenuItem);
+        testOverviewCodeCoverageMenuItem = new JMenuItem(UtplsqlResources.getString("MENU_CODE_COVERAGE_LABEL"), UtplsqlResources.getIcon("CODE_COVERAGE_ICON"));
+        testOverviewCodeCoverageMenuItem.addActionListener(event -> runCodeCoverage(true));
+        testOverviewPopupMenu.add(testOverviewCodeCoverageMenuItem);
         testOverviewPopupMenu.add(new JSeparator());
         showSuccessfulTestsCheckBoxMenuItem = new JCheckBoxMenuItem(UtplsqlResources.getString("PREF_SHOW_SUCCESSFUL_TESTS_LABEL").replace("?", ""), true);
         showSuccessfulTestsCheckBoxMenuItem.addActionListener(event -> {
