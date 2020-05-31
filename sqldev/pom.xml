@@ -370,6 +370,13 @@
 				</configuration>
 			</plugin>
 			<plugin>
+				<!-- builds the OSGi bundle including MANIFEST.MF with build version number and properties -->
+				<!-- IMPORTANT NOTICE: -->
+				<!-- disable OSGi facets in IntelliJ (2020.1) to get rid of the following types of warnings/errors: -->
+				<!--   - Warning:osgi: [org.utplsql.sqldev] Host ...= for this fragment/require bundle cannot be found on the classpath -->
+				<!--   - Warning:osgi: [org.utplsql.sqldev] No translation found for macro: ... -->
+				<!--   - Error:osgi: [org.utplsql.sqldev] Input file does not exist: target/classes/META-INF/extension.xml  -->
+				<!--   - Error:osgi: [org.utplsql.sqldev] Invalid value for Bundle-Version, ${parsedVersion.majorVersion}.${parsedVersion.minorVersion}.${parsedVersion.incrementalVersion} does not match \d{1,9}(\.\d{1,9}(\.\d{1,9}(\.[-\w]+)?)?)? -->
 				<groupId>org.apache.felix</groupId>
 				<artifactId>maven-bundle-plugin</artifactId>
 				<version>4.2.1</version>
