@@ -26,9 +26,14 @@ import java.util.logging.Logger;
 
 import javax.swing.JFrame;
 
+import oracle.dbtools.raptor.runner.DBStarterFactory;
+import oracle.ide.Context;
+import oracle.jdevimpl.runner.debug.DebuggingProcess;
+import oracle.jdevimpl.runner.run.JRunner;
 import org.utplsql.sqldev.coverage.CodeCoverageReporter;
 import org.utplsql.sqldev.dal.RealtimeReporterDao;
 import org.utplsql.sqldev.dal.RealtimeReporterEventConsumer;
+import org.utplsql.sqldev.exception.GenericRuntimeException;
 import org.utplsql.sqldev.model.DatabaseTools;
 import org.utplsql.sqldev.model.SystemTools;
 import org.utplsql.sqldev.model.runner.PostRunEvent;
@@ -63,6 +68,7 @@ public class UtplsqlRunner implements RealtimeReporterEventConsumer {
     private JFrame frame; // for testing purposes only (outside of SQL Developer)
     private Thread producerThread;
     private Thread consumerThread;
+    private Context context; // required for debugging
 
     public UtplsqlRunner(final List<String> pathList, final String connectionName) {
         this.withCodeCoverage = false;
@@ -119,6 +125,10 @@ public class UtplsqlRunner implements RealtimeReporterEventConsumer {
             consumerConn = DatabaseTools.cloneConnection(connectionName);
         }
         this.connectionName = connectionName;
+    }
+
+    public void enableDebugging(Context context) {
+        this.context = context;
     }
 
     public void dispose() {
@@ -275,6 +285,19 @@ public class UtplsqlRunner implements RealtimeReporterEventConsumer {
         panel.update(realtimeReporterId);
     }
 
+    private void produceReportWithDebugger(String anonymousPlsqlBlock) {
+        try {
+            Context processContext = JRunner.prepareProcessContext(context, false);
+            DebuggingProcess process = new DebuggingProcess(processContext);
+            DBStarterFactory.PlSqlStarter starter = new DBStarterFactory.PlSqlStarter(process, anonymousPlsqlBlock, connectionName, context);
+            starter.start();
+        } catch (Throwable t) {
+            String msg = t.getClass().getName() + " while debugging utPLSQL test.";
+            logger.severe(() -> msg);
+            throw new GenericRuntimeException(msg);
+        }
+    }
+
     private void produce() {
         try {
             logger.fine(() -> "Running utPLSQL tests and producing events via reporter id " + realtimeReporterId + "...");
@@ -282,7 +305,11 @@ public class UtplsqlRunner implements RealtimeReporterEventConsumer {
             if (withCodeCoverage) {
                 dao.produceReportWithCoverage(realtimeReporterId, coverageReporterId, pathList, schemaList, includeObjectList, excludeObjectList);
             } else {
-                dao.produceReport(realtimeReporterId, pathList);
+                if (context == null) {
+                    dao.produceReport(realtimeReporterId, pathList);
+                } else {
+                    produceReportWithDebugger(dao.getProduceReportPlsql(realtimeReporterId, pathList));
+                }
             }
             logger.fine(() -> "All events produced for reporter id " + realtimeReporterId + ".");
         } catch (Exception e) {
