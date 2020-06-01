@@ -21,7 +21,12 @@ import java.util.logging.Logger;
 
 import javax.swing.JSplitPane;
 
+import oracle.dbtools.raptor.runner.DBStarterFactory;
+import oracle.ide.Context;
+import oracle.jdevimpl.runner.debug.DebuggingProcess;
+import oracle.jdevimpl.runner.run.JRunner;
 import org.utplsql.sqldev.exception.GenericDatabaseAccessException;
+import org.utplsql.sqldev.exception.GenericRuntimeException;
 import org.utplsql.sqldev.model.DatabaseTools;
 import org.utplsql.sqldev.model.StringTools;
 import org.utplsql.sqldev.model.SystemTools;
@@ -39,14 +44,19 @@ import oracle.ide.controller.IdeAction;
 public class UtplsqlWorksheetRunner {
     private static final Logger logger = Logger.getLogger(UtplsqlWorksheetRunner.class.getName());
 
-    private PreferenceModel preferences;
+    private final PreferenceModel preferences;
+    private final List<String> pathList;
     private String connectionName;
-    private List<String> pathList;
+    private boolean debug = false;
 
     public UtplsqlWorksheetRunner(final List<String> pathList, final String connectionName) {
         this.pathList = pathList;
         preferences = PreferenceModel.getInstance(Preferences.getPreferences());
         setConnection(connectionName);
+    }
+
+    public void enableDebugging() {
+        this.debug = true;
     }
 
     private void setConnection(final String connectionName) {
@@ -65,23 +75,32 @@ public class UtplsqlWorksheetRunner {
 
     private CharSequence getCode() {
         StringBuilder sb = new StringBuilder();
-        if (preferences.isResetPackage()) {
-            sb.append("EXECUTE dbms_session.reset_package;\n");
-        }
-        sb.append("SET SERVEROUTPUT ON SIZE UNLIMITED\n");
-        if (preferences.isClearScreen()) {
-            sb.append("CLEAR SCREEN\n");
-        }
-        final List<String> paths = pathList;
-        if (paths.size() == 1) {
-            sb.append("EXECUTE ut.run('");
-            sb.append(paths.get(0));
-            sb.append("');\n");
+        if (!debug) {
+            if (preferences.isResetPackage()) {
+                sb.append("EXECUTE dbms_session.reset_package;\n");
+            }
+            sb.append("SET SERVEROUTPUT ON SIZE UNLIMITED\n");
+            if (preferences.isClearScreen()) {
+                sb.append("CLEAR SCREEN\n");
+            }
+            if (pathList.size() == 1) {
+                sb.append("EXECUTE ut.run('");
+                sb.append(pathList.get(0));
+                sb.append("');\n");
+            } else {
+                // we want a horizontal dense output because we resize the worksheet to fit the command in common cases
+                sb.append("EXECUTE ut.run(ut_varchar2_list(");
+                sb.append(StringTools.getCSV(pathList, "").replace("\n", ""));
+                sb.append("));\n");
+            }
         } else {
-            // we want a horizontal dense output because we resize the worksheet to fit the command in common cases
-            sb.append("EXECUTE ut.run(ut_varchar2_list(");
-            sb.append(StringTools.getCSV(pathList, "").replace("\n",""));
-            sb.append("));\n");
+            sb.append("BEGIN\n");
+            sb.append("   ut.run(\n");
+            sb.append("      ut_varchar2_list(\n");
+            sb.append(StringTools.getCSV(pathList, 9));
+            sb.append("      )\n");
+            sb.append("   );\n");
+            sb.append("END;\n");
         }
         return sb;
     }
@@ -115,17 +134,37 @@ public class UtplsqlWorksheetRunner {
         }
     }
 
+    // cannot use IdeAction to run debugger, because text has to be set in inaccessible PLSQLController.updateAction
+    private void runDebugger(final Worksheet worksheet, final String anonymousPlsqlBlock) {
+        try {
+            Context processContext = JRunner.prepareProcessContext(worksheet.getContext(), false);
+            DebuggingProcess process = new DebuggingProcess(processContext);
+            DBStarterFactory.PlSqlStarter starter = new DBStarterFactory.PlSqlStarter(process, anonymousPlsqlBlock, connectionName, worksheet.getContext());
+            starter.start();
+        } catch (Throwable t) {
+            String msg = t.getClass().getName() + " while debugging utPLSQL test.";
+            logger.severe(() -> msg);
+            throw new GenericRuntimeException(msg);
+        }
+    }
+
     private void runScript(final Worksheet worksheet) {
         if (preferences.isAutoExecute()) {
             SystemTools.sleep(100);
-            final IdeAction action = ((IdeAction) Ide.getIdeActionMap().get(Ide.findCmdID("Worksheet.RunScript")));
-            if (action != null) {
-                try {
-                    action.performAction(worksheet.getContext());
-                } catch (Exception e) {
-                    logger.severe(() -> "Could not run script in worksheet due to " + (e != null ? e.getMessage() : "???") + ".");
+            if (debug) {
+                runDebugger(worksheet, worksheet.getFocusedEditorPane().getText());
+            } else {
+                final IdeAction action = ((IdeAction) Ide.getIdeActionMap().get(Ide.findCmdID("Worksheet.RunScript")));
+                if (action != null) {
+                    try {
+                        action.performAction(worksheet.getContext());
+                    } catch (Exception e) {
+                        logger.severe(() -> "Could not run script in worksheet due to " + e.getMessage() + ".");
+                    }
+                    if (!debug) {
+                        resizeResultPanel(worksheet);
+                    }
                 }
-                resizeResultPanel(worksheet);
             }
         }
     }
@@ -137,7 +176,7 @@ public class UtplsqlWorksheetRunner {
     }
 
     public void runTestAsync() {
-        final Thread thread = new Thread(() -> runTest());
+        final Thread thread = new Thread(this::runTest);
         thread.setName("utPLSQL run test");
         thread.start();
     }
