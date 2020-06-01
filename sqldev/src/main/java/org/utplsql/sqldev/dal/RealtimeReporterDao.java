@@ -72,12 +72,23 @@ public class RealtimeReporterDao {
                 .normalizedUtPlsqlVersionNumber() >= RealtimeReporterDao.FIRST_VERSION_WITH_REALTIME_REPORTER;
     }
 
-    public void produceReport(final String reporterId, final List<String> pathList) {
+    // used for execution via PL/SQL Debugger
+    public String getProduceReportPlsql(final String reporterId, final List<String> pathList) {
+        return getProduceReportPlsql(reporterId, pathList, false);
+    }
+
+    private String getProduceReportPlsql(final String reporterId, final List<String> pathList, boolean useBindVariable) {
         StringBuilder sb = new StringBuilder();
         sb.append("DECLARE\n");
         sb.append("   l_reporter ut_realtime_reporter := ut_realtime_reporter();\n");
         sb.append("BEGIN\n");
-        sb.append("   l_reporter.set_reporter_id(?);\n");
+        if (useBindVariable) {
+            sb.append("   l_reporter.set_reporter_id(?);\n");
+        } else {
+            sb.append("   l_reporter.set_reporter_id('");
+            sb.append(reporterId);
+            sb.append("');\n");
+        }
         sb.append("   l_reporter.output_buffer.init();\n");
         sb.append("   sys.dbms_output.enable(NULL);\n");
         sb.append("   ut_runner.run(\n");
@@ -88,7 +99,11 @@ public class RealtimeReporterDao {
         sb.append("   );\n");
         sb.append("   sys.dbms_output.disable;\n");
         sb.append("END;");
-        final String plsql = sb.toString();
+        return sb.toString();
+    }
+
+    public void produceReport(final String reporterId, final List<String> pathList) {
+        final String plsql = getProduceReportPlsql(reporterId, pathList, true);
         final Object[] binds = { reporterId };
         jdbcTemplate.update(plsql, binds);
     }
