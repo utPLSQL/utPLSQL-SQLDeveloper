@@ -483,7 +483,18 @@ public class RunnerPanel {
         }
     }
 
+    private void showDockable() {
+        try {
+            if (!RunnerFactory.getDockable().isVisible()) {
+                RunnerFactory.showDockable();
+            }
+        } catch (Throwable t) {
+            // ignore
+        }
+    }
+
     public synchronized void update(final String reporterId) {
+        showDockable();
         setCurrentRun(runs.get(reporterId));
         final int row = currentRun.getCurrentTestNumber() - 1;
         final CharSequence header = testOverviewTableModel.getTestIdColumnName();
