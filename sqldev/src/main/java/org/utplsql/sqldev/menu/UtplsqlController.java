@@ -67,9 +67,11 @@ public class UtplsqlController implements Controller {
 
     public static int UTPLSQL_TEST_CMD_ID = (Ide.findCmdID("utplsql.test")).intValue();
     public static int UTPLSQL_COVERAGE_CMD_ID = (Ide.findCmdID("utplsql.coverage")).intValue();
+    public static int UTPLSQL_DEBUG_CMD_ID = (Ide.findCmdID("utplsql.debug")).intValue();
     public static int UTPLSQL_GENERATE_CMD_ID = (Ide.findCmdID("utplsql.generate")).intValue();
     public static final IdeAction UTPLSQL_TEST_ACTION = IdeAction.get(UTPLSQL_TEST_CMD_ID);
     public static final IdeAction UTPLSQL_COVERAGE_ACTION = IdeAction.get(UTPLSQL_COVERAGE_CMD_ID);
+    public static final IdeAction UTPLSQL_DEBUG_ACTION = IdeAction.get(UTPLSQL_DEBUG_CMD_ID);
     public static final IdeAction UTPLSQL_GENERATE_ACTION = IdeAction.get(UTPLSQL_GENERATE_CMD_ID);
 
     @Override
@@ -77,11 +79,15 @@ public class UtplsqlController implements Controller {
         try {
             if (action.getCommandId() == UTPLSQL_TEST_CMD_ID) {
                 logger.finer(() -> "handle utplsql.test");
-                runTest(context);
+                runTest(context, false);
                 return true;
             } else if (action.getCommandId() == UTPLSQL_COVERAGE_CMD_ID) {
                 logger.finer(() -> "handle utplsql.coverage");
                 codeCoverage(context);
+                return true;
+            } else if (action.getCommandId() == UTPLSQL_DEBUG_CMD_ID) {
+                logger.finer(() -> "handle utplsql.debug");
+                runTest(context, true);
                 return true;
             } else if (action.getCommandId() == UTPLSQL_GENERATE_CMD_ID) {
                 logger.finer(() -> "handle utplsql.generate");
@@ -98,7 +104,8 @@ public class UtplsqlController implements Controller {
 
     @Override
     public boolean update(final IdeAction action, final Context context) {
-        if (action.getCommandId() == UTPLSQL_TEST_CMD_ID || action.getCommandId() == UTPLSQL_COVERAGE_CMD_ID) {
+        if (action.getCommandId() == UTPLSQL_TEST_CMD_ID || action.getCommandId() == UTPLSQL_COVERAGE_CMD_ID ||
+                action.getCommandId() == UTPLSQL_DEBUG_CMD_ID) {
             final PreferenceModel preferences = PreferenceModel.getInstance(Preferences.getPreferences());
             action.setEnabled(false);
             final View view = context.getView();
@@ -315,7 +322,7 @@ public class UtplsqlController implements Controller {
         return genContext;
     }
     
-    public void runTest(final Context context) {
+    public void runTest(final Context context, boolean withDebug) {
         final View view = context.getView();
         final Node node = context.getNode();
         final PreferenceModel preferences = PreferenceModel.getInstance(Preferences.getPreferences());
@@ -348,9 +355,15 @@ public class UtplsqlController implements Controller {
                 final RealtimeReporterDao rrDao = new RealtimeReporterDao(conn);
                 if (preferences.isUseRealtimeReporter() && rrDao.isSupported()) {
                     final UtplsqlRunner runner = new UtplsqlRunner(getPathList(path), connectionName);
+                    if (withDebug) {
+                        runner.enableDebugging(context);
+                    }
                     runner.runTestAsync();
                 } else {
                     final UtplsqlWorksheetRunner worksheet = new UtplsqlWorksheetRunner(getPathList(path), connectionName);
+                    if (withDebug) {
+                        worksheet.enableDebugging();
+                    }
                     worksheet.runTestAsync();
                 }
             }
@@ -364,9 +377,15 @@ public class UtplsqlController implements Controller {
                 final ArrayList<String> pathList = dedupPathList(getPathList(context));
                 if (preferences.isUseRealtimeReporter() && rrDao.isSupported()) {
                     final UtplsqlRunner runner = new UtplsqlRunner(pathList, connectionName);
+                    if (withDebug) {
+                        runner.enableDebugging(context);
+                    }
                     runner.runTestAsync();
                 } else {
                     final UtplsqlWorksheetRunner worksheet = new UtplsqlWorksheetRunner(pathList, connectionName);
+                    if (withDebug) {
+                        worksheet.enableDebugging();
+                    }
                     worksheet.runTestAsync();
                 }
             }
