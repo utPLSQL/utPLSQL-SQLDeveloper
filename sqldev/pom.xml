@@ -142,6 +142,20 @@
 			<scope>system</scope>
 			<systemPath>${sqldev.basedir}/jdev/extensions/oracle.jdeveloper.java.core.jar</systemPath>
 		</dependency>
+		<dependency>
+			<groupId>oracle</groupId>
+			<artifactId>oracle.jdeveloper.runner.jar</artifactId>
+			<version>13.0.0</version>
+			<scope>system</scope>
+			<systemPath>${sqldev.basedir}/jdev/extensions/oracle.jdeveloper.runner.jar</systemPath>
+		</dependency>
+		<dependency>
+			<groupId>oracle</groupId>
+			<artifactId>oracle.ide.runner</artifactId>
+			<version>19.3.0</version>
+			<scope>system</scope>
+			<systemPath>${sqldev.basedir}/ide/extensions/oracle.ide.runner.jar</systemPath>
+		</dependency>
 		<!-- SQL Developer specific dependencies part 2 (used for tests only) -->
 		<dependency>
 			<groupId>oracle</groupId>
@@ -412,9 +426,11 @@
 							oracle.javatools,
 							oracle.javatools-nodeps,
 							oracle.jdeveloper.db.connection,
+							oracle.jdeveloper.runner,
 							oracle.idert,
 							oracle.ide,
 							oracle.ide.db,
+							oracle.ide.runner,
 							oracle.sqldeveloper,
 							oracle.sqldeveloper.utils,
 							oracle.sqldeveloper.worksheet,
