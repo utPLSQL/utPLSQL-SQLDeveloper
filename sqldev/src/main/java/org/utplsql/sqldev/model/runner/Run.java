@@ -21,6 +21,7 @@ import java.util.List;
 import org.springframework.core.style.ToStringCreator;
 import org.utplsql.sqldev.model.JsonToStringStyler;
 
+@SuppressWarnings("unused")
 public class Run {
     private String reporterId;
     private String connectionName;
@@ -79,18 +80,13 @@ public class Run {
     public String getName() {
         final String time = startTime.substring(11, 19);
         final String conn = connectionName != null ? connectionName.substring(15) : "n/a";
-        final StringBuilder sb = new StringBuilder();
-        sb.append(time);
-        sb.append(" (");
-        sb.append(conn);
-        sb.append(")");
-        return sb.toString();
+        return time + " (" + conn + ")";
     }
 
     public void put(final List<Item> items) {
         for (final Item item : items) {
             if (item instanceof Test) {
-                tests.put(((Test) item).getId(), (Test) item);
+                tests.put(item.getId(), (Test) item);
             }
             if (item instanceof Suite) {
                 put(((Suite) item).getItems());
