@@ -17,11 +17,9 @@ package org.utplsql.sqldev.dal;
 
 import java.io.IOException;
 import java.io.StringReader;
-import java.sql.CallableStatement;
 import java.sql.Clob;
 import java.sql.Connection;
 import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -151,35 +149,37 @@ public class RealtimeReporterDao {
     }
 
     public void consumeReport(final String reporterId, final RealtimeReporterEventConsumer consumer) {
+        consumeReport(reporterId, consumer, 60);
+    }
+
+    public void consumeReport(final String reporterId, final RealtimeReporterEventConsumer consumer, final int timeoutSeconds) {
         StringBuilder sb = new StringBuilder();
         sb.append("DECLARE\n");
         sb.append("   l_reporter ut_realtime_reporter := ut_realtime_reporter();\n");
         sb.append("BEGIN\n");
         sb.append("   l_reporter.set_reporter_id(?);\n");
-        sb.append("   ? := l_reporter.get_lines_cursor();\n");
+        sb.append("   ? := l_reporter.get_lines_cursor(a_initial_timeout => ?);\n");
         sb.append("END;");
         final String plsql = sb.toString();
         jdbcTemplate.setFetchSize(1);
         try {
-            jdbcTemplate.execute(plsql, new CallableStatementCallback<Void>() {
-                @Override
-                public Void doInCallableStatement(final CallableStatement cs) throws SQLException {
-                    cs.setString(1, reporterId);
-                    cs.registerOutParameter(2, OracleTypes.CURSOR);
-                    cs.execute();
-                    final ResultSet rs = (ResultSet) cs.getObject(2);
-                    while (rs.next()) {
-                        final String itemType = rs.getString("item_type");
-                        final Clob textClob = rs.getClob("text");
-                        final String textString = textClob.getSubString(1, ((int) textClob.length()));
-                        final RealtimeReporterEvent event = convert(itemType, textString);
-                        if (event != null) {
-                            consumer.process(event);
-                        }
+            jdbcTemplate.execute(plsql, (CallableStatementCallback<Void>) cs -> {
+                cs.setString(1, reporterId);
+                cs.setInt(3, timeoutSeconds);
+                cs.registerOutParameter(2, OracleTypes.CURSOR);
+                cs.execute();
+                final ResultSet rs = (ResultSet) cs.getObject(2);
+                while (rs.next()) {
+                    final String itemType = rs.getString("item_type");
+                    final Clob textClob = rs.getClob("text");
+                    final String textString = textClob.getSubString(1, ((int) textClob.length()));
+                    final RealtimeReporterEvent event = convert(itemType, textString);
+                    if (event != null) {
+                        consumer.process(event);
                     }
-                    rs.close();
-                    return null;
                 }
+                rs.close();
+                return null;
             });
         } finally {
             jdbcTemplate.setFetchSize(UtplsqlDao.FETCH_ROWS);
