@@ -15,13 +15,14 @@
  */
 package org.utplsql.sqldev.test;
 
-import java.util.Arrays;
+import java.util.Collections;
 
 import org.junit.Assert;
 import org.junit.Test;
 import org.utplsql.sqldev.model.runner.Run;
 import org.utplsql.sqldev.model.ut.OutputLines;
 
+@SuppressWarnings("StringBufferReplaceableByString")
 public class JsonToStringStylerTest {
 
     @Test
@@ -64,7 +65,7 @@ public class JsonToStringStylerTest {
 
     @Test
     public void emptyRun() {
-        final Run r = new Run("1", "MyConnection", Arrays.asList());
+        final Run r = new Run("1", "MyConnection", Collections.emptyList());
 
         final String actual = r.toString();
 
@@ -82,11 +83,11 @@ public class JsonToStringStylerTest {
         sb.append("    \"executionTime\": null,\n");
         sb.append("    \"counter\": {\n");
         sb.append("        \"className\": \"Counter\",\n");
-        sb.append("        \"disabled\": null,\n");
-        sb.append("        \"success\": null,\n");
-        sb.append("        \"failure\": null,\n");
-        sb.append("        \"error\": null,\n");
-        sb.append("        \"warning\": null\n");
+        sb.append("        \"disabled\": 0,\n");
+        sb.append("        \"success\": 0,\n");
+        sb.append("        \"failure\": 0,\n");
+        sb.append("        \"error\": 0,\n");
+        sb.append("        \"warning\": 0\n");
         sb.append("    },\n");
         sb.append("    \"infoCount\": null,\n");
         sb.append("    \"errorStack\": null,\n");
@@ -95,15 +96,14 @@ public class JsonToStringStylerTest {
         sb.append("    \"status\": null,\n");
         sb.append("    \"start\": null,\n");
         sb.append("    \"endTime\": null,\n");
-        sb.append("    \"totalNumberOfCompletedTests\": -1\n");
+        sb.append("    \"totalNumberOfCompletedTests\": 0\n");
         sb.append("}");
-        Assert.assertEquals(sb.toString(), actual.toString());
+        Assert.assertEquals(sb.toString(), actual);
     }
-
 
     @Test
     public void runWithTests() {
-        final Run r = new Run("1", "MyConnection", Arrays.asList());
+        final Run r = new Run("1", "MyConnection", Collections.emptyList());
         final org.utplsql.sqldev.model.runner.Test t1 = new org.utplsql.sqldev.model.runner.Test();
         t1.setId("1");
         t1.setName("Test One");
@@ -129,11 +129,11 @@ public class JsonToStringStylerTest {
         sb.append("    \"executionTime\": null,\n");
         sb.append("    \"counter\": {\n");
         sb.append("        \"className\": \"Counter\",\n");
-        sb.append("        \"disabled\": null,\n");
-        sb.append("        \"success\": null,\n");
-        sb.append("        \"failure\": null,\n");
-        sb.append("        \"error\": null,\n");
-        sb.append("        \"warning\": null\n");
+        sb.append("        \"disabled\": 0,\n");
+        sb.append("        \"success\": 0,\n");
+        sb.append("        \"failure\": 0,\n");
+        sb.append("        \"error\": 0,\n");
+        sb.append("        \"warning\": 0\n");
         sb.append("    },\n");
         sb.append("    \"infoCount\": null,\n");
         sb.append("    \"errorStack\": null,\n");
@@ -145,7 +145,14 @@ public class JsonToStringStylerTest {
         sb.append("            \"startTime\": null,\n");
         sb.append("            \"endTime\": null,\n");
         sb.append("            \"executionTime\": null,\n");
-        sb.append("            \"counter\": null,\n");
+        sb.append("            \"counter\": {\n");
+        sb.append("                \"className\": \"Counter\",\n");
+        sb.append("                \"disabled\": 0,\n");
+        sb.append("                \"success\": 0,\n");
+        sb.append("                \"failure\": 0,\n");
+        sb.append("                \"error\": 0,\n");
+        sb.append("                \"warning\": 0\n");
+        sb.append("            },\n");
         sb.append("            \"errorStack\": null,\n");
         sb.append("            \"serverOutput\": null,\n");
         sb.append("            \"warnings\": null,\n");
@@ -168,7 +175,14 @@ public class JsonToStringStylerTest {
         sb.append("            \"startTime\": null,\n");
         sb.append("            \"endTime\": null,\n");
         sb.append("            \"executionTime\": null,\n");
-        sb.append("            \"counter\": null,\n");
+        sb.append("            \"counter\": {\n");
+        sb.append("                \"className\": \"Counter\",\n");
+        sb.append("                \"disabled\": 0,\n");
+        sb.append("                \"success\": 0,\n");
+        sb.append("                \"failure\": 0,\n");
+        sb.append("                \"error\": 0,\n");
+        sb.append("                \"warning\": 0\n");
+        sb.append("            },\n");
         sb.append("            \"errorStack\": null,\n");
         sb.append("            \"serverOutput\": null,\n");
         sb.append("            \"warnings\": null,\n");
@@ -189,8 +203,8 @@ public class JsonToStringStylerTest {
         sb.append("    \"status\": null,\n");
         sb.append("    \"start\": null,\n");
         sb.append("    \"endTime\": null,\n");
-        sb.append("    \"totalNumberOfCompletedTests\": -1\n");
+        sb.append("    \"totalNumberOfCompletedTests\": 0\n");
         sb.append("}");
-        Assert.assertEquals(sb.toString(), actual.toString());
+        Assert.assertEquals(sb.toString(), actual);
     }
 }
