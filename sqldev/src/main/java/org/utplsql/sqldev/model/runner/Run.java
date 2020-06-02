@@ -15,6 +15,7 @@
  */
 package org.utplsql.sqldev.model.runner;
 
+import java.sql.Connection;
 import java.util.LinkedHashMap;
 import java.util.List;
 
@@ -39,6 +40,8 @@ public class Run {
     private LinkedHashMap<String, Test> tests;
     private String status;
     private Long start;
+    // to abort connections, producerConn is handled by UtplsqlRunner
+    private Connection consumerConn;
 
     @Override
     public String toString() {
@@ -234,5 +237,13 @@ public class Run {
 
     public void setStart(final Long start) {
         this.start = start;
+    }
+
+    public Connection getConsumerConn() {
+        return consumerConn;
+    }
+
+    public void setConsumerConn(Connection consumerConn) {
+        this.consumerConn = consumerConn;
     }
 }
