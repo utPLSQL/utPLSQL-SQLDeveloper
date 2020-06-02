@@ -99,6 +99,7 @@ public class RunnerPanel {
     private Run currentRun;
     private JPanel basePanel;
     private DefaultComboBoxModel<ComboBoxItem<String, String>> runComboBoxModel;
+    private ToolbarButton stopButton;
     private JComboBox<ComboBoxItem<String, String>> runComboBox;
     private JLabel statusLabel;
     private Timer elapsedTimeTimer;
@@ -168,7 +169,7 @@ public class RunnerPanel {
         }
     }
 
-    // used in mulitple components, therefore an inner class
+    // used in multiple components, therefore an inner class
     private static class FailuresTableHeaderRenderer extends DefaultTableCellRenderer {
         private static final long serialVersionUID = 5059401447983514596L;
 
@@ -215,6 +216,7 @@ public class RunnerPanel {
         testErrorStackTextPane.setText(null);
         testWarningsTextPane.setText(null);
         testServerOutputTextPane.setText(null);
+        enableOrDisableStopButton();
     }
 
     private void refreshRunsComboBox() {
@@ -487,8 +489,13 @@ public class RunnerPanel {
         }
     }
 
+    private void enableOrDisableStopButton() {
+        stopButton.setEnabled(currentRun.getEndTime() == null);
+    }
+
     public synchronized void update(final String reporterId) {
         showDockable();
+        enableOrDisableStopButton();
         setCurrentRun(runs.get(reporterId));
         final int row = currentRun.getCurrentTestNumber() - 1;
         final CharSequence header = testOverviewTableModel.getTestIdColumnName();
@@ -753,6 +760,56 @@ public class RunnerPanel {
         codeCoverageButton.setBorder(buttonBorder);
         codeCoverageButton.addActionListener(event -> runCodeCoverage(false));
         toolbar.add(codeCoverageButton);
+        stopButton = new ToolbarButton(UtplsqlResources.getIcon("STOP_ICON"));
+        stopButton.setToolTipText(UtplsqlResources.getString("RUNNER_STOP_TOOLTIP"));
+        stopButton.setBorder(buttonBorder);
+        stopButton.addActionListener(event -> {
+            if (currentRun.getConsumerConn() != null) {
+                // Aborts JDBC Connection. Connection might still run in the background. That's expected.
+                DatabaseTools.abortConnection(currentRun.getConsumerConn());
+                for (Test test : currentRun.getTests().values()) {
+                    if (test.getEndTime() == null && !test.isDisabled()) {
+                        test.setDisabled(true);
+                        test.getCounter().setDisabled(1);
+                        test.getCounter().setWarning(1);
+                        test.setWarnings(UtplsqlResources.getString("RUNNER_STOP_TEST_MESSAGE"));
+                        test.setStartTime(null);
+                    }
+                }
+                // recalculate counters and fix inconsistencies
+                currentRun.getCounter().setSuccess(0);
+                currentRun.getCounter().setFailure(0);
+                currentRun.getCounter().setError(0);
+                currentRun.getCounter().setDisabled(0);
+                currentRun.getCounter().setWarning(0);
+                for (Test test : currentRun.getTests().values()) {
+                    if (test.isDisabled() && test.getCounter().getDisabled() == 0) {
+                        test.getCounter().setDisabled(1);
+                    }
+                    if (test.getFailedExpectations() != null && !test.getFailedExpectations().isEmpty() && test.getCounter().getFailure() == 0) {
+                        test.getCounter().setFailure(1);
+                    }
+                    if (test.getErrorStack() != null && test.getCounter().getError() == 0) {
+                        test.getCounter().setError(1);
+                    }
+                    currentRun.getCounter().setSuccess(currentRun.getCounter().getSuccess() + test.getCounter().getSuccess());
+                    currentRun.getCounter().setFailure(currentRun.getCounter().getFailure() + test.getCounter().getFailure());
+                    currentRun.getCounter().setError(currentRun.getCounter().getError() + test.getCounter().getError());
+                    currentRun.getCounter().setDisabled(currentRun.getCounter().getDisabled() + test.getCounter().getDisabled());
+                    currentRun.getCounter().setWarning(currentRun.getCounter().getWarning() + test.getCounter().getWarning());
+                }
+                // terminate run
+                currentRun.setEndTime(UtplsqlRunner.getSysdate());
+                double now = (double) System.currentTimeMillis();
+                currentRun.setExecutionTime((now - currentRun.getStart()) / 1000);
+                currentRun.setCurrentTestNumber(0);
+                currentRun.setStatus(UtplsqlResources.getString("RUNNER_STOP_RUN_MESSAGE"));
+                // update run in GUI
+                update(currentRun.getReporterId());
+            }
+        });
+        stopButton.setEnabled(false);
+        toolbar.add(stopButton);
         toolbar.add(Box.createHorizontalGlue());
         runComboBoxModel = new DefaultComboBoxModel<>();
         runComboBox = new JComboBox<>(runComboBoxModel);
