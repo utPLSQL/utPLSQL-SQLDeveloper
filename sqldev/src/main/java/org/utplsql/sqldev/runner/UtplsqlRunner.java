@@ -52,6 +52,7 @@ import org.utplsql.sqldev.ui.runner.RunnerView;
 
 public class UtplsqlRunner implements RealtimeReporterEventConsumer {
     private static final Logger logger = Logger.getLogger(UtplsqlRunner.class.getName());
+    private static final int DEBUG_TIMEOUT_SECONDS = 60*60;
 
     private final boolean withCodeCoverage;
     private final List<String> pathList;
@@ -141,6 +142,7 @@ public class UtplsqlRunner implements RealtimeReporterEventConsumer {
         if (frame != null) {
             frame.setVisible(false);
         }
+        run.setConsumerConn(null);
     }
 
     @SuppressWarnings("StatementWithEmptyBody")
@@ -165,7 +167,7 @@ public class UtplsqlRunner implements RealtimeReporterEventConsumer {
         }
     }
 
-    private String getSysdate() {
+    public static String getSysdate() {
         final Date dateTime = new Date(System.currentTimeMillis());
         final SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'000'");
         return df.format(dateTime);
@@ -183,6 +185,7 @@ public class UtplsqlRunner implements RealtimeReporterEventConsumer {
         run.setTotalNumberOfTests(-1);
         run.setCurrentTestNumber(0);
         run.setStatus(UtplsqlResources.getString("RUNNER_INITIALIZING_TEXT"));
+        run.setConsumerConn(consumerConn);
         panel.setModel(run);
         panel.update(realtimeReporterId);
     }
@@ -200,7 +203,7 @@ public class UtplsqlRunner implements RealtimeReporterEventConsumer {
         run.setExecutionTime(event.getExecutionTime());
         run.setErrorStack(event.getErrorStack());
         run.setServerOutput(event.getServerOutput());
-        run.setStatus(UtplsqlResources.getString("RUNNER_FINNISHED_TEXT"));
+        run.setStatus(UtplsqlResources.getString("RUNNER_FINISHED_TEXT"));
         panel.update(realtimeReporterId);
     }
 
@@ -323,26 +326,33 @@ public class UtplsqlRunner implements RealtimeReporterEventConsumer {
 
     private void consume() {
         try {
-            logger.fine(() -> "Consuming events from reporter id " + realtimeReporterId + " in realtime...");
-            final RealtimeReporterDao dao = new RealtimeReporterDao(consumerConn);
-            dao.consumeReport(realtimeReporterId, this);
-            logger.fine(() -> "All events consumed.");
-            if (withCodeCoverage) {
-                String html = dao.getHtmlCoverage(coverageReporterId);
-                CodeCoverageReporter.openInBrowser(html);
+            try {
+                logger.fine(() -> "Consuming events from reporter id " + realtimeReporterId + " in realtime...");
+                final RealtimeReporterDao dao = new RealtimeReporterDao(consumerConn);
+                if (!debug) {
+                    dao.consumeReport(realtimeReporterId, this);
+                } else {
+                    dao.consumeReport(realtimeReporterId, this, DEBUG_TIMEOUT_SECONDS);
+                }
+                logger.fine(() -> "All events consumed.");
+                if (withCodeCoverage) {
+                    String html = dao.getHtmlCoverage(coverageReporterId);
+                    CodeCoverageReporter.openInBrowser(html);
+                }
+            } catch (Exception e) {
+                logger.severe(() -> "Error while consuming events for reporter id " + realtimeReporterId + ": " + e.getMessage() + ".");
             }
-        } catch (Exception e) {
-            logger.severe(() -> "Error while consuming events for reporter id " + realtimeReporterId + ": " + e.getMessage() + ".");
-        }
-        if (run.getTotalNumberOfTests() < 0) {
-            run.setStatus(UtplsqlResources.getString("RUNNER_NO_TESTS_FOUND_TEXT"));
-            run.setExecutionTime((System.currentTimeMillis() - Double.valueOf(run.getStart())) / 1000);
-            run.setEndTime(getSysdate());
-            run.setTotalNumberOfTests(0);
-            panel.update(realtimeReporterId);
-        }
-        if (isRunningInSqlDeveloper()) {
-            dispose();
+        } finally {
+            if (run.getTotalNumberOfTests() < 0) {
+                run.setStatus(UtplsqlResources.getString("RUNNER_NO_TESTS_FOUND_TEXT"));
+                run.setExecutionTime((System.currentTimeMillis() - Double.valueOf(run.getStart())) / 1000);
+                run.setEndTime(getSysdate());
+                run.setTotalNumberOfTests(0);
+                panel.update(realtimeReporterId);
+            }
+            if (isRunningInSqlDeveloper()) {
+                dispose();
+            }
         }
     }
 
