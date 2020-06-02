@@ -116,6 +116,7 @@ public class RunnerPanel {
     private JTable testOverviewTable;
     private JMenuItem testOverviewRunMenuItem;
     private JMenuItem testOverviewRunWorksheetMenuItem;
+    private JMenuItem testOverviewDebugMenuItem;
     private JMenuItem testOverviewCodeCoverageMenuItem;
     private JCheckBoxMenuItem showTestDescriptionCheckBoxMenuItem;
     private JCheckBoxMenuItem showWarningIndicatorCheckBoxMenuItem;
@@ -200,6 +201,7 @@ public class RunnerPanel {
         testOverviewTable.getRowSorter().setSortKeys(null);
         testOverviewRunMenuItem.setEnabled(false);
         testOverviewRunWorksheetMenuItem.setEnabled(false);
+        testOverviewDebugMenuItem.setEnabled(false);
         testOverviewCodeCoverageMenuItem.setEnabled(false);
         testIdTextArea.setText(null);
         testOwnerTextField.setText(null);
@@ -737,6 +739,15 @@ public class RunnerPanel {
             worksheet.runTestAsync();
         });
         toolbar.add(rerunWorksheetButton);
+        final ToolbarButton debugButton = new ToolbarButton(UtplsqlResources.getIcon("DEBUG_ICON"));
+        debugButton.setToolTipText(UtplsqlResources.getString("RUNNER_DEBUG_TOOLTIP"));
+        debugButton.setBorder(buttonBorder);
+        debugButton.addActionListener(event -> {
+            final UtplsqlRunner runner = new UtplsqlRunner(currentRun.getPathList(), currentRun.getConnectionName());
+            runner.enableDebugging();
+            runner.runTestAsync();
+        });
+        toolbar.add(debugButton);
         final ToolbarButton codeCoverageButton = new ToolbarButton(UtplsqlResources.getIcon("CODE_COVERAGE_ICON"));
         codeCoverageButton.setToolTipText(UtplsqlResources.getString("RUNNER_CODE_COVERAGE_TOOLTIP"));
         codeCoverageButton.setBorder(buttonBorder);
@@ -931,6 +942,7 @@ public class RunnerPanel {
                 syncDetailTab();
                 testOverviewRunMenuItem.setEnabled(true);
                 testOverviewRunWorksheetMenuItem.setEnabled(true);
+                testOverviewDebugMenuItem.setEnabled(true);
                 testOverviewCodeCoverageMenuItem.setEnabled(true);
             }
         });
@@ -988,8 +1000,7 @@ public class RunnerPanel {
         final JPopupMenu testOverviewPopupMenu = new JPopupMenu();
         testOverviewRunMenuItem = new JMenuItem(UtplsqlResources.getString("RUNNER_RUN_MENUITEM"), UtplsqlResources.getIcon("RUN_ICON"));
         testOverviewRunMenuItem.addActionListener(event -> {
-            final UtplsqlRunner runner = new UtplsqlRunner(getPathListFromSelectedTests(),
-                    currentRun.getConnectionName());
+            final UtplsqlRunner runner = new UtplsqlRunner(getPathListFromSelectedTests(), currentRun.getConnectionName());
             runner.runTestAsync();
         });
         testOverviewPopupMenu.add(testOverviewRunMenuItem);
@@ -1000,6 +1011,13 @@ public class RunnerPanel {
             worksheet.runTestAsync();
         });
         testOverviewPopupMenu.add(testOverviewRunWorksheetMenuItem);
+        testOverviewDebugMenuItem = new JMenuItem(UtplsqlResources.getString("MENU_DEBUG_TEST_LABEL"), UtplsqlResources.getIcon("DEBUG_ICON"));
+        testOverviewDebugMenuItem.addActionListener(event -> {
+            final UtplsqlRunner runner = new UtplsqlRunner(getPathListFromSelectedTests(), currentRun.getConnectionName());
+            runner.enableDebugging();
+            runner.runTestAsync();
+        });
+        testOverviewPopupMenu.add(testOverviewDebugMenuItem);
         testOverviewCodeCoverageMenuItem = new JMenuItem(UtplsqlResources.getString("MENU_CODE_COVERAGE_LABEL"), UtplsqlResources.getIcon("CODE_COVERAGE_ICON"));
         testOverviewCodeCoverageMenuItem.addActionListener(event -> runCodeCoverage(true));
         testOverviewPopupMenu.add(testOverviewCodeCoverageMenuItem);
