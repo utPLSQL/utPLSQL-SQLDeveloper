@@ -25,6 +25,14 @@ public class Counter {
     private Integer error;
     private Integer warning;
 
+    public Counter() {
+        disabled = 0;
+        success = 0;
+        failure = 0;
+        error = 0;
+        warning = 0;
+    }
+
     @Override
     public String toString() {
         return new ToStringCreator(this, JsonToStringStyler.INSTANCE)
