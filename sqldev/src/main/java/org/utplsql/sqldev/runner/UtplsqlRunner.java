@@ -58,6 +58,7 @@ public class UtplsqlRunner implements RealtimeReporterEventConsumer {
     private final List<String> schemaList;
     private final List<String> includeObjectList;
     private final List<String> excludeObjectList;
+    private Context context;
     private String connectionName;
     private Connection producerConn;
     private Connection consumerConn;
@@ -68,7 +69,7 @@ public class UtplsqlRunner implements RealtimeReporterEventConsumer {
     private JFrame frame; // for testing purposes only (outside of SQL Developer)
     private Thread producerThread;
     private Thread consumerThread;
-    private Context context; // required for debugging
+    private boolean debug = false;
 
     public UtplsqlRunner(final List<String> pathList, final String connectionName) {
         this.withCodeCoverage = false;
@@ -77,6 +78,7 @@ public class UtplsqlRunner implements RealtimeReporterEventConsumer {
         this.includeObjectList = null;
         this.excludeObjectList = null;
         setConnection(connectionName);
+        this.context = Context.newIdeContext();
     }
     
     public UtplsqlRunner(final List<String> pathList, final List<String> schemaList,
@@ -87,6 +89,7 @@ public class UtplsqlRunner implements RealtimeReporterEventConsumer {
         this.includeObjectList = includeObjectList;
         this.excludeObjectList = excludeObjectList;
         setConnection(connectionName);
+        this.context = Context.newIdeContext();
     }
 
     /**
@@ -127,8 +130,8 @@ public class UtplsqlRunner implements RealtimeReporterEventConsumer {
         this.connectionName = connectionName;
     }
 
-    public void enableDebugging(Context context) {
-        this.context = context;
+    public void enableDebugging() {
+        this.debug = true;
     }
 
     public void dispose() {
@@ -140,6 +143,7 @@ public class UtplsqlRunner implements RealtimeReporterEventConsumer {
         }
     }
 
+    @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public void process(final RealtimeReporterEvent event) {
         logger.fine(event::toString);
@@ -305,7 +309,7 @@ public class UtplsqlRunner implements RealtimeReporterEventConsumer {
             if (withCodeCoverage) {
                 dao.produceReportWithCoverage(realtimeReporterId, coverageReporterId, pathList, schemaList, includeObjectList, excludeObjectList);
             } else {
-                if (context == null) {
+                if (!debug) {
                     dao.produceReport(realtimeReporterId, pathList);
                 } else {
                     produceReportWithDebugger(dao.getProduceReportPlsql(realtimeReporterId, pathList));
@@ -355,6 +359,7 @@ public class UtplsqlRunner implements RealtimeReporterEventConsumer {
             if (isRunningInSqlDeveloper()) {
                 RunnerFactory.showDockable();
                 panel = dockable.getRunnerPanel();
+                context.setView(dockable);
             } else {
                 frame = new JFrame("utPLSQL Runner Panel");
                 frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
