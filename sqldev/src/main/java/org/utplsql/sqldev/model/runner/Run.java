@@ -103,7 +103,13 @@ public class Run {
                 || counter.getError() == null) {
             return -1;
         }
-        return counter.getDisabled() + counter.getSuccess() + counter.getFailure() + counter.getError();
+        int total = counter.getDisabled() + counter.getSuccess() + counter.getFailure() + counter.getError();
+        if (totalNumberOfTests != null && total > totalNumberOfTests) {
+            // can happen when run is cancelled and two processes are updating the run in parallel
+            // not worth to ensure consistency for this case, using synchronized will not be enough
+            total = totalNumberOfTests;
+        }
+        return total;
     }
 
     public String getReporterId() {
