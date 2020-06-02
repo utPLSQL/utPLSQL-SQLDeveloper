@@ -54,12 +54,13 @@ import org.xml.sax.SAXException;
 
 import oracle.jdbc.OracleTypes;
 
+@SuppressWarnings("StringBufferReplaceableByString")
 public class RealtimeReporterDao {
     private static final Logger logger = Logger.getLogger(RealtimeReporterDao.class.getName());
     private static final int FIRST_VERSION_WITH_REALTIME_REPORTER = 3001004;
     private final XMLTools xmlTools = new XMLTools();
-    private Connection conn;
-    private JdbcTemplate jdbcTemplate;
+    private final Connection conn;
+    private final JdbcTemplate jdbcTemplate;
 
     public RealtimeReporterDao(final Connection conn) {
         this.conn = conn;
@@ -194,24 +195,21 @@ public class RealtimeReporterDao {
         sb.append("   ? := l_reporter.get_lines_cursor();\n");
         sb.append("END;");
         final String plsql = sb.toString();
-        return jdbcTemplate.execute(plsql, new CallableStatementCallback<String>() {
-            @Override
-            public String doInCallableStatement(final CallableStatement cs) throws SQLException {
-                cs.setString(1, reporterId);
-                cs.registerOutParameter(2, OracleTypes.CURSOR);
-                cs.execute();
-                final StringBuilder sb = new StringBuilder();
-                final ResultSet rs = (ResultSet) cs.getObject(2);
-                while (rs.next()) {
-                    final String text = rs.getString("text");
-                    if (text != null) {
-                        sb.append(text);
-                        sb.append('\n');
-                    }
+        return jdbcTemplate.execute(plsql, (CallableStatementCallback<String>) cs -> {
+            cs.setString(1, reporterId);
+            cs.registerOutParameter(2, OracleTypes.CURSOR);
+            cs.execute();
+            final StringBuilder sb1 = new StringBuilder();
+            final ResultSet rs = (ResultSet) cs.getObject(2);
+            while (rs.next()) {
+                final String text = rs.getString("text");
+                if (text != null) {
+                    sb1.append(text);
+                    sb1.append('\n');
                 }
-                rs.close();
-                return sb.toString();
             }
+            rs.close();
+            return sb1.toString();
         });
     }    
     
@@ -246,6 +244,7 @@ public class RealtimeReporterDao {
         }
     }
 
+    @SuppressWarnings("DuplicatedCode")
     private RealtimeReporterEvent convertToPreRunEvent(final Document doc) {
         final PreRunEvent event = new PreRunEvent();
         final Node totalNumberOfTestsNode = xmlTools.getNode(doc, "/event/totalNumberOfTests");
@@ -253,7 +252,7 @@ public class RealtimeReporterDao {
         if (totalNumberOfTestsNode != null) {
             totalNumberOfTestsTextContent = totalNumberOfTestsNode.getTextContent();
         }
-        event.setTotalNumberOfTests(Integer.valueOf(totalNumberOfTestsTextContent));
+        event.setTotalNumberOfTests(Integer.valueOf(totalNumberOfTestsTextContent != null ? totalNumberOfTestsTextContent : "0"));
         final NodeList nodes = xmlTools.getNodeList(doc, "/event/items/*");
         for (int i = 0; i < nodes.getLength(); i++) {
             final Node node = nodes.item(i);
@@ -326,6 +325,7 @@ public class RealtimeReporterDao {
         return event;
     }
 
+    @SuppressWarnings("DuplicatedCode")
     private void populate(final Suite suite, final Node node) {
         if (node instanceof Element) {
             suite.setId(xmlTools.getAttributeValue(node, "id"));
