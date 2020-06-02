@@ -28,6 +28,10 @@ public abstract class Item {
     private String serverOutput;
     private String warnings;
 
+    public Item() {
+        counter = new Counter();
+    }
+
     @Override
     public String toString() {
         return new ToStringCreator(this, JsonToStringStyler.INSTANCE)

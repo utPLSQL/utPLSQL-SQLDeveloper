@@ -15,12 +15,14 @@
  */
 package org.utplsql.sqldev.model.runner;
 
+import java.sql.Connection;
 import java.util.LinkedHashMap;
 import java.util.List;
 
 import org.springframework.core.style.ToStringCreator;
 import org.utplsql.sqldev.model.JsonToStringStyler;
 
+@SuppressWarnings("unused")
 public class Run {
     private String reporterId;
     private String connectionName;
@@ -38,6 +40,8 @@ public class Run {
     private LinkedHashMap<String, Test> tests;
     private String status;
     private Long start;
+    // to abort connections, producerConn is handled by UtplsqlRunner
+    private Connection consumerConn;
 
     @Override
     public String toString() {
@@ -79,18 +83,13 @@ public class Run {
     public String getName() {
         final String time = startTime.substring(11, 19);
         final String conn = connectionName != null ? connectionName.substring(15) : "n/a";
-        final StringBuilder sb = new StringBuilder();
-        sb.append(time);
-        sb.append(" (");
-        sb.append(conn);
-        sb.append(")");
-        return sb.toString();
+        return time + " (" + conn + ")";
     }
 
     public void put(final List<Item> items) {
         for (final Item item : items) {
             if (item instanceof Test) {
-                tests.put(((Test) item).getId(), (Test) item);
+                tests.put(item.getId(), (Test) item);
             }
             if (item instanceof Suite) {
                 put(((Suite) item).getItems());
@@ -107,7 +106,13 @@ public class Run {
                 || counter.getError() == null) {
             return -1;
         }
-        return counter.getDisabled() + counter.getSuccess() + counter.getFailure() + counter.getError();
+        int total = counter.getDisabled() + counter.getSuccess() + counter.getFailure() + counter.getError();
+        if (totalNumberOfTests != null && total > totalNumberOfTests) {
+            // can happen when run is cancelled and two processes are updating the run in parallel
+            // not worth to ensure consistency for this case, using synchronized will not be enough
+            total = totalNumberOfTests;
+        }
+        return total;
     }
 
     public String getReporterId() {
@@ -232,5 +237,13 @@ public class Run {
 
     public void setStart(final Long start) {
         this.start = start;
+    }
+
+    public Connection getConsumerConn() {
+        return consumerConn;
+    }
+
+    public void setConsumerConn(Connection consumerConn) {
+        this.consumerConn = consumerConn;
     }
 }

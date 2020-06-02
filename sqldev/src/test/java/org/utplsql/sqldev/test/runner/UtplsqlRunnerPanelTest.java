@@ -18,7 +18,7 @@ package org.utplsql.sqldev.test.runner;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Toolkit;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.UUID;
 
 import javax.swing.JFrame;
@@ -38,7 +38,7 @@ public class UtplsqlRunnerPanelTest {
     @Before
     public void setup() {
         final String reporterId = UUID.randomUUID().toString().replace("-", "");
-        run = new Run(null, reporterId, Arrays.asList());
+        run = new Run(null, reporterId, Collections.emptyList());
         run.setStartTime("2019-06-09T13:42:42.123456");
         run.getCounter().setDisabled(0);
         run.getCounter().setSuccess(0);
@@ -94,8 +94,8 @@ public class UtplsqlRunnerPanelTest {
         run.getCounter().setSuccess(run.getCounter().getSuccess() + 1);
         run.setStatus("utplsql.test.e");
         final long end = System.currentTimeMillis();
-        run.setExecutionTime(Double.valueOf(end - start) / 1000);
-        run.setStatus(UtplsqlResources.getString("RUNNER_FINNISHED_TEXT"));
+        run.setExecutionTime((double) (end - start) / 1000);
+        run.setStatus(UtplsqlResources.getString("RUNNER_FINISHED_TEXT"));
         panel.update(run.getReporterId());
         SystemTools.sleep(2000);
         Assert.assertNotNull(frame);

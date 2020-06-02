@@ -30,11 +30,13 @@ public class SnippetTest {
     @Test
     public void mergeAsCopy() {
         USER_SNIPPETS_FILE.delete();
+        Assert.assertFalse(USER_SNIPPETS_FILE.exists());
         final SnippetMerger merger = new SnippetMerger(USER_SNIPPETS_FILE);
+        final String template = merger.getTemplate();
         merger.merge();
         Assert.assertTrue(USER_SNIPPETS_FILE.exists());
         final String userSnippetsXml = new String(FileTools.readFile(USER_SNIPPETS_FILE.toPath()));
-        Assert.assertEquals(merger.getTemplate(), userSnippetsXml);
+        Assert.assertEquals(template.length(), userSnippetsXml.length());
     }
 
     @Test

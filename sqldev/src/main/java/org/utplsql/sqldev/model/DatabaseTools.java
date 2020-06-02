@@ -104,22 +104,8 @@ public class DatabaseTools {
         }
     }
     
-    public static boolean isConnectionClosed(Connection conn) {
-        try {
-            return conn.isClosed();
-        } catch (SQLException e) {
-            throw new GenericDatabaseAccessException("Error getting status of connection.", e);
-        }
-    }
-
     public static void closeConnection(Connection conn) {
-        if (!isConnectionClosed(conn)) {
-            try {
-                conn.close();
-            } catch (SQLException e) {
-                throw new GenericDatabaseAccessException("Could not close connection.");
-            }
-        }
+        abortConnection(conn);
     }
     
     public static void abortConnection(Connection conn) {

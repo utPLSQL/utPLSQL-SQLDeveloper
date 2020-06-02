@@ -17,11 +17,9 @@ package org.utplsql.sqldev.dal;
 
 import java.io.IOException;
 import java.io.StringReader;
-import java.sql.CallableStatement;
 import java.sql.Clob;
 import java.sql.Connection;
 import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -54,12 +52,13 @@ import org.xml.sax.SAXException;
 
 import oracle.jdbc.OracleTypes;
 
+@SuppressWarnings("StringBufferReplaceableByString")
 public class RealtimeReporterDao {
     private static final Logger logger = Logger.getLogger(RealtimeReporterDao.class.getName());
     private static final int FIRST_VERSION_WITH_REALTIME_REPORTER = 3001004;
     private final XMLTools xmlTools = new XMLTools();
-    private Connection conn;
-    private JdbcTemplate jdbcTemplate;
+    private final Connection conn;
+    private final JdbcTemplate jdbcTemplate;
 
     public RealtimeReporterDao(final Connection conn) {
         this.conn = conn;
@@ -72,12 +71,23 @@ public class RealtimeReporterDao {
                 .normalizedUtPlsqlVersionNumber() >= RealtimeReporterDao.FIRST_VERSION_WITH_REALTIME_REPORTER;
     }
 
-    public void produceReport(final String reporterId, final List<String> pathList) {
+    // used for execution via PL/SQL Debugger
+    public String getProduceReportPlsql(final String reporterId, final List<String> pathList) {
+        return getProduceReportPlsql(reporterId, pathList, false);
+    }
+
+    private String getProduceReportPlsql(final String reporterId, final List<String> pathList, boolean useBindVariable) {
         StringBuilder sb = new StringBuilder();
         sb.append("DECLARE\n");
         sb.append("   l_reporter ut_realtime_reporter := ut_realtime_reporter();\n");
         sb.append("BEGIN\n");
-        sb.append("   l_reporter.set_reporter_id(?);\n");
+        if (useBindVariable) {
+            sb.append("   l_reporter.set_reporter_id(?);\n");
+        } else {
+            sb.append("   l_reporter.set_reporter_id('");
+            sb.append(reporterId);
+            sb.append("');\n");
+        }
         sb.append("   l_reporter.output_buffer.init();\n");
         sb.append("   sys.dbms_output.enable(NULL);\n");
         sb.append("   ut_runner.run(\n");
@@ -88,7 +98,11 @@ public class RealtimeReporterDao {
         sb.append("   );\n");
         sb.append("   sys.dbms_output.disable;\n");
         sb.append("END;");
-        final String plsql = sb.toString();
+        return sb.toString();
+    }
+
+    public void produceReport(final String reporterId, final List<String> pathList) {
+        final String plsql = getProduceReportPlsql(reporterId, pathList, true);
         final Object[] binds = { reporterId };
         jdbcTemplate.update(plsql, binds);
     }
@@ -135,35 +149,37 @@ public class RealtimeReporterDao {
     }
 
     public void consumeReport(final String reporterId, final RealtimeReporterEventConsumer consumer) {
+        consumeReport(reporterId, consumer, 60);
+    }
+
+    public void consumeReport(final String reporterId, final RealtimeReporterEventConsumer consumer, final int timeoutSeconds) {
         StringBuilder sb = new StringBuilder();
         sb.append("DECLARE\n");
         sb.append("   l_reporter ut_realtime_reporter := ut_realtime_reporter();\n");
         sb.append("BEGIN\n");
         sb.append("   l_reporter.set_reporter_id(?);\n");
-        sb.append("   ? := l_reporter.get_lines_cursor();\n");
+        sb.append("   ? := l_reporter.get_lines_cursor(a_initial_timeout => ?);\n");
         sb.append("END;");
         final String plsql = sb.toString();
         jdbcTemplate.setFetchSize(1);
         try {
-            jdbcTemplate.execute(plsql, new CallableStatementCallback<Void>() {
-                @Override
-                public Void doInCallableStatement(final CallableStatement cs) throws SQLException {
-                    cs.setString(1, reporterId);
-                    cs.registerOutParameter(2, OracleTypes.CURSOR);
-                    cs.execute();
-                    final ResultSet rs = (ResultSet) cs.getObject(2);
-                    while (rs.next()) {
-                        final String itemType = rs.getString("item_type");
-                        final Clob textClob = rs.getClob("text");
-                        final String textString = textClob.getSubString(1, ((int) textClob.length()));
-                        final RealtimeReporterEvent event = convert(itemType, textString);
-                        if (event != null) {
-                            consumer.process(event);
-                        }
+            jdbcTemplate.execute(plsql, (CallableStatementCallback<Void>) cs -> {
+                cs.setString(1, reporterId);
+                cs.setInt(3, timeoutSeconds);
+                cs.registerOutParameter(2, OracleTypes.CURSOR);
+                cs.execute();
+                final ResultSet rs = (ResultSet) cs.getObject(2);
+                while (rs.next()) {
+                    final String itemType = rs.getString("item_type");
+                    final Clob textClob = rs.getClob("text");
+                    final String textString = textClob.getSubString(1, ((int) textClob.length()));
+                    final RealtimeReporterEvent event = convert(itemType, textString);
+                    if (event != null) {
+                        consumer.process(event);
                     }
-                    rs.close();
-                    return null;
                 }
+                rs.close();
+                return null;
             });
         } finally {
             jdbcTemplate.setFetchSize(UtplsqlDao.FETCH_ROWS);
@@ -179,24 +195,21 @@ public class RealtimeReporterDao {
         sb.append("   ? := l_reporter.get_lines_cursor();\n");
         sb.append("END;");
         final String plsql = sb.toString();
-        return jdbcTemplate.execute(plsql, new CallableStatementCallback<String>() {
-            @Override
-            public String doInCallableStatement(final CallableStatement cs) throws SQLException {
-                cs.setString(1, reporterId);
-                cs.registerOutParameter(2, OracleTypes.CURSOR);
-                cs.execute();
-                final StringBuilder sb = new StringBuilder();
-                final ResultSet rs = (ResultSet) cs.getObject(2);
-                while (rs.next()) {
-                    final String text = rs.getString("text");
-                    if (text != null) {
-                        sb.append(text);
-                        sb.append('\n');
-                    }
+        return jdbcTemplate.execute(plsql, (CallableStatementCallback<String>) cs -> {
+            cs.setString(1, reporterId);
+            cs.registerOutParameter(2, OracleTypes.CURSOR);
+            cs.execute();
+            final StringBuilder sb1 = new StringBuilder();
+            final ResultSet rs = (ResultSet) cs.getObject(2);
+            while (rs.next()) {
+                final String text = rs.getString("text");
+                if (text != null) {
+                    sb1.append(text);
+                    sb1.append('\n');
                 }
-                rs.close();
-                return sb.toString();
             }
+            rs.close();
+            return sb1.toString();
         });
     }    
     
@@ -231,6 +244,7 @@ public class RealtimeReporterDao {
         }
     }
 
+    @SuppressWarnings("DuplicatedCode")
     private RealtimeReporterEvent convertToPreRunEvent(final Document doc) {
         final PreRunEvent event = new PreRunEvent();
         final Node totalNumberOfTestsNode = xmlTools.getNode(doc, "/event/totalNumberOfTests");
@@ -238,7 +252,7 @@ public class RealtimeReporterDao {
         if (totalNumberOfTestsNode != null) {
             totalNumberOfTestsTextContent = totalNumberOfTestsNode.getTextContent();
         }
-        event.setTotalNumberOfTests(Integer.valueOf(totalNumberOfTestsTextContent));
+        event.setTotalNumberOfTests(Integer.valueOf(totalNumberOfTestsTextContent != null ? totalNumberOfTestsTextContent : "0"));
         final NodeList nodes = xmlTools.getNodeList(doc, "/event/items/*");
         for (int i = 0; i < nodes.getLength(); i++) {
             final Node node = nodes.item(i);
@@ -311,6 +325,7 @@ public class RealtimeReporterDao {
         return event;
     }
 
+    @SuppressWarnings("DuplicatedCode")
     private void populate(final Suite suite, final Node node) {
         if (node instanceof Element) {
             suite.setId(xmlTools.getAttributeValue(node, "id"));

@@ -54,7 +54,6 @@ import javax.swing.JTable;
 import javax.swing.LookAndFeel;
 import javax.swing.RepaintManager;
 import javax.swing.RowFilter;
-import javax.swing.SwingConstants;
 import javax.swing.Timer;
 import javax.swing.UIManager;
 import javax.swing.border.Border;
@@ -100,6 +99,7 @@ public class RunnerPanel {
     private Run currentRun;
     private JPanel basePanel;
     private DefaultComboBoxModel<ComboBoxItem<String, String>> runComboBoxModel;
+    private ToolbarButton stopButton;
     private JComboBox<ComboBoxItem<String, String>> runComboBox;
     private JLabel statusLabel;
     private Timer elapsedTimeTimer;
@@ -117,6 +117,7 @@ public class RunnerPanel {
     private JTable testOverviewTable;
     private JMenuItem testOverviewRunMenuItem;
     private JMenuItem testOverviewRunWorksheetMenuItem;
+    private JMenuItem testOverviewDebugMenuItem;
     private JMenuItem testOverviewCodeCoverageMenuItem;
     private JCheckBoxMenuItem showTestDescriptionCheckBoxMenuItem;
     private JCheckBoxMenuItem showWarningIndicatorCheckBoxMenuItem;
@@ -139,7 +140,7 @@ public class RunnerPanel {
     private JTabbedPane testDetailTabbedPane;
 
     // used in multiple components, therefore an inner class
-    private class TestTableHeaderRenderer extends DefaultTableCellRenderer {
+    private static class TestTableHeaderRenderer extends DefaultTableCellRenderer {
         private static final long serialVersionUID = 6295858563570577027L;
 
         @Override
@@ -168,8 +169,8 @@ public class RunnerPanel {
         }
     }
 
-    // used in mulitple components, therefore an inner class
-    private class FailuresTableHeaderRenderer extends DefaultTableCellRenderer {
+    // used in multiple components, therefore an inner class
+    private static class FailuresTableHeaderRenderer extends DefaultTableCellRenderer {
         private static final long serialVersionUID = 5059401447983514596L;
 
         @Override
@@ -201,6 +202,7 @@ public class RunnerPanel {
         testOverviewTable.getRowSorter().setSortKeys(null);
         testOverviewRunMenuItem.setEnabled(false);
         testOverviewRunWorksheetMenuItem.setEnabled(false);
+        testOverviewDebugMenuItem.setEnabled(false);
         testOverviewCodeCoverageMenuItem.setEnabled(false);
         testIdTextArea.setText(null);
         testOwnerTextField.setText(null);
@@ -214,6 +216,7 @@ public class RunnerPanel {
         testErrorStackTextPane.setText(null);
         testWarningsTextPane.setText(null);
         testServerOutputTextPane.setText(null);
+        enableOrDisableStopButton();
     }
 
     private void refreshRunsComboBox() {
@@ -262,8 +265,7 @@ public class RunnerPanel {
         testOverviewTable.getTableHeader().repaint();
     }
 
-    private void applyShowWarningIndicator(final boolean show) {
-        final TableColumn col = testOverviewTable.getColumnModel().getColumn(1);
+    private void showColumn(final boolean show, TableColumn col) {
         if (show) {
             col.setWidth(INDICATOR_WIDTH);
             col.setMinWidth(INDICATOR_WIDTH);
@@ -277,25 +279,19 @@ public class RunnerPanel {
         }
     }
 
+    private void applyShowWarningIndicator(final boolean show) {
+        showColumn(show, testOverviewTable.getColumnModel().getColumn(1));
+    }
+
     private void applyShowInfoIndicator(final boolean show) {
-        final TableColumn col = testOverviewTable.getColumnModel().getColumn(2);
-        if (show) {
-            col.setWidth(INDICATOR_WIDTH);
-            col.setMinWidth(INDICATOR_WIDTH);
-            col.setMaxWidth(INDICATOR_WIDTH);
-            col.setPreferredWidth(INDICATOR_WIDTH);
-        } else {
-            col.setWidth(0);
-            col.setMinWidth(0);
-            col.setMaxWidth(0);
-            col.setPreferredWidth(0);
-        }
+        showColumn(show, testOverviewTable.getColumnModel().getColumn(2));
     }
 
     private void applyFilter(final boolean showSuccessfulTests, final boolean showDisabledTests) {
         @SuppressWarnings("unchecked")
         final TableRowSorter<TestOverviewTableModel> sorter = ((TableRowSorter<TestOverviewTableModel>) testOverviewTable.getRowSorter());
         final RowFilter<TestOverviewTableModel, Integer> filter = new RowFilter<TestOverviewTableModel, Integer>() {
+            @SuppressWarnings("RedundantIfStatement")
             @Override
             public boolean include(final RowFilter.Entry<? extends TestOverviewTableModel, ? extends Integer> entry) {
                 final Test test = entry.getModel().getTest((entry.getIdentifier()).intValue());
@@ -348,6 +344,7 @@ public class RunnerPanel {
         }
     }
 
+    @SuppressWarnings("StringBufferReplaceableByString")
     private String getHtml(final String text) {
         StringBuilder sb = new StringBuilder();
         sb.append("<html>\n");
@@ -384,6 +381,7 @@ public class RunnerPanel {
         openEditor(ownerName, objectType, objectName.toUpperCase(), line, 1);
     }
 
+    @SuppressWarnings("SameParameterValue")
     private void openEditor(final String owner, final String type, final String name, final int line, final int col) {
         DefaultDrillLink drillLink = new DefaultDrillLink();
         drillLink.setConnName(currentRun.getConnectionName());
@@ -417,14 +415,12 @@ public class RunnerPanel {
     }
 
     private PreferenceModel getPreferenceModel() {
-        PreferenceModel preferences = null;
         try {
-            preferences = PreferenceModel.getInstance(Preferences.getPreferences());
+            return PreferenceModel.getInstance(Preferences.getPreferences());
         } catch (NoClassDefFoundError e) {
             // running outside of SQL Developer
-            preferences = PreferenceModel.getInstance(null);
+            return PreferenceModel.getInstance(null);
         }
-        return preferences;
     }
 
     private void applyPreferences() {
@@ -483,7 +479,23 @@ public class RunnerPanel {
         }
     }
 
+    private void showDockable() {
+        try {
+            if (!RunnerFactory.getDockable().isVisible()) {
+                RunnerFactory.showDockable();
+            }
+        } catch (Throwable t) {
+            // ignore
+        }
+    }
+
+    private void enableOrDisableStopButton() {
+        stopButton.setEnabled(currentRun.getEndTime() == null);
+    }
+
     public synchronized void update(final String reporterId) {
+        showDockable();
+        enableOrDisableStopButton();
         setCurrentRun(runs.get(reporterId));
         final int row = currentRun.getCurrentTestNumber() - 1;
         final CharSequence header = testOverviewTableModel.getTestIdColumnName();
@@ -568,9 +580,11 @@ public class RunnerPanel {
             @SuppressWarnings("unchecked")
             final ComboBoxItem<String, String> comboBoxItem = (ComboBoxItem<String, String>) runComboBox
                     .getSelectedItem();
-            if (currentRun.getReporterId() != null && !currentRun.getReporterId().equals(comboBoxItem.getKey())) {
-                update(comboBoxItem.getKey());
-                testDetailTabbedPane.setSelectedIndex(0);
+            if (currentRun.getReporterId() != null && comboBoxItem != null) {
+                if (!currentRun.getReporterId().equals(comboBoxItem.getKey())) {
+                    update(comboBoxItem.getKey());
+                    testDetailTabbedPane.setSelectedIndex(0);
+                }
             }
         }
     }
@@ -695,6 +709,7 @@ public class RunnerPanel {
         reporter.showParameterWindow();
     }
 
+    @SuppressWarnings("DuplicatedCode")
     private void initializeGUI() {
         // Base panel containing all components 
         basePanel = new JPanel();
@@ -731,11 +746,70 @@ public class RunnerPanel {
             worksheet.runTestAsync();
         });
         toolbar.add(rerunWorksheetButton);
+        final ToolbarButton debugButton = new ToolbarButton(UtplsqlResources.getIcon("DEBUG_ICON"));
+        debugButton.setToolTipText(UtplsqlResources.getString("RUNNER_DEBUG_TOOLTIP"));
+        debugButton.setBorder(buttonBorder);
+        debugButton.addActionListener(event -> {
+            final UtplsqlRunner runner = new UtplsqlRunner(currentRun.getPathList(), currentRun.getConnectionName());
+            runner.enableDebugging();
+            runner.runTestAsync();
+        });
+        toolbar.add(debugButton);
         final ToolbarButton codeCoverageButton = new ToolbarButton(UtplsqlResources.getIcon("CODE_COVERAGE_ICON"));
         codeCoverageButton.setToolTipText(UtplsqlResources.getString("RUNNER_CODE_COVERAGE_TOOLTIP"));
         codeCoverageButton.setBorder(buttonBorder);
         codeCoverageButton.addActionListener(event -> runCodeCoverage(false));
         toolbar.add(codeCoverageButton);
+        stopButton = new ToolbarButton(UtplsqlResources.getIcon("STOP_ICON"));
+        stopButton.setToolTipText(UtplsqlResources.getString("RUNNER_STOP_TOOLTIP"));
+        stopButton.setBorder(buttonBorder);
+        stopButton.addActionListener(event -> {
+            if (currentRun.getConsumerConn() != null) {
+                // Aborts JDBC Connection. Connection might still run in the background. That's expected.
+                DatabaseTools.abortConnection(currentRun.getConsumerConn());
+                for (Test test : currentRun.getTests().values()) {
+                    if (test.getEndTime() == null && !test.isDisabled()) {
+                        test.setDisabled(true);
+                        test.getCounter().setDisabled(1);
+                        test.getCounter().setWarning(1);
+                        test.setWarnings(UtplsqlResources.getString("RUNNER_STOP_TEST_MESSAGE"));
+                        test.setStartTime(null);
+                    }
+                }
+                // recalculate counters and fix inconsistencies
+                currentRun.getCounter().setSuccess(0);
+                currentRun.getCounter().setFailure(0);
+                currentRun.getCounter().setError(0);
+                currentRun.getCounter().setDisabled(0);
+                currentRun.getCounter().setWarning(0);
+                for (Test test : currentRun.getTests().values()) {
+                    if (test.isDisabled() && test.getCounter().getDisabled() == 0) {
+                        test.getCounter().setDisabled(1);
+                    }
+                    if (test.getFailedExpectations() != null && !test.getFailedExpectations().isEmpty() && test.getCounter().getFailure() == 0) {
+                        test.getCounter().setFailure(1);
+                    }
+                    if (test.getErrorStack() != null && test.getCounter().getError() == 0) {
+                        test.getCounter().setError(1);
+                    }
+                    currentRun.getCounter().setSuccess(currentRun.getCounter().getSuccess() + test.getCounter().getSuccess());
+                    currentRun.getCounter().setFailure(currentRun.getCounter().getFailure() + test.getCounter().getFailure());
+                    currentRun.getCounter().setError(currentRun.getCounter().getError() + test.getCounter().getError());
+                    currentRun.getCounter().setDisabled(currentRun.getCounter().getDisabled() + test.getCounter().getDisabled());
+                    currentRun.getCounter().setWarning(currentRun.getCounter().getWarning() + test.getCounter().getWarning());
+                }
+                // terminate run
+                currentRun.setEndTime(UtplsqlRunner.getSysdate());
+                double now = (double) System.currentTimeMillis();
+                currentRun.setExecutionTime((now - currentRun.getStart()) / 1000);
+                currentRun.setCurrentTestNumber(0);
+                currentRun.setStatus(UtplsqlResources.getString("RUNNER_STOP_RUN_MESSAGE"));
+                // update run in GUI
+                update(currentRun.getReporterId());
+            }
+        });
+        stopButton.setEnabled(false);
+        toolbar.add(stopButton);
         toolbar.add(Box.createHorizontalGlue());
         runComboBoxModel = new DefaultComboBoxModel<>();
         runComboBox = new JComboBox<>(runComboBoxModel);
@@ -798,8 +872,8 @@ public class RunnerPanel {
                     time.setSeconds(currentRun.getExecutionTime());
                     elapsedTimeTimer.stop();
                 } else {
-                    final Double now = Double.valueOf(System.currentTimeMillis());
-                    time.setSeconds(Double.valueOf(now - currentRun.getStart()) / 1000);
+                    final Double now = (double) System.currentTimeMillis();
+                    time.setSeconds((now - currentRun.getStart()) / 1000);
                 }
                 elapsedTimeLabel.setText(time.toString() + (!useSmartTimes ? " s" : ""));
             } else {
@@ -925,6 +999,7 @@ public class RunnerPanel {
                 syncDetailTab();
                 testOverviewRunMenuItem.setEnabled(true);
                 testOverviewRunWorksheetMenuItem.setEnabled(true);
+                testOverviewDebugMenuItem.setEnabled(true);
                 testOverviewCodeCoverageMenuItem.setEnabled(true);
             }
         });
@@ -982,8 +1057,7 @@ public class RunnerPanel {
         final JPopupMenu testOverviewPopupMenu = new JPopupMenu();
         testOverviewRunMenuItem = new JMenuItem(UtplsqlResources.getString("RUNNER_RUN_MENUITEM"), UtplsqlResources.getIcon("RUN_ICON"));
         testOverviewRunMenuItem.addActionListener(event -> {
-            final UtplsqlRunner runner = new UtplsqlRunner(getPathListFromSelectedTests(),
-                    currentRun.getConnectionName());
+            final UtplsqlRunner runner = new UtplsqlRunner(getPathListFromSelectedTests(), currentRun.getConnectionName());
             runner.runTestAsync();
         });
         testOverviewPopupMenu.add(testOverviewRunMenuItem);
@@ -994,6 +1068,13 @@ public class RunnerPanel {
             worksheet.runTestAsync();
         });
         testOverviewPopupMenu.add(testOverviewRunWorksheetMenuItem);
+        testOverviewDebugMenuItem = new JMenuItem(UtplsqlResources.getString("MENU_DEBUG_TEST_LABEL"), UtplsqlResources.getIcon("DEBUG_ICON"));
+        testOverviewDebugMenuItem.addActionListener(event -> {
+            final UtplsqlRunner runner = new UtplsqlRunner(getPathListFromSelectedTests(), currentRun.getConnectionName());
+            runner.enableDebugging();
+            runner.runTestAsync();
+        });
+        testOverviewPopupMenu.add(testOverviewDebugMenuItem);
         testOverviewCodeCoverageMenuItem = new JMenuItem(UtplsqlResources.getString("MENU_CODE_COVERAGE_LABEL"), UtplsqlResources.getIcon("CODE_COVERAGE_ICON"));
         testOverviewCodeCoverageMenuItem.addActionListener(event -> runCodeCoverage(true));
         testOverviewPopupMenu.add(testOverviewCodeCoverageMenuItem);
@@ -1262,7 +1343,7 @@ public class RunnerPanel {
         c.weighty = 6;
 
         // - split pane
-        final JSplitPane failuresSplitPane = new JSplitPane(SwingConstants.HORIZONTAL, failuresTableScrollPane,
+        final JSplitPane failuresSplitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, failuresTableScrollPane,
                 testFailureMessageScrollPane);
         failuresSplitPane.setResizeWeight(0.2);
 
@@ -1344,7 +1425,7 @@ public class RunnerPanel {
         testDetailTabbedPane.add(UtplsqlResources.getString("RUNNER_ERRORS_TAB_LABEL"), testErrorStackPanel);
         testDetailTabbedPane.add(UtplsqlResources.getString("RUNNER_WARNINGS_TAB_LABEL"), testWarningsPanel);
         testDetailTabbedPane.add(UtplsqlResources.getString("RUNNER_INFO_TAB_LABEL"), testServerOutputPanel);
-        final JSplitPane horizontalSplitPane = new JSplitPane(SwingConstants.HORIZONTAL, testOverviewScrollPane,
+        final JSplitPane horizontalSplitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, testOverviewScrollPane,
                 testDetailTabbedPane);
         horizontalSplitPane.setResizeWeight(0.5);
         c.gridx = 0;

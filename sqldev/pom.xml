@@ -1,3 +1,4 @@
+<!--suppress ALL -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
@@ -142,6 +143,20 @@
 			<scope>system</scope>
 			<systemPath>${sqldev.basedir}/jdev/extensions/oracle.jdeveloper.java.core.jar</systemPath>
 		</dependency>
+		<dependency>
+			<groupId>oracle</groupId>
+			<artifactId>oracle.jdeveloper.runner.jar</artifactId>
+			<version>13.0.0</version>
+			<scope>system</scope>
+			<systemPath>${sqldev.basedir}/jdev/extensions/oracle.jdeveloper.runner.jar</systemPath>
+		</dependency>
+		<dependency>
+			<groupId>oracle</groupId>
+			<artifactId>oracle.ide.runner</artifactId>
+			<version>19.3.0</version>
+			<scope>system</scope>
+			<systemPath>${sqldev.basedir}/ide/extensions/oracle.ide.runner.jar</systemPath>
+		</dependency>
 		<!-- SQL Developer specific dependencies part 2 (used for tests only) -->
 		<dependency>
 			<groupId>oracle</groupId>
@@ -173,6 +188,12 @@
 			<version>5.2.6.RELEASE</version>
 		</dependency>
 		<dependency>
+			<!-- transitive reference, but IntelliJ wants to have it explicit (to avoid warnings) -->
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-core</artifactId>
+			<version>5.2.6.RELEASE</version>
+		</dependency>
+		<dependency>
 			<!-- used for HtmlUtils.htmlEscape in RunnerPanel -->
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-web</artifactId>
@@ -191,7 +212,13 @@
 			<version>4.12</version>
 			<scope>test</scope>
 		</dependency>
-	</dependencies>
+        <dependency>
+            <groupId>org.jetbrains</groupId>
+            <artifactId>annotations</artifactId>
+            <version>13.0</version>
+            <scope>compile</scope>
+        </dependency>
+    </dependencies>
 
 	<!-- Build Settings -->
 	<build>
@@ -370,6 +397,13 @@
 				</configuration>
 			</plugin>
 			<plugin>
+				<!-- builds the OSGi bundle including MANIFEST.MF with build version number and properties -->
+				<!-- IMPORTANT NOTICE: -->
+				<!-- disable OSGi facets in IntelliJ (2020.1) to get rid of the following types of warnings/errors: -->
+				<!--   - Warning:osgi: [org.utplsql.sqldev] Host ...= for this fragment/require bundle cannot be found on the classpath -->
+				<!--   - Warning:osgi: [org.utplsql.sqldev] No translation found for macro: ... -->
+				<!--   - Error:osgi: [org.utplsql.sqldev] Input file does not exist: target/classes/META-INF/extension.xml  -->
+				<!--   - Error:osgi: [org.utplsql.sqldev] Invalid value for Bundle-Version, ${parsedVersion.majorVersion}.${parsedVersion.minorVersion}.${parsedVersion.incrementalVersion} does not match \d{1,9}(\.\d{1,9}(\.\d{1,9}(\.[-\w]+)?)?)? -->
 				<groupId>org.apache.felix</groupId>
 				<artifactId>maven-bundle-plugin</artifactId>
 				<version>4.2.1</version>
@@ -405,9 +439,11 @@
 							oracle.javatools,
 							oracle.javatools-nodeps,
 							oracle.jdeveloper.db.connection,
+							oracle.jdeveloper.runner,
 							oracle.idert,
 							oracle.ide,
 							oracle.ide.db,
+							oracle.ide.runner,
 							oracle.sqldeveloper,
 							oracle.sqldeveloper.utils,
 							oracle.sqldeveloper.worksheet,
