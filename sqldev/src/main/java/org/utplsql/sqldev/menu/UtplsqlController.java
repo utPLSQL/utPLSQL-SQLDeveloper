@@ -356,7 +356,7 @@ public class UtplsqlController implements Controller {
                 if (preferences.isUseRealtimeReporter() && rrDao.isSupported()) {
                     final UtplsqlRunner runner = new UtplsqlRunner(getPathList(path), connectionName);
                     if (withDebug) {
-                        runner.enableDebugging(context);
+                        runner.enableDebugging();
                     }
                     runner.runTestAsync();
                 } else {
@@ -378,7 +378,7 @@ public class UtplsqlController implements Controller {
                 if (preferences.isUseRealtimeReporter() && rrDao.isSupported()) {
                     final UtplsqlRunner runner = new UtplsqlRunner(pathList, connectionName);
                     if (withDebug) {
-                        runner.enableDebugging(context);
+                        runner.enableDebugging();
                     }
                     runner.runTestAsync();
                 } else {
