@@ -188,6 +188,12 @@
 			<version>5.2.6.RELEASE</version>
 		</dependency>
 		<dependency>
+			<!-- transitive reference, but IntelliJ wants to have it explicit (to avoid warnings) -->
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-core</artifactId>
+			<version>5.2.6.RELEASE</version>
+		</dependency>
+		<dependency>
 			<!-- used for HtmlUtils.htmlEscape in RunnerPanel -->
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-web</artifactId>
