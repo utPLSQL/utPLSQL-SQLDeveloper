@@ -54,7 +54,6 @@ import javax.swing.JTable;
 import javax.swing.LookAndFeel;
 import javax.swing.RepaintManager;
 import javax.swing.RowFilter;
-import javax.swing.SwingConstants;
 import javax.swing.Timer;
 import javax.swing.UIManager;
 import javax.swing.border.Border;
@@ -139,7 +138,7 @@ public class RunnerPanel {
     private JTabbedPane testDetailTabbedPane;
 
     // used in multiple components, therefore an inner class
-    private class TestTableHeaderRenderer extends DefaultTableCellRenderer {
+    private static class TestTableHeaderRenderer extends DefaultTableCellRenderer {
         private static final long serialVersionUID = 6295858563570577027L;
 
         @Override
@@ -169,7 +168,7 @@ public class RunnerPanel {
     }
 
     // used in mulitple components, therefore an inner class
-    private class FailuresTableHeaderRenderer extends DefaultTableCellRenderer {
+    private static class FailuresTableHeaderRenderer extends DefaultTableCellRenderer {
         private static final long serialVersionUID = 5059401447983514596L;
 
         @Override
@@ -262,8 +261,7 @@ public class RunnerPanel {
         testOverviewTable.getTableHeader().repaint();
     }
 
-    private void applyShowWarningIndicator(final boolean show) {
-        final TableColumn col = testOverviewTable.getColumnModel().getColumn(1);
+    private void showColumn(final boolean show, TableColumn col) {
         if (show) {
             col.setWidth(INDICATOR_WIDTH);
             col.setMinWidth(INDICATOR_WIDTH);
@@ -277,25 +275,19 @@ public class RunnerPanel {
         }
     }
 
+    private void applyShowWarningIndicator(final boolean show) {
+        showColumn(show, testOverviewTable.getColumnModel().getColumn(1));
+    }
+
     private void applyShowInfoIndicator(final boolean show) {
-        final TableColumn col = testOverviewTable.getColumnModel().getColumn(2);
-        if (show) {
-            col.setWidth(INDICATOR_WIDTH);
-            col.setMinWidth(INDICATOR_WIDTH);
-            col.setMaxWidth(INDICATOR_WIDTH);
-            col.setPreferredWidth(INDICATOR_WIDTH);
-        } else {
-            col.setWidth(0);
-            col.setMinWidth(0);
-            col.setMaxWidth(0);
-            col.setPreferredWidth(0);
-        }
+        showColumn(show, testOverviewTable.getColumnModel().getColumn(2));
     }
 
     private void applyFilter(final boolean showSuccessfulTests, final boolean showDisabledTests) {
         @SuppressWarnings("unchecked")
         final TableRowSorter<TestOverviewTableModel> sorter = ((TableRowSorter<TestOverviewTableModel>) testOverviewTable.getRowSorter());
         final RowFilter<TestOverviewTableModel, Integer> filter = new RowFilter<TestOverviewTableModel, Integer>() {
+            @SuppressWarnings("RedundantIfStatement")
             @Override
             public boolean include(final RowFilter.Entry<? extends TestOverviewTableModel, ? extends Integer> entry) {
                 final Test test = entry.getModel().getTest((entry.getIdentifier()).intValue());
@@ -348,6 +340,7 @@ public class RunnerPanel {
         }
     }
 
+    @SuppressWarnings("StringBufferReplaceableByString")
     private String getHtml(final String text) {
         StringBuilder sb = new StringBuilder();
         sb.append("<html>\n");
@@ -384,6 +377,7 @@ public class RunnerPanel {
         openEditor(ownerName, objectType, objectName.toUpperCase(), line, 1);
     }
 
+    @SuppressWarnings("SameParameterValue")
     private void openEditor(final String owner, final String type, final String name, final int line, final int col) {
         DefaultDrillLink drillLink = new DefaultDrillLink();
         drillLink.setConnName(currentRun.getConnectionName());
@@ -417,14 +411,12 @@ public class RunnerPanel {
     }
 
     private PreferenceModel getPreferenceModel() {
-        PreferenceModel preferences = null;
         try {
-            preferences = PreferenceModel.getInstance(Preferences.getPreferences());
+            return PreferenceModel.getInstance(Preferences.getPreferences());
         } catch (NoClassDefFoundError e) {
             // running outside of SQL Developer
-            preferences = PreferenceModel.getInstance(null);
+            return PreferenceModel.getInstance(null);
         }
-        return preferences;
     }
 
     private void applyPreferences() {
@@ -579,9 +571,11 @@ public class RunnerPanel {
             @SuppressWarnings("unchecked")
             final ComboBoxItem<String, String> comboBoxItem = (ComboBoxItem<String, String>) runComboBox
                     .getSelectedItem();
-            if (currentRun.getReporterId() != null && !currentRun.getReporterId().equals(comboBoxItem.getKey())) {
-                update(comboBoxItem.getKey());
-                testDetailTabbedPane.setSelectedIndex(0);
+            if (currentRun.getReporterId() != null && comboBoxItem != null) {
+                if (!currentRun.getReporterId().equals(comboBoxItem.getKey())) {
+                    update(comboBoxItem.getKey());
+                    testDetailTabbedPane.setSelectedIndex(0);
+                }
             }
         }
     }
@@ -706,6 +700,7 @@ public class RunnerPanel {
         reporter.showParameterWindow();
     }
 
+    @SuppressWarnings("DuplicatedCode")
     private void initializeGUI() {
         // Base panel containing all components 
         basePanel = new JPanel();
@@ -809,8 +804,8 @@ public class RunnerPanel {
                     time.setSeconds(currentRun.getExecutionTime());
                     elapsedTimeTimer.stop();
                 } else {
-                    final Double now = Double.valueOf(System.currentTimeMillis());
-                    time.setSeconds(Double.valueOf(now - currentRun.getStart()) / 1000);
+                    final Double now = (double) System.currentTimeMillis();
+                    time.setSeconds((now - currentRun.getStart()) / 1000);
                 }
                 elapsedTimeLabel.setText(time.toString() + (!useSmartTimes ? " s" : ""));
             } else {
@@ -1273,7 +1268,7 @@ public class RunnerPanel {
         c.weighty = 6;
 
         // - split pane
-        final JSplitPane failuresSplitPane = new JSplitPane(SwingConstants.HORIZONTAL, failuresTableScrollPane,
+        final JSplitPane failuresSplitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, failuresTableScrollPane,
                 testFailureMessageScrollPane);
         failuresSplitPane.setResizeWeight(0.2);
 
@@ -1355,7 +1350,7 @@ public class RunnerPanel {
         testDetailTabbedPane.add(UtplsqlResources.getString("RUNNER_ERRORS_TAB_LABEL"), testErrorStackPanel);
         testDetailTabbedPane.add(UtplsqlResources.getString("RUNNER_WARNINGS_TAB_LABEL"), testWarningsPanel);
         testDetailTabbedPane.add(UtplsqlResources.getString("RUNNER_INFO_TAB_LABEL"), testServerOutputPanel);
-        final JSplitPane horizontalSplitPane = new JSplitPane(SwingConstants.HORIZONTAL, testOverviewScrollPane,
+        final JSplitPane horizontalSplitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, testOverviewScrollPane,
                 testDetailTabbedPane);
         horizontalSplitPane.setResizeWeight(0.5);
         c.gridx = 0;
