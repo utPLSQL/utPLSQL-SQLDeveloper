@@ -110,11 +110,30 @@ public class UtplsqlRunnerTest extends AbstractJdbcTest {
         sb.append("END;");
         jdbcTemplate.execute(sb.toString());
         new CodeCoverageReporterTest().setup();
+        sb.setLength(0);
+        sb.append("CREATE OR REPLACE PACKAGE junit_utplsql_test2_pkg is\n");
+        sb.append("   --%suite(JUnit testing)\n");
+        sb.append("   --%suitepath(b)\n\n");
+
+        sb.append("   --%test(test XML with nested CDATA)\n");
+        sb.append("   PROCEDURE test_nested_cdata;\n\n");
+        sb.append("END;");
+        jdbcTemplate.execute(sb.toString());
+        sb.setLength(0);
+        sb.append("CREATE OR REPLACE PACKAGE BODY junit_utplsql_test2_pkg IS\n");
+        sb.append("   PROCEDURE test_nested_cdata IS\n");
+        sb.append("   BEGIN\n");
+        sb.append("      dbms_output.put_line('nested cdata block: <![CDATA[...]]>, to be handled.');\n");
+        sb.append("      ut.expect(1).to_equal(1);\n");
+        sb.append("   END;\n");
+        sb.append("END;");
+        jdbcTemplate.execute(sb.toString());
     }
 
     @After
     public void teardown() {
         executeAndIgnore(jdbcTemplate, "DROP PACKAGE junit_utplsql_test1_pkg");
+        executeAndIgnore(jdbcTemplate, "DROP PACKAGE junit_utplsql_test2_pkg");
         new CodeCoverageReporterTest().teardown();
     }
 
@@ -150,12 +169,17 @@ public class UtplsqlRunnerTest extends AbstractJdbcTest {
         Assert.assertNotNull(runner);
         runner.dispose();
     }
+
+    @Test
+    public void runTestWithNestedCdataSection() {
+        UtplsqlRunner runner = new UtplsqlRunner(Collections.singletonList(":b"), getNewConnection(), getNewConnection());
         runner.runTestAsync();
 
         SystemTools.waitForThread(runner.getProducerThread(), 200000);
         SystemTools.waitForThread(runner.getConsumerThread(), 200000);
         SystemTools.sleep(4 * 1000);
         Assert.assertNotNull(runner);
+        Assert.assertFalse(runner.isRunning());
         runner.dispose();
     }
 }
