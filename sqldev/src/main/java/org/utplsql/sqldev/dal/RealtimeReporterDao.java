@@ -1,12 +1,12 @@
 /*
  * Copyright 2018 Philipp Salvisberg <philipp.salvisberg@trivadis.com>
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -28,7 +28,6 @@ import javax.xml.parsers.DocumentBuilder;
 import org.springframework.jdbc.core.CallableStatementCallback;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.SingleConnectionDataSource;
-import org.utplsql.sqldev.exception.GenericRuntimeException;
 import org.utplsql.sqldev.model.StringTools;
 import org.utplsql.sqldev.model.XMLTools;
 import org.utplsql.sqldev.model.runner.Counter;
@@ -211,8 +210,8 @@ public class RealtimeReporterDao {
             rs.close();
             return sb1.toString();
         });
-    }    
-    
+    }
+
     private RealtimeReporterEvent convert(final String itemType, final String text) {
         logger.fine(() -> "\n---- " + itemType + " ----\n" + text);
         try {
@@ -234,13 +233,15 @@ public class RealtimeReporterDao {
             }
             return event;
         } catch (SAXException e) {
+            // continue processing, see https://github.com/utPLSQL/utPLSQL-SQLDeveloper/issues/107
             final String msg = "Parse error while processing " + itemType + " with content: " + text;
             logger.severe(() -> msg);
-            throw new GenericRuntimeException(msg, e);
+            return null;
         } catch (IOException e) {
+            // continue processing, see https://github.com/utPLSQL/utPLSQL-SQLDeveloper/issues/107
             final String msg = "I/O error while processing " + itemType + " with content: " + text;
             logger.severe(() -> msg);
-            throw new GenericRuntimeException(msg, e);
+            return null;
         }
     }
 

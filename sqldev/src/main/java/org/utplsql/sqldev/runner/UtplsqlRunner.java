@@ -173,6 +173,10 @@ public class UtplsqlRunner implements RealtimeReporterEventConsumer {
         return df.format(dateTime);
     }
 
+    public boolean isRunning() {
+        return run != null && run.getEndTime() == null;
+    }
+
     private void initRun() {
         run = new Run(realtimeReporterId, connectionName, pathList);
         run.setStartTime(getSysdate());

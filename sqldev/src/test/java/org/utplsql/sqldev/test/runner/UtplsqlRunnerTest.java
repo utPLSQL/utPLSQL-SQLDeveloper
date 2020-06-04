@@ -16,7 +16,7 @@
 package org.utplsql.sqldev.test.runner;
 
 import java.sql.Connection;
-import java.util.Arrays;
+import java.util.Collections;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -110,31 +110,45 @@ public class UtplsqlRunnerTest extends AbstractJdbcTest {
         sb.append("END;");
         jdbcTemplate.execute(sb.toString());
         new CodeCoverageReporterTest().setup();
+        sb.setLength(0);
+        sb.append("CREATE OR REPLACE PACKAGE junit_utplsql_test2_pkg is\n");
+        sb.append("   --%suite(JUnit testing)\n");
+        sb.append("   --%suitepath(b)\n\n");
+
+        sb.append("   --%test(test XML with nested CDATA)\n");
+        sb.append("   PROCEDURE test_nested_cdata;\n\n");
+        sb.append("END;");
+        jdbcTemplate.execute(sb.toString());
+        sb.setLength(0);
+        sb.append("CREATE OR REPLACE PACKAGE BODY junit_utplsql_test2_pkg IS\n");
+        sb.append("   PROCEDURE test_nested_cdata IS\n");
+        sb.append("   BEGIN\n");
+        sb.append("      dbms_output.put_line('nested cdata block: <![CDATA[...]]>, to be handled.');\n");
+        sb.append("      ut.expect(1).to_equal(1);\n");
+        sb.append("   END;\n");
+        sb.append("END;");
+        jdbcTemplate.execute(sb.toString());
     }
 
     @After
     public void teardown() {
         executeAndIgnore(jdbcTemplate, "DROP PACKAGE junit_utplsql_test1_pkg");
+        executeAndIgnore(jdbcTemplate, "DROP PACKAGE junit_utplsql_test2_pkg");
         new CodeCoverageReporterTest().teardown();
+    }
+
+    private Connection getNewConnection() {
+        final SingleConnectionDataSource ds = new SingleConnectionDataSource();
+        ds.setDriverClassName("oracle.jdbc.OracleDriver");
+        ds.setUrl(dataSource.getUrl());
+        ds.setUsername(dataSource.getUsername());
+        ds.setPassword(dataSource.getPassword());
+        return DatabaseTools.getConnection(ds);
     }
 
     @Test
     public void runTestsWithMaxTime() {
-        final SingleConnectionDataSource ds1 = new SingleConnectionDataSource();
-        ds1.setDriverClassName("oracle.jdbc.OracleDriver");
-        ds1.setUrl(dataSource.getUrl());
-        ds1.setUsername(dataSource.getUsername());
-        ds1.setPassword(dataSource.getPassword());
-        final Connection producerConn = DatabaseTools.getConnection(ds1);
-
-        final SingleConnectionDataSource ds2 = new SingleConnectionDataSource();
-        ds2.setDriverClassName("oracle.jdbc.OracleDriver");
-        ds2.setUrl(dataSource.getUrl());
-        ds2.setUsername(dataSource.getUsername());
-        ds2.setPassword(dataSource.getPassword());
-        final Connection consumerConn = DatabaseTools.getConnection(ds2);
-
-        UtplsqlRunner runner = new UtplsqlRunner(Arrays.asList(":a"), producerConn, consumerConn);
+        UtplsqlRunner runner = new UtplsqlRunner(Collections.singletonList(":a"), getNewConnection(), getNewConnection());
         runner.runTestAsync();
 
         SystemTools.waitForThread(runner.getProducerThread(), 200000);
@@ -146,27 +160,26 @@ public class UtplsqlRunnerTest extends AbstractJdbcTest {
 
     @Test
     public void runTestsWithCodeCoverage() {
-        final SingleConnectionDataSource ds1 = new SingleConnectionDataSource();
-        ds1.setDriverClassName("oracle.jdbc.OracleDriver");
-        ds1.setUrl(dataSource.getUrl());
-        ds1.setUsername(dataSource.getUsername());
-        ds1.setPassword(dataSource.getPassword());
-        final Connection producerConn = DatabaseTools.getConnection(ds1);
-
-        final SingleConnectionDataSource ds2 = new SingleConnectionDataSource();
-        ds2.setDriverClassName("oracle.jdbc.OracleDriver");
-        ds2.setUrl(dataSource.getUrl());
-        ds2.setUsername(dataSource.getUsername());
-        ds2.setPassword(dataSource.getPassword());
-        final Connection consumerConn = DatabaseTools.getConnection(ds2);
-
-        UtplsqlRunner runner = new UtplsqlRunner(Arrays.asList(":test_f"), null, null, null, producerConn, consumerConn);
+        UtplsqlRunner runner = new UtplsqlRunner(Collections.singletonList(":test_f"), null, null, null, getNewConnection(), getNewConnection());
         runner.runTestAsync();
 
         SystemTools.waitForThread(runner.getProducerThread(), 200000);
         SystemTools.waitForThread(runner.getConsumerThread(), 200000);
         SystemTools.sleep(4 * 1000);
         Assert.assertNotNull(runner);
+        runner.dispose();
+    }
+
+    @Test
+    public void runTestWithNestedCdataSection() {
+        UtplsqlRunner runner = new UtplsqlRunner(Collections.singletonList(":b"), getNewConnection(), getNewConnection());
+        runner.runTestAsync();
+
+        SystemTools.waitForThread(runner.getProducerThread(), 200000);
+        SystemTools.waitForThread(runner.getConsumerThread(), 200000);
+        SystemTools.sleep(4 * 1000);
+        Assert.assertNotNull(runner);
+        Assert.assertFalse(runner.isRunning());
         runner.dispose();
     }
 }
