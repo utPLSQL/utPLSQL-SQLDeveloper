@@ -709,6 +709,52 @@ public class RunnerPanel {
         reporter.showParameterWindow();
     }
 
+    private void fixCountersAndUpdate() {
+        // fix incompleteTests
+        List<Test> incompleteTests = currentRun.getTests().values().stream()
+                .filter(it -> it.getEndTime() == null && !it.isDisabled()).collect(Collectors.toList());
+        if (!incompleteTests.isEmpty()) {
+            final Double now = (double) System.currentTimeMillis();
+            final String sysdate = UtplsqlRunner.getSysdate();
+            for (Test test : incompleteTests) {
+                // fix incomplete tests, see https://github.com/utPLSQL/utPLSQL-SQLDeveloper/issues/107
+                test.setEndTime(sysdate);
+                test.setExecutionTime((now - currentRun.getStart()) / 1000);
+                test.setErrorStack(UtplsqlResources.getString("RUNNER_MISSING_TEST_RESULT_MESSAGE"));
+                test.getCounter().setError(1);
+            }
+        }
+        // recalculate counters and fix inconsistencies
+        currentRun.getCounter().setSuccess(0);
+        currentRun.getCounter().setFailure(0);
+        currentRun.getCounter().setError(0);
+        currentRun.getCounter().setDisabled(0);
+        currentRun.getCounter().setWarning(0);
+        for (Test test : currentRun.getTests().values()) {
+            if (test.isDisabled() && test.getCounter().getDisabled() == 0) {
+                test.getCounter().setDisabled(1);
+            }
+            if (test.getFailedExpectations() != null && !test.getFailedExpectations().isEmpty() && test.getCounter().getFailure() == 0) {
+                test.getCounter().setFailure(1);
+            }
+            if (test.getErrorStack() != null && test.getCounter().getError() == 0) {
+                test.getCounter().setError(1);
+            }
+            currentRun.getCounter().setSuccess(currentRun.getCounter().getSuccess() + test.getCounter().getSuccess());
+            currentRun.getCounter().setFailure(currentRun.getCounter().getFailure() + test.getCounter().getFailure());
+            currentRun.getCounter().setError(currentRun.getCounter().getError() + test.getCounter().getError());
+            currentRun.getCounter().setDisabled(currentRun.getCounter().getDisabled() + test.getCounter().getDisabled());
+            currentRun.getCounter().setWarning(currentRun.getCounter().getWarning() + test.getCounter().getWarning());
+        }
+        // terminate run
+        currentRun.setEndTime(UtplsqlRunner.getSysdate());
+        double now = (double) System.currentTimeMillis();
+        currentRun.setExecutionTime((now - currentRun.getStart()) / 1000);
+        currentRun.setCurrentTestNumber(0);
+        // update run in GUI
+        update(currentRun.getReporterId());
+    }
+
     @SuppressWarnings("DuplicatedCode")
     private void initializeGUI() {
         // Base panel containing all components 
@@ -767,45 +813,18 @@ public class RunnerPanel {
             if (currentRun.getConsumerConn() != null) {
                 // Aborts JDBC Connection. Connection might still run in the background. That's expected.
                 DatabaseTools.abortConnection(currentRun.getConsumerConn());
-                for (Test test : currentRun.getTests().values()) {
-                    if (test.getEndTime() == null && !test.isDisabled()) {
-                        test.setDisabled(true);
-                        test.getCounter().setDisabled(1);
-                        test.getCounter().setWarning(1);
-                        test.setWarnings(UtplsqlResources.getString("RUNNER_STOP_TEST_MESSAGE"));
-                        test.setStartTime(null);
-                    }
+                List<Test> notCompletedTests = currentRun.getTests().values().stream()
+                        .filter(it -> it.getTestNumber() >= currentRun.getCurrentTestNumber() && it.getEndTime() == null && !it.isDisabled())
+                        .collect(Collectors.toList());
+                for (Test test : notCompletedTests) {
+                    test.setDisabled(true);
+                    test.getCounter().setDisabled(1);
+                    test.getCounter().setWarning(1);
+                    test.setWarnings(UtplsqlResources.getString("RUNNER_STOP_TEST_MESSAGE"));
+                    test.setStartTime(null);
                 }
-                // recalculate counters and fix inconsistencies
-                currentRun.getCounter().setSuccess(0);
-                currentRun.getCounter().setFailure(0);
-                currentRun.getCounter().setError(0);
-                currentRun.getCounter().setDisabled(0);
-                currentRun.getCounter().setWarning(0);
-                for (Test test : currentRun.getTests().values()) {
-                    if (test.isDisabled() && test.getCounter().getDisabled() == 0) {
-                        test.getCounter().setDisabled(1);
-                    }
-                    if (test.getFailedExpectations() != null && !test.getFailedExpectations().isEmpty() && test.getCounter().getFailure() == 0) {
-                        test.getCounter().setFailure(1);
-                    }
-                    if (test.getErrorStack() != null && test.getCounter().getError() == 0) {
-                        test.getCounter().setError(1);
-                    }
-                    currentRun.getCounter().setSuccess(currentRun.getCounter().getSuccess() + test.getCounter().getSuccess());
-                    currentRun.getCounter().setFailure(currentRun.getCounter().getFailure() + test.getCounter().getFailure());
-                    currentRun.getCounter().setError(currentRun.getCounter().getError() + test.getCounter().getError());
-                    currentRun.getCounter().setDisabled(currentRun.getCounter().getDisabled() + test.getCounter().getDisabled());
-                    currentRun.getCounter().setWarning(currentRun.getCounter().getWarning() + test.getCounter().getWarning());
-                }
-                // terminate run
-                currentRun.setEndTime(UtplsqlRunner.getSysdate());
-                double now = (double) System.currentTimeMillis();
-                currentRun.setExecutionTime((now - currentRun.getStart()) / 1000);
-                currentRun.setCurrentTestNumber(0);
                 currentRun.setStatus(UtplsqlResources.getString("RUNNER_STOP_RUN_MESSAGE"));
-                // update run in GUI
-                update(currentRun.getReporterId());
+                fixCountersAndUpdate();
             }
         });
         stopButton.setEnabled(false);
@@ -871,6 +890,9 @@ public class RunnerPanel {
                 if (currentRun.getExecutionTime() != null) {
                     time.setSeconds(currentRun.getExecutionTime());
                     elapsedTimeTimer.stop();
+                    if (!currentRun.getTotalNumberOfTests().equals(currentRun.getTotalNumberOfCompletedTests())) {
+                        fixCountersAndUpdate();
+                    }
                 } else {
                     final Double now = (double) System.currentTimeMillis();
                     time.setSeconds((now - currentRun.getStart()) / 1000);
