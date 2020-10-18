@@ -252,9 +252,9 @@ public class PreferencePanel extends DefaultTraversablePanel {
             sb.append(suitePathTextField.getText());
             sb.append(")\n");
         }
-        sb.append('\n');
-        sb.append('\t');
-        sb.append(utSpecProcTemplate());
+        sb.append("\n\t");
+        sb.append(utSpecProcTemplate().toString().trim().replace("\n", "\n\t"));
+        sb.append("\n\n");
         sb.append("END ");
         sb.append(testPackagePrefixTextField.getText());
         sb.append("[package_name]");
@@ -271,7 +271,7 @@ public class PreferencePanel extends DefaultTraversablePanel {
         if (withContext) {
             sb.append("--%context([procedure_name])\n\n");
         }
-        for (int i = 0; i < numberOfTestsPerUnit; i ++) {
+        for (int i = 1; i <= numberOfTestsPerUnit; i ++) {
             sb.append("--%test\n");
             if (disableTestsCheckBox.isSelected()) {
                 sb.append("--%disabled\n");
@@ -297,10 +297,9 @@ public class PreferencePanel extends DefaultTraversablePanel {
         sb.append(testPackagePrefixTextField.getText());
         sb.append("[package_name]");
         sb.append(testPackageSuffixTextField.getText());
-        sb.append(" IS\n\n");
-        sb.append('\t');
-        sb.append(utBodyProcTemplate());
-        sb.append('\n');
+        sb.append(" IS\n\n\t");
+        sb.append(utBodyProcTemplate().toString().trim().replace("\n", "\n\t"));
+        sb.append("\n\n");
         sb.append("END ");
         sb.append(testPackagePrefixTextField.getText());
         sb.append("[package_name]");
@@ -314,7 +313,7 @@ public class PreferencePanel extends DefaultTraversablePanel {
         StringBuilder sb = new StringBuilder();
         final Integer numberOfTestsPerUnit = (Integer) numberOfTestsPerUnitModel.getValue();
         final boolean withContext = numberOfTestsPerUnit > 1;
-        for (int i = 0; i < numberOfTestsPerUnit; i++) {
+        for (int i = 1; i <= numberOfTestsPerUnit; i++) {
             if (generateCommentsCheckBox.isSelected()) {
                 sb.append("--\n");
                 sb.append("-- test");
@@ -344,7 +343,7 @@ public class PreferencePanel extends DefaultTraversablePanel {
                 sb.append("\t-- ...\n\n");
                 sb.append("\t-- assert\n");
             }
-            sb.append("\tut.expect(l_actual).to_equal(l_expected);");
+            sb.append("\tut.expect(l_actual).to_equal(l_expected);\n");
             sb.append("END ");
             sb.append(testUnitPrefixTextField.getText());
             sb.append("[procedure_name]");
