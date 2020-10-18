@@ -110,6 +110,13 @@
 		</dependency>
 		<dependency>
 			<groupId>oracle</groupId>
+			<artifactId>oracle.sqldeveloper.schemabrowser</artifactId>
+			<version>19.3.0</version>
+			<scope>system</scope>
+			<systemPath>${sqldev.basedir}/sqldeveloper/extensions/oracle.sqldeveloper.schemabrowser.jar</systemPath>
+		</dependency>
+		<dependency>
+			<groupId>oracle</groupId>
 			<artifactId>ojdbc8</artifactId>
 			<version>19.3.0</version>
 			<scope>system</scope>
@@ -445,6 +452,7 @@
 							oracle.ide.db,
 							oracle.ide.runner,
 							oracle.sqldeveloper,
+							oracle.sqldeveloper.schemabrowser,
 							oracle.sqldeveloper.utils,
 							oracle.sqldeveloper.worksheet,
 							oracle.uic
