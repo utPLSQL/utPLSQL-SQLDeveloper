@@ -479,22 +479,11 @@ public class RunnerPanel {
         }
     }
 
-    private void showDockable() {
-        try {
-            if (!RunnerFactory.getDockable().isVisible()) {
-                RunnerFactory.showDockable();
-            }
-        } catch (Throwable t) {
-            // ignore
-        }
-    }
-
     private void enableOrDisableStopButton() {
         stopButton.setEnabled(currentRun.getEndTime() == null);
     }
 
     public synchronized void update(final String reporterId) {
-        showDockable();
         enableOrDisableStopButton();
         setCurrentRun(runs.get(reporterId));
         final int row = currentRun.getCurrentTestNumber() - 1;
