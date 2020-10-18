@@ -50,6 +50,7 @@ import oracle.dbtools.raptor.navigator.impl.DatabaseSourceNode;
 import oracle.dbtools.raptor.navigator.impl.ObjectFolder;
 import oracle.dbtools.raptor.navigator.impl.SchemaFolder;
 import oracle.dbtools.raptor.navigator.plsql.PlSqlNode;
+import oracle.dbtools.raptor.schemabrowser.view.SBWindow;
 import oracle.dbtools.raptor.utils.Connections;
 import oracle.dbtools.worksheet.editor.Worksheet;
 import oracle.ide.Context;
@@ -135,7 +136,7 @@ public class UtplsqlController implements Controller {
                         action.setEnabled(true);
                     }
                 }
-            } else if (view instanceof DBNavigatorWindow) {
+            } else if (view instanceof DBNavigatorWindow || view instanceof SBWindow) {
                 action.setEnabled(true);
                 // disable action if a node in the selection is not runnable
                 for (int i = 0; i < context.getSelection().length; i++) {
@@ -192,7 +193,7 @@ public class UtplsqlController implements Controller {
                         action.setEnabled(true);
                     }
                 }
-            } else if (view instanceof DBNavigatorWindow) {
+            } else if (view instanceof DBNavigatorWindow || view instanceof SBWindow) {
                 // multiselection is not supported, use oddgen to generte tests for multiple objects
                 if (context.getSelection().length == 1) {
                     final Object element = context.getSelection()[0];
@@ -367,7 +368,7 @@ public class UtplsqlController implements Controller {
                     worksheet.runTestAsync();
                 }
             }
-        } else if (view instanceof DBNavigatorWindow) {
+        } else if (view instanceof DBNavigatorWindow || view instanceof SBWindow) {
             final URL url = getURL(context);
             if (url != null) {
                 final String connectionName = URLTools.getConnectionName(url);
@@ -469,7 +470,7 @@ public class UtplsqlController implements Controller {
                 final CodeCoverageReporter reporter = new CodeCoverageReporter(getPathList(path), includeObjectList, connectionName);
                 reporter.showParameterWindow();
             }
-        } else if (view instanceof DBNavigatorWindow) {
+        } else if (view instanceof DBNavigatorWindow || view instanceof SBWindow) {
             logger.finer("Code coverage from DB navigator");
             final URL url = getURL(context);
             if (url != null) {
@@ -529,7 +530,7 @@ public class UtplsqlController implements Controller {
                 }
             }
         } else {
-            if (view instanceof DBNavigatorWindow) {
+            if (view instanceof DBNavigatorWindow || view instanceof SBWindow) {
                 final URL url = getURL(context);
                 if (url != null) {
                     final String connectionName = URLTools.getConnectionName(url);
