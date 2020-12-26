@@ -162,7 +162,7 @@ public class JsonToStringStyler implements ToStringStyler, ValueStyler{
         } else if (value instanceof Map) {
             return getMapStyle((Map<?, ?>) value);
         } else {
-            return getDefaultStyle(value);
+            return getDefaultStyle(value.toString());
         }
     }
 }
