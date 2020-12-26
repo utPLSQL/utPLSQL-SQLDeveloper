@@ -28,7 +28,7 @@ public class Expectation {
 
     @Override
     public String toString() {
-        return new ToStringCreator(this, JsonToStringStyler.INSTANCE)
+        return new ToStringCreator(this, JsonToStringStyler.getInstance())
                 .append("description", description)
                 .append("message", message)
                 .append("caller", caller)

@@ -29,7 +29,7 @@ public abstract class PostEvent extends RealtimeReporterEvent {
 
     @Override
     public String toString() {
-        return new ToStringCreator(this, JsonToStringStyler.INSTANCE)
+        return new ToStringCreator(this, JsonToStringStyler.getInstance())
                 .append("startTime", startTime)
                 .append("endTime", endTime)
                 .append("executionTime", executionTime)

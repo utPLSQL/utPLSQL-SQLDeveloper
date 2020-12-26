@@ -25,7 +25,7 @@ public class PreTestEvent extends RealtimeReporterEvent {
 
     @Override
     public String toString() {
-        return new ToStringCreator(this, JsonToStringStyler.INSTANCE)
+        return new ToStringCreator(this, JsonToStringStyler.getInstance())
                 .append("id", id)
                 .append("testNumber", testNumber)
                 .append("totalNumberOfTests", totalNumberOfTests)

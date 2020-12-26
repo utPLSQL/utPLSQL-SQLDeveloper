@@ -33,10 +33,10 @@
 		</dependency>
 		<dependency>
 			<groupId>oracle</groupId>
-			<artifactId>javatools-nodeps</artifactId>
-			<version>13.0.0</version>
+			<artifactId>oracle.javatools-nodeps</artifactId>
+			<version>12.2.1</version>
 			<scope>system</scope>
-			<systemPath>${sqldev.basedir}/modules/oracle.javatools/javatools-nodeps.jar</systemPath>
+			<systemPath>${sqldev.basedir}/external/oracle.javatools-nodeps.jar</systemPath>
 		</dependency>
 		<dependency>
 			<groupId>oracle</groupId>
@@ -192,19 +192,19 @@
 			<!-- used mainly to access the database via JdbcTemplate -->
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-jdbc</artifactId>
-			<version>5.2.6.RELEASE</version>
+			<version>5.3.2</version>
 		</dependency>
 		<dependency>
 			<!-- transitive reference, but IntelliJ wants to have it explicit (to avoid warnings) -->
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-core</artifactId>
-			<version>5.2.6.RELEASE</version>
+			<version>5.3.2</version>
 		</dependency>
 		<dependency>
 			<!-- used for HtmlUtils.htmlEscape in RunnerPanel -->
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-web</artifactId>
-			<version>5.2.6.RELEASE</version>
+			<version>5.3.2</version>
 		</dependency>
 		<dependency>
 			<!-- optional, for RunGenerator and TestGenerator -->
@@ -222,7 +222,7 @@
         <dependency>
             <groupId>org.jetbrains</groupId>
             <artifactId>annotations</artifactId>
-            <version>13.0</version>
+            <version>20.1.0</version>
             <scope>compile</scope>
         </dependency>
     </dependencies>
@@ -430,17 +430,33 @@
 							META-INF/extension.xml=target/classes/META-INF/extension.xml
 						</Include-Resource>
 						<Export-Package>
-							org.utplsql.sqldev,
+							org.utplsql.sqldev.coverage,
+							org.utplsql.sqldev.dal,
+							org.utplsql.sqldev.exception,
 							org.utplsql.sqldev.menu,
+							org.utplsql.sqldev.model,
+							org.utplsql.sqldev.model.oddgen,
+							org.utplsql.sqldev.model.parser,
 							org.utplsql.sqldev.model.preference,
-							org.utplsql.sqldev.actions,
-							org.utplsql.sqldev.resources
+							org.utplsql.sqldev.model.runner,
+							org.utplsql.sqldev.model.ut,
+							org.utplsql.sqldev.oddgen,
+							org.utplsql.sqldev.parser,
+							org.utplsql.sqldev.resources,
+							org.utplsql.sqldev.runner,
+							org.utplsql.sqldev.snippet,
+							org.utplsql.sqldev.ui.common,
+							org.utplsql.sqldev.ui.coverage,
+							org.utplsql.sqldev.ui.preference,
+							org.utplsql.sqldev.ui.runner
 						</Export-Package>
 						<_exportcontents>
 							org.aspectj.runtime.internal,
 							org.aspectj.lang,
 							org.aspectj.runtime,
-							org.aspectj.lang.reflect
+							org.aspectj.lang.reflect,
+							org.springframework.core.style,
+							org.springframework.lang
 						</_exportcontents>
 						<Require-Bundle>
 							oracle.javatools,

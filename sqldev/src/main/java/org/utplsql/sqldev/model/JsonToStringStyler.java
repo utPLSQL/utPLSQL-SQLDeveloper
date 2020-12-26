@@ -25,10 +25,11 @@ import org.springframework.core.style.ToStringStyler;
 import org.springframework.core.style.ValueStyler;
 
 public class JsonToStringStyler implements ToStringStyler, ValueStyler{
-    public static final ToStringStyler INSTANCE = new JsonToStringStyler();
     public static final String INDENT_SPACES = "    ";
     private int indent = 0;
-    
+
+    private static ThreadLocal<JsonToStringStyler> threadLocal = ThreadLocal.withInitial(JsonToStringStyler::new);
+
     private void newLine(StringBuilder buffer) {
         buffer.append('\n');
         buffer.append(getIndentSpaces(0));
@@ -45,7 +46,7 @@ public class JsonToStringStyler implements ToStringStyler, ValueStyler{
     private String getStringStyle(String value) {
         StringBuilder sb = new StringBuilder();
         sb.append('"');
-        sb.append(value.replace("\"", "\\\"").replace("\n", "\\n").replace("\r", ""));
+        sb.append(value.replace("\\", "\\\\").replace("\"", "\\\"").replace("\n", "\\n").replace("\r", "").replace("\t", "\\t"));
         sb.append('"');
         return sb.toString();
     }
@@ -95,7 +96,11 @@ public class JsonToStringStyler implements ToStringStyler, ValueStyler{
     private String getDefaultStyle(Object value) {
         return String.valueOf(value);
     }
-    
+
+    public static ToStringStyler getInstance() {
+        return threadLocal.get();
+    }
+
     @Override
     public void styleStart(StringBuilder buffer, Object obj) {
         indent++;
@@ -157,7 +162,7 @@ public class JsonToStringStyler implements ToStringStyler, ValueStyler{
         } else if (value instanceof Map) {
             return getMapStyle((Map<?, ?>) value);
         } else {
-            return getDefaultStyle(value);
+            return getDefaultStyle(value.toString());
         }
     }
 }

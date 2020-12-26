@@ -21,6 +21,7 @@ import java.util.List;
 
 import org.springframework.core.style.ToStringCreator;
 import org.utplsql.sqldev.model.JsonToStringStyler;
+import org.utplsql.sqldev.model.URLTools;
 
 @SuppressWarnings("unused")
 public class Run {
@@ -45,7 +46,7 @@ public class Run {
 
     @Override
     public String toString() {
-        return new ToStringCreator(this, JsonToStringStyler.INSTANCE)
+        return new ToStringCreator(this, JsonToStringStyler.getInstance())
                 .append("reporterId", reporterId)
                 .append("connectionName", connectionName)
                 .append("pathList", pathList)
@@ -82,7 +83,7 @@ public class Run {
 
     public String getName() {
         final String time = startTime.substring(11, 19);
-        final String conn = connectionName != null ? connectionName.substring(15) : "n/a";
+        final String conn = connectionName != null ? URLTools.replaceHexChars(connectionName.substring(15)) : "n/a";
         return time + " (" + conn + ")";
     }
 

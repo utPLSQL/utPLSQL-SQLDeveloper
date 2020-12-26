@@ -27,7 +27,7 @@ public class PreRunEvent extends RealtimeReporterEvent {
 
     @Override
     public String toString() {
-        return new ToStringCreator(this, JsonToStringStyler.INSTANCE)
+        return new ToStringCreator(this, JsonToStringStyler.getInstance())
                 .append("items", items)
                 .append("totalNumberOfTests", totalNumberOfTests)
                 .toString();
