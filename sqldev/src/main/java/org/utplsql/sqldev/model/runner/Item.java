@@ -34,7 +34,7 @@ public abstract class Item {
 
     @Override
     public String toString() {
-        return new ToStringCreator(this, JsonToStringStyler.INSTANCE)
+        return new ToStringCreator(this, JsonToStringStyler.getInstance())
                 .append("id", id)
                 .append("startTime", startTime)
                 .append("endTime", endTime)

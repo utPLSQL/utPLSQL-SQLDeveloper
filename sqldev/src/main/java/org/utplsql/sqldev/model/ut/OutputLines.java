@@ -24,7 +24,7 @@ public class OutputLines {
 
     @Override
     public String toString() {
-        return new ToStringCreator(this, JsonToStringStyler.INSTANCE)
+        return new ToStringCreator(this, JsonToStringStyler.getInstance())
                 .append("lines", lines)
                 .append("numlines", numlines)
                 .toString();

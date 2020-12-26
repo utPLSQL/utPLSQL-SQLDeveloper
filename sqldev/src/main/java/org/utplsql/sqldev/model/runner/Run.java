@@ -46,7 +46,7 @@ public class Run {
 
     @Override
     public String toString() {
-        return new ToStringCreator(this, JsonToStringStyler.INSTANCE)
+        return new ToStringCreator(this, JsonToStringStyler.getInstance())
                 .append("reporterId", reporterId)
                 .append("connectionName", connectionName)
                 .append("pathList", pathList)

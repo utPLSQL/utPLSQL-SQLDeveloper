@@ -25,7 +25,7 @@ public class Unit {
 
     @Override
     public String toString() {
-        return new ToStringCreator(this, JsonToStringStyler.INSTANCE)
+        return new ToStringCreator(this, JsonToStringStyler.getInstance())
                 .append("name", name)
                 .append("position", position)
                 .append("positionOfName", positionOfName)

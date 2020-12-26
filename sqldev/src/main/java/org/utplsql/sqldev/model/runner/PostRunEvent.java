@@ -22,7 +22,7 @@ public class PostRunEvent extends PostEvent {
 
     @Override
     public String toString() {
-        return new ToStringCreator(this, JsonToStringStyler.INSTANCE)
+        return new ToStringCreator(this, JsonToStringStyler.getInstance())
                 // ancestor
                 .append("startTime", getStartTime())
                 .append("endTime", getEndTime())

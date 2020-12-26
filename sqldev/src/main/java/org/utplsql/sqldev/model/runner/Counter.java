@@ -35,7 +35,7 @@ public class Counter {
 
     @Override
     public String toString() {
-        return new ToStringCreator(this, JsonToStringStyler.INSTANCE)
+        return new ToStringCreator(this, JsonToStringStyler.getInstance())
                 .append("disabled", disabled)
                 .append("success", success)
                 .append("failure", failure)

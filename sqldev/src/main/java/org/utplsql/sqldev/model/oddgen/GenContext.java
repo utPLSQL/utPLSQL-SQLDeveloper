@@ -40,7 +40,7 @@ public class GenContext {
 
     @Override 
     public String toString() {
-        return new ToStringCreator(this, JsonToStringStyler.INSTANCE)
+        return new ToStringCreator(this, JsonToStringStyler.getInstance())
                 .append("conn", conn)
                 .append("objectType", objectType)
                 .append("objectName", objectName)

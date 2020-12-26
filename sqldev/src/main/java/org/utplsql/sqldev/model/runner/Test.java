@@ -37,7 +37,7 @@ public class Test extends Item {
 
     @Override
     public String toString() {
-        return new ToStringCreator(this, JsonToStringStyler.INSTANCE)
+        return new ToStringCreator(this, JsonToStringStyler.getInstance())
                 // ancestor
                 .append("id", getId())
                 .append("startTime", getStartTime())

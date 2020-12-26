@@ -27,7 +27,7 @@ public class Annotation {
 
     @Override
     public String toString() {
-        return new ToStringCreator(this, JsonToStringStyler.INSTANCE)
+        return new ToStringCreator(this, JsonToStringStyler.getInstance())
                 .append("objectOwner", objectOwner)
                 .append("objectName", objectName)
                 .append("name", name)
