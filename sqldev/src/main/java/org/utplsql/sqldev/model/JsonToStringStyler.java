@@ -25,10 +25,11 @@ import org.springframework.core.style.ToStringStyler;
 import org.springframework.core.style.ValueStyler;
 
 public class JsonToStringStyler implements ToStringStyler, ValueStyler{
-    public static final ToStringStyler INSTANCE = new JsonToStringStyler();
     public static final String INDENT_SPACES = "    ";
     private int indent = 0;
-    
+
+    private static ThreadLocal<JsonToStringStyler> threadLocal = ThreadLocal.withInitial(JsonToStringStyler::new);
+
     private void newLine(StringBuilder buffer) {
         buffer.append('\n');
         buffer.append(getIndentSpaces(0));
@@ -95,7 +96,11 @@ public class JsonToStringStyler implements ToStringStyler, ValueStyler{
     private String getDefaultStyle(Object value) {
         return String.valueOf(value);
     }
-    
+
+    public static ToStringStyler getInstance() {
+        return threadLocal.get();
+    }
+
     @Override
     public void styleStart(StringBuilder buffer, Object obj) {
         indent++;
