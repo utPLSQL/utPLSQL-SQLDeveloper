@@ -192,19 +192,19 @@
 			<!-- used mainly to access the database via JdbcTemplate -->
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-jdbc</artifactId>
-			<version>5.2.6.RELEASE</version>
+			<version>5.3.2</version>
 		</dependency>
 		<dependency>
 			<!-- transitive reference, but IntelliJ wants to have it explicit (to avoid warnings) -->
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-core</artifactId>
-			<version>5.2.6.RELEASE</version>
+			<version>5.3.2</version>
 		</dependency>
 		<dependency>
 			<!-- used for HtmlUtils.htmlEscape in RunnerPanel -->
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-web</artifactId>
-			<version>5.2.6.RELEASE</version>
+			<version>5.3.2</version>
 		</dependency>
 		<dependency>
 			<!-- optional, for RunGenerator and TestGenerator -->
@@ -222,7 +222,7 @@
         <dependency>
             <groupId>org.jetbrains</groupId>
             <artifactId>annotations</artifactId>
-            <version>13.0</version>
+            <version>20.1.0</version>
             <scope>compile</scope>
         </dependency>
     </dependencies>
