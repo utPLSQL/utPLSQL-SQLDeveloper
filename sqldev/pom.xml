@@ -33,10 +33,10 @@
 		</dependency>
 		<dependency>
 			<groupId>oracle</groupId>
-			<artifactId>javatools-nodeps</artifactId>
-			<version>13.0.0</version>
+			<artifactId>oracle.javatools-nodeps</artifactId>
+			<version>12.2.1</version>
 			<scope>system</scope>
-			<systemPath>${sqldev.basedir}/modules/oracle.javatools/javatools-nodeps.jar</systemPath>
+			<systemPath>${sqldev.basedir}/external/oracle.javatools-nodeps.jar</systemPath>
 		</dependency>
 		<dependency>
 			<groupId>oracle</groupId>
