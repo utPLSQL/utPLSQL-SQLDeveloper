@@ -430,11 +430,25 @@
 							META-INF/extension.xml=target/classes/META-INF/extension.xml
 						</Include-Resource>
 						<Export-Package>
-							org.utplsql.sqldev,
+							org.utplsql.sqldev.coverage,
+							org.utplsql.sqldev.dal,
+							org.utplsql.sqldev.exception,
 							org.utplsql.sqldev.menu,
+							org.utplsql.sqldev.model,
+							org.utplsql.sqldev.model.oddgen,
+							org.utplsql.sqldev.model.parser,
 							org.utplsql.sqldev.model.preference,
-							org.utplsql.sqldev.actions,
-							org.utplsql.sqldev.resources
+							org.utplsql.sqldev.model.runner,
+							org.utplsql.sqldev.model.ut,
+							org.utplsql.sqldev.oddgen,
+							org.utplsql.sqldev.parser,
+							org.utplsql.sqldev.resources,
+							org.utplsql.sqldev.runner,
+							org.utplsql.sqldev.snippet,
+							org.utplsql.sqldev.ui.common,
+							org.utplsql.sqldev.ui.coverage,
+							org.utplsql.sqldev.ui.preference,
+							org.utplsql.sqldev.ui.runner
 						</Export-Package>
 						<_exportcontents>
 							org.aspectj.runtime.internal,
