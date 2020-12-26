@@ -454,7 +454,9 @@
 							org.aspectj.runtime.internal,
 							org.aspectj.lang,
 							org.aspectj.runtime,
-							org.aspectj.lang.reflect
+							org.aspectj.lang.reflect,
+							org.springframework.core.style,
+							org.springframework.lang
 						</_exportcontents>
 						<Require-Bundle>
 							oracle.javatools,
