@@ -45,7 +45,7 @@ public class JsonToStringStyler implements ToStringStyler, ValueStyler{
     private String getStringStyle(String value) {
         StringBuilder sb = new StringBuilder();
         sb.append('"');
-        sb.append(value.replace("\"", "\\\"").replace("\n", "\\n").replace("\r", ""));
+        sb.append(value.replace("\\", "\\\\").replace("\"", "\\\"").replace("\n", "\\n").replace("\r", "").replace("\t", "\\t"));
         sb.append('"');
         return sb.toString();
     }
