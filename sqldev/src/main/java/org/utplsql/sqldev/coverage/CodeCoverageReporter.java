@@ -174,7 +174,7 @@ public class CodeCoverageReporter {
             final URL url = file.toURI().toURL();
             logger.fine(() -> "Opening " + url.toExternalForm() + " in browser...");
             final Desktop desktop = Desktop.isDesktopSupported() ? Desktop.getDesktop() : null;
-            if (desktop != null && desktop.isSupported(Desktop.Action.BROWSE) && url != null) {
+            if (desktop != null && desktop.isSupported(Desktop.Action.BROWSE)) {
                 desktop.browse(url.toURI());
                 logger.fine(() -> url.toExternalForm() + " opened in browser.");
             } else {
@@ -229,9 +229,7 @@ public class CodeCoverageReporter {
     }
 
     public Thread runAsync() {
-        final Thread thread = new Thread(() -> {
-            run();
-        });
+        final Thread thread = new Thread(this::run);
         thread.setName("code coverage reporter");
         thread.start();
         return thread;
