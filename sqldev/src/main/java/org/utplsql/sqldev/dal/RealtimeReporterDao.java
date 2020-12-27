@@ -17,6 +17,7 @@ package org.utplsql.sqldev.dal;
 
 import java.io.IOException;
 import java.io.StringReader;
+import java.net.URL;
 import java.sql.Clob;
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -108,11 +109,11 @@ public class RealtimeReporterDao {
 
     public void produceReportWithCoverage(final String realtimeReporterId, final String coverageReporterId,
             final List<String> pathList, final List<String> schemaList, final List<String> includeObjectList,
-            final List<String> excludeObjectList) {
+            final List<String> excludeObjectList, final URL htmlReportAssetPath) {
         StringBuilder sb = new StringBuilder();
         sb.append("DECLARE\n");
         sb.append("   l_rt_rep  ut_realtime_reporter      := ut_realtime_reporter();\n");
-        sb.append("   l_cov_rep ut_coverage_html_reporter := ut_coverage_html_reporter();\n");
+        sb.append("   l_cov_rep ut_coverage_html_reporter := ut_coverage_html_reporter(a_html_report_assets_path => ?);\n");
         sb.append("BEGIN\n");
         sb.append("   l_rt_rep.set_reporter_id(?);\n");
         sb.append("   l_rt_rep.output_buffer.init();\n");
@@ -143,7 +144,7 @@ public class RealtimeReporterDao {
         sb.append("   sys.dbms_output.disable;\n");
         sb.append("END;");
         final String plsql = sb.toString();
-        final Object[] binds = { realtimeReporterId, coverageReporterId };
+        final Object[] binds = { htmlReportAssetPath == null ? null : htmlReportAssetPath.toExternalForm(), realtimeReporterId, coverageReporterId };
         jdbcTemplate.update(plsql, binds);
     }
 
