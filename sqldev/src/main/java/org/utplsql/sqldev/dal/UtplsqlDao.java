@@ -1071,6 +1071,6 @@ public class UtplsqlDao {
         sb.append(" WHERE rownum = 1");
         final String sql = sb.toString();
         final Object[] binds = new Object[] {owner, objectName};
-        return jdbcTemplate.queryForObject(sql, binds, String.class);
+        return jdbcTemplate.queryForObject(sql, String.class, binds);
     }
 }
