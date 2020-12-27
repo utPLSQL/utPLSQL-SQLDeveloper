@@ -17,11 +17,7 @@ package org.utplsql.sqldev.oddgen;
 
 import java.io.File;
 import java.sql.Connection;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
+import java.util.*;
 import java.util.logging.Logger;
 
 import org.oddgen.sqldev.generators.OddgenGenerator2;
@@ -67,11 +63,11 @@ public class TestGenerator implements OddgenGenerator2 {
         context.setTestPackageSuffix(node.getParams().get(TEST_PACKAGE_SUFFIX).toLowerCase());
         context.setTestUnitPrefix(node.getParams().get(TEST_UNIT_PREFIX).toLowerCase());
         context.setTestUnitSuffix(node.getParams().get(TEST_UNIT_SUFFIX).toLowerCase());
-        context.setNumberOfTestsPerUnit((Integer.valueOf(node.getParams().get(NUMBER_OF_TESTS_PER_UNIT))).intValue());
+        context.setNumberOfTestsPerUnit(Integer.parseInt(node.getParams().get(NUMBER_OF_TESTS_PER_UNIT)));
         context.setGenerateComments(YES.equals(node.getParams().get(GENERATE_COMMENTS)));
         context.setDisableTests(YES.equals(node.getParams().get(DISABLE_TESTS)));
         context.setSuitePath(node.getParams().get(SUITE_PATH).toLowerCase());
-        context.setIndentSpaces((Integer.valueOf(node.getParams().get(INDENT_SPACES))).intValue());
+        context.setIndentSpaces(Integer.parseInt(node.getParams().get(INDENT_SPACES)));
         return context;
     }
 
@@ -81,9 +77,7 @@ public class TestGenerator implements OddgenGenerator2 {
 
     private void saveConsoleOutput(final String s) {
         if (s != null) {
-            for (final String line : s.split("[\\n\\r]+")) {
-                consoleOutput.add(line);
-            }
+            consoleOutput.addAll(Arrays.asList(s.split("[\\n\\r]+")));
         }
     }
 
@@ -98,7 +92,7 @@ public class TestGenerator implements OddgenGenerator2 {
     }
 
     private String deleteFile(final File file) {
-        String ret = null;
+        String ret;
         if (file.delete()) {
             StringBuilder sb = new StringBuilder();
             sb.append(file.getAbsoluteFile());
@@ -117,11 +111,15 @@ public class TestGenerator implements OddgenGenerator2 {
     private CharSequence deleteFiles(final String directory) {
         StringBuilder sb = new StringBuilder();
         final File dir = new File(directory);
-        for (final File file : dir.listFiles()) {
-            if (!file.isDirectory() && (file.getName().endsWith(".pks") || file.getName().endsWith(".pkb"))) {
-                sb.append(deleteFile(file));
-                sb.append('\n');
+        try {
+            for (final File file : Objects.requireNonNull(dir.listFiles())) {
+                if (!file.isDirectory() && (file.getName().endsWith(".pks") || file.getName().endsWith(".pkb"))) {
+                    sb.append(deleteFile(file));
+                    sb.append('\n');
+                }
             }
+        } catch (NullPointerException e) {
+            // ignore
         }
         return sb;
     }

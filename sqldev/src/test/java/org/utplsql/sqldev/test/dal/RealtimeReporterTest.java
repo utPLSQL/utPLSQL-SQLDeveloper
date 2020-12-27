@@ -16,6 +16,7 @@
 package org.utplsql.sqldev.test.dal;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.UUID;
 import java.util.logging.Logger;
 
@@ -179,7 +180,7 @@ public class RealtimeReporterTest extends AbstractJdbcTest {
         final String realtimeReporterId = UUID.randomUUID().toString().replace("-", "");
         final String coverageReporterId = UUID.randomUUID().toString().replace("-", "");
         final TestRealtimerReporterEventConsumer consumer = new TestRealtimerReporterEventConsumer();
-        dao.produceReportWithCoverage(realtimeReporterId, coverageReporterId, Arrays.asList(":test_f"), null, null, null, null);
+        dao.produceReportWithCoverage(realtimeReporterId, coverageReporterId, Collections.singletonList(":test_f"), null, null, null, null);
         dao.consumeReport(realtimeReporterId, consumer);
         logger.fine(consumer.getConsumedList().toString());
         Assert.assertEquals(6, consumer.getConsumedList().size());

@@ -31,15 +31,15 @@ import oracle.dbtools.raptor.newscriptrunner.SQLCommand;
 import oracle.dbtools.worksheet.scriptparser.sqlplus.SQLPlusScriptParser;
 
 public abstract class AbstractJdbcTest {
-    protected static SingleConnectionDataSource dataSource;
-    protected static JdbcTemplate jdbcTemplate;
-    protected static SingleConnectionDataSource sysDataSource;
-    protected static JdbcTemplate sysJdbcTemplate;
+    protected static final SingleConnectionDataSource dataSource;
+    protected static final JdbcTemplate jdbcTemplate;
+    protected static final SingleConnectionDataSource sysDataSource;
+    protected static final JdbcTemplate sysJdbcTemplate;
 
     static {
         final Properties p = new Properties();
         try {
-            p.load(AbstractJdbcTest.class.getClass().getResourceAsStream("/test.properties"));
+            p.load(AbstractJdbcTest.class.getResourceAsStream("/test.properties"));
         } catch (IOException e) {
             throw new GenericRuntimeException("Cannot read test.properties", e);
         }

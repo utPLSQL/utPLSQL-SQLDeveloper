@@ -36,8 +36,8 @@ import oracle.dbtools.util.Resource;
 
 public class SnippetMerger {
     private final XMLTools xmlTools = new XMLTools();
-    private File userSnippetsFile;
-    private String utplsqlSnippets;
+    private final File userSnippetsFile;
+    private final String utplsqlSnippets;
 
     public String getUtplsqlSnippetsAsString() {
         final InputStream stream = getClass()
@@ -57,7 +57,7 @@ public class SnippetMerger {
     }
     
     public void merge() {
-        String result = null;
+        String result;
         if (userSnippetsFile.exists()) {
             // file exists, proper merge required
             final String userSnippets = new String(FileTools.readFile(Paths.get(userSnippetsFile.getAbsolutePath())));

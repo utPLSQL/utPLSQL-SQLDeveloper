@@ -21,6 +21,7 @@ import java.util.StringJoiner;
 
 import javax.annotation.Nullable;
 
+import org.jetbrains.annotations.NotNull;
 import org.springframework.core.style.ToStringStyler;
 import org.springframework.core.style.ValueStyler;
 
@@ -28,7 +29,7 @@ public class JsonToStringStyler implements ToStringStyler, ValueStyler{
     public static final String INDENT_SPACES = "    ";
     private int indent = 0;
 
-    private static ThreadLocal<JsonToStringStyler> threadLocal = ThreadLocal.withInitial(JsonToStringStyler::new);
+    private static final ThreadLocal<JsonToStringStyler> threadLocal = ThreadLocal.withInitial(JsonToStringStyler::new);
 
     private void newLine(StringBuilder buffer) {
         buffer.append('\n');
@@ -102,7 +103,7 @@ public class JsonToStringStyler implements ToStringStyler, ValueStyler{
     }
 
     @Override
-    public void styleStart(StringBuilder buffer, Object obj) {
+    public void styleStart(@NotNull StringBuilder buffer, Object obj) {
         indent++;
         if (!obj.getClass().isArray()) {
             buffer.append("{");
@@ -119,7 +120,7 @@ public class JsonToStringStyler implements ToStringStyler, ValueStyler{
     }
     
     @Override
-    public void styleEnd(StringBuilder buffer, Object obj) {
+    public void styleEnd(@NotNull StringBuilder buffer, Object obj) {
         indent--;
         newLine(buffer);
         if (!obj.getClass().isArray()) {
@@ -130,7 +131,7 @@ public class JsonToStringStyler implements ToStringStyler, ValueStyler{
     }
 
     @Override
-    public void styleField(StringBuilder buffer, String fieldName, @Nullable Object value) {
+    public void styleField(@NotNull StringBuilder buffer, @NotNull String fieldName, @Nullable Object value) {
         newLine(buffer);
         buffer.append('"');
         buffer.append(fieldName);
@@ -140,7 +141,7 @@ public class JsonToStringStyler implements ToStringStyler, ValueStyler{
     }
 
     @Override
-    public void styleValue(StringBuilder buffer, Object value) {
+    public void styleValue(StringBuilder buffer, @Nullable Object value) {
         buffer.append(style(value));
     }
     
@@ -149,6 +150,7 @@ public class JsonToStringStyler implements ToStringStyler, ValueStyler{
         buffer.append(",");
     }
 
+    @NotNull
     @Override
     public String style(Object value) {
         if (value == null) {

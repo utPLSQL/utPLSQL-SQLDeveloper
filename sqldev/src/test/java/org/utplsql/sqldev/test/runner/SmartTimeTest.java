@@ -24,13 +24,13 @@ public class SmartTimeTest {
     @Test
     public void null_default() {
         final String effective = new SmartTime(null, false).toString();
-        Assert.assertEquals(null, effective);
+        Assert.assertNull(effective);
     }
 
     @Test
     public void null_smart() {
         final String effective = new SmartTime(null, true).toString();
-        Assert.assertEquals(null, effective);
+        Assert.assertNull(effective);
     }
 
     @Test

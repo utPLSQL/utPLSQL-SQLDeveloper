@@ -17,7 +17,7 @@ package org.utplsql.sqldev.ui.runner;
 
 import java.util.AbstractMap;
 
-public class ComboBoxItem<K extends Object, V extends Object> extends AbstractMap.SimpleEntry<K, V> {
+public class ComboBoxItem<K, V> extends AbstractMap.SimpleEntry<K, V> {
     private static final long serialVersionUID = 7869442222989031548L;
 
     public ComboBoxItem(final K key, final V value) {

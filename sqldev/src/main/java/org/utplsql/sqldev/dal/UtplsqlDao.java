@@ -16,11 +16,9 @@
 package org.utplsql.sqldev.dal;
 
 import java.net.URL;
-import java.sql.CallableStatement;
 import java.sql.Connection;
-import java.sql.SQLException;
 import java.sql.Types;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -38,13 +36,12 @@ import org.utplsql.sqldev.model.ut.OutputLines;
 
 public class UtplsqlDao {
     public static final String UTPLSQL_PACKAGE_NAME = "UT";
-    public static final int NOT_INSTALLED = 0;
     public static final int FIRST_VERSION_WITH_INTERNAL_ANNOTATION_API = 3000004;
     public static final int FIRST_VERSION_WITH_ANNOTATION_API = 3001003;
     public static final int FIRST_VERSION_WITHOUT_INTERNAL_API = 3001008;
     public static final int FIRST_VERSION_WITH_HAS_SUITES_API = 3001008;
     public static final int FETCH_ROWS = 100;
-    private JdbcTemplate jdbcTemplate;
+    private final JdbcTemplate jdbcTemplate;
     // cache fields
     private Boolean cachedDbaViewAccessible;
     private String cachedUtplsqlSchema;
@@ -90,7 +87,7 @@ public class UtplsqlDao {
         final String minor = m.group();
         m.find();
         final String bugfix = m.group();
-        return Integer.valueOf(major) * 1000000 + Integer.valueOf(minor) * 1000 + Integer.valueOf(bugfix);
+        return Integer.parseInt(major) * 1000000 + Integer.parseInt(minor) * 1000 + Integer.parseInt(bugfix);
     }
 
     /**
@@ -104,13 +101,10 @@ public class UtplsqlDao {
             sb.append("END;");
             final String sql = sb.toString();
             try {
-                cachedUtPlsqlVersion = jdbcTemplate.execute(sql, new CallableStatementCallback<String>() {
-                    @Override
-                    public String doInCallableStatement(final CallableStatement cs) throws SQLException {
-                        cs.registerOutParameter(1, Types.VARCHAR);
-                        cs.execute();
-                        return cs.getString(1);
-                    }
+                cachedUtPlsqlVersion = jdbcTemplate.execute(sql, (CallableStatementCallback<String>) cs -> {
+                    cs.registerOutParameter(1, Types.VARCHAR);
+                    cs.execute();
+                    return cs.getString(1);
                 });
             } catch (DataAccessException e) {
                 // ignore error
@@ -141,7 +135,7 @@ public class UtplsqlDao {
                 cachedDbaViewAccessible = false;
             }
         }
-        return cachedDbaViewAccessible.booleanValue();
+        return cachedDbaViewAccessible;
     }
     
     public String getDbaView(String viewName) {
@@ -178,8 +172,7 @@ public class UtplsqlDao {
             sb.append("'");
             final String sql = sb.toString();
             try {
-                final String schema = jdbcTemplate.queryForObject(sql, String.class);
-                cachedUtplsqlSchema = schema;
+                cachedUtplsqlSchema = jdbcTemplate.queryForObject(sql, String.class);
             } catch (EmptyResultDataAccessException e) {
                 cachedUtplsqlSchema = null;
             }
@@ -229,18 +222,16 @@ public class UtplsqlDao {
                 sb.append("   ? := l_return;\n");
                 sb.append("END;");
                 final String sql = sb.toString();
-                return jdbcTemplate.execute(sql, new CallableStatementCallback<Boolean>() {
-                    @Override
-                    public Boolean doInCallableStatement(final CallableStatement cs) throws SQLException {
-                        cs.setString(1, owner);
-                        cs.setString(2, objectName);
-                        cs.setString(3, subobjectName);
-                        cs.registerOutParameter(4, Types.VARCHAR);
-                        cs.execute();
-                        final String ret = cs.getString(4);
-                        return "1".equals(ret);
-                    }
+                final Boolean ret = jdbcTemplate.execute(sql, (CallableStatementCallback<Boolean>) cs -> {
+                    cs.setString(1, owner);
+                    cs.setString(2, objectName);
+                    cs.setString(3, subobjectName);
+                    cs.registerOutParameter(4, Types.VARCHAR);
+                    cs.execute();
+                    final String ret1 = cs.getString(4);
+                    return "1".equals(ret1);
                 });
+                return ret != null && ret;
             } else if (normalizedUtPlsqlVersionNumber() >= FIRST_VERSION_WITH_ANNOTATION_API) {
                 // using API available since 3.1.3, can handle nulls in objectName and subobjectName
                 StringBuilder sb = new StringBuilder();
@@ -251,7 +242,7 @@ public class UtplsqlDao {
                 final String sql = sb.toString();
                 final Object[] binds = new Object[] {owner, objectName, subobjectName, subobjectName};
                 final Integer found = jdbcTemplate.queryForObject(sql, Integer.class, binds);
-                return found > 0;
+                return found != null && found > 0;
             } else {
                 // using internal API (deprecated, not accessible in latest version)
                 StringBuilder sb = new StringBuilder();
@@ -282,7 +273,7 @@ public class UtplsqlDao {
                 final String sql = sb.toString();
                 final Object[] binds = new Object[] {subobjectName, subobjectName, owner, objectName, objectName};
                 final Integer found = jdbcTemplate.queryForObject(sql, Integer.class, binds);
-                return found > 0;
+                return found != null && found > 0;
             }
         } catch (EmptyResultDataAccessException e) {
             return false;
@@ -302,17 +293,14 @@ public class UtplsqlDao {
             sb.append("   ? := l_return;\n");
             sb.append("END;");
             final String sql = sb.toString();
-            return jdbcTemplate.execute(sql, new CallableStatementCallback<Boolean>() {
-                @Override
-                public Boolean doInCallableStatement(final CallableStatement cs)
-                        throws SQLException {
-                    cs.setString(1, owner);
-                    cs.registerOutParameter(2, Types.VARCHAR);
-                    cs.execute();
-                    final String ret = cs.getString(2);
-                    return "1".equals(ret);
-                }
+            final Boolean ret = jdbcTemplate.execute(sql, (CallableStatementCallback<Boolean>) cs -> {
+                cs.setString(1, owner);
+                cs.registerOutParameter(2, Types.VARCHAR);
+                cs.execute();
+                final String ret1 = cs.getString(2);
+                return "1".equals(ret1);
             });
+            return ret != null && ret;
         } else {
             return containsUtplsqlTest(owner, null, null);
         }
@@ -330,18 +318,15 @@ public class UtplsqlDao {
             sb.append("   ? := l_return;\n");
             sb.append("END;");
             final String sql = sb.toString();
-            return jdbcTemplate.execute(sql, new CallableStatementCallback<Boolean>() {
-                @Override
-                public Boolean doInCallableStatement(final CallableStatement cs)
-                        throws SQLException {
-                    cs.setString(1, owner);
-                    cs.setString(2, objectName);
-                    cs.registerOutParameter(3, Types.VARCHAR);
-                    cs.execute();
-                    final String ret = cs.getString(3);
-                    return "1".equals(ret);
-                }
+            Boolean ret = jdbcTemplate.execute(sql, (CallableStatementCallback<Boolean>) cs -> {
+                cs.setString(1, owner);
+                cs.setString(2, objectName);
+                cs.registerOutParameter(3, Types.VARCHAR);
+                cs.execute();
+                final String ret1 = cs.getString(3);
+                return "1".equals(ret1);
             });
+            return ret != null && ret;
         } else {
             return containsUtplsqlTest(owner, objectName, null);
         }
@@ -410,7 +395,7 @@ public class UtplsqlDao {
             final Object[] binds = new Object[] {objectType, objectName};
             return jdbcTemplate.queryForList(sql, String.class, binds);
         } else {
-            return Arrays.asList(objectName);
+            return Collections.singletonList(objectName);
         }
     }
 
@@ -868,30 +853,34 @@ public class UtplsqlDao {
         sb.append("   sys.dbms_output.get_lines(?, ?);\n");
         sb.append("END;");
         final String sql = sb.toString();
-        OutputLines ret = null;
+        OutputLines ret;
         do {
-            ret = jdbcTemplate.execute(sql, new CallableStatementCallback<OutputLines>() {
-                @Override
-                public OutputLines doInCallableStatement(final CallableStatement cs) throws SQLException {
-                    cs.registerOutParameter(1, Types.ARRAY, "DBMSOUTPUT_LINESARRAY");
-                    cs.registerOutParameter(2, Types.INTEGER);
-                    cs.setInt(2, bufferSize);
-                    cs.execute();
-                    final OutputLines out = new OutputLines();
+            ret = jdbcTemplate.execute(sql, (CallableStatementCallback<OutputLines>) cs -> {
+                cs.registerOutParameter(1, Types.ARRAY, "DBMSOUTPUT_LINESARRAY");
+                cs.registerOutParameter(2, Types.INTEGER);
+                cs.setInt(2, bufferSize);
+                cs.execute();
+                final OutputLines out = new OutputLines();
+                try {
                     Object array = cs.getArray(1).getArray();
                     out.setLines((String[]) array);
                     out.setNumlines(cs.getInt(2));
-                    return out;
+                } catch (NullPointerException e) {
+                    out.setLines(null);
+                    out.setNumlines(0);
                 }
+                return out;
             });
-            for (int i = 0; i < ret.getNumlines(); i++) {
-                final String line = ret.getLines()[i];
-                if (line != null) {
-                    resultSb.append(ret.getLines()[i]);
+            if (ret != null && ret.getNumlines() != null) {
+                for (int i = 0; i < ret.getNumlines(); i++) {
+                    final String line = ret.getLines()[i];
+                    if (line != null) {
+                        resultSb.append(ret.getLines()[i]);
+                    }
+                    resultSb.append(System.lineSeparator());
                 }
-                resultSb.append(System.lineSeparator());
             }
-        } while (ret.getNumlines() > 0);
+        } while (ret != null && ret.getNumlines() != null && ret.getNumlines() > 0);
         return resultSb.toString();
     }
     
@@ -1032,16 +1021,13 @@ public class UtplsqlDao {
         sb.append("        );\n");
         sb.append("END;");
         final String sql = sb.toString();
-        return jdbcTemplate.execute(sql, new CallableStatementCallback<String>() {
-            @Override
-            public String doInCallableStatement(final CallableStatement cs) throws SQLException {
-                cs.registerOutParameter(1, Types.CLOB);
-                cs.setString(2, owner);
-                cs.setString(3, fixedObjectType);
-                cs.setString(4, objectName);
-                cs.execute();
-                return cs.getString(1);
-            }
+        return jdbcTemplate.execute(sql, (CallableStatementCallback<String>) cs -> {
+            cs.registerOutParameter(1, Types.CLOB);
+            cs.setString(2, owner);
+            cs.setString(3, fixedObjectType);
+            cs.setString(4, objectName);
+            cs.execute();
+            return cs.getString(1);
         });
     }
 
@@ -1071,6 +1057,6 @@ public class UtplsqlDao {
         sb.append(" WHERE rownum = 1");
         final String sql = sb.toString();
         final Object[] binds = new Object[] {owner, objectName};
-        return jdbcTemplate.queryForObject(sql, binds, String.class);
+        return jdbcTemplate.queryForObject(sql, String.class, binds);
     }
 }

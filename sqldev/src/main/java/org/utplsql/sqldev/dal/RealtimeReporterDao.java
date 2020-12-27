@@ -52,7 +52,6 @@ import org.xml.sax.SAXException;
 
 import oracle.jdbc.OracleTypes;
 
-@SuppressWarnings("StringBufferReplaceableByString")
 public class RealtimeReporterDao {
     private static final Logger logger = Logger.getLogger(RealtimeReporterDao.class.getName());
     private static final int FIRST_VERSION_WITH_REALTIME_REPORTER = 3001004;
@@ -246,7 +245,6 @@ public class RealtimeReporterDao {
         }
     }
 
-    @SuppressWarnings("DuplicatedCode")
     private RealtimeReporterEvent convertToPreRunEvent(final Document doc) {
         final PreRunEvent event = new PreRunEvent();
         final Node totalNumberOfTestsNode = xmlTools.getNode(doc, "/event/totalNumberOfTests");
@@ -327,7 +325,6 @@ public class RealtimeReporterDao {
         return event;
     }
 
-    @SuppressWarnings("DuplicatedCode")
     private void populate(final Suite suite, final Node node) {
         if (node instanceof Element) {
             suite.setId(xmlTools.getAttributeValue(node, "id"));

@@ -20,10 +20,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -96,8 +93,8 @@ public class CodeCoverageReporterTest extends AbstractJdbcTest {
 
     @Test
     public void produceReportAndCloseConnection() {
-        final List<String> pathList = Arrays.asList(":test_f");
-        final List<String> includeObjectList = Arrays.asList("f");
+        final List<String> pathList = Collections.singletonList(":test_f");
+        final List<String> includeObjectList = Collections.singletonList("f");
         final CodeCoverageReporter reporter = new CodeCoverageReporter(pathList, includeObjectList, DatabaseTools.getConnection(dataSource));
         final Thread run = reporter.runAsync();
         SystemTools.waitForThread(run, 20000);
@@ -113,28 +110,28 @@ public class CodeCoverageReporterTest extends AbstractJdbcTest {
     
     @Test
     public void defaultSchemaCalculationMixedCase() {
-        final CodeCoverageReporter reporter = new CodeCoverageReporter(Arrays.asList(":something"),
+        final CodeCoverageReporter reporter = new CodeCoverageReporter(Collections.singletonList(":something"),
                 Arrays.asList("scott.a", "scott.b", "hR.a", "HR.B", "hr.c"), DatabaseTools.getConnection(dataSource));
         Assert.assertEquals("HR, SCOTT", reporter.getSchemas());
     }
 
     @Test
     public void defaultSchemaCalculationWithoutIncludeObjects() {
-        final CodeCoverageReporter reporter = new CodeCoverageReporter(Arrays.asList(":something"),
-                Arrays.asList(), DatabaseTools.getConnection(dataSource));
-        Assert.assertEquals(null, reporter.getSchemas());
+        final CodeCoverageReporter reporter = new CodeCoverageReporter(Collections.singletonList(":something"),
+                Collections.emptyList(), DatabaseTools.getConnection(dataSource));
+        Assert.assertNull(reporter.getSchemas());
     }
 
     @Test
     public void defaultSchemaCalculationWithoutOwnerInformation() {
-        final CodeCoverageReporter reporter = new CodeCoverageReporter(Arrays.asList(":something"),
+        final CodeCoverageReporter reporter = new CodeCoverageReporter(Collections.singletonList(":something"),
                 Arrays.asList("a", "b", "c"), DatabaseTools.getConnection(dataSource));
         Assert.assertEquals("", reporter.getSchemas());
     }
 
     @Test
     public void defaultSchemaCalculationWithJustOneOwner() {
-        final CodeCoverageReporter reporter = new CodeCoverageReporter(Arrays.asList(":something"),
+        final CodeCoverageReporter reporter = new CodeCoverageReporter(Collections.singletonList(":something"),
                 Arrays.asList("a", "b", "scott.c"), DatabaseTools.getConnection(dataSource));
         Assert.assertEquals("SCOTT", reporter.getSchemas());
     }

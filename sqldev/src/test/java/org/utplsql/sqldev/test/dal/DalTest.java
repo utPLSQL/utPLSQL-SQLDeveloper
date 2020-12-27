@@ -15,10 +15,7 @@
  */
 package org.utplsql.sqldev.test.dal;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -60,7 +57,7 @@ public class DalTest extends AbstractJdbcTest {
     public void utplsqlSchemaWithoutPublicSynonym() {
         sysJdbcTemplate.execute("DROP PUBLIC SYNONYM ut");
         final UtplsqlDao dao = new UtplsqlDao(DatabaseTools.getConnection(dataSource));
-        Assert.assertEquals(null, dao.getUtplsqlSchema());
+        Assert.assertNull(dao.getUtplsqlSchema());
     }
 
     @Test
@@ -172,7 +169,7 @@ public class DalTest extends AbstractJdbcTest {
         sb.append("END junit_utplsql_test_pkg;");
         jdbcTemplate.execute(sb.toString());
         final List<Annotation> actual = dao.annotations("scott", "junit_utplsql_test_pkg");
-        final ArrayList<Annotation> expected = new ArrayList<Annotation>();
+        final ArrayList<Annotation> expected = new ArrayList<>();
         final Annotation suite = new Annotation();
         suite.setObjectOwner("SCOTT");
         suite.setObjectName("JUNIT_UTPLSQL_TEST_PKG");
@@ -387,6 +384,7 @@ public class DalTest extends AbstractJdbcTest {
 
     public void runnables(final String utPlsqlVersion) {
         final UtplsqlDao dao = new UtplsqlDao(DatabaseTools.getConnection(dataSource));
+        dao.setUtPlsqlVersion(utPlsqlVersion);
         StringBuilder sb = new StringBuilder();
         sb.append("CREATE OR REPLACE PACKAGE junit_utplsql_test_pkg IS\n");
         sb.append("   -- %suite\n");
@@ -411,17 +409,17 @@ public class DalTest extends AbstractJdbcTest {
         jdbcTemplate.execute(sb.toString());
         final List<Node> actualNodes = dao.runnables();
         Assert.assertEquals(16, actualNodes.size());
-        final HashMap<String, String> actual = new HashMap<String, String>();
+        final HashMap<String, String> actual = new HashMap<>();
         for (final Node node : actualNodes) {
             actual.put(node.getId(), node.getParentId());
         }
-        Assert.assertEquals(null, actual.get("SUITE"));
+        Assert.assertNull(actual.get("SUITE"));
         Assert.assertEquals("SUITE", actual.get("SCOTT.JUNIT_UTPLSQL_TEST_PKG"));
         Assert.assertEquals("SCOTT.JUNIT_UTPLSQL_TEST_PKG", actual.get("SCOTT.JUNIT_UTPLSQL_TEST_PKG.T0"));
         Assert.assertEquals("SCOTT.JUNIT_UTPLSQL_TEST_PKG", actual.get("SCOTT.JUNIT_UTPLSQL_TEST_PKG.T1"));
         Assert.assertEquals("SCOTT.JUNIT_UTPLSQL_TEST_PKG", actual.get("SCOTT.JUNIT_UTPLSQL_TEST_PKG.T2"));
         Assert.assertEquals("SCOTT.JUNIT_UTPLSQL_TEST_PKG", actual.get("SCOTT.JUNIT_UTPLSQL_TEST_PKG.T3"));
-        Assert.assertEquals(null, actual.get("SUITEPATH"));
+        Assert.assertNull(actual.get("SUITEPATH"));
         Assert.assertEquals("SUITEPATH", actual.get("SCOTT:a"));
         Assert.assertEquals("SCOTT:a", actual.get("SCOTT:a.b"));
         Assert.assertEquals("SCOTT:a.b", actual.get("SCOTT:a.b.c"));
@@ -475,10 +473,25 @@ public class DalTest extends AbstractJdbcTest {
     }
 
     @Test
+    public void disableDbmsOutput() {
+        final UtplsqlDao dao = new UtplsqlDao(DatabaseTools.getConnection(dataSource));
+        dao.enableDbmsOutput();
+        StringBuilder sb = new StringBuilder();
+        sb.append("BEGIN\n");
+        sb.append("   sys.dbms_output.put_line('line1');\n");
+        sb.append("END;");
+        jdbcTemplate.execute(sb.toString());
+        Assert.assertEquals("line1\n", dao.getDbmsOutput());
+        dao.disableDbmsOutput();
+        jdbcTemplate.execute(sb.toString());
+        Assert.assertEquals("", dao.getDbmsOutput());
+    }
+
+    @Test
     public void htmlCodeCoverage() {
         final UtplsqlDao dao = new UtplsqlDao(DatabaseTools.getConnection(dataSource));
-        final String actual = dao.htmlCodeCoverage(Arrays.asList("SCOTT"), Arrays.asList("scott"), Arrays.asList(),
-                Arrays.asList(), null);
+        final String actual = dao.htmlCodeCoverage(Collections.singletonList("SCOTT"), Collections.singletonList("scott"), Collections.emptyList(),
+                Collections.emptyList(), null);
         Assert.assertTrue(actual.startsWith("<!DOCTYPE html>"));
         Assert.assertTrue(actual.trim().endsWith("</html>"));
         // default assets accessed via internet
@@ -514,7 +527,7 @@ public class DalTest extends AbstractJdbcTest {
         jdbcTemplate.execute(sb.toString());
         final UtplsqlDao dao = new UtplsqlDao(DatabaseTools.getConnection(dataSource));
         final List<String> actualEmpty = dao.includes("SCOTT", "TEST_F1");
-        Assert.assertEquals(Arrays.asList(), actualEmpty);
+        Assert.assertEquals(Collections.emptyList(), actualEmpty);
         final List<String> actual = dao.includes("SCOTT", "junit_utplsql_test_pkg");
         Assert.assertTrue(actual.stream().anyMatch(it -> it.equals("SCOTT.JUNIT_UTPLSQL_TEST_PKG")));
         Assert.assertTrue(actual.stream().anyMatch(it -> it.equals("SCOTT.JUNIT_F")));
@@ -558,7 +571,7 @@ public class DalTest extends AbstractJdbcTest {
         final UtplsqlDao dao = new UtplsqlDao(DatabaseTools.getConnection(dataSource));
         final String actual = dao.getUtPlsqlVersion();
         final String sql = "SELECT ut.version FROM DUAL";
-        final String expected = jdbcTemplate.<String>queryForObject(sql, String.class);
+        final String expected = jdbcTemplate.queryForObject(sql, String.class);
         Assert.assertEquals(expected, actual);
     }
 
@@ -616,6 +629,6 @@ public class DalTest extends AbstractJdbcTest {
     public void normalizedUtPlsqlVersion() {
         final UtplsqlDao dao = new UtplsqlDao(DatabaseTools.getConnection(dataSource));
         final String version = dao.normalizedUtPlsqlVersion();
-        Assert.assertTrue(version != null);
+        Assert.assertNotNull(version);
     }
 }

@@ -17,7 +17,6 @@ package org.utplsql.sqldev.ui.runner;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
-import java.util.Map.Entry;
 
 import javax.swing.Icon;
 import javax.swing.table.DefaultTableModel;
@@ -41,7 +40,7 @@ public class TestOverviewTableModel extends DefaultTableModel {
 
     private void calcCommonPrefix() {
         if (!commonPrefixCalculated && tests != null && tests.size() > 0) {
-            commonPrefix = PrefixTools.commonPrefix(new ArrayList<String>(tests.keySet()));
+            commonPrefix = PrefixTools.commonPrefix(new ArrayList<>(tests.keySet()));
             fireTableDataChanged();
             commonPrefixCalculated = true;
         }
@@ -89,7 +88,7 @@ public class TestOverviewTableModel extends DefaultTableModel {
     }
 
     public Test getTest(final int row) {
-        return new ArrayList<Entry<String, Test>>(tests.entrySet()).get(row).getValue();
+        return new ArrayList<>(tests.entrySet()).get(row).getValue();
     }
 
     @Override
@@ -131,16 +130,16 @@ public class TestOverviewTableModel extends DefaultTableModel {
     @Override
     public String getColumnName(final int col) {
         switch (col) {
-        case 0:
-        case 1:
-        case 2:
-            return ""; // icons are used instead of descriptions
-        case 3:
-            return UtplsqlResources.getString(showDescription ? "RUNNER_DESCRIPTION_LABEL" : "RUNNER_TEST_ID_COLUMN");
-        case 4:
-            return getTimeColumnName();
-        default:
-            return null;
+            case 0:
+            case 1:
+            case 2:
+                return ""; // icons are used instead of descriptions
+            case 3:
+                return UtplsqlResources.getString(showDescription ? "RUNNER_DESCRIPTION_LABEL" : "RUNNER_TEST_ID_COLUMN");
+            case 4:
+                return getTimeColumnName();
+            default:
+                return null;
         }
     
     }
@@ -153,18 +152,14 @@ public class TestOverviewTableModel extends DefaultTableModel {
     @Override
     public Class<?> getColumnClass(final int col) {
         switch (col) {
-        case 0:
-            return Icon.class;
-        case 1:
-            return Icon.class;
-        case 2:
-            return Icon.class;
-        case 3:
-            return String.class;
-        case 4:
-            return Double.class;
-        default:
-            return String.class;
+            case 0:
+            case 1:
+            case 2:
+                return Icon.class;
+            case 4:
+                return Double.class;
+            default:
+                return String.class;
         }
     }
 }

@@ -209,7 +209,7 @@ public class UtplsqlParserTest extends AbstractJdbcTest {
         sb.append("/\n");
         final String plsql = sb.toString();
         final UtplsqlParser parser = new UtplsqlParser(plsql);
-        Assert.assertEquals(null, parser.getObjectAt(0));
+        Assert.assertNull(parser.getObjectAt(0));
     }
 
     @Test

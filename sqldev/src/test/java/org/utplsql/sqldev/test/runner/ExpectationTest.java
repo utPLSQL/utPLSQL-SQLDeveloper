@@ -39,7 +39,7 @@ public class ExpectationTest {
     @Test
     public void failedExpectationCallerLine() {
         final Integer actual = getExpectationWithDescription().getCallerLine();
-        final Integer expected = Integer.valueOf(14);
+        final Integer expected = 14;
         Assert.assertEquals(expected, actual);
     }
 

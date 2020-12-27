@@ -15,7 +15,7 @@
  */
 package org.utplsql.sqldev.test.dal;
 
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.UUID;
 import java.util.logging.Logger;
 
@@ -95,7 +95,7 @@ public class RealtimeReporterFetchSizeTest extends AbstractJdbcTest {
         ds.setUsername(dataSource.getUsername());
         ds.setPassword(dataSource.getPassword());
         final RealtimeReporterDao dao = new RealtimeReporterDao(DatabaseTools.getConnection(ds));
-        dao.produceReport(reporterId, Arrays.asList("junit_utplsql_fetch_size_pkg"));
+        dao.produceReport(reporterId, Collections.singletonList("junit_utplsql_fetch_size_pkg"));
     }
 
     @Test

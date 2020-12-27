@@ -16,6 +16,7 @@
 package org.utplsql.sqldev.test.coverage;
 
 import java.util.Arrays;
+import java.util.Collections;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -29,7 +30,7 @@ public class CodeCoverageReporterDialogTest extends AbstractJdbcTest {
 
     @Test
     public void layout() {
-        final CodeCoverageReporter reporter = new CodeCoverageReporter(Arrays.asList("SCOTT"),
+        final CodeCoverageReporter reporter = new CodeCoverageReporter(Collections.singletonList("SCOTT"),
                 Arrays.asList("a", "b", "c"), DatabaseTools.getConnection(dataSource));
         reporter.showParameterWindow();
         SystemTools.sleep(4 * 1000);
