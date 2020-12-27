@@ -23,7 +23,6 @@ import org.springframework.core.style.ToStringCreator;
 import org.utplsql.sqldev.model.JsonToStringStyler;
 import org.utplsql.sqldev.model.URLTools;
 
-@SuppressWarnings("unused")
 public class Run {
     private String reporterId;
     private String connectionName;

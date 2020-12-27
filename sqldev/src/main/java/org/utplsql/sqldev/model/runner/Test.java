@@ -23,7 +23,6 @@ import org.springframework.core.style.ToStringCreator;
 import org.utplsql.sqldev.model.JsonToStringStyler;
 import org.utplsql.sqldev.resources.UtplsqlResources;
 
-@SuppressWarnings("unused")
 public class Test extends Item {
     private String executableType;
     private String ownerName;
