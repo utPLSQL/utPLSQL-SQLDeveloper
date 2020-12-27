@@ -478,9 +478,11 @@ public class DalTest extends AbstractJdbcTest {
     public void htmlCodeCoverage() {
         final UtplsqlDao dao = new UtplsqlDao(DatabaseTools.getConnection(dataSource));
         final String actual = dao.htmlCodeCoverage(Arrays.asList("SCOTT"), Arrays.asList("scott"), Arrays.asList(),
-                Arrays.asList());
+                Arrays.asList(), null);
         Assert.assertTrue(actual.startsWith("<!DOCTYPE html>"));
         Assert.assertTrue(actual.trim().endsWith("</html>"));
+        // default assets accessed via internet
+        Assert.assertTrue(actual.contains("script src='https://utplsql.github.io"));
     }
 
     @Test

@@ -17,17 +17,25 @@ package org.utplsql.sqldev.coverage;
 
 import java.awt.Desktop;
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.sql.Connection;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
+import org.springframework.core.io.support.ResourcePatternResolver;
 import org.utplsql.sqldev.dal.RealtimeReporterDao;
 import org.utplsql.sqldev.dal.UtplsqlDao;
 import org.utplsql.sqldev.exception.GenericDatabaseAccessException;
@@ -42,15 +50,17 @@ import oracle.ide.config.Preferences;
 
 public class CodeCoverageReporter {
     private static final Logger logger = Logger.getLogger(CodeCoverageReporter.class.getName());
+    private static final String ASSETS_PATH = "coverage/assets/";
 
     private String connectionName;
     private Connection conn;
-    private List<String> pathList;
-    private List<String> includeObjectList;
+    private final List<String> pathList;
+    private final List<String> includeObjectList;
     private CodeCoverageReporterDialog frame;
     private String schemas;
     private String includeObjects;
     private String excludeObjects;
+    private Path assetDir;
 
     public CodeCoverageReporter(final List<String> pathList, final List<String> includeObjectList,
             final String connectionName) {
@@ -58,6 +68,7 @@ public class CodeCoverageReporter {
         this.includeObjectList = includeObjectList;
         setDefaultSchema();
         setConnection(connectionName);
+        setAssetDir();
     }
 
     // constructor for testing purposes only
@@ -67,6 +78,7 @@ public class CodeCoverageReporter {
         this.includeObjectList = includeObjectList;
         this.conn = conn;
         setDefaultSchema();
+        setAssetDir();
     }
 
     private void setConnection(final String connectionName) {
@@ -102,6 +114,59 @@ public class CodeCoverageReporter {
                     .sorted(Map.Entry.<String, Integer>comparingByValue().reversed()).map(Map.Entry::getKey)
                     .collect(Collectors.toList());
             schemas = String.join(", ", sortedOwners);
+        }
+    }
+
+    private void setAssetDir() {
+        try {
+            assetDir = Files.createTempDirectory("utplsql_assets_");
+        } catch (IOException e) {
+            throw new GenericRuntimeException("Cannot create temporary directory for code coverage report assets.", e);
+        }
+        populateCoverageAssets();
+    }
+
+    // public for testing purposes only
+    public URL getHtmlReportAssetPath() {
+        try {
+            return Paths.get(assetDir.toString()).toUri().toURL();
+        } catch (MalformedURLException e) {
+            throw new GenericRuntimeException("Cannot convert code coverage asset path to URL.", e);
+        }
+    }
+
+    private void copyStreamToFile(InputStream inputStream, Path file) throws IOException {
+        file.toFile().mkdirs();
+        Files.copy(inputStream, file, StandardCopyOption.REPLACE_EXISTING);
+    }
+
+    private void populateCoverageAssets() {
+        logger.fine(() -> "Copying code coverage report assets to " + assetDir.toString() + "...");
+        try {
+            final File file = new File(getClass().getProtectionDomain().getCodeSource().getLocation().getPath());
+            if (file.isFile()) {
+                // class loaded from a JAR file
+                final JarFile jar = new JarFile(file);
+                final List<JarEntry> entries = jar.stream().filter(entry -> !entry.isDirectory() && entry.getName().startsWith(ASSETS_PATH)).collect(Collectors.toList());
+                for (JarEntry entry : entries) {
+                    Path f = Paths.get(assetDir.toString() + File.separator + entry.getName().substring(ASSETS_PATH.length()));
+                    copyStreamToFile(jar.getInputStream(entry), f);
+                }
+            } else {
+                // class loaded from file system (IDE or during test/build)
+                ResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
+                Resource[] resources = resolver.getResources(ResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX + "/" + ASSETS_PATH + "**");
+                for (Resource resource : resources) {
+                    if (Objects.requireNonNull(resource.getFilename()).contains(".")) {
+                        // process files but not directories, assume that directories do not contain a period
+                        String path = resource.getURL().getPath();
+                        Path f = Paths.get(assetDir.toString() + File.separator + path.substring(path.lastIndexOf(ASSETS_PATH) + ASSETS_PATH.length()));
+                        copyStreamToFile(resource.getInputStream(), f);
+                    }
+                }
+            }
+        } catch (IOException e) {
+            throw new GenericRuntimeException("Error while copying coverage report assets to temporary directory.", e);
         }
     }
 
@@ -142,7 +207,7 @@ public class CodeCoverageReporter {
     
     private void runCodeCoverageWithRealtimeReporter() {
         final UtplsqlRunner runner = new UtplsqlRunner(pathList, toStringList(schemas), toStringList(includeObjects),
-                toStringList(excludeObjects), connectionName);
+                toStringList(excludeObjects), getHtmlReportAssetPath(), connectionName);
         runner.runTestAsync();
     }
     
@@ -152,7 +217,7 @@ public class CodeCoverageReporter {
             coverageConn = conn != null ? conn : DatabaseTools.cloneConnection(connectionName);
             final UtplsqlDao dao = new UtplsqlDao(coverageConn);
             final String html = dao.htmlCodeCoverage(pathList, toStringList(schemas),
-                    toStringList(includeObjects), toStringList(excludeObjects));
+                    toStringList(includeObjects), toStringList(excludeObjects), getHtmlReportAssetPath());
             openInBrowser(html);
         } finally {
             try {
@@ -174,7 +239,7 @@ public class CodeCoverageReporter {
             final URL url = file.toURI().toURL();
             logger.fine(() -> "Opening " + url.toExternalForm() + " in browser...");
             final Desktop desktop = Desktop.isDesktopSupported() ? Desktop.getDesktop() : null;
-            if (desktop != null && desktop.isSupported(Desktop.Action.BROWSE) && url != null) {
+            if (desktop != null && desktop.isSupported(Desktop.Action.BROWSE)) {
                 desktop.browse(url.toURI());
                 logger.fine(() -> url.toExternalForm() + " opened in browser.");
             } else {
@@ -229,9 +294,7 @@ public class CodeCoverageReporter {
     }
 
     public Thread runAsync() {
-        final Thread thread = new Thread(() -> {
-            run();
-        });
+        final Thread thread = new Thread(this::run);
         thread.setName("code coverage reporter");
         thread.start();
         return thread;

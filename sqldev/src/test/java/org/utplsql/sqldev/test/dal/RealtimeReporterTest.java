@@ -179,11 +179,13 @@ public class RealtimeReporterTest extends AbstractJdbcTest {
         final String realtimeReporterId = UUID.randomUUID().toString().replace("-", "");
         final String coverageReporterId = UUID.randomUUID().toString().replace("-", "");
         final TestRealtimerReporterEventConsumer consumer = new TestRealtimerReporterEventConsumer();
-        dao.produceReportWithCoverage(realtimeReporterId, coverageReporterId, Arrays.asList(":test_f"), null, null, null);
+        dao.produceReportWithCoverage(realtimeReporterId, coverageReporterId, Arrays.asList(":test_f"), null, null, null, null);
         dao.consumeReport(realtimeReporterId, consumer);
         logger.fine(consumer.getConsumedList().toString());
         Assert.assertEquals(6, consumer.getConsumedList().size());
         final String html = dao.getHtmlCoverage(coverageReporterId);
         Assert.assertTrue(html.trim().endsWith("</html>"));
+        // default assets accessed via internet
+        Assert.assertTrue(html.contains("script src='https://utplsql.github.io"));
     }
 }

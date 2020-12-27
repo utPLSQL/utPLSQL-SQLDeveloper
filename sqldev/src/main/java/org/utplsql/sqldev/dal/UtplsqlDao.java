@@ -15,6 +15,7 @@
  */
 package org.utplsql.sqldev.dal;
 
+import java.net.URL;
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -907,12 +908,14 @@ public class UtplsqlDao {
      * @param excludeObjectList
      *            list of objects to be excluded from coverage analysis. None, if
      *            empty
+     * @param htmlReportAssetPath
+     *            path of the assets for the coverage report. Default, if null
      * @return HTML code coverage report in HTML format
      * @throws DataAccessException
      *             if there is a problem
      */
     public String htmlCodeCoverage(final List<String> pathList, final List<String> schemaList,
-            final List<String> includeObjectList, final List<String> excludeObjectList) {
+            final List<String> includeObjectList, final List<String> excludeObjectList, final URL htmlReportAssetPath) {
         StringBuilder sb = new StringBuilder();
         sb.append("SELECT column_value\n");
         sb.append("  FROM table(\n");
@@ -935,7 +938,14 @@ public class UtplsqlDao {
             sb.append(StringTools.getCSV(excludeObjectList, 16));
             sb.append("             ),\n");
         }
-        sb.append("             a_reporter => ut_coverage_html_reporter()\n");
+        sb.append("             a_reporter => ut_coverage_html_reporter(\n");
+        sb.append("                              a_html_report_assets_path => '");
+        if (htmlReportAssetPath != null) {
+            // empty string is handled as NULL in Oracle Database
+            sb.append(htmlReportAssetPath.toExternalForm());
+        }
+        sb.append("'\n");
+        sb.append("                           )\n");
         sb.append("          )\n");
         sb.append("       )");
         final String sql = sb.toString();
