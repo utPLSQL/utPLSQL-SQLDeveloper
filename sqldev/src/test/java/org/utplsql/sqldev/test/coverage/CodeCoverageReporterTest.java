@@ -106,6 +106,9 @@ public class CodeCoverageReporterTest extends AbstractJdbcTest {
         final String content = new String(FileTools.readFile(outputFile), StandardCharsets.UTF_8);
         Assert.assertTrue(
                 content.contains("<h3>SCOTT.F</h3><h4><span class=\"green\">100 %</span> lines covered</h4>"));
+        // local assets without internet access
+        Assert.assertTrue(
+                content.contains("script src='" + reporter.getHtmlReportAssetPath().toExternalForm()));
     }
     
     @Test
