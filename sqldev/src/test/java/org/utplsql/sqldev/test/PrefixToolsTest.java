@@ -16,6 +16,7 @@
 package org.utplsql.sqldev.test;
 
 import java.util.Arrays;
+import java.util.Collections;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -31,14 +32,14 @@ public class PrefixToolsTest {
 
     @Test
     public void oneWithDot() {
-        final String actual = PrefixTools.commonPrefix(Arrays.asList("junit.test.a"));
+        final String actual = PrefixTools.commonPrefix(Collections.singletonList("junit.test.a"));
         final String expected = "junit.test.";
         Assert.assertEquals(expected, actual);
     }
 
     @Test
     public void oneWithoutDot() {
-        final String actual = PrefixTools.commonPrefix(Arrays.asList("junit-test-a"));
+        final String actual = PrefixTools.commonPrefix(Collections.singletonList("junit-test-a"));
         final String expected = "";
         Assert.assertEquals(expected, actual);
     }
