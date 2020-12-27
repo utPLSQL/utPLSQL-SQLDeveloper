@@ -59,10 +59,6 @@ public class SqlDevParser {
     public int getMemberStartLine(final String plsql, final String memberName) {
         final Set<Member> members = this.getMembers(plsql);
         final Optional<Member> member = members.stream().filter(it -> it.name.equalsIgnoreCase(memberName)).findFirst();
-        if (member.isPresent()) {
-            return this.getStartLine(plsql, member.get().codeOffset);
-        } else {
-            return 1;
-        }
+        return member.map(value -> this.getStartLine(plsql, value.codeOffset)).orElse(1);
     }
 }

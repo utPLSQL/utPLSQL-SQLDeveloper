@@ -160,7 +160,7 @@ public class RunGenerator implements OddgenGenerator2 {
             sb.append("/\n");
         }
         final String ret = sb.toString();
-        return StringTools.replaceTabsWithSpaces(ret, Integer.valueOf(params.get(INDENT_SPACES)));
+        return StringTools.replaceTabsWithSpaces(ret, Integer.parseInt(params.get(INDENT_SPACES)));
     }
 
     @Override

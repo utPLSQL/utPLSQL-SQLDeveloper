@@ -48,12 +48,11 @@ import org.utplsql.sqldev.resources.UtplsqlResources;
 public class CodeCoverageReporterDialog extends JFrame implements ActionListener, FocusListener {
     private static final long serialVersionUID = 5503685225300993401L;
 
-    private CodeCoverageReporter reporter;
-    private JButton runButton;
-    private JButton cancelButton;
-    private JPanel paneParams;
+    private final CodeCoverageReporter reporter;
+    private final JButton runButton;
+    private final JButton cancelButton;
+    private final JPanel paneParams;
     private int paramPos = (-1);
-    private final JTextArea pathsTextArea = new JTextArea();
     private final JTextField schemasTextField = new JTextField();
     private final JTextArea includeObjectsTextArea = new JTextArea();
     private final JTextArea excludeObjectsTextArea = new JTextArea();
@@ -83,6 +82,7 @@ public class CodeCoverageReporterDialog extends JFrame implements ActionListener
         
         // parameters pane
         paneParams = new JPanel(new GridBagLayout());
+        JTextArea pathsTextArea = new JTextArea();
         pathsTextArea.setEditable(false);
         pathsTextArea.setEnabled(false);
         addParam(UtplsqlResources.getString("WINDOW_PATHS_LABEL"), StringTools.getSimpleCSV(reporter.getPathList()), pathsTextArea, 50, 2);

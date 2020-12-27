@@ -26,7 +26,7 @@ import org.utplsql.sqldev.resources.UtplsqlResources;
 public class FailuresTableModel extends DefaultTableModel {
     private static final long serialVersionUID = 8119453059788497567L;
     private List<Expectation> failedExpectations;
-    private List<String> columnNames = Arrays.asList("#", UtplsqlResources.getString("RUNNER_ASSERT_DESCRIPTION_COLUMN"));
+    private final List<String> columnNames = Arrays.asList("#", UtplsqlResources.getString("RUNNER_ASSERT_DESCRIPTION_COLUMN"));
 
     public FailuresTableModel() {
         super();
@@ -81,13 +81,9 @@ public class FailuresTableModel extends DefaultTableModel {
 
     @Override
     public Class<?> getColumnClass(final int col) {
-        switch (col) {
-        case 0:
+        if (col == 0) {
             return Integer.class;
-        case 1:
-            return String.class;
-        default:
-            return String.class;
         }
+        return String.class;
     }
 }

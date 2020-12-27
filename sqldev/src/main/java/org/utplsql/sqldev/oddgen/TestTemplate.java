@@ -24,15 +24,14 @@ import org.utplsql.sqldev.model.StringTools;
 import org.utplsql.sqldev.model.oddgen.GenContext;
 
 public class TestTemplate {
-    private GenContext context;
-    private UtplsqlDao dao;
-    private List<String> units;
-    private DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-    private String today = dateTimeFormatter.format(LocalDateTime.now());
+    private final GenContext context;
+    private final List<String> units;
+    private final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+    private final String today = dateTimeFormatter.format(LocalDateTime.now());
 
     public TestTemplate(final GenContext context) {
         this.context = context;
-        dao = new UtplsqlDao(context.getConn());
+        UtplsqlDao dao = new UtplsqlDao(context.getConn());
         units = dao.units(context.getObjectType(), context.getObjectName());
     }
 

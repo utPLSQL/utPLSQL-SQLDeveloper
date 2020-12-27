@@ -18,5 +18,5 @@ package org.utplsql.sqldev.dal;
 import org.utplsql.sqldev.model.runner.RealtimeReporterEvent;
 
 public interface RealtimeReporterEventConsumer {
-    public abstract void process(final RealtimeReporterEvent event);
+    void process(final RealtimeReporterEvent event);
 }

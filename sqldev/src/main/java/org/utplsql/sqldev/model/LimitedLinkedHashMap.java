@@ -18,7 +18,7 @@ package org.utplsql.sqldev.model;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-public class LimitedLinkedHashMap<K extends Object, V extends Object> extends LinkedHashMap<K, V> {
+public class LimitedLinkedHashMap<K, V> extends LinkedHashMap<K, V> {
     private static final long serialVersionUID = -4184317926729190411L;
     private final int maxEntries;
 

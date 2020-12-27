@@ -106,7 +106,7 @@ public class XMLTools {
     public String getAttributeValue(final Node node, final String namedItem) {
         String value = null;
         if (node instanceof Element) {
-            final NamedNodeMap attributes = ((Element) node).getAttributes();
+            final NamedNodeMap attributes = node.getAttributes();
             if (attributes != null) {
                 final Node item = attributes.getNamedItem(namedItem);
                 if (item != null) {

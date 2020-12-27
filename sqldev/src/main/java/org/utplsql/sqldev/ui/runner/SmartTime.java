@@ -45,7 +45,7 @@ public class SmartTime {
 
     @Override
     public String toString() {
-        String ret = null;
+        String ret;
         if (seconds == null) {
             ret = null;
         } else if (smart) {
