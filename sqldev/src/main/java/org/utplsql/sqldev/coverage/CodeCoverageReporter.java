@@ -152,6 +152,7 @@ public class CodeCoverageReporter {
                     Path f = Paths.get(assetDir.toString() + File.separator + entry.getName().substring(ASSETS_PATH.length()));
                     copyStreamToFile(jar.getInputStream(entry), f);
                 }
+                jar.close();
             } else {
                 // class loaded from file system (IDE or during test/build)
                 ResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
