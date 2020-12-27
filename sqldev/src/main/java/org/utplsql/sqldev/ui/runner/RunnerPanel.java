@@ -291,7 +291,6 @@ public class RunnerPanel {
         @SuppressWarnings("unchecked")
         final TableRowSorter<TestOverviewTableModel> sorter = ((TableRowSorter<TestOverviewTableModel>) testOverviewTable.getRowSorter());
         final RowFilter<TestOverviewTableModel, Integer> filter = new RowFilter<TestOverviewTableModel, Integer>() {
-            @SuppressWarnings("RedundantIfStatement")
             @Override
             public boolean include(final RowFilter.Entry<? extends TestOverviewTableModel, ? extends Integer> entry) {
                 final Test test = entry.getModel().getTest((entry.getIdentifier()).intValue());
@@ -344,7 +343,6 @@ public class RunnerPanel {
         }
     }
 
-    @SuppressWarnings("StringBufferReplaceableByString")
     private String getHtml(final String text) {
         StringBuilder sb = new StringBuilder();
         sb.append("<html>\n");
@@ -381,7 +379,6 @@ public class RunnerPanel {
         openEditor(ownerName, objectType, objectName.toUpperCase(), line, 1);
     }
 
-    @SuppressWarnings("SameParameterValue")
     private void openEditor(final String owner, final String type, final String name, final int line, final int col) {
         DefaultDrillLink drillLink = new DefaultDrillLink();
         drillLink.setConnName(currentRun.getConnectionName());
@@ -744,7 +741,6 @@ public class RunnerPanel {
         update(currentRun.getReporterId());
     }
 
-    @SuppressWarnings("DuplicatedCode")
     private void initializeGUI() {
         // Base panel containing all components 
         basePanel = new JPanel();

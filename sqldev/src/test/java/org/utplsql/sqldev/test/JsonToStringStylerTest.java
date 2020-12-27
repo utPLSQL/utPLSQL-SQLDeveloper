@@ -22,7 +22,6 @@ import org.junit.Test;
 import org.utplsql.sqldev.model.runner.Run;
 import org.utplsql.sqldev.model.ut.OutputLines;
 
-@SuppressWarnings("StringBufferReplaceableByString")
 public class JsonToStringStylerTest {
 
     @Test

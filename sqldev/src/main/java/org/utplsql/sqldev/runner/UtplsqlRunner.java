@@ -152,7 +152,6 @@ public class UtplsqlRunner implements RealtimeReporterEventConsumer {
         run.setConsumerConn(null);
     }
 
-    @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public void process(final RealtimeReporterEvent event) {
         logger.fine(event::toString);
