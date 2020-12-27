@@ -17,6 +17,7 @@ package org.utplsql.sqldev.runner;
 
 import java.awt.Dimension;
 import java.awt.Toolkit;
+import java.net.URL;
 import java.sql.Connection;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -71,6 +72,7 @@ public class UtplsqlRunner implements RealtimeReporterEventConsumer {
     private Thread producerThread;
     private Thread consumerThread;
     private boolean debug = false;
+    private final URL htmlReportAssetPath;
 
     public UtplsqlRunner(final List<String> pathList, final String connectionName) {
         this.withCodeCoverage = false;
@@ -78,17 +80,20 @@ public class UtplsqlRunner implements RealtimeReporterEventConsumer {
         this.schemaList = null;
         this.includeObjectList = null;
         this.excludeObjectList = null;
+        this.htmlReportAssetPath = null;
         setConnection(connectionName);
         this.context = Context.newIdeContext();
     }
     
     public UtplsqlRunner(final List<String> pathList, final List<String> schemaList,
-            final List<String> includeObjectList, final List<String> excludeObjectList, final String connectionName) {
+            final List<String> includeObjectList, final List<String> excludeObjectList,
+            final URL htmlReportAssetPath, final String connectionName) {
         this.withCodeCoverage = true;
         this.pathList = pathList;
         this.schemaList = schemaList;
         this.includeObjectList = includeObjectList;
         this.excludeObjectList = excludeObjectList;
+        this.htmlReportAssetPath = htmlReportAssetPath;
         setConnection(connectionName);
         this.context = Context.newIdeContext();
     }
@@ -102,21 +107,23 @@ public class UtplsqlRunner implements RealtimeReporterEventConsumer {
         this.schemaList = null;
         this.includeObjectList = null;
         this.excludeObjectList = null;
+        this.htmlReportAssetPath = null;
         this.producerConn = producerConn;
         this.consumerConn = consumerConn;
     }
 
     /**
-     * this constructor is intended for tests only (with code coverage)
+     * this constructor is intended for tests only (with code coverage and default htmlReportAssetPath)
      */
     public UtplsqlRunner(final List<String> pathList, final List<String> schemaList,
-            final List<String> includeObjectList, final List<String> excludeObjectList, final Connection producerConn,
-            final Connection consumerConn) {
+            final List<String> includeObjectList, final List<String> excludeObjectList,
+            final Connection producerConn, final Connection consumerConn) {
         this.withCodeCoverage = true;
         this.pathList = pathList;
         this.schemaList = schemaList;
         this.includeObjectList = includeObjectList;
         this.excludeObjectList = excludeObjectList;
+        this.htmlReportAssetPath = null;
         this.producerConn = producerConn;
         this.consumerConn = consumerConn;
     }
@@ -314,7 +321,7 @@ public class UtplsqlRunner implements RealtimeReporterEventConsumer {
             logger.fine(() -> "Running utPLSQL tests and producing events via reporter id " + realtimeReporterId + "...");
             final RealtimeReporterDao dao = new RealtimeReporterDao(producerConn);
             if (withCodeCoverage) {
-                dao.produceReportWithCoverage(realtimeReporterId, coverageReporterId, pathList, schemaList, includeObjectList, excludeObjectList);
+                dao.produceReportWithCoverage(realtimeReporterId, coverageReporterId, pathList, schemaList, includeObjectList, excludeObjectList, htmlReportAssetPath);
             } else {
                 if (!debug) {
                     dao.produceReport(realtimeReporterId, pathList);
