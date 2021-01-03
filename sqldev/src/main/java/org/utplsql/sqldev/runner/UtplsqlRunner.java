@@ -168,7 +168,7 @@ public class UtplsqlRunner implements RealtimeReporterEventConsumer {
         } else if (event instanceof PreRunEvent) {
             doProcess((PreRunEvent) event);
         } else if (event instanceof PreSuiteEvent) {
-            // not processed
+            doProcess((PreSuiteEvent) event);
         } else if (event instanceof PreTestEvent) {
             doProcess((PreTestEvent) event);
         } else {
@@ -218,6 +218,15 @@ public class UtplsqlRunner implements RealtimeReporterEventConsumer {
         run.setErrorStack(event.getErrorStack());
         run.setServerOutput(event.getServerOutput());
         run.setStatus(UtplsqlResources.getString("RUNNER_FINISHED_TEXT"));
+        panel.update(realtimeReporterId);
+    }
+    
+    private void doProcess(final PreSuiteEvent event) {
+        final ItemNode node = run.getItemNodes().get(event.getId());
+        assert logFalseCondition(node != null, () -> "Could not find suite id \"" + event.getId()
+                + "\" when processing PreSuiteEvent " + event.toString() + ".");
+        final Suite suite = (Suite) node.getUserObject();
+        suite.setStartTime(StringTools.getSysdate());
         panel.update(realtimeReporterId);
     }
 
