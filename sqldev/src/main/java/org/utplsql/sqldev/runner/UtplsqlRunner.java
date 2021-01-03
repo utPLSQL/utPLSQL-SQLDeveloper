@@ -21,14 +21,11 @@ import java.net.URL;
 import java.sql.Connection;
 import java.util.List;
 import java.util.UUID;
+import java.util.function.Supplier;
 import java.util.logging.Logger;
 
 import javax.swing.JFrame;
 
-import oracle.dbtools.raptor.runner.DBStarterFactory;
-import oracle.ide.Context;
-import oracle.jdevimpl.runner.debug.DebuggingProcess;
-import oracle.jdevimpl.runner.run.JRunner;
 import org.utplsql.sqldev.coverage.CodeCoverageReporter;
 import org.utplsql.sqldev.dal.RealtimeReporterDao;
 import org.utplsql.sqldev.dal.RealtimeReporterEventConsumer;
@@ -36,6 +33,7 @@ import org.utplsql.sqldev.exception.GenericRuntimeException;
 import org.utplsql.sqldev.model.DatabaseTools;
 import org.utplsql.sqldev.model.StringTools;
 import org.utplsql.sqldev.model.SystemTools;
+import org.utplsql.sqldev.model.runner.ItemNode;
 import org.utplsql.sqldev.model.runner.PostRunEvent;
 import org.utplsql.sqldev.model.runner.PostSuiteEvent;
 import org.utplsql.sqldev.model.runner.PostTestEvent;
@@ -44,11 +42,17 @@ import org.utplsql.sqldev.model.runner.PreSuiteEvent;
 import org.utplsql.sqldev.model.runner.PreTestEvent;
 import org.utplsql.sqldev.model.runner.RealtimeReporterEvent;
 import org.utplsql.sqldev.model.runner.Run;
+import org.utplsql.sqldev.model.runner.Suite;
 import org.utplsql.sqldev.model.runner.Test;
 import org.utplsql.sqldev.resources.UtplsqlResources;
 import org.utplsql.sqldev.ui.runner.RunnerFactory;
 import org.utplsql.sqldev.ui.runner.RunnerPanel;
 import org.utplsql.sqldev.ui.runner.RunnerView;
+
+import oracle.dbtools.raptor.runner.DBStarterFactory;
+import oracle.ide.Context;
+import oracle.jdevimpl.runner.debug.DebuggingProcess;
+import oracle.jdevimpl.runner.run.JRunner;
 
 public class UtplsqlRunner implements RealtimeReporterEventConsumer {
     private static final Logger logger = Logger.getLogger(UtplsqlRunner.class.getName());
