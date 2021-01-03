@@ -15,7 +15,9 @@
  */
 package org.utplsql.sqldev.model;
 
+import java.text.SimpleDateFormat;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 public class StringTools {
@@ -74,4 +76,15 @@ public class StringTools {
             }
         }
     }
+    
+    public static String millisToDateTimeString(long millis) {
+        final Date dateTime = new Date(millis);
+        final SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'000'");
+        return df.format(dateTime);
+    }
+
+    public static String getSysdate() {
+        return millisToDateTimeString(System.currentTimeMillis());
+    }
+    
 }
