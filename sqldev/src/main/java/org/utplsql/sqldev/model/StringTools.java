@@ -109,4 +109,8 @@ public class StringTools {
         return (end - start) / 1000;
     }
     
+    public static boolean isNotBlank(String value) {
+        return value != null && !value.trim().isEmpty();
+    }
+
 }
