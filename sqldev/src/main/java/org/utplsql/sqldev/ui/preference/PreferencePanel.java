@@ -63,6 +63,7 @@ public class PreferencePanel extends DefaultTraversablePanel {
     private final JCheckBox showDisabledTestsCheckBox = new JCheckBox();
     private final JCheckBox showTestDescriptionCheckBox = new JCheckBox();
     private final JCheckBox syncDetailTabCheckBox = new JCheckBox();
+    private final JCheckBox showSuitesCheckBox = new JCheckBox();
     private final JPanel generateTestPanel = new JPanel();
     private final JTextField testPackagePrefixTextField = new JTextField();
     private final JTextField testPackageSuffixTextField = new JTextField();
@@ -135,6 +136,8 @@ public class PreferencePanel extends DefaultTraversablePanel {
                 .component(showTestDescriptionCheckBox));
         rrTab.add(runTab.field().label().withText(UtplsqlResources.getString("PREF_SYNC_DETAIL_TAB_LABEL"))
                 .component(syncDetailTabCheckBox));
+        rrTab.add(runTab.field().label().withText(UtplsqlResources.getString("PREF_SHOW_SUITES_LABEL"))
+                .component(showSuitesCheckBox));
         rrTab.addVerticalSpring();
         
         // generate test group
@@ -376,6 +379,7 @@ public class PreferencePanel extends DefaultTraversablePanel {
         showDisabledTestsCheckBox.setSelected(info.isShowDisabledTests());
         showTestDescriptionCheckBox.setSelected(info.isShowTestDescription());
         syncDetailTabCheckBox.setSelected(info.isSyncDetailTab());
+        showSuitesCheckBox.setSelected(info.isShowSuites());
         testPackagePrefixTextField.setText(info.getTestPackagePrefix());
         testPackageSuffixTextField.setText(info.getTestPackageSuffix());
         testUnitPrefixTextField.setText(info.getTestUnitPrefix());
@@ -414,6 +418,7 @@ public class PreferencePanel extends DefaultTraversablePanel {
         info.setShowDisabledTests(showDisabledTestsCheckBox.isSelected());
         info.setShowTestDescription(showTestDescriptionCheckBox.isSelected());
         info.setSyncDetailTab(syncDetailTabCheckBox.isSelected());
+        info.setShowSuites(showSuitesCheckBox.isSelected());
         info.setTestPackagePrefix(testPackagePrefixTextField.getText());
         info.setTestPackageSuffix(testPackageSuffixTextField.getText());
         info.setTestUnitPrefix(testUnitPrefixTextField.getText());
