@@ -19,8 +19,6 @@ import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.net.URL;
 import java.sql.Connection;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 import java.util.logging.Logger;
@@ -36,6 +34,7 @@ import org.utplsql.sqldev.dal.RealtimeReporterDao;
 import org.utplsql.sqldev.dal.RealtimeReporterEventConsumer;
 import org.utplsql.sqldev.exception.GenericRuntimeException;
 import org.utplsql.sqldev.model.DatabaseTools;
+import org.utplsql.sqldev.model.StringTools;
 import org.utplsql.sqldev.model.SystemTools;
 import org.utplsql.sqldev.model.runner.PostRunEvent;
 import org.utplsql.sqldev.model.runner.PostSuiteEvent;
@@ -173,19 +172,13 @@ public class UtplsqlRunner implements RealtimeReporterEventConsumer {
         }
     }
 
-    public static String getSysdate() {
-        final Date dateTime = new Date(System.currentTimeMillis());
-        final SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'000'");
-        return df.format(dateTime);
-    }
-
     public boolean isRunning() {
         return run != null && run.getEndTime() == null;
     }
 
     private void initRun() {
         run = new Run(realtimeReporterId, connectionName, pathList);
-        run.setStartTime(getSysdate());
+        run.setStartTime(StringTools.getSysdate());
         run.getCounter().setDisabled(0);
         run.getCounter().setSuccess(0);
         run.getCounter().setFailure(0);
@@ -356,7 +349,7 @@ public class UtplsqlRunner implements RealtimeReporterEventConsumer {
             if (run.getTotalNumberOfTests() < 0) {
                 run.setStatus(UtplsqlResources.getString("RUNNER_NO_TESTS_FOUND_TEXT"));
                 run.setExecutionTime((System.currentTimeMillis() - Double.valueOf(run.getStart())) / 1000);
-                run.setEndTime(getSysdate());
+                run.setEndTime(StringTools.getSysdate());
                 run.setTotalNumberOfTests(0);
                 panel.update(realtimeReporterId);
             }
