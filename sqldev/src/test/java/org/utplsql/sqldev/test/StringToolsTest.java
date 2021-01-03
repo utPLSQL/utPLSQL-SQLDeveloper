@@ -17,6 +17,7 @@ package org.utplsql.sqldev.test;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.TimeZone;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -53,5 +54,18 @@ public class StringToolsTest {
         list.add("world");
         Assert.assertEquals("hello, world", StringTools.getSimpleCSV(list));
     }
+    
+    @Test
+    public void earliest_date_from__millis() {
+        long zoneDiff = TimeZone.getDefault().getRawOffset();
+        Assert.assertEquals("1970-01-01T00:00:00.000000", StringTools.millisToDateTimeString(-zoneDiff));
+    }
+    
+    @Test
+    public void date_from__millis_with_millis() {
+        long zoneDiff = TimeZone.getDefault().getRawOffset();
+        Assert.assertEquals("1970-01-01T00:00:42.123000", StringTools.millisToDateTimeString(42123 - zoneDiff));
+    }
+
 
 }
