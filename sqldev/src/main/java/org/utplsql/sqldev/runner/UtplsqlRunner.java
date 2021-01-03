@@ -325,28 +325,25 @@ public class UtplsqlRunner implements RealtimeReporterEventConsumer {
 
     private void doProcess(final PostTestEvent event) {
         final Test test = run.getTest(event.getId());
-        if (test == null) {
-            logger.severe(() -> "Could not find test id \"" + event.getId() + "\" when processing PostTestEvent "
-                    + event.toString() + ".");
-        } else {
-            test.setStartTime(event.getStartTime());
-            test.setEndTime(event.getEndTime());
-            test.setExecutionTime(event.getExecutionTime());
-            test.setCounter(event.getCounter());
-            test.setErrorStack(event.getErrorStack());
-            test.setServerOutput(event.getServerOutput());
-            if (test.getServerOutput() != null) {
-                run.setInfoCount(run.getInfoCount() + 1);
-            }
-            test.setFailedExpectations(event.getFailedExpectations());
-            test.setWarnings(event.getWarnings());
-            if (test.getWarnings() != null) {
-                test.getCounter().setWarning(1);
-            } else {
-                test.getCounter().setWarning(0);
-            }
-            run.getCounter().setWarning(run.getCounter().getWarning() + test.getCounter().getWarning());
+        assert logFalseCondition(test != null, () -> "Could not find test id \"" + event.getId()
+                + "\" when processing PostTestEvent " + event.toString() + ".");
+        test.setStartTime(event.getStartTime());
+        test.setEndTime(event.getEndTime());
+        test.setExecutionTime(event.getExecutionTime());
+        test.setCounter(event.getCounter());
+        test.setErrorStack(event.getErrorStack());
+        test.setServerOutput(event.getServerOutput());
+        if (test.getServerOutput() != null) {
+            run.setInfoCount(run.getInfoCount() + 1);
         }
+        test.setFailedExpectations(event.getFailedExpectations());
+        test.setWarnings(event.getWarnings());
+        if (test.getWarnings() != null) {
+            test.getCounter().setWarning(1);
+        } else {
+            test.getCounter().setWarning(0);
+        }
+        run.getCounter().setWarning(run.getCounter().getWarning() + test.getCounter().getWarning());
         run.getCounter().setDisabled(run.getCounter().getDisabled() + event.getCounter().getDisabled());
         run.getCounter().setSuccess(run.getCounter().getSuccess() + event.getCounter().getSuccess());
         run.getCounter().setFailure(run.getCounter().getFailure() + event.getCounter().getFailure());
