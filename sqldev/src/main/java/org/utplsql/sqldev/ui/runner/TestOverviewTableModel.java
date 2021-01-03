@@ -61,7 +61,7 @@ public class TestOverviewTableModel extends DefaultTableModel {
         fireTableDataChanged();
     }
 
-    public CharSequence getTestIdColumnName() {
+    public String getTestIdColumnName() {
         StringBuilder sb = new StringBuilder();
         calcCommonPrefix();
         if (commonPrefix == null || commonPrefix.isEmpty()) {
