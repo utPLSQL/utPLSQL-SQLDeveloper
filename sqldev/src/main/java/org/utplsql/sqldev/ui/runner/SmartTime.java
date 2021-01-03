@@ -16,6 +16,7 @@
 package org.utplsql.sqldev.ui.runner;
 
 import java.text.DecimalFormat;
+import java.util.Locale;
 
 public class SmartTime {
     private Double seconds;
@@ -45,6 +46,7 @@ public class SmartTime {
 
     @Override
     public String toString() {
+        Locale.setDefault(new Locale("en", "US"));
         String ret;
         if (seconds == null) {
             ret = null;

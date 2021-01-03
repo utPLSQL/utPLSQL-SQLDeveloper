@@ -94,7 +94,7 @@
             default-accepted="false" static-accepted="false"
             accessors-accepted="false" constructors-accepted="false"/>
     </Class>
-    <Class name="org.utplsql.sqldev.model.runner.Run" x="846" y="157">
+    <Class name="org.utplsql.sqldev.model.runner.Run" x="843" y="119">
         <AttributesDisplayFilter public-accepted="true"
             private-accepted="true" protected-accepted="true"
             default-accepted="true" static-accepted="false"/>
@@ -103,12 +103,26 @@
             default-accepted="false" static-accepted="false"
             accessors-accepted="false" constructors-accepted="false"/>
         <Association
+            destinationClassName="org.utplsql.sqldev.model.runner.ItemNode"
+            endpointName="itemNodes" kind="Simple"/>
+        <Association
+            destinationClassName="org.utplsql.sqldev.model.runner.Test"
+            endpointName="tests" kind="Simple"/>
+        <Association
             destinationClassName="org.utplsql.sqldev.model.runner.Counter"
             endpointName="counter" kind="Simple"/>
         <Association
             destinationClassName="org.utplsql.sqldev.model.runner.Test"
-            endpointName="currentTest" kind="Simple"/>
+            endpointName="currentTest" kind="Simple">
+            <Point x="798" y="477"/>
+        </Association>
+        <Association
+            destinationClassName="org.utplsql.sqldev.model.runner.Item"
+            endpointName="items" kind="Simple">
+            <Point x="769" y="223"/>
+        </Association>
         <Communication destinationClassName="org.utplsql.sqldev.model.runner.Counter"/>
+        <Communication destinationClassName="org.utplsql.sqldev.model.runner.Item"/>
     </Class>
     <Class name="org.utplsql.sqldev.model.runner.Item" x="582" y="201">
         <AttributesDisplayFilter public-accepted="true"
@@ -121,6 +135,7 @@
         <Association
             destinationClassName="org.utplsql.sqldev.model.runner.Counter"
             endpointName="counter" kind="Simple"/>
+        <Communication destinationClassName="org.utplsql.sqldev.model.runner.Counter"/>
     </Class>
     <Class name="org.utplsql.sqldev.model.runner.PreSuiteEvent" x="141" y="512">
         <AttributesDisplayFilter public-accepted="true"
@@ -154,6 +169,17 @@
         <Association
             destinationClassName="org.utplsql.sqldev.model.runner.Counter"
             endpointName="counter" kind="Simple"/>
+    </Class>
+    <Class name="org.utplsql.sqldev.model.runner.ItemNode" x="833" y="468">
+        <AttributesDisplayFilter public-accepted="true"
+            private-accepted="true" protected-accepted="true"
+            default-accepted="true" static-accepted="false"/>
+        <MethodDisplayFilter public-accepted="true"
+            private-accepted="false" protected-accepted="false"
+            default-accepted="false" static-accepted="false"
+            accessors-accepted="false" constructors-accepted="false"/>
+        <Communication destinationClassName="org.utplsql.sqldev.model.runner.Item"/>
+        <Communication destinationClassName="org.utplsql.sqldev.model.runner.Test"/>
     </Class>
     <Class name="org.utplsql.sqldev.model.runner.RealtimeReporterEvent"
         x="187" y="355">

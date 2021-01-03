@@ -31,6 +31,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -38,6 +39,7 @@ import java.util.stream.Collectors;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.DefaultComboBoxModel;
+import javax.swing.Icon;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
@@ -51,6 +53,7 @@ import javax.swing.JSeparator;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTable;
+import javax.swing.JTree;
 import javax.swing.LookAndFeel;
 import javax.swing.RepaintManager;
 import javax.swing.RowFilter;
@@ -65,6 +68,8 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableRowSorter;
+import javax.swing.tree.DefaultTreeCellRenderer;
+import javax.swing.tree.TreePath;
 
 import org.springframework.web.util.HtmlUtils;
 import org.utplsql.sqldev.coverage.CodeCoverageReporter;
@@ -76,6 +81,8 @@ import org.utplsql.sqldev.model.SystemTools;
 import org.utplsql.sqldev.model.preference.PreferenceModel;
 import org.utplsql.sqldev.model.runner.Counter;
 import org.utplsql.sqldev.model.runner.Expectation;
+import org.utplsql.sqldev.model.runner.Item;
+import org.utplsql.sqldev.model.runner.ItemNode;
 import org.utplsql.sqldev.model.runner.Run;
 import org.utplsql.sqldev.model.runner.Test;
 import org.utplsql.sqldev.parser.UtplsqlParser;
@@ -86,8 +93,10 @@ import org.utplsql.sqldev.runner.UtplsqlWorksheetRunner;
 import oracle.dbtools.raptor.controls.grid.DefaultDrillLink;
 import oracle.ide.config.Preferences;
 import oracle.javatools.ui.table.ToolbarButton;
+import oracle.javatools.ui.treetable.JFastTreeTable;
 
 public class RunnerPanel {
+    private static final Logger logger = Logger.getLogger(RunnerPanel.class.getName());
     private static final Color GREEN = new Color(0, 153, 0);
     private static final Color RED = new Color(153, 0, 0);
     private static final int INDICATOR_WIDTH = 20;
@@ -114,7 +123,10 @@ public class RunnerPanel {
     private JCheckBoxMenuItem showInfoCounterCheckBoxMenuItem;
     private JProgressBar progressBar;
     private TestOverviewTableModel testOverviewTableModel;
+    private TestOverviewTreeTableModel testOverviewTreeTableModel;
     private JTable testOverviewTable;
+    private JFastTreeTable testOverviewTreeTable;
+    private JScrollPane testOverviewScrollPane;
     private JMenuItem testOverviewRunMenuItem;
     private JMenuItem testOverviewRunWorksheetMenuItem;
     private JMenuItem testOverviewDebugMenuItem;
@@ -125,6 +137,7 @@ public class RunnerPanel {
     private JCheckBoxMenuItem showSuccessfulTestsCheckBoxMenuItem;
     private JCheckBoxMenuItem showDisabledTestsCheckBoxMenuItem;
     private JCheckBoxMenuItem syncDetailTabCheckBoxMenuItem;
+    private JCheckBoxMenuItem showSuitesCheckBoxMenuItem;
     private RunnerTextField testOwnerTextField;
     private RunnerTextField testPackageTextField;
     private RunnerTextField testProcedureTextField;
@@ -153,14 +166,14 @@ public class RunnerPanel {
                 label.setIcon(UtplsqlResources.getIcon("STATUS_ICON"));
                 label.setHorizontalAlignment(JLabel.CENTER);
             } else if (col == 1) {
-                label.setIcon(UtplsqlResources.getIcon("WARNING_ICON"));
-                label.setHorizontalAlignment(JLabel.CENTER);
-            } else if (col == 2) {
-                label.setIcon(UtplsqlResources.getIcon("INFO_ICON"));
-                label.setHorizontalAlignment(JLabel.CENTER);
-            } else if (col == 3) {
                 label.setIcon(null);
                 label.setHorizontalAlignment(JLabel.LEFT);
+            } else if (col == 2) {
+                label.setIcon(UtplsqlResources.getIcon("WARNING_ICON"));
+                label.setHorizontalAlignment(JLabel.CENTER);
+            } else if (col == 3) {
+                label.setIcon(UtplsqlResources.getIcon("INFO_ICON"));
+                label.setHorizontalAlignment(JLabel.CENTER);
             } else if (col == 4) {
                 label.setIcon(null);
                 label.setHorizontalAlignment(JLabel.RIGHT);
@@ -169,6 +182,33 @@ public class RunnerPanel {
         }
     }
 
+    // used in multiple components, therefore an inner class
+    private static class TestTreeTableHeaderRenderer extends DefaultTableCellRenderer {
+        private static final long serialVersionUID = -1784754761029185815L;
+
+        @Override
+        public Component getTableCellRendererComponent(final JTable table, final Object value, final boolean isSelected,
+                final boolean hasFocus, final int row, final int col) {
+            final TableCellRenderer renderer = table.getTableHeader().getDefaultRenderer();
+            final JLabel label = ((JLabel) renderer.getTableCellRendererComponent(table, value, isSelected, hasFocus,
+                    row, col));
+            if (col == 0) {
+                label.setIcon(null);
+                label.setHorizontalAlignment(JLabel.LEFT);
+            } else if (col == 1) {
+                label.setIcon(UtplsqlResources.getIcon("WARNING_ICON"));
+                label.setHorizontalAlignment(JLabel.CENTER);
+            } else if (col == 2) {
+                label.setIcon(UtplsqlResources.getIcon("INFO_ICON"));
+                label.setHorizontalAlignment(JLabel.CENTER);
+            } else if (col == 3) {
+                label.setIcon(null);
+                label.setHorizontalAlignment(JLabel.RIGHT);
+            }
+            return label;
+        }
+    }
+    
     // used in multiple components, therefore an inner class
     private static class FailuresTableHeaderRenderer extends DefaultTableCellRenderer {
         private static final long serialVersionUID = 5059401447983514596L;
@@ -257,12 +297,14 @@ public class RunnerPanel {
     private void applyShowInfoCounter() {
         infoCounterValueLabel.getParent().setVisible(showInfoCounterCheckBoxMenuItem.isSelected());
     }
-
+    
     private void applyShowTestDescription() {
+        // table
         testOverviewTableModel.updateModel(showTestDescriptionCheckBoxMenuItem.isSelected());
-        final TableColumn idColumn = testOverviewTable.getColumnModel().getColumn(3);
-        idColumn.setHeaderValue(testOverviewTableModel.getTestIdColumnName());
-        testOverviewTable.getTableHeader().repaint();
+        fixColumnHeader(testOverviewTableModel.getTestIdColumnName(), testOverviewTable, 1);
+        // tree-table
+        testOverviewTreeTableModel.updateModel(showTestDescriptionCheckBoxMenuItem.isSelected());
+        fixColumnHeader(testOverviewTreeTableModel.getTreeColumnName(), testOverviewTreeTable, 0);
     }
 
     private void showColumn(final boolean show, TableColumn col) {
@@ -280,35 +322,89 @@ public class RunnerPanel {
     }
 
     private void applyShowWarningIndicator(final boolean show) {
-        showColumn(show, testOverviewTable.getColumnModel().getColumn(1));
+        showColumn(show, testOverviewTable.getColumnModel().getColumn(2));
+        showColumn(show, testOverviewTreeTable.getColumnModel().getColumn(1));
     }
 
     private void applyShowInfoIndicator(final boolean show) {
-        showColumn(show, testOverviewTable.getColumnModel().getColumn(2));
-    }
-
-    private void applyFilter(final boolean showSuccessfulTests, final boolean showDisabledTests) {
-        @SuppressWarnings("unchecked")
-        final TableRowSorter<TestOverviewTableModel> sorter = ((TableRowSorter<TestOverviewTableModel>) testOverviewTable.getRowSorter());
-        final RowFilter<TestOverviewTableModel, Integer> filter = new RowFilter<TestOverviewTableModel, Integer>() {
-            @Override
-            public boolean include(final RowFilter.Entry<? extends TestOverviewTableModel, ? extends Integer> entry) {
-                final Test test = entry.getModel().getTest((entry.getIdentifier()).intValue());
-                final Counter counter = test.getCounter();
-                if (counter != null) {
-                    if (counter.getSuccess() > 0 && !showSuccessfulTests) {
-                        return false;
-                    }
-                    if (counter.getDisabled() > 0 && !showDisabledTests) {
-                        return false;
-                    }
-                }
-                return true;
-            }
-        };
-        sorter.setRowFilter(filter);
+        showColumn(show, testOverviewTable.getColumnModel().getColumn(3));
+        showColumn(show, testOverviewTreeTable.getColumnModel().getColumn(2));
     }
     
+    private void selectTestInTestOverviewTable(Test test) {
+        if (test != null) {
+            for (int i=0; i<testOverviewTable.getRowCount(); i++) {
+                final int row = testOverviewTable.convertRowIndexToModel(i);
+                if (row == test.getTestNumber() - 1) {
+                    testOverviewTable.getSelectionModel().setSelectionInterval(i, i);
+                    break;
+                }
+            }
+        }
+    }
+
+    private void applyShowSuites() {
+        applyFilter(showSuccessfulTestsCheckBoxMenuItem.isSelected(), showDisabledTestsCheckBoxMenuItem.isSelected());
+        if (showSuitesCheckBoxMenuItem.isSelected()) {
+            testOverviewScrollPane.setViewportView(testOverviewTreeTable);
+            // sync in tree-table - just first selected test
+            final int rowIndex = testOverviewTable.getSelectedRow();
+            if (rowIndex != -1) {
+                final int row = testOverviewTable.convertRowIndexToModel(rowIndex);
+                final Test test = testOverviewTableModel.getTest(row);
+                ItemNode itemNode = testOverviewTreeTableModel.getItemNode(test.getId());
+                if (itemNode != null) {
+                    testOverviewTreeTable.getTree().setSelectionPath(new TreePath(itemNode.getPath()));
+                }
+            }
+        } else {
+            testOverviewScrollPane.setViewportView(testOverviewTable);
+            // sync in table - just first test in selected item
+            TreePath path = testOverviewTreeTable.getTree().getSelectionPath();
+            if (path != null) {
+                ItemNode itemNode = (ItemNode) path.getLastPathComponent();
+                Item item = (Item) itemNode.getUserObject();
+                Test test;
+                if (item instanceof Test) {
+                    test = (Test) item;
+                } else {
+                    test = testOverviewTreeTableModel.getTestOf(itemNode);
+                }
+                selectTestInTestOverviewTable(test);
+            }
+        }
+        showSelectedRow();
+    }
+    
+    private void applyFilter(final boolean showSuccessfulTests, final boolean showDisabledTests) {
+        if (!showSuitesCheckBoxMenuItem.isSelected()) {
+            // table
+            @SuppressWarnings("unchecked")
+            final TableRowSorter<TestOverviewTableModel> sorter = ((TableRowSorter<TestOverviewTableModel>) testOverviewTable.getRowSorter());
+            final RowFilter<TestOverviewTableModel, Integer> filter = new RowFilter<TestOverviewTableModel, Integer>() {
+                @Override
+                public boolean include(final RowFilter.Entry<? extends TestOverviewTableModel, ? extends Integer> entry) {
+                    final Test test = entry.getModel().getTest((entry.getIdentifier()).intValue());
+                    final Counter counter = test.getCounter();
+                    if (counter != null) {
+                        if (counter.getSuccess() > 0 && !showSuccessfulTests) {
+                            return false;
+                        }
+                        if (counter.getDisabled() > 0 && !showDisabledTests) {
+                            return false;
+                        }
+                    }
+                    return true;
+                }
+            };
+            sorter.setRowFilter(filter);
+        } else {
+            // tree-table
+            testOverviewTreeTableModel.updateModel(showSuccessfulTests, showDisabledTests);
+            expandAllNodes(testOverviewTreeTable.getTree(), 0);
+        }
+    }
+        
     private void openTest(final Test test) {
             final UtplsqlDao dao = new UtplsqlDao(DatabaseTools.getConnection(currentRun.getConnectionName()));
             final String source = dao.getSource(test.getOwnerName(), "PACKAGE", test.getObjectName().toUpperCase()).trim();
@@ -387,30 +483,46 @@ public class RunnerPanel {
                 "oracle.dbtools.raptor.controls.grid.DefaultDrillLink" });
         drillLink.performDrill();
     }
+    
+    private void syncDetailTab(Item item) {
+        int tabIndex = 0;
+        if (item != null) {
+            if (failuresTableModel.getRowCount() > 0) {
+                tabIndex = 1;
+            } else if (StringTools.isNotBlank(item.getErrorStack())) {
+                tabIndex = 2;
+            } else if (StringTools.isNotBlank(item.getWarnings())) {
+                tabIndex = 3;
+            } else if (StringTools.isNotBlank(item.getServerOutput())) {
+                tabIndex = 4;
+            }
+        }
+        testDetailTabbedPane.setSelectedIndex(tabIndex);
+    }
 
     private void syncDetailTab() {
         if (syncDetailTabCheckBoxMenuItem.isSelected()) {
-            final int rowIndex = testOverviewTable.getSelectedRow();
-            if (rowIndex != -1) {
-                final int row = testOverviewTable.convertRowIndexToModel(rowIndex);
-                final Test test = testOverviewTableModel.getTest(row);
-                int tabIndex = 0;
-                if (test != null && test.getCounter() != null) {
-                    if (test.getCounter().getFailure() != null && test.getCounter().getFailure() > 0) {
-                        tabIndex = 1;
-                    } else if (test.getCounter().getError() != null && test.getCounter().getError() > 0) {
-                        tabIndex = 2;
-                    } else if (test.getCounter().getWarning() != null && test.getCounter().getWarning() > 0) {
-                        tabIndex = 3;
-                    } else if (test.getServerOutput() != null && test.getServerOutput().length() > 0) {
-                        tabIndex = 4;
-                    }
+            if (!showSuitesCheckBoxMenuItem.isSelected()) {
+                // table
+                final int rowIndex = testOverviewTable.getSelectedRow();
+                if (rowIndex != -1) {
+                    final int row = testOverviewTable.convertRowIndexToModel(rowIndex);
+                    final Test test = testOverviewTableModel.getTest(row);
+                    syncDetailTab(test);
                 }
-                testDetailTabbedPane.setSelectedIndex(tabIndex);
+            } else {
+                // tree-table
+                TreePath path = testOverviewTreeTable.getTree().getSelectionPath();
+                if (path != null) {
+                    ItemNode itemNode = (ItemNode) path.getLastPathComponent();
+                    Item item = (Item) itemNode.getUserObject();
+                    syncDetailTab(item);
+                }
             }
+            
         }
     }
-
+    
     private PreferenceModel getPreferenceModel() {
         try {
             return PreferenceModel.getInstance(Preferences.getPreferences());
@@ -445,96 +557,206 @@ public class RunnerPanel {
         showDisabledTestsCheckBoxMenuItem.setSelected(preferences.isShowDisabledTests());
         fixCheckBoxMenuItem(showDisabledTestsCheckBoxMenuItem);
         applyFilter(showSuccessfulTestsCheckBoxMenuItem.isSelected(), showDisabledTestsCheckBoxMenuItem.isSelected());
+        testOverviewTreeTableModel.updateModel(showSuccessfulTestsCheckBoxMenuItem.isSelected(), showDisabledTestsCheckBoxMenuItem.isSelected());
         fixCheckBoxMenuItem(showInfoIndicatorCheckBoxMenuItem);
         syncDetailTabCheckBoxMenuItem.setSelected(preferences.isSyncDetailTab());
         fixCheckBoxMenuItem(syncDetailTabCheckBoxMenuItem);
+        showSuitesCheckBoxMenuItem.setSelected(preferences.isShowSuites());
+        fixCheckBoxMenuItem(showSuitesCheckBoxMenuItem);
+        applyShowSuites();
         useSmartTimes = preferences.isUseSmartTimes();
     }
 
     public void setModel(final Run run) {
+        assert run != null && run.getReporterId() != null : "Cannot run without reporterId";
+        setModel(run, false);
+    }
+    
+    private void setModel(final Run run, boolean force) {
         runs.put(run.getReporterId(), run);
         refreshRunsComboBox();
-        setCurrentRun(run);
+        setCurrentRun(run, force);
+    }
+    
+    private void expandAllNodes(JTree tree, int startingRow) {
+        int rowCount = tree.getRowCount();
+        for (int i = startingRow; i < rowCount; i++) {
+            tree.expandRow(i);
+        }
+        // recursive call until all nodes are expanded
+        if (tree.getRowCount() != rowCount) {
+            expandAllNodes(tree, rowCount);
+        }
+    }
+    
+    private void fixColumnHeader(String columnHeader, JTable table, int columnIndex) {
+        final TableColumn column = table.getColumnModel().getColumn(columnIndex);
+        if (!column.getHeaderValue().equals(columnHeader)) {
+            column.setHeaderValue(columnHeader);
+            table.getTableHeader().repaint();
+        }
     }
 
-    private void setCurrentRun(final Run run) {
-        if (run != currentRun) {
-            currentRun = run;
-            testOverviewTableModel.setModel(run.getTests(), showTestDescriptionCheckBoxMenuItem.isSelected(),
-                    useSmartTimes);
-            final String header = testOverviewTableModel.getTimeColumnName();
-            final TableColumn timeColumn = testOverviewTable.getColumnModel().getColumn(4);
-            if (!timeColumn.getHeaderValue().equals(header)) {
-                timeColumn.setHeaderValue(header);
-                testOverviewTable.getTableHeader().repaint();
+    /**
+     * Sets the current run. This can be forced with the force parameter.
+     * 
+     * However, as long as a run is in progress you will technically not be able 
+     * to switch to another run because a subsequent {@link #update(String)} call will
+     * switch back to the currently executing run. This behavior is intentional.
+     */
+    private void setCurrentRun(final Run run, boolean force) {
+        boolean switched = false;
+        // Multiple, parallel runs are supported. Ensure that the runner does not switch back and forth.
+        if (force                                       // choosing the run via the combo box
+                || currentRun == null                   // the very first run
+                || currentRun.getEndTime() != null      // the current run is not running
+                || run.getTotalNumberOfTests() == -1)   // when initializing a new run (newest wins once)
+        {
+            if (run != currentRun) {
+                currentRun = run;
+                // table
+                testOverviewTableModel.setModel(run.getTests(), showTestDescriptionCheckBoxMenuItem.isSelected(),
+                        useSmartTimes);
+                fixColumnHeader(testOverviewTableModel.getTimeColumnName(), testOverviewTable, 4);
+                // tree-table
+                testOverviewTreeTableModel.setModel(run, showTestDescriptionCheckBoxMenuItem.isSelected(), useSmartTimes,
+                        showSuccessfulTestsCheckBoxMenuItem.isSelected(), showDisabledTestsCheckBoxMenuItem.isSelected());
+                fixColumnHeader(testOverviewTreeTableModel.getTimeColumnName(), testOverviewTreeTable, 3);
+                testOverviewTreeTableModel.reload();
+                // common
+                resetDerived();
+                final ComboBoxItem<String, String> item = new ComboBoxItem<>(currentRun.getReporterId(),
+                        currentRun.getName());
+                runComboBox.setSelectedItem(item);
+                elapsedTimeTimer.start();
+                switched = true;
             }
-            resetDerived();
+        }
+        if (switched || !testOverviewTreeTableModel.isComplete()) {
+            // table
+            testOverviewTableModel.fireTableDataChanged();
+            // tree-table
+            testOverviewTreeTableModel.updateModel();
+            testOverviewTreeTableModel.reload();
+            expandAllNodes(testOverviewTreeTable.getTree(), 0);
+        }
+        // ensure that the runComboBox shows always the currentRun
+        @SuppressWarnings("unchecked")
+        final ComboBoxItem<String, String> currentItem = (ComboBoxItem<String, String>) runComboBox.getSelectedItem();
+        if (currentItem != null && !currentItem.getKey().equals(currentRun.getReporterId())) {
             final ComboBoxItem<String, String> item = new ComboBoxItem<>(currentRun.getReporterId(),
                     currentRun.getName());
             runComboBox.setSelectedItem(item);
-            elapsedTimeTimer.start();
         }
     }
 
     private void enableOrDisableStopButton() {
         stopButton.setEnabled(currentRun.getEndTime() == null);
     }
-
+    
     public synchronized void update(final String reporterId) {
-        enableOrDisableStopButton();
-        setCurrentRun(runs.get(reporterId));
-        final int row = currentRun.getCurrentTestNumber() - 1;
-        final CharSequence header = testOverviewTableModel.getTestIdColumnName();
-        final TableColumn idColumn = testOverviewTable.getColumnModel().getColumn(3);
-        if (!idColumn.getHeaderValue().equals(header)) {
-            idColumn.setHeaderValue(header);
-            testOverviewTable.getTableHeader().repaint();
-        }
-        if (row < 0) {
-            testOverviewTableModel.fireTableDataChanged();
-        } else {
-            if (testOverviewTableModel.getRowCount() > row) {
-                final Rectangle positionOfCurrentTest = testOverviewTable
-                        .getCellRect(testOverviewTable.convertRowIndexToView(row), 0, true);
-                testOverviewTable.scrollRectToVisible(positionOfCurrentTest);
-                testOverviewTableModel.fireTableRowsUpdated(row, row);
-                SystemTools.sleep(5);
-                if (!showSuccessfulTestsCheckBoxMenuItem.isSelected()
-                        || !showDisabledTestsCheckBoxMenuItem.isSelected()) {
-                    applyFilter(showSuccessfulTestsCheckBoxMenuItem.isSelected(),
-                            showDisabledTestsCheckBoxMenuItem.isSelected());
-                }
-                testOverviewTable.scrollRectToVisible(positionOfCurrentTest);
+        update(reporterId, null);
+    }
+
+    public synchronized void update(final String reporterId, Item item) {
+        try {
+            setCurrentRun(runs.get(reporterId), false);
+            if (!currentRun.getReporterId().equals(reporterId)) {
+                // this run is currently not active in the runner
+                return;
             }
-        }
-        statusLabel.setText(currentRun.getStatus());
-        testCounterValueLabel.setText(currentRun.getTotalNumberOfCompletedTests()
-                + (currentRun.getTotalNumberOfTests() >= 0 ? "/" + currentRun.getTotalNumberOfTests() : ""));
-        errorCounterValueLabel.setText(String.valueOf(currentRun.getCounter().getError()));
-        failureCounterValueLabel.setText(String.valueOf(currentRun.getCounter().getFailure()));
-        disabledCounterValueLabel.setText(String.valueOf(currentRun.getCounter().getDisabled()));
-        warningsCounterValueLabel.setText(String.valueOf(currentRun.getCounter().getWarning()));
-        infoCounterValueLabel.setText(String.valueOf(currentRun.getInfoCount()));
-        if (currentRun.getTotalNumberOfTests() == 0) {
-            progressBar.setValue(100);
-        } else {
-            progressBar
-                    .setValue(100 * currentRun.getTotalNumberOfCompletedTests() / currentRun.getTotalNumberOfTests());
-        }
-        if (currentRun.getCounter().getError() > 0 || (currentRun.getCounter().getFailure() > 0)) {
-            progressBar.setForeground(RED);
-        } else {
-            progressBar.setForeground(GREEN);
+            enableOrDisableStopButton();
+            fixColumnHeader(testOverviewTableModel.getTestIdColumnName(), testOverviewTable, 1);
+            fixColumnHeader(testOverviewTreeTableModel.getTreeColumnName(), testOverviewTreeTable, 0);       
+            if (!showSuitesCheckBoxMenuItem.isSelected()) {
+                // table
+                if (item instanceof Test) {
+                    final int row = ((Test) item).getTestNumber() - 1;
+                    if (row >= 0 && testOverviewTableModel.getRowCount() > row) {
+                        final Rectangle positionOfCurrentTest = testOverviewTable
+                                .getCellRect(testOverviewTable.convertRowIndexToView(row), 0, true);
+                        testOverviewTable.scrollRectToVisible(positionOfCurrentTest);
+                        testOverviewTableModel.fireTableRowsUpdated(row, row);
+                        SystemTools.sleep(5);
+                        if (!showSuccessfulTestsCheckBoxMenuItem.isSelected()
+                                || !showDisabledTestsCheckBoxMenuItem.isSelected()) {
+                            applyFilter(showSuccessfulTestsCheckBoxMenuItem.isSelected(),
+                                    showDisabledTestsCheckBoxMenuItem.isSelected());
+                        }
+                        testOverviewTable.scrollRectToVisible(positionOfCurrentTest);
+                    }
+                }
+            } 
+            if (showSuitesCheckBoxMenuItem.isSelected()) {
+                // tree-table
+                if (item != null && testOverviewTreeTableModel.isComplete()) {
+                    if (item instanceof Test) {
+                        final Test test = (Test) item;
+                        int treeRow = testOverviewTreeTableModel.getRow(test.getId());
+                        if (treeRow >= 0) {
+                            final Rectangle positionOfCurrentTestInTree = testOverviewTreeTable
+                                    .getCellRect(testOverviewTreeTable.convertRowIndexToView(treeRow), 0, true);
+                            testOverviewTreeTable.scrollRectToVisible(positionOfCurrentTestInTree);
+                            testOverviewTreeTableModel.updateModel(test.getId());
+                        }
+                    } else {
+                        testOverviewTreeTableModel.updateModel(item.getId());
+                    }
+                }
+            }
+            statusLabel.setText(currentRun.getStatus());
+            testCounterValueLabel.setText(currentRun.getTotalNumberOfCompletedTests()
+                    + (currentRun.getTotalNumberOfTests() >= 0 ? "/" + currentRun.getTotalNumberOfTests() : ""));
+            errorCounterValueLabel.setText(String.valueOf(currentRun.getCounter().getError()));
+            failureCounterValueLabel.setText(String.valueOf(currentRun.getCounter().getFailure()));
+            disabledCounterValueLabel.setText(String.valueOf(currentRun.getCounter().getDisabled()));
+            warningsCounterValueLabel.setText(String.valueOf(currentRun.getCounter().getWarning()));
+            infoCounterValueLabel.setText(String.valueOf(currentRun.getInfoCount()));
+            if (currentRun.getTotalNumberOfTests() == 0) {
+                progressBar.setValue(100);
+            } else {
+                progressBar
+                        .setValue(100 * currentRun.getTotalNumberOfCompletedTests() / currentRun.getTotalNumberOfTests());
+            }
+            if (currentRun.getCounter().getError() > 0 || (currentRun.getCounter().getFailure() > 0)) {
+                progressBar.setForeground(RED);
+            } else {
+                progressBar.setForeground(GREEN);
+            }
+        } catch (Exception e) {
+            logger.warning(() -> "Ignored exception " + (e.getMessage() == null ? e.getClass().getSimpleName()
+                    : e.getMessage()) + " while processing reporterId " + reporterId + (item == null ? "."
+                            : " for item id " + item.getId() + "."));
         }
     }
 
     private ArrayList<String> getPathListFromSelectedTests() {
         final ArrayList<String> pathList = new ArrayList<>();
-        for (final int rowIndex : testOverviewTable.getSelectedRows()) {
-            final int row = testOverviewTable.convertRowIndexToModel(rowIndex);
-            final Test test = testOverviewTableModel.getTest(row);
-            final String path = test.getOwnerName() + "." + test.getObjectName() + "." + test.getProcedureName();
-            pathList.add(path);
+        if (!showSuitesCheckBoxMenuItem.isSelected()) {
+            // table
+            for (final int rowIndex : testOverviewTable.getSelectedRows()) {
+                final int row = testOverviewTable.convertRowIndexToModel(rowIndex);
+                final Test test = testOverviewTableModel.getTest(row);
+                final String path = test.getOwnerName() + "." + test.getObjectName() + "." + test.getProcedureName();
+                pathList.add(path);
+            }
+        } else {
+            // tree-table
+            TreePath[] selectionPaths = testOverviewTreeTable.getTree().getSelectionPaths();
+            ArrayList<ItemNode> selectedNodes = new ArrayList<>();
+            if (selectionPaths != null) {
+                for (final TreePath path : selectionPaths) {
+                    selectedNodes.add((ItemNode) path.getLastPathComponent());
+                }
+                for (final ItemNode node : ItemNode.createNonOverlappingSet(selectedNodes)) {
+                    if (node.getOwnerName().equals("***")) {
+                        // process children, which must be owners only.
+                        pathList.addAll(node.getOwners());
+                    } else {
+                        pathList.add(node.getOwnerName() + ":" + node.getId());
+                    }
+                }
+            }
         }
         return pathList;
     }
@@ -561,6 +783,53 @@ public class RunnerPanel {
         }
     }
     
+    private void showFirstRow() {
+        // table
+        final Rectangle positionOfCurrentTest = testOverviewTable
+                .getCellRect(testOverviewTable.convertRowIndexToView(0), 0, true);
+        testOverviewTable.scrollRectToVisible(positionOfCurrentTest);
+        // tree-table
+        final Rectangle positionOfCurrentTestInTree = testOverviewTreeTable
+                .getCellRect(testOverviewTreeTable.convertRowIndexToView(0), 0, true);
+        testOverviewTreeTable.scrollRectToVisible(positionOfCurrentTestInTree);
+    }
+    
+    private void showSelectedRow() {
+        if (!showSuitesCheckBoxMenuItem.isSelected()) {
+            // table
+            final int rowIndex = testOverviewTable.getSelectedRow();
+            final int row = testOverviewTable.convertRowIndexToModel(rowIndex);
+            final Rectangle position = testOverviewTable
+                    .getCellRect(testOverviewTable.convertRowIndexToView(row), 0, true);
+            testOverviewTable.scrollRectToVisible(position);
+        } else {
+            // tree-table
+            TreePath path = testOverviewTreeTable.getTree().getSelectionPath();
+            if (path != null) {
+                ItemNode itemNode = (ItemNode) path.getLastPathComponent();
+                Item item = (Item) itemNode.getUserObject();
+                int treeRow = testOverviewTreeTableModel.getRow(item.getId());
+                if (treeRow >= 0) {
+                    final Rectangle position = testOverviewTreeTable
+                            .getCellRect(testOverviewTreeTable.convertRowIndexToView(treeRow), 0, true);
+                    testOverviewTreeTable.scrollRectToVisible(position);
+                }
+            }
+        }
+    }
+    
+    private void refreshAction() {
+        // table
+        testOverviewTableModel.fireTableDataChanged();
+        // tree-table
+        testOverviewTreeTableModel.updateModel();
+        expandAllNodes(testOverviewTreeTable.getTree(), 0);
+        // common
+        showFirstRow();
+        resetDerived();
+        testDetailTabbedPane.setSelectedIndex(0);
+    }
+    
     private void comboBoxAction() {
         if (currentRun != null) {
             @SuppressWarnings("unchecked")
@@ -569,7 +838,7 @@ public class RunnerPanel {
             if (currentRun.getReporterId() != null && comboBoxItem != null) {
                 if (!currentRun.getReporterId().equals(comboBoxItem.getKey())) {
                     update(comboBoxItem.getKey());
-                    testDetailTabbedPane.setSelectedIndex(0);
+                    refreshAction();
                 }
             }
         }
@@ -666,12 +935,26 @@ public class RunnerPanel {
         final HashSet<String> testPackages = new HashSet<>();
         if (selectedOnly) {
             // pathList and unique testPackages based on selected tests
-            for (final int rowIndex : testOverviewTable.getSelectedRows()) {
-                final int row = testOverviewTable.convertRowIndexToModel(rowIndex);
-                final Test test = testOverviewTableModel.getTest(row);
-                final String path = test.getOwnerName() + "." + test.getObjectName() + "." + test.getProcedureName();
-                pathList.add(path);
-                testPackages.add(test.getOwnerName() + "." + test.getObjectName());
+            if (!showSuitesCheckBoxMenuItem.isSelected()) {
+                // table
+                for (final int rowIndex : testOverviewTable.getSelectedRows()) {
+                    final int row = testOverviewTable.convertRowIndexToModel(rowIndex);
+                    final Test test = testOverviewTableModel.getTest(row);
+                    final String path = test.getOwnerName() + "." + test.getObjectName() + "." + test.getProcedureName();
+                    pathList.add(path);
+                    testPackages.add(test.getOwnerName() + "." + test.getObjectName());
+                }
+            } else {
+                // tree-table
+                TreePath[] selectionPaths = testOverviewTreeTable.getTree().getSelectionPaths();
+                if (selectionPaths != null) {
+                    for (final TreePath path : selectionPaths) {
+                        final ItemNode node = (ItemNode) path.getLastPathComponent();
+                        final Item item = (Item) node.getUserObject();
+                        pathList.add(":" + item.getId());
+                        testPackages.addAll(node.getTestPackages());
+                    }
+                }
             }
         } else {
             // pathList and unique testPackages based on currentRun
@@ -700,12 +983,11 @@ public class RunnerPanel {
         List<Test> incompleteTests = currentRun.getTests().values().stream()
                 .filter(it -> it.getEndTime() == null && !it.isDisabled()).collect(Collectors.toList());
         if (!incompleteTests.isEmpty()) {
-            final Double now = (double) System.currentTimeMillis();
-            final String sysdate = UtplsqlRunner.getSysdate();
+            final String sysdate = StringTools.getSysdate();
             for (Test test : incompleteTests) {
                 // fix incomplete tests, see https://github.com/utPLSQL/utPLSQL-SQLDeveloper/issues/107
                 test.setEndTime(sysdate);
-                test.setExecutionTime((now - currentRun.getStart()) / 1000);
+                test.setExecutionTime(StringTools.elapsedTime(test.getStartTime(), test.getEndTime()));
                 test.setErrorStack(UtplsqlResources.getString("RUNNER_MISSING_TEST_RESULT_MESSAGE"));
                 test.getCounter().setError(1);
             }
@@ -733,9 +1015,8 @@ public class RunnerPanel {
             currentRun.getCounter().setWarning(currentRun.getCounter().getWarning() + test.getCounter().getWarning());
         }
         // terminate run
-        currentRun.setEndTime(UtplsqlRunner.getSysdate());
-        double now = (double) System.currentTimeMillis();
-        currentRun.setExecutionTime((now - currentRun.getStart()) / 1000);
+        currentRun.setEndTime(StringTools.getSysdate());
+        currentRun.setExecutionTime(StringTools.elapsedTime(currentRun.getStartTime(), currentRun.getEndTime()));
         currentRun.setCurrentTestNumber(0);
         // update run in GUI
         update(currentRun.getReporterId());
@@ -751,14 +1032,19 @@ public class RunnerPanel {
         final GradientToolbar toolbar = new GradientToolbar();
         toolbar.setFloatable(false);
         final EmptyBorder buttonBorder = new EmptyBorder(new Insets(2, 4, 2, 4)); // insets: top, left, bottom, right
+        final ToolbarButton showSuitesButton = new ToolbarButton(UtplsqlResources.getIcon("PACKAGE_FOLDER_ICON"));
+        showSuitesButton.setToolTipText(UtplsqlResources.getString("RUNNER_SHOW_SUITES_BUTTON"));
+        showSuitesButton.setBorder(buttonBorder);
+        showSuitesButton.addActionListener(event -> {
+            showSuitesCheckBoxMenuItem.setSelected(!showSuitesCheckBoxMenuItem.isSelected());
+            applyShowSuites();
+            fixCheckBoxMenuItem(showSuitesCheckBoxMenuItem);
+        });
+        toolbar.add(showSuitesButton);
         final ToolbarButton refreshButton = new ToolbarButton(UtplsqlResources.getIcon("REFRESH_ICON"));
         refreshButton.setToolTipText(UtplsqlResources.getString("RUNNER_REFRESH_TOOLTIP"));
         refreshButton.setBorder(buttonBorder);
-        refreshButton.addActionListener(event -> {
-            resetDerived();
-            testDetailTabbedPane.setSelectedIndex(0);
-            testOverviewTableModel.fireTableDataChanged();
-        });
+        refreshButton.addActionListener(event -> refreshAction());
         toolbar.add(refreshButton);
         final ToolbarButton rerunButton = new ToolbarButton(UtplsqlResources.getIcon("RUN_ICON"));
         rerunButton.setToolTipText(UtplsqlResources.getString("RUNNER_RERUN_TOOLTIP"));
@@ -798,15 +1084,35 @@ public class RunnerPanel {
             if (currentRun.getConsumerConn() != null) {
                 // Aborts JDBC Connection. Connection might still run in the background. That's expected.
                 DatabaseTools.abortConnection(currentRun.getConsumerConn());
-                List<Test> notCompletedTests = currentRun.getTests().values().stream()
-                        .filter(it -> it.getTestNumber() >= currentRun.getCurrentTestNumber() && it.getEndTime() == null && !it.isDisabled())
+                List<Item> notCompletedItems = currentRun.getItemNodes().values().stream()
+                        .map(node -> (Item) node.getUserObject())
+                        .filter(item -> item.getEndTime() == null && !(item instanceof Test && ((Test) item).isDisabled()))
                         .collect(Collectors.toList());
-                for (Test test : notCompletedTests) {
-                    test.setDisabled(true);
-                    test.getCounter().setDisabled(1);
-                    test.getCounter().setWarning(1);
-                    test.setWarnings(UtplsqlResources.getString("RUNNER_STOP_TEST_MESSAGE"));
-                    test.setStartTime(null);
+                String sysdate = StringTools.getSysdate();
+                for (Item item : notCompletedItems) {
+                    item.getCounter().setDisabled(1);
+                    if (item instanceof Test) {
+                        Test test = (Test) item;
+                        test.setDisabled(true);
+                        test.getCounter().setWarning(1);
+                        test.setWarnings(UtplsqlResources.getString("RUNNER_STOP_TEST_MESSAGE"));
+                        test.setStartTime(null);
+                    } else {
+                        if (item.getStartTime() != null) {
+                            item.setEndTime(sysdate);
+                            if (testOverviewTreeTableModel.ItemNodeHasErrors(item.getId())) {
+                                item.getCounter().setError(1);
+                            }
+                            if (testOverviewTreeTableModel.ItemNodeHasFailedTests(item.getId())) {
+                                item.getCounter().setFailure(1);
+                            }
+                            if (testOverviewTreeTableModel.ItemNodeHasSuccessfulTests(item.getId())) {
+                                item.getCounter().setSuccess(1);
+                            }
+                            item.setExecutionTime(StringTools.elapsedTime(item.getStartTime(), item.getEndTime()));
+                        }
+                    }
+                    testOverviewTreeTableModel.nodeChanged(item.getId());
                 }
                 currentRun.setStatus(UtplsqlResources.getString("RUNNER_STOP_RUN_MESSAGE"));
                 fixCountersAndUpdate();
@@ -829,7 +1135,7 @@ public class RunnerPanel {
             final Run run = currentRun;
             runs.clear();
             currentRun = null;
-            setModel(run);
+            setModel(run, true);
             update(run.getReporterId());
         });
         toolbar.add(clearButton);
@@ -952,7 +1258,7 @@ public class RunnerPanel {
             fixCheckBoxMenuItem(showInfoCounterCheckBoxMenuItem);
         });
         countersPopupMenu.add(showInfoCounterCheckBoxMenuItem);
-        counterPanel.setComponentPopupMenu(countersPopupMenu);
+        basePanel.setComponentPopupMenu(countersPopupMenu);
 
         // Progress bar
         progressBar = new JProgressBar();
@@ -973,7 +1279,7 @@ public class RunnerPanel {
         c.weighty = 0;
         basePanel.add(progressBar, c);
 
-        // Test overview
+        // Test overview (table variant)
         testOverviewTableModel = new TestOverviewTableModel();
         testOverviewTable = new JTable(testOverviewTableModel);
         testOverviewTable.getTableHeader().setReorderingAllowed(false);
@@ -989,7 +1295,7 @@ public class RunnerPanel {
                 testOwnerTextField.setText(test.getOwnerName());
                 testPackageTextField.setText(test.getObjectName());
                 testProcedureTextField.setText(test.getProcedureName());
-                testDescriptionTextArea.setText(test.getDescription() != null ? test.getDescription().trim() : null);
+                testDescriptionTextArea.setText(StringTools.trim(test.getDescription()));
                 testIdTextArea.setText(test.getId());
                 testStartTextField.setText(StringTools.formatDateTime(test.getStartTime()));
                 failuresTableModel.setModel(test.getFailedExpectations());
@@ -998,16 +1304,15 @@ public class RunnerPanel {
                 if (test.getFailedExpectations() != null && !test.getFailedExpectations().isEmpty()) {
                     failuresTable.setRowSelectionInterval(0, 0);
                 }
-                testErrorStackTextPane
-                        .setText(getHtml(test.getErrorStack() != null ? test.getErrorStack().trim() : null));
-                testWarningsTextPane.setText(getHtml(test.getWarnings() != null ? test.getWarnings().trim() : null));
-                testServerOutputTextPane
-                        .setText(getHtml(test.getServerOutput() != null ? test.getServerOutput().trim() : null));
+                testErrorStackTextPane.setText(getHtml(StringTools.trim(test.getErrorStack())));
+                testWarningsTextPane.setText(getHtml(StringTools.trim(test.getWarnings())));
+                testServerOutputTextPane.setText(getHtml(StringTools.trim(test.getServerOutput())));
                 syncDetailTab();
                 testOverviewRunMenuItem.setEnabled(true);
                 testOverviewRunWorksheetMenuItem.setEnabled(true);
                 testOverviewDebugMenuItem.setEnabled(true);
                 testOverviewCodeCoverageMenuItem.setEnabled(true);
+
             }
         });
         testOverviewTable.addMouseListener(new MouseAdapter() {
@@ -1029,23 +1334,23 @@ public class RunnerPanel {
         overviewTableStatus.setPreferredWidth(INDICATOR_WIDTH);
         overviewTableStatus.setMaxWidth(INDICATOR_WIDTH);
         overviewTableStatus.setHeaderRenderer(testTableHeaderRenderer);
-        final TableColumn overviewTableWarning = testOverviewTable.getColumnModel().getColumn(1);
+        final TableColumn overviewTableId = testOverviewTable.getColumnModel().getColumn(1);
+        overviewTableId.setHeaderRenderer(testTableHeaderRenderer);
+        final TableColumn overviewTableWarning = testOverviewTable.getColumnModel().getColumn(2);
         overviewTableWarning.setMinWidth(INDICATOR_WIDTH);
         overviewTableWarning.setPreferredWidth(INDICATOR_WIDTH);
         overviewTableWarning.setMaxWidth(INDICATOR_WIDTH);
         overviewTableWarning.setHeaderRenderer(testTableHeaderRenderer);
-        final TableColumn overviewTableInfo = testOverviewTable.getColumnModel().getColumn(2);
+        final TableColumn overviewTableInfo = testOverviewTable.getColumnModel().getColumn(3);
         overviewTableInfo.setMinWidth(INDICATOR_WIDTH);
         overviewTableInfo.setPreferredWidth(INDICATOR_WIDTH);
         overviewTableInfo.setMaxWidth(INDICATOR_WIDTH);
         overviewTableInfo.setHeaderRenderer(testTableHeaderRenderer);
-        final TableColumn overviewTableId = testOverviewTable.getColumnModel().getColumn(3);
-        overviewTableId.setHeaderRenderer(testTableHeaderRenderer);
         final TableColumn overviewTableTime = testOverviewTable.getColumnModel().getColumn(4);
         overviewTableTime.setPreferredWidth(60);
         overviewTableTime.setMaxWidth(100);
         overviewTableTime.setHeaderRenderer(testTableHeaderRenderer);
-        overviewTableTime.setCellRenderer(new DefaultTableCellRenderer() {
+        final DefaultTableCellRenderer timeColumnRenderer = new DefaultTableCellRenderer() {
             private static final long serialVersionUID = 7720067427609773267L;
             {
                 setHorizontalAlignment(JLabel.RIGHT);
@@ -1057,8 +1362,113 @@ public class RunnerPanel {
                 final SmartTime smartTime = new SmartTime(((Double) value), useSmartTimes);
                 return super.getTableCellRendererComponent(table, smartTime.toString(), isSelected, hasFocus, row, col);
             }
+        };
+        overviewTableTime.setCellRenderer(timeColumnRenderer);
+
+        // Test overview (tree-table variant)
+        testOverviewTreeTableModel = new TestOverviewTreeTableModel();
+        testOverviewTreeTable = new JFastTreeTable(testOverviewTreeTableModel);
+        testOverviewTreeTable.setShowGrid(false); // first column is the tree and is not affected in SQLDev, true does not look good
+        testOverviewTreeTable.getTableHeader().setReorderingAllowed(false);
+        testOverviewTreeTable.setAutoCreateRowSorter(false);
+        testOverviewTreeTable.setRowHeight(OVERVIEW_TABLE_ROW_HEIGHT);
+        testOverviewTreeTable.getTableHeader().setPreferredSize(
+                new Dimension(testOverviewTreeTable.getTableHeader().getPreferredSize().width, OVERVIEW_TABLE_ROW_HEIGHT));
+        testOverviewTreeTable.getTree().setRootVisible(false);
+        // calling setDoubleBuffered on tree leads to suppressed painting
+        RepaintManager.currentManager(testOverviewTreeTable).setDoubleBufferingEnabled(true);
+        testOverviewTreeTable.getTree().getSelectionModel().addTreeSelectionListener(event -> {
+            final TreePath path = event.getPath();
+            if (path != null) {
+                final ItemNode node = (ItemNode) path.getLastPathComponent();
+                final Item item = (Item) node.getUserObject();
+                testOwnerTextField.setText(node.getOwnerName());
+                testPackageTextField.setText(node.getPackageName());
+                testProcedureTextField.setText(node.getProcedureName());
+                testDescriptionTextArea.setText(node.getDescription());
+                testIdTextArea.setText(node.getId());
+                testStartTextField.setText(StringTools.formatDateTime(item.getStartTime()));
+                if (item instanceof Test) {
+                    Test test = (Test) item;
+                    failuresTableModel.setModel(test.getFailedExpectations());
+                    failuresTableModel.fireTableDataChanged();
+                    testFailureMessageTextPane.setText(null);
+                    if (test.getFailedExpectations() != null && !test.getFailedExpectations().isEmpty()) {
+                        failuresTable.setRowSelectionInterval(0, 0);
+                    }
+                } else {
+                    failuresTableModel.setModel(null);
+                    failuresTableModel.fireTableDataChanged();
+                    testFailureMessageTextPane.setText(null);
+                    
+                }
+                testErrorStackTextPane.setText(getHtml(StringTools.trim(item.getErrorStack())));
+                testWarningsTextPane.setText(getHtml(StringTools.trim(item.getWarnings())));
+                testServerOutputTextPane.setText(getHtml(StringTools.trim(item.getServerOutput())));
+                syncDetailTab();
+                testOverviewRunMenuItem.setEnabled(true);
+                testOverviewRunWorksheetMenuItem.setEnabled(true);
+                testOverviewDebugMenuItem.setEnabled(true);
+                testOverviewCodeCoverageMenuItem.setEnabled(true);
+            }
         });
-        final JScrollPane testOverviewScrollPane = new JScrollPane(testOverviewTable);
+        
+        final JTree overviewTreeTableName = testOverviewTreeTable.getTree();
+        overviewTreeTableName.setCellRenderer(new DefaultTreeCellRenderer() {
+            private static final long serialVersionUID = 580783625740405285L;
+
+            @Override
+            public Component getTreeCellRendererComponent(JTree tree, Object value, boolean selected, boolean expanded,
+                    boolean leaf, int row, boolean hasFocus) {
+                this.hasFocus = hasFocus;
+                final ItemNode node = (ItemNode) value;
+                setText((String) testOverviewTreeTableModel.getValueAt(value, 0));
+                
+                Color foregroundColor;
+                if (selected) {
+                    foregroundColor = getTextSelectionColor();
+                } else {
+                    foregroundColor = getTextNonSelectionColor();
+                }
+                setForeground(foregroundColor);
+
+                Icon icon = node.getStatusIcon();
+                if (icon == null) {
+                    if (leaf) {
+                        icon = getLeafIcon();
+                    } else if (expanded) {
+                        icon = getOpenIcon();
+                    } else {
+                        icon = getClosedIcon();
+                    }
+                }
+                setIcon(icon);
+                this.selected = selected;
+                return this;
+            }
+        });
+        final TestTreeTableHeaderRenderer testTreeTableHeaderRenderer = new TestTreeTableHeaderRenderer();
+        final TableColumn overviewTreeTableSuite = testOverviewTreeTable.getColumnModel().getColumn(0);
+        overviewTreeTableSuite.setHeaderRenderer(testTreeTableHeaderRenderer);
+        final TableColumn overviewTreeTableWarning = testOverviewTreeTable.getColumnModel().getColumn(1);
+        overviewTreeTableWarning.setMinWidth(INDICATOR_WIDTH);
+        overviewTreeTableWarning.setPreferredWidth(INDICATOR_WIDTH);
+        overviewTreeTableWarning.setMaxWidth(INDICATOR_WIDTH);
+        overviewTreeTableWarning.setHeaderRenderer(testTreeTableHeaderRenderer);
+        final TableColumn overviewTreeTableInfo = testOverviewTreeTable.getColumnModel().getColumn(2);
+        overviewTreeTableInfo.setMinWidth(INDICATOR_WIDTH);
+        overviewTreeTableInfo.setPreferredWidth(INDICATOR_WIDTH);
+        overviewTreeTableInfo.setMaxWidth(INDICATOR_WIDTH);
+        overviewTreeTableInfo.setHeaderRenderer(testTreeTableHeaderRenderer);
+        final TableColumn overviewTreeTableTime = testOverviewTreeTable.getColumnModel().getColumn(3);
+        overviewTreeTableTime.setPreferredWidth(60);
+        overviewTreeTableTime.setMaxWidth(100);
+        overviewTreeTableTime.setHeaderRenderer(testTreeTableHeaderRenderer);
+        overviewTreeTableTime.setCellRenderer(timeColumnRenderer);
+        
+        // Scroll pane for test overview containing either the tree-table or table variant, populated in applyPreferences()
+        testOverviewScrollPane = new JScrollPane();
+        RepaintManager.currentManager(testOverviewScrollPane).setDoubleBufferingEnabled(true);
         
         // Context menu for test overview
         final JPopupMenu testOverviewPopupMenu = new JPopupMenu();
@@ -1124,9 +1534,19 @@ public class RunnerPanel {
             syncDetailTab();
             fixCheckBoxMenuItem(syncDetailTabCheckBoxMenuItem);
         });
+        testOverviewPopupMenu.add(new JSeparator());
         testOverviewPopupMenu.add(syncDetailTabCheckBoxMenuItem);
+        showSuitesCheckBoxMenuItem = new JCheckBoxMenuItem(UtplsqlResources.getString("PREF_SHOW_SUITES_LABEL").replace("?", ""), true);
+        showSuitesCheckBoxMenuItem.addActionListener(event -> {
+            applyShowSuites();
+            fixCheckBoxMenuItem(showSuitesCheckBoxMenuItem);
+        });
+        testOverviewPopupMenu.add(showSuitesCheckBoxMenuItem);
         testOverviewTable.setComponentPopupMenu(testOverviewPopupMenu);
         testOverviewTable.getTableHeader().setComponentPopupMenu(testOverviewPopupMenu);
+        testOverviewTreeTable.setComponentPopupMenu(testOverviewPopupMenu);
+        testOverviewTreeTable.getTableHeader().setComponentPopupMenu(testOverviewPopupMenu);
+        testOverviewScrollPane.setComponentPopupMenu(testOverviewPopupMenu);
 
         // Test tabbed pane (Test Properties)
         final ScrollablePanel testInfoPanel = new ScrollablePanel();
@@ -1390,7 +1810,12 @@ public class RunnerPanel {
         testWarningsTextPane.setContentType("text/html");
         testWarningsTextPane.setMinimumSize(TEXTPANE_DIM);
         testWarningsTextPane.setPreferredSize(TEXTPANE_DIM);
-        testWarningsTextPane.addHyperlinkListener(event -> openLink(event.getDescription()));
+        testWarningsTextPane.addHyperlinkListener(event -> {
+            if (event.getEventType() == HyperlinkEvent.EventType.ACTIVATED) {
+                final String link = event.getDescription();
+                openLink(link);
+            }
+        });
         final JScrollPane testWarningsScrollPane = new JScrollPane(testWarningsTextPane);
         c.gridx = 0;
         c.gridy = 0;
@@ -1412,7 +1837,12 @@ public class RunnerPanel {
         testServerOutputTextPane.setContentType("text/html");
         testServerOutputTextPane.setMinimumSize(TEXTPANE_DIM);
         testServerOutputTextPane.setPreferredSize(TEXTPANE_DIM);
-        testServerOutputTextPane.addHyperlinkListener(event -> openLink(event.getDescription()));
+        testServerOutputTextPane.addHyperlinkListener(event -> {
+            if (event.getEventType() == HyperlinkEvent.EventType.ACTIVATED) {
+                final String link = event.getDescription();
+                openLink(link);
+            }
+        });
         final JScrollPane testServerOutputScrollPane = new JScrollPane(testServerOutputTextPane);
         c.gridx = 0;
         c.gridy = 0;

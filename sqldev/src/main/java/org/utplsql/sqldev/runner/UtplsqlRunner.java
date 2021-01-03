@@ -19,24 +19,21 @@ import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.net.URL;
 import java.sql.Connection;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
 import java.util.UUID;
+import java.util.function.Supplier;
 import java.util.logging.Logger;
 
 import javax.swing.JFrame;
 
-import oracle.dbtools.raptor.runner.DBStarterFactory;
-import oracle.ide.Context;
-import oracle.jdevimpl.runner.debug.DebuggingProcess;
-import oracle.jdevimpl.runner.run.JRunner;
 import org.utplsql.sqldev.coverage.CodeCoverageReporter;
 import org.utplsql.sqldev.dal.RealtimeReporterDao;
 import org.utplsql.sqldev.dal.RealtimeReporterEventConsumer;
 import org.utplsql.sqldev.exception.GenericRuntimeException;
 import org.utplsql.sqldev.model.DatabaseTools;
+import org.utplsql.sqldev.model.StringTools;
 import org.utplsql.sqldev.model.SystemTools;
+import org.utplsql.sqldev.model.runner.ItemNode;
 import org.utplsql.sqldev.model.runner.PostRunEvent;
 import org.utplsql.sqldev.model.runner.PostSuiteEvent;
 import org.utplsql.sqldev.model.runner.PostTestEvent;
@@ -45,11 +42,17 @@ import org.utplsql.sqldev.model.runner.PreSuiteEvent;
 import org.utplsql.sqldev.model.runner.PreTestEvent;
 import org.utplsql.sqldev.model.runner.RealtimeReporterEvent;
 import org.utplsql.sqldev.model.runner.Run;
+import org.utplsql.sqldev.model.runner.Suite;
 import org.utplsql.sqldev.model.runner.Test;
 import org.utplsql.sqldev.resources.UtplsqlResources;
 import org.utplsql.sqldev.ui.runner.RunnerFactory;
 import org.utplsql.sqldev.ui.runner.RunnerPanel;
 import org.utplsql.sqldev.ui.runner.RunnerView;
+
+import oracle.dbtools.raptor.runner.DBStarterFactory;
+import oracle.ide.Context;
+import oracle.jdevimpl.runner.debug.DebuggingProcess;
+import oracle.jdevimpl.runner.run.JRunner;
 
 public class UtplsqlRunner implements RealtimeReporterEventConsumer {
     private static final Logger logger = Logger.getLogger(UtplsqlRunner.class.getName());
@@ -165,18 +168,12 @@ public class UtplsqlRunner implements RealtimeReporterEventConsumer {
         } else if (event instanceof PreRunEvent) {
             doProcess((PreRunEvent) event);
         } else if (event instanceof PreSuiteEvent) {
-            // not processed
+            doProcess((PreSuiteEvent) event);
         } else if (event instanceof PreTestEvent) {
             doProcess((PreTestEvent) event);
         } else {
             throw new IllegalArgumentException("Unhandled event: " + event.toString());
         }
-    }
-
-    public static String getSysdate() {
-        final Date dateTime = new Date(System.currentTimeMillis());
-        final SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'000'");
-        return df.format(dateTime);
     }
 
     public boolean isRunning() {
@@ -185,7 +182,7 @@ public class UtplsqlRunner implements RealtimeReporterEventConsumer {
 
     private void initRun() {
         run = new Run(realtimeReporterId, connectionName, pathList);
-        run.setStartTime(getSysdate());
+        run.setStartTime(StringTools.getSysdate());
         run.getCounter().setDisabled(0);
         run.getCounter().setSuccess(0);
         run.getCounter().setFailure(0);
@@ -198,6 +195,13 @@ public class UtplsqlRunner implements RealtimeReporterEventConsumer {
         run.setConsumerConn(consumerConn);
         panel.setModel(run);
         panel.update(realtimeReporterId);
+    }
+    
+    private boolean logFalseCondition(boolean condition, Supplier<String> msgToLog) {
+        if (!condition) {
+             logger.severe(msgToLog);
+        }
+        return condition;
     }
     
     private void doProcess(final PreRunEvent event) {
@@ -216,8 +220,59 @@ public class UtplsqlRunner implements RealtimeReporterEventConsumer {
         run.setStatus(UtplsqlResources.getString("RUNNER_FINISHED_TEXT"));
         panel.update(realtimeReporterId);
     }
+    
+    private void doProcess(final PreSuiteEvent event) {
+        final ItemNode node = run.getItemNodes().get(event.getId());
+        assert logFalseCondition(node != null, () -> "Could not find suite id \"" + event.getId()
+                + "\" when processing PreSuiteEvent " + event.toString() + ".");
+        final Suite suite = (Suite) node.getUserObject();
+        suite.setStartTime(StringTools.getSysdate());
+        panel.update(realtimeReporterId);
+    }
 
     private void doProcess(final PostSuiteEvent event) {
+        final ItemNode node = run.getItemNodes().get(event.getId());
+        assert logFalseCondition(node != null, () -> "Could not find suite id \"" + event.getId()
+                + "\" when processing PostSuiteEvent " + event.toString() + ".");
+        final Suite suite = (Suite) node.getUserObject();
+        if (suite.getEndTime() == null) {
+            // first occurrence, multiple possible, e.g. ut_tester and ut_user in utPLSQL project
+            suite.setStartTime(event.getStartTime());
+            suite.setEndTime(event.getEndTime());
+            suite.setExecutionTime(event.getExecutionTime());
+            suite.setCounter(event.getCounter());
+            suite.setErrorStack(event.getErrorStack());
+            suite.setWarnings(event.getWarnings());
+            suite.setServerOutput(event.getServerOutput());
+        } else {
+            // subsequent occurrence, aggregate
+            suite.setEndTime(event.getEndTime());
+            suite.setExecutionTime(suite.getExecutionTime() + event.getExecutionTime());
+            suite.getCounter().setWarning(suite.getCounter().getWarning() + event.getCounter().getWarning());
+            suite.getCounter().setDisabled(suite.getCounter().getDisabled() + event.getCounter().getDisabled());
+            suite.getCounter().setSuccess(suite.getCounter().getSuccess() + event.getCounter().getSuccess());
+            suite.getCounter().setFailure(suite.getCounter().getFailure() + event.getCounter().getFailure());
+            suite.getCounter().setError(suite.getCounter().getError() + event.getCounter().getError());
+            if (event.getWarnings() != null) {
+                StringBuilder sb = new StringBuilder();
+                if (suite.getWarnings() != null) {
+                    sb.append(suite.getWarnings());
+                    sb.append("\n\n");
+                }
+                sb.append(event.getWarnings());
+                suite.setWarnings(sb.toString());
+            }
+            if (event.getServerOutput() != null) {
+                StringBuilder sb = new StringBuilder();
+                if (suite.getServerOutput() != null) {
+                    sb.append(suite.getServerOutput());
+                    sb.append("\n\n");
+                }
+                sb.append(event.getServerOutput());
+                suite.setServerOutput(sb.toString());
+            }
+        }
+        
         final Test test = run.getCurrentTest();
         // Errors on suite levels are reported as warnings by the utPLSQL framework, 
         // since an error on suite level does not affect a status of a test.
@@ -254,52 +309,46 @@ public class UtplsqlRunner implements RealtimeReporterEventConsumer {
             sb.append(event.getServerOutput());
             test.setServerOutput(sb.toString());
         }
-        panel.update(realtimeReporterId);
+        panel.update(realtimeReporterId, suite);
     }
 
     private void doProcess(final PreTestEvent event) {
         final Test test = run.getTest(event.getId());
-        if (test == null) {
-            logger.severe(() -> "Could not find test id \"" + event.getId() + "\" when processing PreTestEvent "
-                    + event.toString() + ".");
-        } else {
-            test.setStartTime(getSysdate());
-        }
+        assert logFalseCondition(test != null, () -> "Could not find test id \"" + event.getId()
+                + "\" when processing PreTestEvent " + event.toString() + ".");
+        test.setStartTime(StringTools.getSysdate());
         run.setStatus(event.getId() + "...");
         run.setCurrentTestNumber(event.getTestNumber());
         run.setCurrentTest(test);
-        panel.update(realtimeReporterId);
+        panel.update(realtimeReporterId, test);
     }
 
     private void doProcess(final PostTestEvent event) {
         final Test test = run.getTest(event.getId());
-        if (test == null) {
-            logger.severe(() -> "Could not find test id \"" + event.getId() + "\" when processing PostTestEvent "
-                    + event.toString() + ".");
-        } else {
-            test.setStartTime(event.getStartTime());
-            test.setEndTime(event.getEndTime());
-            test.setExecutionTime(event.getExecutionTime());
-            test.setCounter(event.getCounter());
-            test.setErrorStack(event.getErrorStack());
-            test.setServerOutput(event.getServerOutput());
-            if (test.getServerOutput() != null) {
-                run.setInfoCount(run.getInfoCount() + 1);
-            }
-            test.setFailedExpectations(event.getFailedExpectations());
-            test.setWarnings(event.getWarnings());
-            if (test.getWarnings() != null) {
-                test.getCounter().setWarning(1);
-            } else {
-                test.getCounter().setWarning(0);
-            }
-            run.getCounter().setWarning(run.getCounter().getWarning() + test.getCounter().getWarning());
+        assert logFalseCondition(test != null, () -> "Could not find test id \"" + event.getId()
+                + "\" when processing PostTestEvent " + event.toString() + ".");
+        test.setStartTime(event.getStartTime());
+        test.setEndTime(event.getEndTime());
+        test.setExecutionTime(event.getExecutionTime());
+        test.setCounter(event.getCounter());
+        test.setErrorStack(event.getErrorStack());
+        test.setServerOutput(event.getServerOutput());
+        if (test.getServerOutput() != null) {
+            run.setInfoCount(run.getInfoCount() + 1);
         }
+        test.setFailedExpectations(event.getFailedExpectations());
+        test.setWarnings(event.getWarnings());
+        if (test.getWarnings() != null) {
+            test.getCounter().setWarning(1);
+        } else {
+            test.getCounter().setWarning(0);
+        }
+        run.getCounter().setWarning(run.getCounter().getWarning() + test.getCounter().getWarning());
         run.getCounter().setDisabled(run.getCounter().getDisabled() + event.getCounter().getDisabled());
         run.getCounter().setSuccess(run.getCounter().getSuccess() + event.getCounter().getSuccess());
         run.getCounter().setFailure(run.getCounter().getFailure() + event.getCounter().getFailure());
         run.getCounter().setError(run.getCounter().getError() + event.getCounter().getError());
-        panel.update(realtimeReporterId);
+        panel.update(realtimeReporterId, test);
     }
 
     private void produceReportWithDebugger(String anonymousPlsqlBlock) {
@@ -356,7 +405,7 @@ public class UtplsqlRunner implements RealtimeReporterEventConsumer {
             if (run.getTotalNumberOfTests() < 0) {
                 run.setStatus(UtplsqlResources.getString("RUNNER_NO_TESTS_FOUND_TEXT"));
                 run.setExecutionTime((System.currentTimeMillis() - Double.valueOf(run.getStart())) / 1000);
-                run.setEndTime(getSysdate());
+                run.setEndTime(StringTools.getSysdate());
                 run.setTotalNumberOfTests(0);
                 panel.update(realtimeReporterId);
             }

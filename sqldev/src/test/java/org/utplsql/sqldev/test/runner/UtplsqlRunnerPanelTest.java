@@ -38,7 +38,7 @@ public class UtplsqlRunnerPanelTest {
     @Before
     public void setup() {
         final String reporterId = UUID.randomUUID().toString().replace("-", "");
-        run = new Run(null, reporterId, Collections.emptyList());
+        run = new Run(reporterId, null, Collections.emptyList());
         run.setStartTime("2019-06-09T13:42:42.123456");
         run.getCounter().setDisabled(0);
         run.getCounter().setSuccess(0);

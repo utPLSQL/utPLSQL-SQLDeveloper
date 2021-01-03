@@ -15,8 +15,13 @@
  */
 package org.utplsql.sqldev.model;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
+
+import org.utplsql.sqldev.exception.GenericRuntimeException;
 
 public class StringTools {
     // do not instantiate this class
@@ -38,11 +43,11 @@ public class StringTools {
         sb.append("\n");
         return sb.toString();
     }
-    
+
     public static String getCSV(List<String> list, int indentSpaces) {
         return getCSV(list, repeat(" ", indentSpaces));
     }
-    
+
     public static String getSimpleCSV(List<String> list) {
         final StringBuilder sb = new StringBuilder();
         for (final String item : list) {
@@ -74,4 +79,45 @@ public class StringTools {
             }
         }
     }
+    
+    public static String millisToDateTimeString(long millis) {
+        final Date dateTime = new Date(millis);
+        final SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'000'");
+        return df.format(dateTime);
+    }
+
+    public static String getSysdate() {
+        return millisToDateTimeString(System.currentTimeMillis());
+    }
+    
+    public static long dateTimeStringToMillis(final String dateTime) {
+        // handle milliseconds separately since they get lost (rounded) when converted to date
+        final SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+        Date date;
+        try {
+            date = df.parse(dateTime.substring(0, 20));
+        } catch (ParseException e) {
+            throw new GenericRuntimeException("cannot parse datetime string " + dateTime + ".", e);
+        }
+        long millis = Long.parseLong(dateTime.substring(20, 23));
+        return date.getTime() + millis;
+    }
+    
+    public static double elapsedTime(String startDateTime, String endDateTime) {
+        double start = (double) dateTimeStringToMillis(startDateTime);
+        double end = (double) dateTimeStringToMillis(endDateTime);
+        return (end - start) / 1000;
+    }
+    
+    public static boolean isNotBlank(String value) {
+        return value != null && !value.trim().isEmpty();
+    }
+
+    public static String trim(String value) {
+        if (value == null) {
+            return null;
+        }
+        return value.trim();
+    }
+
 }

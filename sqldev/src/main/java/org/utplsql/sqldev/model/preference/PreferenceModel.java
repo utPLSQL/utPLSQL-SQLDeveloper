@@ -53,6 +53,7 @@ public class PreferenceModel extends HashStructureAdapter {
     private static final String KEY_SHOW_DISABLED_TESTS = "showDisabledTests";
     private static final String KEY_SHOW_TEST_DESCRIPTION = "showTestDescription";
     private static final String KEY_SYNC_DETAIL_TAB = "syncDetailTab";
+    private static final String KEY_SHOW_SUITES = "showSuites";
     private static final String KEY_TEST_PACKAGE_PREFIX = "testPackagePrefix";
     private static final String KEY_TEST_PACKAGE_SUFFIX = "testPackageSuffix";
     private static final String KEY_TEST_UNIT_PREFIX = "testUnitPrefix";
@@ -88,6 +89,7 @@ public class PreferenceModel extends HashStructureAdapter {
                 .append(KEY_SHOW_DISABLED_TESTS, isShowDisabledTests())
                 .append(KEY_SHOW_TEST_DESCRIPTION, isShowTestDescription())
                 .append(KEY_SYNC_DETAIL_TAB, isSyncDetailTab())
+                .append(KEY_SHOW_SUITES, isShowSuites())
                 .append(KEY_TEST_PACKAGE_PREFIX, getTestPackagePrefix())
                 .append(KEY_TEST_PACKAGE_SUFFIX, getTestPackageSuffix())
                 .append(KEY_TEST_UNIT_PREFIX, getTestUnitPrefix())
@@ -241,6 +243,14 @@ public class PreferenceModel extends HashStructureAdapter {
         getHashStructure().putBoolean(KEY_SYNC_DETAIL_TAB, syncDetailTab);
     }
 
+    public boolean isShowSuites() {
+        return getHashStructure().getBoolean(KEY_SHOW_SUITES, true);
+    }
+
+    public void setShowSuites(final boolean showSuites) {
+        getHashStructure().putBoolean(KEY_SHOW_SUITES, showSuites);
+    }
+    
     public String getTestPackagePrefix() {
         return getHashStructure().getString(KEY_TEST_PACKAGE_PREFIX, "test_");
     }
