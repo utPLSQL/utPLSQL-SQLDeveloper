@@ -17,6 +17,7 @@ package org.utplsql.sqldev.model.runner;
 
 import java.sql.Connection;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 
 import org.springframework.core.style.ToStringCreator;
@@ -37,7 +38,9 @@ public class Run {
     private Integer infoCount;
     private String errorStack;
     private String serverOutput;
+    private final LinkedHashSet<Item> items;
     private LinkedHashMap<String, Test> tests;
+    private LinkedHashMap<String, ItemNode> itemNodes;
     private String status;
     private Long start;
     // to abort connections, producerConn is handled by UtplsqlRunner
@@ -60,6 +63,7 @@ public class Run {
                 .append("errorStack", errorStack)
                 .append("serverOutput", serverOutput)
                 .append("tests", tests)
+                .append("rootNode", itemNodes.get(reporterId))
                 .append("status", status)
                 .append("start", start)
                 .append("endTime", endTime)
@@ -72,7 +76,10 @@ public class Run {
         this.connectionName = connectionName;
         this.pathList = pathList;
         counter = new Counter();
+        items = new LinkedHashSet<>();
         tests = new LinkedHashMap<>();
+        itemNodes = new LinkedHashMap<>();
+        createRootNode();
     }
 
     public void setStartTime(final String startTime) {
@@ -86,17 +93,54 @@ public class Run {
         return time + " (" + conn + ")";
     }
 
+    /**
+     * Is called after consuming the pre-run event to populate all items of a run.
+     * It's expected to be called only once.
+     * 
+     * @param items items of a run, to be shown in the runner right after starting a run.
+     */
     public void put(final List<Item> items) {
+        populateItems(items);
+        populateItemNodes();
+        populateItemNodeChildren();
+    }
+    
+    private void createRootNode() {
+        // Create pseudo root node as suite. 
+        // The TreeTableModel requires a single root node, but it will not be displayed.
+        final Suite rootSuite = new Suite();
+        rootSuite.setId(getReporterId());
+        rootSuite.setName(getReporterId());
+        ItemNode rootNode = new ItemNode(rootSuite);
+        itemNodes.put(rootSuite.getId(), rootNode);
+    }
+    
+    private void populateItems(List<Item> items) {
         for (final Item item : items) {
-            if (item instanceof Test) {
-                tests.put(item.getId(), (Test) item);
-            }
+            this.items.add(item);
             if (item instanceof Suite) {
-                put(((Suite) item).getItems());
+                populateItems(((Suite) item).getItems());
+            } else if (item instanceof Test) {
+                this.tests.put(item.getId(), (Test) item);
             }
         }
     }
-
+    
+    private void populateItemNodes() {
+        for (final Item item : items) {
+            itemNodes.put(item.getId(), new ItemNode(item));
+        }
+    }
+    
+    private void populateItemNodeChildren() {
+        for (Item item : items) {
+            String parentId = item.getParentId();
+            ItemNode node = itemNodes.get(item.getId());
+            ItemNode parent = itemNodes.get(parentId == null ? reporterId : parentId);
+            parent.add(node);
+        }
+    }
+    
     public Test getTest(final String id) {
         return tests.get(id);
     }
@@ -222,6 +266,14 @@ public class Run {
     public void setTests(final LinkedHashMap<String, Test> tests) {
         this.tests = tests;
     }
+    
+    public LinkedHashMap<String, ItemNode> getItemNodes() {
+        return itemNodes;
+    }
+
+    public void setItemNodes(LinkedHashMap<String, ItemNode> itemNodes) {
+        this.itemNodes = itemNodes;
+    }
 
     public String getStatus() {
         return status;
@@ -246,4 +298,5 @@ public class Run {
     public void setConsumerConn(Connection consumerConn) {
         this.consumerConn = consumerConn;
     }
+
 }
