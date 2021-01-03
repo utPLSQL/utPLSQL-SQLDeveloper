@@ -1417,7 +1417,12 @@ public class RunnerPanel {
         testServerOutputTextPane.setContentType("text/html");
         testServerOutputTextPane.setMinimumSize(TEXTPANE_DIM);
         testServerOutputTextPane.setPreferredSize(TEXTPANE_DIM);
-        testServerOutputTextPane.addHyperlinkListener(event -> openLink(event.getDescription()));
+        testServerOutputTextPane.addHyperlinkListener(event -> {
+            if (event.getEventType() == HyperlinkEvent.EventType.ACTIVATED) {
+                final String link = event.getDescription();
+                openLink(link);
+            }
+        });
         final JScrollPane testServerOutputScrollPane = new JScrollPane(testServerOutputTextPane);
         c.gridx = 0;
         c.gridy = 0;
