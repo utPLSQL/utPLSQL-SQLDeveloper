@@ -40,11 +40,11 @@ public class StringTools {
         sb.append("\n");
         return sb.toString();
     }
-    
+
     public static String getCSV(List<String> list, int indentSpaces) {
         return getCSV(list, repeat(" ", indentSpaces));
     }
-    
+
     public static String getSimpleCSV(List<String> list) {
         final StringBuilder sb = new StringBuilder();
         for (final String item : list) {
