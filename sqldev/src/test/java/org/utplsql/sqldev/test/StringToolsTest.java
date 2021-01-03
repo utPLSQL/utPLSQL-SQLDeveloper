@@ -80,5 +80,10 @@ public class StringToolsTest {
         final String dateTime = "1970-01-01T00:00:42.123456";
         Assert.assertEquals(42123, StringTools.dateTimeStringToMillis(dateTime) + zoneDiff , 0);
     }
+    
+    @Test
+    public void elapsed_time_from_start_and_end_time() {
+        Assert.assertEquals(42.123, StringTools.elapsedTime("2021-01-01T14:00:00.000000", "2021-01-01T14:00:42.123000"), 0);
+    }
 
 }
