@@ -108,34 +108,34 @@ public class TestOverviewTableModel extends DefaultTableModel {
     public Object getValueAt(final int row, final int col) {
         final Test test = getTest(row);
         switch (col) {
-        case 0:
-            return test.getStatusIcon();
-        case 1:
-            return test.getWarningIcon();
-        case 2:
-            return test.getInfoIcon();
-        case 3:
-            if (showDescription && test.getDescription() != null) {
-                return test.getDescription();
-            } else {
-                return test.getId().substring(commonPrefix == null ? 0 : commonPrefix.length());
-            }
-        case 4:
-            return test.getExecutionTime();
-        default:
-            return null;
+            case 0:
+                return test.getStatusIcon();
+            case 1:
+                if (showDescription && test.getDescription() != null) {
+                    return test.getDescription();
+                } else {
+                    return test.getId().substring(commonPrefix == null ? 0 : commonPrefix.length());
+                }
+            case 2:
+                return test.getWarningIcon();
+            case 3:
+                return test.getInfoIcon();
+            case 4:
+                return test.getExecutionTime();
+            default:
+                return null;
         }
     }
 
     @Override
     public String getColumnName(final int col) {
         switch (col) {
-            case 0:
             case 1:
-            case 2:
-                return ""; // icons are used instead of descriptions
-            case 3:
                 return UtplsqlResources.getString(showDescription ? "RUNNER_DESCRIPTION_LABEL" : "RUNNER_TEST_ID_COLUMN");
+            case 0:
+            case 2:
+            case 3:
+                return ""; // icons are used instead of descriptions
             case 4:
                 return getTimeColumnName();
             default:
@@ -153,8 +153,8 @@ public class TestOverviewTableModel extends DefaultTableModel {
     public Class<?> getColumnClass(final int col) {
         switch (col) {
             case 0:
-            case 1:
             case 2:
+            case 3:
                 return Icon.class;
             case 4:
                 return Double.class;
