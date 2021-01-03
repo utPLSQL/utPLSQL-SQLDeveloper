@@ -22,8 +22,6 @@ import org.springframework.core.style.ToStringCreator;
 import org.utplsql.sqldev.model.JsonToStringStyler;
 
 public class Suite extends Item {
-    private String name;
-    private String description;
     private List<Item> items;
 
     public Suite() {
@@ -35,6 +33,8 @@ public class Suite extends Item {
         return new ToStringCreator(this, JsonToStringStyler.getInstance())
                 // ancestor
                 .append("id", getId())
+                .append("name", getName())
+                .append("description", getDescription())
                 .append("startTime", getStartTime())
                 .append("endTime", getEndTime())
                 .append("executionTime", getExecutionTime())
@@ -42,29 +42,15 @@ public class Suite extends Item {
                 .append("errorStack", getErrorStack())
                 .append("serverOutput", getServerOutput())
                 .append("warnings", getWarnings())
+                .append("parentId", getParentId())
+                .append("statusIcon", getStatusIcon())
+                .append("warningIcon", getWarningIcon())
+                .append("infoIcon", getInfoIcon())
                 // local
-                .append("name", name)
-                .append("description", description)
                 .append("items", items)
                 .toString();
     }
     
-    public String getName() {
-        return name;
-    }
-
-    public void setName(final String name) {
-        this.name = name;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(final String description) {
-        this.description = description;
-    }
-
     public List<Item> getItems() {
         return items;
     }

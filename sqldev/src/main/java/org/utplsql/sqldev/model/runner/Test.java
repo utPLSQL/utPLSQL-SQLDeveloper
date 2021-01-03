@@ -17,11 +17,8 @@ package org.utplsql.sqldev.model.runner;
 
 import java.util.List;
 
-import javax.swing.Icon;
-
 import org.springframework.core.style.ToStringCreator;
 import org.utplsql.sqldev.model.JsonToStringStyler;
-import org.utplsql.sqldev.resources.UtplsqlResources;
 
 public class Test extends Item {
     private String executableType;
@@ -29,8 +26,6 @@ public class Test extends Item {
     private String objectName;
     private String procedureName;
     private Boolean disabled;
-    private String name;
-    private String description;
     private Integer testNumber;
     private List<Expectation> failedExpectations;
 
@@ -39,6 +34,8 @@ public class Test extends Item {
         return new ToStringCreator(this, JsonToStringStyler.getInstance())
                 // ancestor
                 .append("id", getId())
+                .append("name", getName())
+                .append("description", getDescription())
                 .append("startTime", getStartTime())
                 .append("endTime", getEndTime())
                 .append("executionTime", getExecutionTime())
@@ -46,56 +43,19 @@ public class Test extends Item {
                 .append("errorStack", getErrorStack())
                 .append("serverOutput", getServerOutput())
                 .append("warnings", getWarnings())
+                .append("parentId", getParentId())
+                .append("statusIcon", getStatusIcon())
+                .append("warningIcon", getWarningIcon())
+                .append("infoIcon", getInfoIcon())
                 // local
                 .append("executableType", executableType)
                 .append("ownerName", ownerName)
                 .append("objectName", objectName)
                 .append("procedureName", procedureName)
                 .append("disabled", disabled)
-                .append("name", name)
-                .append("description", description)
                 .append("testNumber", testNumber)
                 .append("failedExpectations", failedExpectations)
-                .append("statusIcon", getStatusIcon())
-                .append("warningIcon", getWarningIcon())
-                .append("infoIcon", getInfoIcon())
                 .toString();
-    }
-
-    public Icon getStatusIcon() {
-        Icon icon = null;
-        if (getStartTime() != null && getEndTime() == null) {
-            icon = UtplsqlResources.getIcon("PROGRESS_ICON");
-        } else {
-            if (getCounter() != null) {
-                if (getCounter().getSuccess() > 0) {
-                    icon = UtplsqlResources.getIcon("SUCCESS_ICON");
-                } else if (getCounter().getError() > 0) {
-                    icon = UtplsqlResources.getIcon("ERROR_ICON");
-                } else if (getCounter().getFailure() > 0) {
-                    icon = UtplsqlResources.getIcon("FAILURE_ICON");
-                } else if (getCounter().getDisabled() > 0) {
-                    icon = UtplsqlResources.getIcon("DISABLED_ICON");
-                }       
-            }
-        }
-        return icon;
-    }
-
-    public Icon getWarningIcon() {
-        Icon icon = null;
-        if (getCounter() != null && getCounter().getWarning() > 0) {
-            icon = UtplsqlResources.getIcon("WARNING_ICON");
-        }
-        return icon;
-    }
-
-    public Icon getInfoIcon() {
-        Icon icon = null;
-        if (getServerOutput() != null && getServerOutput().length() > 0) {
-            icon = UtplsqlResources.getIcon("INFO_ICON");
-        }
-        return icon;
     }
 
     public String getExecutableType() {
@@ -136,22 +96,6 @@ public class Test extends Item {
 
     public void setDisabled(final Boolean disabled) {
         this.disabled = disabled;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(final String name) {
-        this.name = name;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(final String description) {
-        this.description = description;
     }
 
     public Integer getTestNumber() {
