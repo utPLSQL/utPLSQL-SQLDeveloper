@@ -103,4 +103,10 @@ public class StringTools {
         return date.getTime() + millis;
     }
     
+    public static double elapsedTime(String startDateTime, String endDateTime) {
+        double start = (double) dateTimeStringToMillis(startDateTime);
+        double end = (double) dateTimeStringToMillis(endDateTime);
+        return (end - start) / 1000;
+    }
+    
 }
