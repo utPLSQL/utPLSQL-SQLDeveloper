@@ -267,7 +267,7 @@ public class UtplsqlRunner implements RealtimeReporterEventConsumer {
             sb.append(event.getServerOutput());
             test.setServerOutput(sb.toString());
         }
-        panel.update(realtimeReporterId);
+        panel.update(realtimeReporterId, suite);
     }
 
     private void doProcess(final PreTestEvent event) {
@@ -281,7 +281,7 @@ public class UtplsqlRunner implements RealtimeReporterEventConsumer {
         run.setStatus(event.getId() + "...");
         run.setCurrentTestNumber(event.getTestNumber());
         run.setCurrentTest(test);
-        panel.update(realtimeReporterId);
+        panel.update(realtimeReporterId, test);
     }
 
     private void doProcess(final PostTestEvent event) {
@@ -312,7 +312,7 @@ public class UtplsqlRunner implements RealtimeReporterEventConsumer {
         run.getCounter().setSuccess(run.getCounter().getSuccess() + event.getCounter().getSuccess());
         run.getCounter().setFailure(run.getCounter().getFailure() + event.getCounter().getFailure());
         run.getCounter().setError(run.getCounter().getError() + event.getCounter().getError());
-        panel.update(realtimeReporterId);
+        panel.update(realtimeReporterId, test);
     }
 
     private void produceReportWithDebugger(String anonymousPlsqlBlock) {
