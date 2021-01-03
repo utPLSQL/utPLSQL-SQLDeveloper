@@ -66,6 +66,19 @@ public class StringToolsTest {
         long zoneDiff = TimeZone.getDefault().getRawOffset();
         Assert.assertEquals("1970-01-01T00:00:42.123000", StringTools.millisToDateTimeString(42123 - zoneDiff));
     }
-
+    
+    @Test
+    public void earliest_date_in_millis() {
+        long zoneDiff = TimeZone.getDefault().getRawOffset();
+        final String dateTime = "1970-01-01T00:00:00.000000";
+        Assert.assertEquals(0, StringTools.dateTimeStringToMillis(dateTime) + zoneDiff);
+    }
+    
+    @Test
+    public void date_with_millis() {
+        long zoneDiff = TimeZone.getDefault().getRawOffset();
+        final String dateTime = "1970-01-01T00:00:42.123456";
+        Assert.assertEquals(42123, StringTools.dateTimeStringToMillis(dateTime) + zoneDiff , 0);
+    }
 
 }
