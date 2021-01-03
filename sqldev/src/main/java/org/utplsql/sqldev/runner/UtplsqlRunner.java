@@ -197,6 +197,13 @@ public class UtplsqlRunner implements RealtimeReporterEventConsumer {
         panel.update(realtimeReporterId);
     }
     
+    private boolean logFalseCondition(boolean condition, Supplier<String> msgToLog) {
+        if (!condition) {
+             logger.severe(msgToLog);
+        }
+        return condition;
+    }
+    
     private void doProcess(final PreRunEvent event) {
         run.setTotalNumberOfTests(event.getTotalNumberOfTests());
         run.put(event.getItems());
