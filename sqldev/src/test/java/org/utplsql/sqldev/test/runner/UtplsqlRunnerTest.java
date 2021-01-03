@@ -25,11 +25,35 @@ import org.junit.Test;
 import org.springframework.jdbc.datasource.SingleConnectionDataSource;
 import org.utplsql.sqldev.model.DatabaseTools;
 import org.utplsql.sqldev.model.SystemTools;
+import org.utplsql.sqldev.model.preference.PreferenceModel;
 import org.utplsql.sqldev.runner.UtplsqlRunner;
 import org.utplsql.sqldev.test.AbstractJdbcTest;
 import org.utplsql.sqldev.test.coverage.CodeCoverageReporterTest;
 
+import oracle.ide.config.Preferences;
+
 public class UtplsqlRunnerTest extends AbstractJdbcTest {
+    PreferenceModel preferences;
+    
+    @Before
+    public void setupDefaultPreferences() {
+        try {
+            // first call will fail, second call will succeed (using preferences from user.home)
+            preferences = PreferenceModel.getInstance(Preferences.getPreferences());
+        } catch (NoClassDefFoundError e) {
+            // running outside of SQL Developer, the following log message is shown:
+            // WARNING: No extension registry present. Loading preferences from user.home
+            preferences = PreferenceModel.getInstance(null);
+            // the second call will call will succeed and use preferences from user.home
+            // this ensures that the test and the runner use the same preferences
+            preferences = PreferenceModel.getInstance(Preferences.getPreferences());
+        } finally {
+            // set defaults manually, since all tests are using the same preference store
+            preferences.setShowSuccessfulTests(true);
+            preferences.setShowWarningIndicator(false);
+            preferences.setShowInfoIndicator(false);
+        }
+    }
 
     @Before
     public void setup() {
@@ -158,6 +182,22 @@ public class UtplsqlRunnerTest extends AbstractJdbcTest {
         runner.dispose();
     }
 
+    @Test
+    public void runTestsHidingSuccesfulRuns() {
+        preferences.setShowSuccessfulTests(false);
+        preferences.setShowWarningIndicator(true);
+        preferences.setShowInfoIndicator(true);
+        UtplsqlRunner runner = new UtplsqlRunner(Collections.singletonList(":a"), getNewConnection(), getNewConnection());
+        runner.runTestAsync();
+
+        SystemTools.waitForThread(runner.getProducerThread(), 200000);
+        SystemTools.waitForThread(runner.getConsumerThread(), 200000);
+        SystemTools.sleep(4 * 1000);
+        Assert.assertNotNull(runner);
+        runner.dispose();
+    }
+
+    
     @Test
     public void runTestsWithCodeCoverage() {
         UtplsqlRunner runner = new UtplsqlRunner(Collections.singletonList(":test_f"), null, null, null, getNewConnection(), getNewConnection());
