@@ -231,6 +231,48 @@ public class UtplsqlRunner implements RealtimeReporterEventConsumer {
     }
 
     private void doProcess(final PostSuiteEvent event) {
+        final ItemNode node = run.getItemNodes().get(event.getId());
+        assert logFalseCondition(node != null, () -> "Could not find suite id \"" + event.getId()
+                + "\" when processing PostSuiteEvent " + event.toString() + ".");
+        final Suite suite = (Suite) node.getUserObject();
+        if (suite.getEndTime() == null) {
+            // first occurrence, multiple possible, e.g. ut_tester and ut_user in utPLSQL project
+            suite.setStartTime(event.getStartTime());
+            suite.setEndTime(event.getEndTime());
+            suite.setExecutionTime(event.getExecutionTime());
+            suite.setCounter(event.getCounter());
+            suite.setErrorStack(event.getErrorStack());
+            suite.setWarnings(event.getWarnings());
+            suite.setServerOutput(event.getServerOutput());
+        } else {
+            // subsequent occurrence, aggregate
+            suite.setEndTime(event.getEndTime());
+            suite.setExecutionTime(suite.getExecutionTime() + event.getExecutionTime());
+            suite.getCounter().setWarning(suite.getCounter().getWarning() + event.getCounter().getWarning());
+            suite.getCounter().setDisabled(suite.getCounter().getDisabled() + event.getCounter().getDisabled());
+            suite.getCounter().setSuccess(suite.getCounter().getSuccess() + event.getCounter().getSuccess());
+            suite.getCounter().setFailure(suite.getCounter().getFailure() + event.getCounter().getFailure());
+            suite.getCounter().setError(suite.getCounter().getError() + event.getCounter().getError());
+            if (event.getWarnings() != null) {
+                StringBuilder sb = new StringBuilder();
+                if (suite.getWarnings() != null) {
+                    sb.append(suite.getWarnings());
+                    sb.append("\n\n");
+                }
+                sb.append(event.getWarnings());
+                suite.setWarnings(sb.toString());
+            }
+            if (event.getServerOutput() != null) {
+                StringBuilder sb = new StringBuilder();
+                if (suite.getServerOutput() != null) {
+                    sb.append(suite.getServerOutput());
+                    sb.append("\n\n");
+                }
+                sb.append(event.getServerOutput());
+                suite.setServerOutput(sb.toString());
+            }
+        }
+        
         final Test test = run.getCurrentTest();
         // Errors on suite levels are reported as warnings by the utPLSQL framework, 
         // since an error on suite level does not affect a status of a test.
