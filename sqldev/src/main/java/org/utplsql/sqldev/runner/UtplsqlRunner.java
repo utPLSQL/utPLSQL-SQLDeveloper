@@ -314,12 +314,9 @@ public class UtplsqlRunner implements RealtimeReporterEventConsumer {
 
     private void doProcess(final PreTestEvent event) {
         final Test test = run.getTest(event.getId());
-        if (test == null) {
-            logger.severe(() -> "Could not find test id \"" + event.getId() + "\" when processing PreTestEvent "
-                    + event.toString() + ".");
-        } else {
-            test.setStartTime(getSysdate());
-        }
+        assert logFalseCondition(test != null, () -> "Could not find test id \"" + event.getId()
+                + "\" when processing PreTestEvent " + event.toString() + ".");
+        test.setStartTime(StringTools.getSysdate());
         run.setStatus(event.getId() + "...");
         run.setCurrentTestNumber(event.getTestNumber());
         run.setCurrentTest(test);
