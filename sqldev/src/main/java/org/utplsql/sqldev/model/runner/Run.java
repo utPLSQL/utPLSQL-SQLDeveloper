@@ -19,6 +19,8 @@ import java.sql.Connection;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.springframework.core.style.ToStringCreator;
 import org.utplsql.sqldev.model.JsonToStringStyler;
@@ -38,9 +40,9 @@ public class Run {
     private Integer infoCount;
     private String errorStack;
     private String serverOutput;
-    private final LinkedHashSet<Item> items;
-    private LinkedHashMap<String, Test> tests;
-    private LinkedHashMap<String, ItemNode> itemNodes;
+    private final Set<Item> items;
+    private Map<String, Test> tests;
+    private Map<String, ItemNode> itemNodes;
     private String status;
     private Long start;
     // to abort connections, producerConn is handled by UtplsqlRunner
@@ -260,7 +262,7 @@ public class Run {
     }
 
     public LinkedHashMap<String, Test> getTests() {
-        return tests;
+        return (LinkedHashMap<String, Test>) tests;
     }
 
     public void setTests(final LinkedHashMap<String, Test> tests) {
@@ -268,7 +270,7 @@ public class Run {
     }
     
     public LinkedHashMap<String, ItemNode> getItemNodes() {
-        return itemNodes;
+        return (LinkedHashMap<String, ItemNode>) itemNodes;
     }
 
     public void setItemNodes(LinkedHashMap<String, ItemNode> itemNodes) {
