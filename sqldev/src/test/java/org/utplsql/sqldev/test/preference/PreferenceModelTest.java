@@ -41,6 +41,7 @@ public class PreferenceModelTest {
         Assert.assertTrue(model.isShowDisabledTests());
         Assert.assertFalse(model.isShowTestDescription());
         Assert.assertTrue(model.isSyncDetailTab());
+        Assert.assertTrue(model.isShowSuites());
         Assert.assertEquals("test_", model.getTestPackagePrefix());
         Assert.assertEquals("", model.getTestPackageSuffix());
         Assert.assertEquals("", model.getTestUnitPrefix());
