@@ -15,8 +15,11 @@
  */
 package org.utplsql.sqldev.model.runner;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import javax.swing.Icon;
@@ -24,12 +27,17 @@ import javax.swing.tree.DefaultMutableTreeNode;
 
 import org.utplsql.sqldev.resources.UtplsqlResources;
 
-public class ItemNode extends DefaultMutableTreeNode {
+public class ItemNode extends DefaultMutableTreeNode implements Comparable<ItemNode> {
 
     private static final long serialVersionUID = -4053143673822661743L;
 
     public ItemNode(Item userObject) {
         super(userObject, userObject instanceof Suite);
+    }
+    
+    @Override
+    public int compareTo(ItemNode other) {
+        return getId().compareTo(other.getId());
     }
 
     public String getId() {
@@ -152,6 +160,42 @@ public class ItemNode extends DefaultMutableTreeNode {
 
     public Icon getInfoIcon() {
         return ((Item) getUserObject()).getInfoIcon();
+    }
+    
+    /**
+     * Calculates non-overlapping items.
+     * 
+     * This can be used to build a list of suites to be started by utPLSQL while ensuring that 
+     * 
+     *   - all requested tests are executed, but not more than once 
+     *   - the test execution is efficient by ensuring that the list is as short as possible
+     * 
+     * This means if all tests of a suite shall be executed that the suit should be
+     * part of the result list and not all of its tests.
+     * 
+     * In other words, top-level nodes are preferred to produce an optimal result.
+     * 
+     * @param selectedNodes all selected nodes must be part of the same tree
+     * @return non-overlapping set of nodes
+     */
+    public static Set<ItemNode> createNonOverlappingSet(List<ItemNode> selectedNodes) {
+        HashSet<ItemNode> result = new HashSet<>();
+        if (selectedNodes != null && selectedNodes.size() > 0) {
+            HashSet<ItemNode> expandedResult = new HashSet<>();
+            List<ItemNode> sortedNodes = new ArrayList<>(selectedNodes);
+            Collections.sort(sortedNodes);
+            for (ItemNode sortedNode : sortedNodes) {
+                if (!expandedResult.contains(sortedNode)) {
+                    result.add(sortedNode);
+                    Enumeration<?> expandedNodes = sortedNode.preorderEnumeration();
+                    while (expandedNodes.hasMoreElements()) {
+                        ItemNode expandedNode = (ItemNode) expandedNodes.nextElement();
+                        expandedResult.add(expandedNode);
+                    }
+                }
+            }
+        }
+        return result;
     }
 
 }
