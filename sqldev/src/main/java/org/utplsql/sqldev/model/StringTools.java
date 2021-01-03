@@ -113,4 +113,11 @@ public class StringTools {
         return value != null && !value.trim().isEmpty();
     }
 
+    public static String trim(String value) {
+        if (value == null) {
+            return null;
+        }
+        return value.trim();
+    }
+
 }
