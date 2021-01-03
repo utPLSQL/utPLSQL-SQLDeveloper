@@ -743,9 +743,12 @@ public class RunnerPanel {
         } else {
             // tree-table
             TreePath[] selectionPaths = testOverviewTreeTable.getTree().getSelectionPaths();
+            ArrayList<ItemNode> selectedNodes = new ArrayList<>();
             if (selectionPaths != null) {
                 for (final TreePath path : selectionPaths) {
-                    final ItemNode node = (ItemNode) path.getLastPathComponent();
+                    selectedNodes.add((ItemNode) path.getLastPathComponent());
+                }
+                for (final ItemNode node : ItemNode.createNonOverlappingSet(selectedNodes)) {
                     if (node.getOwnerName().equals("***")) {
                         // process children, which must be owners only.
                         pathList.addAll(node.getOwners());
