@@ -130,13 +130,13 @@ public class XMLTools {
         Node resultNode = null;
         if (node instanceof Element) {
             NodeList list = ((Element) node).getElementsByTagName(tagName);
-            if (list != null && list.getLength() > 0) {
+            if (list != null && list.getLength() > 0 && list.item(0).getParentNode() == node) {
                 resultNode = list.item(0);
             }
         }
         return resultNode;
     }
-
+    
     public DocumentBuilder createDocumentBuilder() {
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         try {

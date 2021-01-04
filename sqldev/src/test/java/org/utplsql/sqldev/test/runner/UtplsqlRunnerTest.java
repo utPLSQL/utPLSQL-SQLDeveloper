@@ -52,6 +52,7 @@ public class UtplsqlRunnerTest extends AbstractJdbcTest {
             preferences.setShowSuccessfulTests(true);
             preferences.setShowWarningIndicator(false);
             preferences.setShowInfoIndicator(false);
+            preferences.setShowTestDescription(true);
         }
     }
 

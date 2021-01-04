@@ -483,12 +483,6 @@ public class TestOverviewTreeTableModel implements TreeTableModel {
         switch (col) {
             case 0:
                 if (showDescription && itemNode.getDescription() != null) {
-                    if (itemNode.getUserObject() instanceof Suite) {
-                        if (!itemNode.getName().contains("context_#")) {
-                            // description of suites might be bewildering, hence use it for contexts only
-                            return itemNode.getName();
-                        }
-                    }
                     return itemNode.getDescription();
                 } else {
                     return itemNode.getName();
