@@ -405,6 +405,19 @@ public class RunnerPanel {
         }
     }
         
+    private void openItemNode(final ItemNode node) {
+        if (!node.getPackageName().equals("***")) {
+            final UtplsqlDao dao = new UtplsqlDao(DatabaseTools.getConnection(currentRun.getConnectionName()));
+            final String source = dao.getSource(node.getOwnerName(), "PACKAGE", node.getPackageName().toUpperCase()).trim();
+            final UtplsqlParser parser = new UtplsqlParser(source);
+            int line = 1;
+            if (node.getUserObject() instanceof Test) {
+                line = parser.getLineOf(node.getProcedureName());
+            }
+            openEditor(node.getOwnerName(), "PACKAGE", node.getPackageName().toUpperCase(), line, 1);
+        }
+    }
+
     private void openTest(final Test test) {
             final UtplsqlDao dao = new UtplsqlDao(DatabaseTools.getConnection(currentRun.getConnectionName()));
             final String source = dao.getSource(test.getOwnerName(), "PACKAGE", test.getObjectName().toUpperCase()).trim();
@@ -414,11 +427,21 @@ public class RunnerPanel {
     }
 
     private void openSelectedTest() {
-        final int rowIndex = testOverviewTable.getSelectedRow();
-        if (rowIndex != -1) {
-            final int row = testOverviewTable.convertRowIndexToModel(rowIndex);
-            final Test test = testOverviewTableModel.getTest(row);
-            openTest(test);
+        if (!showSuitesCheckBoxMenuItem.isSelected()) {
+            // table
+            final int rowIndex = testOverviewTable.getSelectedRow();
+            if (rowIndex != -1) {
+                final int row = testOverviewTable.convertRowIndexToModel(rowIndex);
+                final Test test = testOverviewTableModel.getTest(row);
+                openTest(test);
+            }
+        } else {
+            // tree-table
+            TreePath path = testOverviewTreeTable.getTree().getSelectionPath();
+            if (path != null) {
+                ItemNode itemNode = (ItemNode) path.getLastPathComponent();
+                openItemNode(itemNode);
+            }
         }
     }
 
@@ -427,14 +450,27 @@ public class RunnerPanel {
         if (rowIndex != -1) {
             final int row = failuresTable.convertRowIndexToModel(rowIndex);
             final Expectation expectation = failuresTableModel.getExpectation(row);
-            final Test test = testOverviewTableModel
-                    .getTest(testOverviewTable.convertRowIndexToModel(testOverviewTable.getSelectedRow()));
-            final Integer callerLine = expectation.getCallerLine();
-            if (callerLine != null) {
-                openEditor(test.getOwnerName(), "PACKAGE BODY", test.getObjectName().toUpperCase(),
-                        expectation.getCallerLine(), 1);
+            Test test = null;
+            if (!showSuitesCheckBoxMenuItem.isSelected()) {
+                // table
+                test = testOverviewTableModel
+                        .getTest(testOverviewTable.convertRowIndexToModel(testOverviewTable.getSelectedRow()));
             } else {
-                openTest(test);
+                // tree-table
+                TreePath path = testOverviewTreeTable.getTree().getSelectionPath();
+                if (path != null) {
+                    ItemNode itemNode = (ItemNode) path.getLastPathComponent();
+                    test = ((Test)itemNode.getUserObject());
+                }
+            }
+            if (test != null) {
+                final Integer callerLine = expectation.getCallerLine();
+                if (callerLine != null) {
+                    openEditor(test.getOwnerName(), "PACKAGE BODY", test.getObjectName().toUpperCase(),
+                            expectation.getCallerLine(), 1);
+                } else {
+                    openTest(test);
+                }
             }
         }
     }
@@ -1412,7 +1448,19 @@ public class RunnerPanel {
                 testOverviewCodeCoverageMenuItem.setEnabled(true);
             }
         });
-        
+        testOverviewTreeTable.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(final MouseEvent e) {
+                if (e.getClickCount() == 2) {
+                    if (failuresTable.getSelectedRowCount() == 1) {
+                        // open failure only if a Test node is selected
+                        openSelectedFailure();
+                    } else {
+                        openSelectedTest();
+                    }
+                }
+            }
+        });        
         final JTree overviewTreeTableName = testOverviewTreeTable.getTree();
         overviewTreeTableName.setCellRenderer(new DefaultTreeCellRenderer() {
             private static final long serialVersionUID = 580783625740405285L;
