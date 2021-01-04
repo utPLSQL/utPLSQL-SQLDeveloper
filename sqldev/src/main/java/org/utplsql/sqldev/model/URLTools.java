@@ -43,7 +43,9 @@ public class URLTools {
         final Pattern p = Pattern.compile("(sqldev.nav:)([^/]+)(//)?");
         final Matcher m = p.matcher(url.toString());
         if (m.find()) {
-            return replaceHexChars(m.group(2).replace("IdeConnections%2523", "IdeConnections%23"));
+            return replaceHexChars(m.group(2)
+                    .replace("IdeConnections%2523", "IdeConnections%23")) // remove connection prefix
+                    .replace("+", " "); // spaces are encoded als plus signs, fix that, see #118
         } else {
             return "";
         }
