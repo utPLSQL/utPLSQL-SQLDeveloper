@@ -469,4 +469,10 @@ public class UtplsqlRunner implements RealtimeReporterEventConsumer {
     public Thread getConsumerThread() {
         return consumerThread;
     }
+    
+    // for testing purposes only
+    public Run getRun() {
+        return run;
+    }
+    
 }
