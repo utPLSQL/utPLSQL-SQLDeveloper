@@ -15,11 +15,19 @@
  */
 package org.utplsql.sqldev.test.runner;
 
+import java.util.Locale;
+
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.utplsql.sqldev.ui.runner.SmartTime;
 
 public class SmartTimeTest {
+    
+    @Before
+    public void setup() {
+        Locale.setDefault(new Locale("en", "US"));
+    }
 
     @Test
     public void null_default() {
