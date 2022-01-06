@@ -923,6 +923,13 @@ public class RunnerPanel {
             localText = localText.substring(0, start) + title + localText.substring(end);
             m = p3.matcher(localText);
         }
+        // replaces two consecutive spaces with two non-breaking spaces to fix #140
+        // assume that consecutive spaces do not conflict with previous replacements
+        // using CSS "white-space: pre-wrap;" does not work within Swing, it's simply ignored.
+        // See https://docs.oracle.com/javase/8/docs/api/javax/swing/text/html/CSS.html
+        // putting text in pre tags is not an option, because this suppresses wrap.
+        localText = localText.replaceAll("  ", "&nbsp;&nbsp;");
+        // add paragraph for each line to preserve line breaks
         StringBuilder sb = new StringBuilder();
         for (final String p : localText.split("\n")) {
             sb.append("<p>");
