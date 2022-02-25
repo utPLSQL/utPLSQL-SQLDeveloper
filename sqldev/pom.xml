@@ -164,6 +164,14 @@
 			<scope>system</scope>
 			<systemPath>${sqldev.basedir}/ide/extensions/oracle.ide.runner.jar</systemPath>
 		</dependency>
+		<dependency>
+			<!-- overriding oddgen dependency -->
+			<groupId>oracle</groupId>
+			<artifactId>javatools-nodeps</artifactId>
+			<version>12.2.1</version>
+			<scope>system</scope>
+			<systemPath>${sqldev.basedir}/modules/oracle.javatools/javatools-nodeps.jar</systemPath>
+		</dependency>
 		<!-- SQL Developer specific dependencies part 2 (used for tests only) -->
 		<dependency>
 			<groupId>oracle</groupId>
@@ -181,7 +189,13 @@
 		</dependency>		
 		<!-- SQL Developer specific dependencies part 3 (available in public maven repositories) -->
 		<dependency>
-			<!-- SQL Developer is using this older version -->
+			<groupId>com.google.code.findbugs</groupId>
+			<artifactId>jsr305</artifactId>
+			<version>3.0.2</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<!-- SQL Developer is using this older version, osgi.core-5.0.0.jar -->
 			<groupId>org.osgi</groupId>
 			<artifactId>org.osgi.core</artifactId>
 			<version>5.0.0</version>
