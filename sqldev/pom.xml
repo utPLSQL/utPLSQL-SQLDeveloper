@@ -472,6 +472,7 @@
 							org.springframework.core.style,
 							org.springframework.lang
 						</_exportcontents>
+						<_noee>true</_noee>
 						<Require-Bundle>
 							oracle.javatools,
 							oracle.javatools-nodeps,
