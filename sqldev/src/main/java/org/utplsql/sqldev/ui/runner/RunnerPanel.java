@@ -1570,6 +1570,8 @@ public class RunnerPanel {
         showTestDescriptionCheckBoxMenuItem.addActionListener(event -> {
             applyShowTestDescription();
             fixCheckBoxMenuItem(showTestDescriptionCheckBoxMenuItem);
+            // force refresh to fix issue #131 (truncated name/description), accepting side-effect, that the selection is lost
+            refreshAction();
         });
         testOverviewPopupMenu.add(showTestDescriptionCheckBoxMenuItem);
         showWarningIndicatorCheckBoxMenuItem = new JCheckBoxMenuItem(UtplsqlResources.getString("PREF_SHOW_WARNING_INDICATOR_LABEL").replace("?", ""), true);
