@@ -16,7 +16,7 @@
             <![CDATA[--%displayname(<description>)]]>
          </code>
       </snippet>
-      <snippet name="test" description="Procedure level. Denotes that the annotated procedure is a unit test procedure. Optional test description can by provided (see displayname).">
+      <snippet name="test" description="Procedure level. Denotes that the annotated procedure is a unit test procedure. Optional test description can be provided (see displayname).">
          <code>
             <![CDATA[--%test(<description>)]]>
          </code>
@@ -71,176 +71,191 @@
             <![CDATA[--%beforetest([[<owner>.]<package>.]<procedure>[,...])]]>
          </code>
       </snippet>
-      <snippet name="aftertest" description="Procedure level. Denotes that mentioned procedure(s) should be executed after the annotated %test procedure">
+      <snippet name="aftertest" description="Procedure level. Denotes that mentioned procedure(s) should be executed after the annotated %test procedure.">
          <code>
             <![CDATA[--%aftertest([[<owner>.]<package>.]<procedure>[,...])]]>
          </code>
       </snippet>
-      <snippet name="rollback" description="Package/procedure level. Defines transaction control. Supported values: auto(default) - a savepoint is created before invocation of each “before block” is and a rollback to specific savepoint is issued after each “after” block; manual - rollback is never issued automatically">
+      <snippet name="rollback" description="Package/procedure level. Defines transaction control. Supported values: auto(default) - a savepoint is created before invocation of each “before block” is and a rollback to specific savepoint is issued after each “after” block; manual - rollback is never issued automatically.">
          <code>
             <![CDATA[--%rollback(<type>)]]>
          </code>
       </snippet>
-      <snippet name="disabled" description="Package/procedure level. Used to disable a suite or a test. Disabled suites/tests do not get executed, they are however marked and reported as disabled in a test run.">
+      <snippet name="disabled" description="Package/procedure level. Used to disable a suite, whole context or a test. Disabled suites/contexts/tests do not get executed, they are however marked and reported as disabled in a test run. The reason that will be displayed next to disabled tests is decided based on hierarchy suites -> context -> test.">
          <code>
-            <![CDATA[--%disabled]]>
+            <![CDATA[--%disabled(<reason>)]]>
          </code>
       </snippet>
-      <snippet name="context" description="Package level. Denotes start of a named context (sub-suite) in a suite package">
+      <snippet name="context" description="Package level. Denotes start of a named context (sub-suite) in a suite package.">
          <code>
             <![CDATA[--%context(<name>)]]>
          </code>
       </snippet>
-      <snippet name="endcontext" description="Package level. Denotes end of a nested context (sub-suite) in a suite package">
+      <snippet name="name" description="Package level. Denotes name for a context. Must be placed after the context annotation and before start of nested context.">
+         <code>
+            <![CDATA[--%name(<name>)]]>
+         </code>
+      </snippet>
+      <snippet name="endcontext" description="Package level. Denotes end of a nested context (sub-suite) in a suite package.">
          <code>
             <![CDATA[--%endcontext]]>
          </code>
       </snippet>
-      <snippet name="tags" description="Package/procedure level. Used to label a test or a suite for purpose of identification">
+      <snippet name="tags" description="Package/procedure level. Used to label a test or a suite for purpose of identification.">
          <code>
-            <![CDATA[--%tags]]>
+            <![CDATA[--%tags(<tag>[,...])]]>
          </code>
       </snippet>
    </group>
    <group category="utPLSQL Expectations" language="PLSQL">
       <snippet name="be_between" description="Validates that the actual value is between the lower and upper bound.">
          <code>
-            <![CDATA[ut.expect(n1).to_be_between(n2);]]>
+            <![CDATA[ut.expect(l_actual).to_be_between(l_expected_lower_bound, l_expected_upper_bound);]]>
          </code>
       </snippet>
-      <snippet name="be_empty" description="Unary matcher that validates if the provided dataset is empty">
+      <snippet name="be_empty" description="Unary matcher that validates if the provided dataset is empty.">
          <code>
-            <![CDATA[ut.expect(n).to_be_empty();]]>
+            <![CDATA[ut.expect(l_actual).to_be_empty();]]>
          </code>
       </snippet>
       <snippet name="be_false" description="Unary matcher that validates if the provided value is false.">
          <code>
-            <![CDATA[ut.expect(n).to_be_false();]]>
+            <![CDATA[ut.expect(l_actual).to_be_false();]]>
          </code>
       </snippet>
       <snippet name="be_greater_or_equal" description="Checks if the actual value is greater or equal than the expected.">
          <code>
-            <![CDATA[ut.expect(n1).to_be_greater_or_equal(n2);]]>
+            <![CDATA[ut.expect(l_actual).to_be_greater_or_equal(l_expected);]]>
          </code>
       </snippet>
       <snippet name="be_greater_than" description="Checks if the actual value is greater than the expected.">
          <code>
-            <![CDATA[ut.expect(n1).to_be_greater_than(n2);]]>
+            <![CDATA[ut.expect(l_actual).to_be_greater_than(l_expected);]]>
          </code>
       </snippet>
       <snippet name="be_less_or_equal" description="Checks if the actual value is less or equal than the expected.">
          <code>
-            <![CDATA[ut.expect(n1).to_be_less_or_equal(n2);]]>
+            <![CDATA[ut.expect(l_actual).to_be_less_or_equal(l_expected);]]>
          </code>
       </snippet>
       <snippet name="be_less_than" description="Checks if the actual value is less than the expected.">
          <code>
-            <![CDATA[ut.expect(n1).to_be_less_than(n2);]]>
+            <![CDATA[ut.expect(l_actual).to_be_less_than(l_expected);]]>
          </code>
       </snippet>
       <snippet name="be_like" description="Validates that the actual value is like the expected expression.">
          <code>
-            <![CDATA[ut.expect(n1).to_be_like(n2);]]>
+            <![CDATA[ut.expect(l_actual).to_be_like('abc%\_t', '\');]]>
          </code>
       </snippet>
       <snippet name="be_not_null" description="Unary matcher that validates if the actual value is not null.">
          <code>
-            <![CDATA[ut.expect(n).to_be_not_null();]]>
+            <![CDATA[ut.expect(l_actual).to_be_not_null();]]>
          </code>
       </snippet>
       <snippet name="be_null" description="Unary matcher that validates if the actual value is null.">
          <code>
-            <![CDATA[ut.expect(n).to_be_null();]]>
+            <![CDATA[ut.expect(l_actual).to_be_null();]]>
          </code>
       </snippet>
       <snippet name="be_true" description="Unary matcher that validates if the provided value is true.">
          <code>
-            <![CDATA[ut.expect(n).to_be_true();]]>
+            <![CDATA[ut.expect(l_actual).to_be_true();]]>
          </code>
       </snippet>
       <snippet name="have_count" description="Unary matcher that validates if the provided dataset count is equal to expected value.">
          <code>
-            <![CDATA[ut.expect(n1).to_have_count(n2);]]>
+            <![CDATA[ut.expect(l_actual).to_have_count(1);]]>
          </code>
       </snippet>
       <snippet name="match" description="Validates that the actual value is matching the expected regular expression.">
          <code>
-            <![CDATA[ut.expect(n1).to_match(n2);]]>
+            <![CDATA[ut.expect(l_actual).to_match('^[a-z]\d{3}$', 'i');]]>
          </code>
       </snippet>
       <snippet name="equal" description="Validate that actual value is equal to expected">
          <code>
-            <![CDATA[ut.expect(n1).to_equal(n2);]]>
+            <![CDATA[ut.expect(l_actual).to_equal(l_expected);]]>
          </code>
       </snippet>
       <snippet name="contain" description="This matcher supports only compound data comparison. It check if the give set contain all values from given subset.">
          <code>
-            <![CDATA[ut.expect(n1).to_contain(n2);]]>
+            <![CDATA[ut.expect(c_actual).to_contain(c_expected);]]>
+         </code>
+      </snippet>
+      <snippet name="to_be_within_pct" description="Determines whether actual value is within percentage range of expected value. The matcher only works with number data-type.">
+         <code>
+            <![CDATA[ut.expect(l_actual).to_be_within_pct(l_percent).of_(l_expected);]]>
          </code>
       </snippet>
       <snippet name="not_to_be_empty" description="Unary matcher that validates if the provided dataset is not empty">
          <code>
-            <![CDATA[ut.expect(n).not_to_be_empty();]]>
+            <![CDATA[ut.expect(l_actual).not_to_be_empty();]]>
          </code>
       </snippet>
       <snippet name="not_to_be_false" description="Unary matcher that validates if the provided value is not false.">
          <code>
-            <![CDATA[ut.expect(n).not_to_be_false();]]>
+            <![CDATA[ut.expect(l_actual).not_to_be_false();]]>
          </code>
       </snippet>
       <snippet name="not_to_be_greater_or_equal" description="Checks if the actual value is not greater or equal than the expected.">
          <code>
-            <![CDATA[ut.expect(n1).not_to_be_greater_or_equal(n2);]]>
+            <![CDATA[ut.expect(l_actual).not_to_be_greater_or_equal(l_expected);]]>
          </code>
       </snippet>
       <snippet name="not_to_be_greater_than" description="Checks if the actual value is not greater than the expected.">
          <code>
-            <![CDATA[ut.expect(n1).not_to_be_greater_than(n2);]]>
+            <![CDATA[ut.expect(l_actual).not_to_be_greater_than(l_expected);]]>
          </code>
       </snippet>
       <snippet name="not_to_be_less_or_equal" description="Checks if the actual value is not less or equal than the expected.">
          <code>
-            <![CDATA[ut.expect(n1).not_to_be_less_or_equal(n2);]]>
+            <![CDATA[ut.expect(l_actual).not_to_be_less_or_equal(l_expected);]]>
          </code>
       </snippet>
       <snippet name="not_to_be_less_than" description="Checks if the actual value is not less than the expected.">
          <code>
-            <![CDATA[ut.expect(n1).not_to_be_less_than(n2);]]>
+            <![CDATA[ut.expect(l_actual).not_to_be_less_than(l_expected);]]>
          </code>
       </snippet>
       <snippet name="not_to_be_like" description="Validates that the actual value is not like the expected expression.">
          <code>
-            <![CDATA[ut.expect(n1).not_to_be_like(n2);]]>
+            <![CDATA[ut.expect(l_actual).not_to_be_like('abc%\_t', '\');]]>
          </code>
       </snippet>
       <snippet name="not_to_have_count" description="Unary matcher that validates if the provided dataset count is not equal to expected value.">
          <code>
-            <![CDATA[ut.expect(n1).not_to_have_count(n2);]]>
+            <![CDATA[ut.expect(l_actual).not_to_have_count(1);]]>
          </code>
       </snippet>
       <snippet name="not_to_match" description="Validates that the actual value is not matching the expected regular expression.">
          <code>
-            <![CDATA[ut.expect(n1).not_to_match(n2);]]>
+            <![CDATA[ut.expect(l_actual).not_to_match('^[a-z]\d{3}$', 'i');]]>
          </code>
       </snippet>
       <snippet name="not_to_equal" description="Validate that actual value is not equal to expected">
          <code>
-            <![CDATA[ut.expect(n1).not_to_equal(n2);]]>
+            <![CDATA[ut.expect(l_actual).not_to_equal(l_expected);]]>
          </code>
       </snippet>
       <snippet name="not_to_contain" description="This matcher supports only compound data comparison. It check if the give set not contain all values from given subset.">
          <code>
-            <![CDATA[ut.expect(n1).not_to_contain(n2);]]>
+            <![CDATA[ut.expect(c_actual).not_to_contain(c_expected);]]>
+         </code>
+      </snippet>
+      <snippet name="not_to_be_within_pct" description="Determines whether actual value is not within percentage range of expected value. The matcher only works with number data-type.">
+         <code>
+            <![CDATA[ut.expect(l_actual).not_to_be_within_pct(l_percent).of_(l_expected);]]>
          </code>
       </snippet>
       <snippet name=".include" description="Valid only for compound data types. Item, comma separated list of items or table of items to include">
          <code>
-            <![CDATA[.include(n)]]>
+            <![CDATA[.include('COLUMN1').include(ut_varchar2_list('COLUMN2', 'COLUMN3'))]]>
          </code>
       </snippet>
       <snippet name=".exclude" description="Valid only for compound data types. Item, comma separated list of items or table of items to exclude">
          <code>
-            <![CDATA[.exclude(n)]]>
+            <![CDATA[.exclude('COLUMN1').exclude(ut_varchar2_list('COLUMN2', 'COLUMN3'))]]>
          </code>
       </snippet>
       <snippet name=".unordered" description="Valid only for compound data types.ignore order of data sets when comparing data. Default when comparing data-sets with to_contain">
@@ -250,7 +265,7 @@
       </snippet>
       <snippet name=".join_by" description="Valid only for compound data types. Item, comma separated list of items or table of items to join by two cursors">
          <code>
-            <![CDATA[.join_by(n)]]>
+            <![CDATA[.join_by('COLUMN1, COLUMN2')]]>
          </code>
       </snippet>
       <snippet name=".unordered_columns" description="Valid only for compound data types. Ignore the ordering of columns / attributes in compared data-sets. Column/attribute names will be used to identify data to be compared and the position will be ignored.">

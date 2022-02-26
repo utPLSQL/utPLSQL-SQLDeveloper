@@ -142,6 +142,7 @@ public class RunnerPanel {
     private RunnerTextField testPackageTextField;
     private RunnerTextField testProcedureTextField;
     private RunnerTextArea testDescriptionTextArea;
+    private RunnerTextArea testDisabledReasonTextArea;
     private RunnerTextArea testIdTextArea;
     private RunnerTextField testStartTextField;
     private FailuresTableModel failuresTableModel;
@@ -249,6 +250,7 @@ public class RunnerPanel {
         testPackageTextField.setText(null);
         testProcedureTextField.setText(null);
         testDescriptionTextArea.setText(null);
+        testDisabledReasonTextArea.setText(null);
         testStartTextField.setText(null);
         failuresTableModel.setModel(null);
         failuresTableModel.fireTableDataChanged();
@@ -1345,6 +1347,7 @@ public class RunnerPanel {
                 testPackageTextField.setText(test.getObjectName());
                 testProcedureTextField.setText(test.getProcedureName());
                 testDescriptionTextArea.setText(StringTools.trim(test.getDescription()));
+                testDisabledReasonTextArea.setText(StringTools.trim(test.getDisabledReason()));
                 testIdTextArea.setText(test.getId());
                 testStartTextField.setText(StringTools.formatDateTime(test.getStartTime()));
                 failuresTableModel.setModel(test.getFailedExpectations());
@@ -1445,11 +1448,12 @@ public class RunnerPanel {
                     if (test.getFailedExpectations() != null && !test.getFailedExpectations().isEmpty()) {
                         failuresTable.setRowSelectionInterval(0, 0);
                     }
+                    testDisabledReasonTextArea.setText(test.getDisabledReason());
                 } else {
                     failuresTableModel.setModel(null);
                     failuresTableModel.fireTableDataChanged();
                     testFailureMessageTextPane.setText(null);
-                    
+                    testDisabledReasonTextArea.setText(null);
                 }
                 testErrorStackTextPane.setText(getHtml(StringTools.trim(item.getErrorStack())));
                 testWarningsTextPane.setText(getHtml(StringTools.trim(item.getWarnings())));
@@ -1714,11 +1718,39 @@ public class RunnerPanel {
         c.weightx = 1;
         c.weighty = 0;
         testInfoPanel.add(testDescriptionTextArea, c);
+        // - Disabled Reason
+        final JLabel testDisabledReasonLabel = new JLabel(UtplsqlResources.getString("RUNNER_DISABLED_REASON_LABEL"));
+        testDisabledReasonLabel.setBorder(BorderFactory.createEmptyBorder(isMacLookAndFeel() ? 5 : 3, 0, 0, 0));
+        c.gridx = 0;
+        c.gridy = 4;
+        c.gridwidth = 1;
+        c.gridheight = 1;
+        c.insets = new Insets(5, 10, 0, 0); // top, left, bottom, right
+        c.anchor = GridBagConstraints.NORTHWEST;
+        c.fill = GridBagConstraints.NONE;
+        c.weightx = 0;
+        c.weighty = 0;
+        testInfoPanel.add(testDisabledReasonLabel, c);
+        testDisabledReasonTextArea = new RunnerTextArea();
+        testDisabledReasonTextArea.setEditable(false);
+        testDisabledReasonTextArea.setEnabled(true);
+        testDisabledReasonTextArea.setLineWrap(true);
+        testDisabledReasonTextArea.setWrapStyleWord(true);
+        c.gridx = 1;
+        c.gridy = 4;
+        c.gridwidth = 1;
+        c.gridheight = 1;
+        c.insets = new Insets(5, 5, 0, 10); // top, left, bottom, right
+        c.anchor = GridBagConstraints.WEST;
+        c.fill = GridBagConstraints.HORIZONTAL;
+        c.weightx = 1;
+        c.weighty = 0;
+        testInfoPanel.add(testDisabledReasonTextArea, c);
         // - Suitepath (id)
         final JLabel testIdLabel = new JLabel(UtplsqlResources.getString("RUNNER_TEST_ID_COLUMN"));
         testIdLabel.setBorder(BorderFactory.createEmptyBorder(isMacLookAndFeel() ? 5 : 3, 0, 0, 0));
         c.gridx = 0;
-        c.gridy = 4;
+        c.gridy = 5;
         c.gridwidth = 1;
         c.gridheight = 1;
         c.insets = new Insets(5, 10, 0, 0); // top, left, bottom, right
@@ -1733,7 +1765,7 @@ public class RunnerPanel {
         testIdTextArea.setLineWrap(true);
         testIdTextArea.setWrapStyleWord(false);
         c.gridx = 1;
-        c.gridy = 4;
+        c.gridy = 5;
         c.gridwidth = 1;
         c.gridheight = 1;
         c.insets = new Insets(5, 5, 0, 10); // top, left, bottom, right
@@ -1745,7 +1777,7 @@ public class RunnerPanel {
         // - Start
         final JLabel testStartLabel = new JLabel(UtplsqlResources.getString("RUNNER_START_LABEL"));
         c.gridx = 0;
-        c.gridy = 5;
+        c.gridy = 6;
         c.gridwidth = 1;
         c.gridheight = 1;
         c.insets = new Insets(5, 10, 10, 0); // top, left, bottom, right
@@ -1757,7 +1789,7 @@ public class RunnerPanel {
         testStartTextField = new RunnerTextField();
         testStartTextField.setEditable(false);
         c.gridx = 1;
-        c.gridy = 5;
+        c.gridy = 6;
         c.gridwidth = 1;
         c.gridheight = 1;
         c.insets = new Insets(5, 5, 10, 10); // top, left, bottom, right
@@ -1766,8 +1798,9 @@ public class RunnerPanel {
         c.weightx = 1;
         c.weighty = 0;
         testInfoPanel.add(testStartTextField, c);
+        // - Vertical filler
         c.gridx = 0;
-        c.gridy = 6;
+        c.gridy = 7;
         c.gridwidth = 1;
         c.gridheight = 1;
         c.insets = new Insets(0, 0, 0, 0); // top, left, bottom, right
@@ -1944,10 +1977,12 @@ public class RunnerPanel {
                     BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(new Color(219, 219, 219)),
                             BorderFactory.createEmptyBorder(1, 1, 1, 1)));
             testDescriptionTextArea.setBorder(border);
+            testDisabledReasonTextArea.setBorder(border);
             testIdTextArea.setBorder(border);
         } else {
             final Border referenceBorder = testOwnerTextField.getBorder();
             testDescriptionTextArea.setBorder(referenceBorder);
+            testDisabledReasonTextArea.setBorder(referenceBorder);
             testIdTextArea.setBorder(referenceBorder);
         }
     }

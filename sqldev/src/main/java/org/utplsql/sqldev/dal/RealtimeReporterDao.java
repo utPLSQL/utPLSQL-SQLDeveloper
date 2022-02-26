@@ -355,6 +355,7 @@ public class RealtimeReporterDao {
             test.setObjectName(xmlTools.getElementValue(node, "objectName"));
             test.setProcedureName(xmlTools.getElementValue(node, "procedureName"));
             test.setDisabled("true".equals(xmlTools.getElementValue(node, "disabled")));
+            test.setDisabledReason(xmlTools.getElementValue(node, "disabledReason"));
             test.setName(xmlTools.getElementValue(node, "name"));
             test.setDescription(xmlTools.getElementValue(node, "description"));
             test.setTestNumber(Integer.valueOf(xmlTools.getElementValue(node, "testNumber")));

@@ -26,6 +26,7 @@ public class Test extends Item {
     private String objectName;
     private String procedureName;
     private Boolean disabled;
+    private String disabledReason;
     private Integer testNumber;
     private List<Expectation> failedExpectations;
 
@@ -53,6 +54,7 @@ public class Test extends Item {
                 .append("objectName", objectName)
                 .append("procedureName", procedureName)
                 .append("disabled", disabled)
+                .append("disabledReason", disabledReason)
                 .append("testNumber", testNumber)
                 .append("failedExpectations", failedExpectations)
                 .toString();
@@ -96,6 +98,14 @@ public class Test extends Item {
 
     public void setDisabled(final Boolean disabled) {
         this.disabled = disabled;
+    }
+
+    public String getDisabledReason() {
+        return disabledReason;
+    }
+
+    public void setDisabledReason(final String disabledReason) {
+        this.disabledReason = disabledReason;
     }
 
     public Integer getTestNumber() {

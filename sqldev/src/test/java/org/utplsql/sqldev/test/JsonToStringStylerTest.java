@@ -191,6 +191,7 @@ public class JsonToStringStylerTest {
         sb.append("            \"objectName\": null,\n");
         sb.append("            \"procedureName\": null,\n");
         sb.append("            \"disabled\": null,\n");
+        sb.append("            \"disabledReason\": null,\n");
         sb.append("            \"testNumber\": null,\n");
         sb.append("            \"failedExpectations\": null\n");
         sb.append("        },\n");
@@ -222,6 +223,7 @@ public class JsonToStringStylerTest {
         sb.append("            \"objectName\": null,\n");
         sb.append("            \"procedureName\": null,\n");
         sb.append("            \"disabled\": null,\n");
+        sb.append("            \"disabledReason\": null,\n");
         sb.append("            \"testNumber\": null,\n");
         sb.append("            \"failedExpectations\": null\n");
         sb.append("        }\n");
