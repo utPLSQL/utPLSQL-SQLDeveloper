@@ -345,6 +345,8 @@ public class RunnerPanel {
 
     private void applyShowSuites() {
         applyFilter(showSuccessfulTestsCheckBoxMenuItem.isSelected(), showDisabledTestsCheckBoxMenuItem.isSelected());
+        final TableColumn overviewTreeTableTime = testOverviewTreeTable.getColumnModel().getColumn(3);
+        final TableColumn overviewTableTime = testOverviewTable.getColumnModel().getColumn(4);
         if (showSuitesCheckBoxMenuItem.isSelected()) {
             testOverviewScrollPane.setViewportView(testOverviewTreeTable);
             // sync in tree-table - just first selected test
@@ -357,6 +359,7 @@ public class RunnerPanel {
                     testOverviewTreeTable.getTree().setSelectionPath(new TreePath(itemNode.getPath()));
                 }
             }
+            overviewTreeTableTime.setPreferredWidth(overviewTableTime.getWidth());
         } else {
             testOverviewScrollPane.setViewportView(testOverviewTable);
             // sync in table - just first test in selected item
@@ -372,6 +375,7 @@ public class RunnerPanel {
                 }
                 selectTestInTestOverviewTable(test);
             }
+            overviewTableTime.setPreferredWidth(overviewTreeTableTime.getWidth());
         }
         showSelectedRow();
     }
