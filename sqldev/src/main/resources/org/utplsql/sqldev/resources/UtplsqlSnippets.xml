@@ -81,9 +81,9 @@
             <![CDATA[--%rollback(<type>)]]>
          </code>
       </snippet>
-      <snippet name="disabled" description="Package/procedure level. Used to disable a suite or a test. Disabled suites/tests do not get executed, they are however marked and reported as disabled in a test run.">
+      <snippet name="disabled" description="Package/procedure level. Used to disable a suite, whole context or a test. Disabled suites/contexts/tests do not get executed, they are however marked and reported as disabled in a test run. The reason that will be displayed next to disabled tests is decided based on hierarchy suites -> context -> test.">
          <code>
-            <![CDATA[--%disabled]]>
+            <![CDATA[--%disabled(<reason>)]]>
          </code>
       </snippet>
       <snippet name="context" description="Package level. Denotes start of a named context (sub-suite) in a suite package">
