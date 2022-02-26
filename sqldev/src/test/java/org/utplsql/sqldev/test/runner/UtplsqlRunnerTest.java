@@ -184,7 +184,7 @@ public class UtplsqlRunnerTest extends AbstractJdbcTest {
     }
 
     @Test
-    public void runTestsHidingSuccesfulRuns() {
+    public void runTestsHidingSuccessfulRuns() {
         preferences.setShowSuccessfulTests(false);
         preferences.setShowWarningIndicator(true);
         preferences.setShowInfoIndicator(true);
