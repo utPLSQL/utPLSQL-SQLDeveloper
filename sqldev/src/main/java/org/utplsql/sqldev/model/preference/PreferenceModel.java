@@ -172,7 +172,7 @@ public class PreferenceModel extends HashStructureAdapter {
     }
 
     public boolean isShowDisabledCounter() {
-        return getHashStructure().getBoolean(KEY_SHOW_DISABLED_COUNTER, false);
+        return getHashStructure().getBoolean(KEY_SHOW_DISABLED_COUNTER, true);
     }
 
     public void setShowDisabledCounter(final boolean showDisabledCounter) {
@@ -180,7 +180,7 @@ public class PreferenceModel extends HashStructureAdapter {
     }
 
     public boolean isShowWarningsCounter() {
-        return getHashStructure().getBoolean(KEY_SHOW_WARNINGS_COUNTER, false);
+        return getHashStructure().getBoolean(KEY_SHOW_WARNINGS_COUNTER, true);
     }
 
     public void setShowWarningsCounter(final boolean showWarningCounter) {
@@ -188,7 +188,7 @@ public class PreferenceModel extends HashStructureAdapter {
     }
 
     public boolean isShowInfoCounter() {
-        return getHashStructure().getBoolean(KEY_SHOW_INFO_COUNTER, false);
+        return getHashStructure().getBoolean(KEY_SHOW_INFO_COUNTER, true);
     }
 
     public void setShowInfoCounter(final boolean showInfoCounter) {
@@ -196,7 +196,7 @@ public class PreferenceModel extends HashStructureAdapter {
     }
 
     public boolean isShowWarningIndicator() {
-        return getHashStructure().getBoolean(KEY_SHOW_WARNING_INDICATOR, false);
+        return getHashStructure().getBoolean(KEY_SHOW_WARNING_INDICATOR, true);
     }
 
     public void setShowWarningIndicator(final boolean showWarningIndicator) {
@@ -204,7 +204,7 @@ public class PreferenceModel extends HashStructureAdapter {
     }
 
     public boolean isShowInfoIndicator() {
-        return getHashStructure().getBoolean(KEY_SHOW_INFO_INDICATOR, false);
+        return getHashStructure().getBoolean(KEY_SHOW_INFO_INDICATOR, true);
     }
 
     public void setShowInfoIndicator(final boolean showInfoIndicator) {
@@ -228,7 +228,7 @@ public class PreferenceModel extends HashStructureAdapter {
     }
 
     public boolean isShowTestDescription() {
-        return getHashStructure().getBoolean(KEY_SHOW_TEST_DESCRIPTION, false);
+        return getHashStructure().getBoolean(KEY_SHOW_TEST_DESCRIPTION, true);
     }
 
     public void setShowTestDescription(final boolean showTestDescription) {
