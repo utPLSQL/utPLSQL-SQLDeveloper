@@ -834,10 +834,12 @@ public class RunnerPanel {
         if (!showSuitesCheckBoxMenuItem.isSelected()) {
             // table
             final int rowIndex = testOverviewTable.getSelectedRow();
-            final int row = testOverviewTable.convertRowIndexToModel(rowIndex);
-            final Rectangle position = testOverviewTable
-                    .getCellRect(testOverviewTable.convertRowIndexToView(row), 0, true);
-            testOverviewTable.scrollRectToVisible(position);
+            if (rowIndex != -1) {
+                final int row = testOverviewTable.convertRowIndexToModel(rowIndex);
+                final Rectangle position = testOverviewTable
+                        .getCellRect(testOverviewTable.convertRowIndexToView(row), 0, true);
+                testOverviewTable.scrollRectToVisible(position);
+            }
         } else {
             // tree-table
             TreePath path = testOverviewTreeTable.getTree().getSelectionPath();
