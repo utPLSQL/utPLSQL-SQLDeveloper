@@ -4,8 +4,6 @@
 # Log file
 *.log
 
-
-
 # Package Files
 *.jar
 *.war
@@ -31,6 +29,7 @@ hs_err_pid*
 .project
 .classpath
 **/.settings
+.vscode
 
 # IntelliJ
 **/.idea
