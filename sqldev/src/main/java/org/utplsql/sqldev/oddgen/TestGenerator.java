@@ -239,9 +239,9 @@ public class TestGenerator implements OddgenGenerator2 {
         if (generateFiles) {
             resetConsoleOutput();
             saveConsoleOutput(templateTools.mkdirs(outputDirectory));
-                if (deleteExistingfiles) {
-                    saveConsoleOutput(deleteFiles(outputDirectory).toString());
-                }
+            if (deleteExistingfiles) {
+                saveConsoleOutput(deleteFiles(outputDirectory).toString());
+            }
             sb.append("--\n");
             sb.append("-- install generated utPLSQL test packages\n");
             sb.append("--\n");
