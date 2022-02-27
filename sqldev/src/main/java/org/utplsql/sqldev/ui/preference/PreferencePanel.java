@@ -244,11 +244,11 @@ public class PreferencePanel extends DefaultTraversablePanel {
 
     private CharSequence utSpecTemplate() {
         StringBuilder sb = new StringBuilder();
-        sb.append("CREATE OR REPLACE PACKAGE ");
+        sb.append("create or replace package ");
         sb.append(testPackagePrefixTextField.getText());
         sb.append("[package_name]");
         sb.append(testPackageSuffixTextField.getText());
-        sb.append(" IS\n\n");
+        sb.append(" is\n\n");
         sb.append("\t--%suite\n");
         if (!suitePathTextField.getText().isEmpty()) {
             sb.append("\t--%suitepath(");
@@ -258,7 +258,7 @@ public class PreferencePanel extends DefaultTraversablePanel {
         sb.append("\n\t");
         sb.append(utSpecProcTemplate().toString().trim().replace("\n", "\n\t"));
         sb.append("\n\n");
-        sb.append("END ");
+        sb.append("end ");
         sb.append(testPackagePrefixTextField.getText());
         sb.append("[package_name]");
         sb.append(testPackageSuffixTextField.getText());
@@ -279,7 +279,7 @@ public class PreferencePanel extends DefaultTraversablePanel {
             if (disableTestsCheckBox.isSelected()) {
                 sb.append("--%disabled\n");
             }
-            sb.append("PROCEDURE ");
+            sb.append("procedure ");
             sb.append(testUnitPrefixTextField.getText());
             sb.append("[procedure_name]");
             sb.append(testUnitSuffixTextField.getText());
@@ -296,14 +296,14 @@ public class PreferencePanel extends DefaultTraversablePanel {
 
     private CharSequence utBodyTemplate() {
         StringBuilder sb = new StringBuilder();
-        sb.append("CREATE OR REPLACE PACKAGE BODY ");
+        sb.append("create or replace package body ");
         sb.append(testPackagePrefixTextField.getText());
         sb.append("[package_name]");
         sb.append(testPackageSuffixTextField.getText());
-        sb.append(" IS\n\n\t");
+        sb.append(" is\n\n\t");
         sb.append(utBodyProcTemplate().toString().trim().replace("\n", "\n\t"));
         sb.append("\n\n");
-        sb.append("END ");
+        sb.append("end ");
         sb.append(testPackagePrefixTextField.getText());
         sb.append("[package_name]");
         sb.append(testPackageSuffixTextField.getText());
@@ -328,26 +328,24 @@ public class PreferencePanel extends DefaultTraversablePanel {
                 sb.append('\n');
                 sb.append("--\n");
             }
-            sb.append("PROCEDURE ");
+            sb.append("procedure ");
             sb.append(testUnitPrefixTextField.getText());
             sb.append("[procedure_name]");
             sb.append(testUnitSuffixTextField.getText());
             if (withContext) {
                 sb.append(i);
             }
-            sb.append(" IS\n");
-            sb.append("\tl_actual   INTEGER := 0;\n");
-            sb.append("\tl_expected INTEGER := 1;\n");
-            sb.append("BEGIN\n");
+            sb.append(" is\n");
+            sb.append("\tl_actual   integer := 0;\n");
+            sb.append("\tl_expected integer := 1;\n");
+            sb.append("begin\n");
             if (generateCommentsCheckBox.isSelected()) {
-                sb.append("\t-- populate actual\n");
-                sb.append("\t-- ...\n\n");
-                sb.append("\t-- populate expected\n");
-                sb.append("\t-- ...\n\n");
+                sb.append("\t-- arrange\n\n");
+                sb.append("\t-- act\n\n");
                 sb.append("\t-- assert\n");
             }
             sb.append("\tut.expect(l_actual).to_equal(l_expected);\n");
-            sb.append("END ");
+            sb.append("end ");
             sb.append(testUnitPrefixTextField.getText());
             sb.append("[procedure_name]");
             sb.append(testUnitSuffixTextField.getText());

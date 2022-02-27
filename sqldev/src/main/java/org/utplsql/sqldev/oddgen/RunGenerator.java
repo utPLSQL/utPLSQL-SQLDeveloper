@@ -138,25 +138,25 @@ public class RunGenerator implements OddgenGenerator2 {
         final LinkedHashMap<String, String> params = dedupNodes.get(0).getParams();
         final StringBuilder sb = new StringBuilder();
         if (YES.equals(params.get(RESET_PACKAGE))) {
-            sb.append("EXECUTE dbms_session.reset_package;\n");
+            sb.append("execute dbms_session.reset_package;\n");
         }
-        sb.append("SET SERVEROUTPUT ON SIZE UNLIMITED\n");
+        sb.append("set serveroutput on size unlimited\n");
         if (YES.equals(params.get(CLEAR_SCREEN))) {
-            sb.append("CLEAR SCREEN\n");
+            sb.append("clear screen\n");
         }
         if (dedupNodes.size() == 1) {
-            sb.append("EXECUTE ut.run('");
+            sb.append("execute ut.run('");
             sb.append(getPath(dedupNodes.get(0), conn));
             sb.append("');\n");
         } else {
             final List<String> paths = dedupNodes.stream().map(node -> getPath(node, conn)).collect(Collectors.toList());
-            sb.append("BEGIN\n");
+            sb.append("begin\n");
             sb.append("\tut.run(\n");
             sb.append("\t\tut_varchar2_list(\n");
             sb.append(StringTools.getCSV(paths, "\t\t\t"));
             sb.append("\t\t)\n");
             sb.append("\t);\n");
-            sb.append("END;\n");
+            sb.append("end;\n");
             sb.append("/\n");
         }
         final String ret = sb.toString();

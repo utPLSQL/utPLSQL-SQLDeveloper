@@ -239,9 +239,9 @@ public class TestGenerator implements OddgenGenerator2 {
         if (generateFiles) {
             resetConsoleOutput();
             saveConsoleOutput(templateTools.mkdirs(outputDirectory));
-                if (deleteExistingfiles) {
-                    saveConsoleOutput(deleteFiles(outputDirectory).toString());
-                }
+            if (deleteExistingfiles) {
+                saveConsoleOutput(deleteFiles(outputDirectory).toString());
+            }
             sb.append("--\n");
             sb.append("-- install generated utPLSQL test packages\n");
             sb.append("--\n");
@@ -251,8 +251,9 @@ public class TestGenerator implements OddgenGenerator2 {
             context.setConn(conn);
             final TestTemplate testTemplate = new TestTemplate(context);
             if (generateFiles) {
-                final String packageName = context.getTestPackagePrefix() + nodeTools.toObjectName(node)
-                        + context.getTestPackageSuffix();
+                final String packageName = context.getTestPackagePrefix().toLowerCase()
+                        + nodeTools.toObjectName(node).toLowerCase()
+                        + context.getTestPackageSuffix().toLowerCase();
                 final String packagePath = outputDirectory + File.separator + packageName;
                 saveConsoleOutput(templateTools.writeToFile(packagePath + ".pks", testTemplate.generateSpec()));
                 saveConsoleOutput(templateTools.writeToFile(packagePath + ".pkb", testTemplate.generateBody()));
