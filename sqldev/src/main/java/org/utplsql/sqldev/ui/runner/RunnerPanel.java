@@ -568,7 +568,7 @@ public class RunnerPanel {
     private PreferenceModel getPreferenceModel() {
         try {
             return PreferenceModel.getInstance(Preferences.getPreferences());
-        } catch (NoClassDefFoundError e) {
+        } catch (NoClassDefFoundError | ExceptionInInitializerError e) {
             // running outside of SQL Developer
             return PreferenceModel.getInstance(null);
         }
