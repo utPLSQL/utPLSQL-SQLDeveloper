@@ -53,8 +53,9 @@ public class TestTemplate {
         if (!context.getSuitePath().isEmpty()) {
             sb.append("\t--%suitepath(");
             sb.append(context.getSuitePath());
-            sb.append(")\n\n");
+            sb.append(")\n");
         }
+        sb.append("\n");
         for (final String u : units) {
             final String unit = u.toLowerCase();
             if (context.getNumberOfTestsPerUnit() > 1
