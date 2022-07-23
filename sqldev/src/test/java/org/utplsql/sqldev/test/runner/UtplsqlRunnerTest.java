@@ -46,7 +46,12 @@ public class UtplsqlRunnerTest extends AbstractJdbcTest {
             preferences = PreferenceModel.getInstance(null);
             // the second call will call will succeed and use preferences from user.home
             // this ensures that the test and the runner use the same preferences
-            preferences = PreferenceModel.getInstance(Preferences.getPreferences());
+            try {
+                preferences = PreferenceModel.getInstance(Preferences.getPreferences());
+            } catch (NoClassDefFoundError e2) {
+                // the second call also failed. no other option left (new behavior with Java17)
+                preferences = PreferenceModel.getInstance(null);
+            }
         } finally {
             // set defaults manually, since all tests are using the same preference store
             preferences.setShowSuccessfulTests(true);

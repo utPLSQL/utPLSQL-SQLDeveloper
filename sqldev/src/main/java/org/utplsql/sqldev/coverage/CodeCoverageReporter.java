@@ -190,7 +190,7 @@ public class CodeCoverageReporter {
             PreferenceModel preferences;
             try {
                 preferences = PreferenceModel.getInstance(Preferences.getPreferences());
-            } catch (NoClassDefFoundError error) {
+            } catch (NoClassDefFoundError | ExceptionInInitializerError error) {
                 // not running in SQL Developer (in tests)
                 preferences = PreferenceModel.getInstance(null);
             }

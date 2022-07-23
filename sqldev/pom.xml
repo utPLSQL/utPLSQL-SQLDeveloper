@@ -10,10 +10,11 @@
 	<packaging>bundle</packaging>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<jdk.version>1.8</jdk.version>
-		<jdk.version.test>1.8</jdk.version.test>
+		<jdk.version>8</jdk.version>
+		<jdk.test.version>17</jdk.test.version>
 		<!-- requires SQL Developer 4.1.0 or higher (first version based on JDK 1.8) -->
-		<sqldev.basedir>/Applications/SQLDeveloper21.4.2.app/Contents/Resources/sqldeveloper</sqldev.basedir>
+		<!-- last version of SQL Developer that uses JDK 8 is 21.4.3 -->
+		<sqldev.basedir>/Applications/SQLDeveloper21.4.3.app/Contents/Resources/sqldeveloper</sqldev.basedir>
 		<final.name>utplsql_for_SQLDev_${project.version}</final.name>
 		<!-- arguments to by added by jacoco plugin for test runs with coverage -->
 		<!-- -noverify is required in some environments to avoid java.lang.VerifyError -->
@@ -206,19 +207,19 @@
 			<!-- used mainly to access the database via JdbcTemplate -->
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-jdbc</artifactId>
-			<version>5.3.16</version>
+			<version>5.3.22</version>
 		</dependency>
 		<dependency>
 			<!-- transitive reference, but IntelliJ wants to have it explicit (to avoid warnings) -->
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-core</artifactId>
-			<version>5.3.20</version>
+			<version>5.3.22</version>
 		</dependency>
 		<dependency>
 			<!-- used for HtmlUtils.htmlEscape in RunnerPanel -->
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-web</artifactId>
-			<version>5.3.16</version>
+			<version>5.3.22</version>
 		</dependency>
 		<dependency>
 			<!-- optional, for RunGenerator and TestGenerator -->
@@ -244,7 +245,6 @@
 	<!-- Build Settings -->
 	<build>
 		<sourceDirectory>${project.basedir}/src/main/java</sourceDirectory>
-		<testSourceDirectory>${project.basedir}/src/test/java</testSourceDirectory>
 		<resources>
 			<resource>
 				<directory>src/main/resources</directory>
@@ -253,36 +253,16 @@
 				</includes>
 			</resource>
 		</resources>
+		<testSourceDirectory>${project.basedir}/src/test/java</testSourceDirectory>
+		<testResources>
+			<testResource>
+				<directory>src/test/resources</directory>
+				<includes>
+					<include>**/*.*</include>
+				</includes>
+			</testResource>
+		</testResources>
 		<plugins>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<version>3.10.0</version>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<configuration>
-					<source>${jdk.version}</source>
-					<target>${jdk.version}</target>
-					<!-- used by Maven build -->
-					<testSource>${jdk.version.test}</testSource>
-					<testTarget>${jdk.version.test}</testTarget>
-					<includes>
-						<include>**/*.java</include>
-					</includes>
-				</configuration>
-				<executions>
-					<!-- used by Eclipse when updating project -->
-					<execution>
-						<id>test-compile</id>
-						<phase>process-test-sources</phase>
-						<goals>
-							<goal>testCompile</goal>
-						</goals>
-						<configuration>
-							<source>${jdk.version.test}</source>
-							<target>${jdk.version.test}</target>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
@@ -316,7 +296,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-antrun-plugin</artifactId>
-				<version>3.0.0</version><!--$NO-MVN-MAN-VER$-->
+				<version>3.1.0</version><!--$NO-MVN-MAN-VER$-->
 				<executions>
 					<execution>
 						<phase>prepare-package</phase>
@@ -337,7 +317,7 @@
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>properties-maven-plugin</artifactId>
-				<version>1.0.0</version>
+				<version>1.1.0</version>
 				<executions>
 					<execution>
 						<phase>initialize</phase>
@@ -357,7 +337,7 @@
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>build-helper-maven-plugin</artifactId>
-				<version>3.1.0</version>
+				<version>3.3.0</version>
 				<executions>
 					<execution>
 						<id>parse-version</id>
@@ -427,7 +407,7 @@
 				<!--   - Error:osgi: [org.utplsql.sqldev] Invalid value for Bundle-Version, ${parsedVersion.majorVersion}.${parsedVersion.minorVersion}.${parsedVersion.incrementalVersion} does not match \d{1,9}(\.\d{1,9}(\.\d{1,9}(\.[-\w]+)?)?)? -->
 				<groupId>org.apache.felix</groupId>
 				<artifactId>maven-bundle-plugin</artifactId>
-				<version>4.2.1</version>
+				<version>5.1.7</version> <!-- Classes found in the wrong director warning with 5.1.7, TODO: find solution to remove it -->
 				<extensions>true</extensions>
 				<configuration>
 					<finalName>${project.name}</finalName>
@@ -497,7 +477,7 @@
 			</plugin>
 			<plugin>
 				<artifactId>maven-assembly-plugin</artifactId>
-				<version>3.3.0</version><!--$NO-MVN-MAN-VER$-->
+				<version>3.4.1</version><!--$NO-MVN-MAN-VER$-->
 				<configuration>
 					<finalName>${final.name}</finalName>
 					<appendAssemblyId>false</appendAssemblyId>
@@ -519,7 +499,7 @@
 			<plugin>
 				<groupId>net.nicoulaj.maven.plugins</groupId>
 				<artifactId>checksum-maven-plugin</artifactId>
-				<version>1.9</version>
+				<version>1.11</version>
 				<executions>
 					<execution>
 						<id>calculate-checksums</id>
@@ -533,7 +513,7 @@
 			<plugin>
 				<groupId>org.jacoco</groupId>
 				<artifactId>jacoco-maven-plugin</artifactId>
-				<version>0.8.5</version>
+				<version>0.8.8</version>
 				<executions>
 					<execution>
 						<goals>
@@ -645,4 +625,54 @@
 		<tag>master</tag>
 		<url>https://github.com/utPLSQL/utPLSQL-SQLDeveloper</url>
 	</scm>
+
+	<!-- Profiles as workaround for https://youtrack.jetbrains.com/issue/IDEA-85478 as described in -->
+	<!-- https://intellij-support.jetbrains.com/hc/en-us/community/posts/360009767720-I-want-to-run-tests-with-different-java-version-than-my-source-java-version -->
+	<profiles>
+		<profile>
+			<id>default</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<version>3.10.1</version>
+						<artifactId>maven-compiler-plugin</artifactId>
+						<configuration>
+							<!-- different Java version for main and test -->
+							<!-- works with Maven builder from IDE or command line -->
+							<release>${jdk.version}</release>
+							<testRelease>${jdk.test.version}</testRelease>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+		<profile>
+			<id>idea</id>
+			<activation>
+				<activeByDefault>false</activeByDefault>
+				<property>
+					<name>idea.maven.embedder.version</name>
+				</property>
+			</activation>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<version>3.10.1</version>
+						<artifactId>maven-compiler-plugin</artifactId>
+						<configuration>
+							<!-- IDEA requires same Java version for main and test -->
+							<!-- see https://youtrack.jetbrains.com/issue/IDEA-85478 -->
+							<release>${jdk.test.version}</release>
+							<testRelease>${jdk.test.version}</testRelease>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
 </project>

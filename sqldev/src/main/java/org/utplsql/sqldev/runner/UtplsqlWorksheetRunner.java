@@ -77,30 +77,30 @@ public class UtplsqlWorksheetRunner {
         StringBuilder sb = new StringBuilder();
         if (!debug) {
             if (preferences.isResetPackage()) {
-                sb.append("EXECUTE dbms_session.reset_package;\n");
+                sb.append("execute dbms_session.reset_package;\n");
             }
-            sb.append("SET SERVEROUTPUT ON SIZE UNLIMITED\n");
+            sb.append("set serveroutput on size unlimited\n");
             if (preferences.isClearScreen()) {
-                sb.append("CLEAR SCREEN\n");
+                sb.append("clear screen\n");
             }
             if (pathList.size() == 1) {
-                sb.append("EXECUTE ut.run('");
+                sb.append("execute ut.run('");
                 sb.append(pathList.get(0));
                 sb.append("');\n");
             } else {
                 // we want a horizontal dense output because we resize the worksheet to fit the command in common cases
-                sb.append("EXECUTE ut.run(ut_varchar2_list(");
+                sb.append("execute ut.run(ut_varchar2_list(");
                 sb.append(StringTools.getCSV(pathList, "").replace("\n", ""));
                 sb.append("));\n");
             }
         } else {
-            sb.append("BEGIN\n");
+            sb.append("begin\n");
             sb.append("   ut.run(\n");
             sb.append("      ut_varchar2_list(\n");
             sb.append(StringTools.getCSV(pathList, 9));
             sb.append("      )\n");
             sb.append("   );\n");
-            sb.append("END;\n");
+            sb.append("end;\n");
         }
         return sb;
     }
