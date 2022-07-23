@@ -11,7 +11,7 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<jdk.version>8</jdk.version>
-		<jdk.version.test>17</jdk.version.test>
+		<jdk.test.version>17</jdk.test.version>
 		<!-- requires SQL Developer 4.1.0 or higher (first version based on JDK 1.8) -->
 		<!-- last version of SQL Developer that uses JDK 8 is 21.4.3 -->
 		<sqldev.basedir>/Applications/SQLDeveloper21.4.3.app/Contents/Resources/sqldeveloper</sqldev.basedir>
