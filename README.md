@@ -143,9 +143,10 @@ Please file your bug reports, enhancement requests, questions and other support 
 4. [Create a pull request](https://help.github.com/articles/creating-a-pull-request/)
 
 ## How to Build
+## How to Build
 
-1. [Download](http://www.oracle.com/technetwork/developer-tools/sql-developer/downloads/index.html) and install SQL Developer 21.4.2
-2. [Download](https://maven.apache.org/download.cgi) and install Apache Maven 3.8.3
+1. [Download](http://www.oracle.com/technetwork/developer-tools/sql-developer/downloads/index.html) and install SQL Developer 21.4.3
+2. [Download](https://maven.apache.org/download.cgi) and install Apache Maven 3.8.6
 3. [Download](https://git-scm.com/downloads) and install a git command line client
 4. Clone the utPLSQL-SQLDeveloper repository
 5. Open a terminal window in the utPLSQL-SQLDeveloper root folder and type
