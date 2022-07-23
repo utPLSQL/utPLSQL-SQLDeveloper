@@ -154,7 +154,7 @@ Please file your bug reports, enhancement requests, questions and other support 
 
 6. Run maven build by the following command
 
-		mvn -Dsqldev.basedir=/Applications/SQLDeveloper21.4.2.app/Contents/Resources/sqldeveloper -DskipTests=true clean package
+		mvn -Dsqldev.basedir=/Applications/SQLDeveloper21.4.3.app/Contents/Resources/sqldeveloper -DskipTests=true clean package
 
 	Amend the parameter sqldev.basedir to match the path of your SQL Developer installation. This folder is used to reference Oracle jar files which are not available in public Maven repositories
 7. The resulting file ```utplsql_for_SQLDev_x.x.x-SNAPSHOT.zip``` in the ```target``` directory can be installed within SQL Developer
