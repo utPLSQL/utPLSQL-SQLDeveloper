@@ -6,13 +6,13 @@
 	<!-- The Basics -->
 	<groupId>org.utplsql</groupId>
 	<artifactId>org.utplsql.sqldev</artifactId>
-	<version>2.0.1</version>
+	<version>2.1.0-SNAPSHOT</version>
 	<packaging>bundle</packaging>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<jdk.version>17</jdk.version>
 		<sqldev.version>24.3.1</sqldev.version>
-		<!-- requires SQL Developer 23.3.1, which requires JDK 17 -->
+		<!-- requires SQL Developer 24.3.1, which requires JDK 17 -->
 		<sqldev.basedir>/Applications/SQLDeveloper${sqldev.version}.app/Contents/Resources/sqldeveloper</sqldev.basedir>
 		<final.name>utplsql_for_SQLDev_${project.version}</final.name>
 	</properties>
