@@ -2,11 +2,11 @@
 
 ## Introduction
 
-utPLSQL for SQL Developer extends Oracle's SQL Developer to 
+utPLSQL for SQL Developer extends Oracle's SQL Developer to
 
 * run utPLSQL unit tests
 * debug utPLSQL unit tests
-* run utPLSQL code coverage reports 
+* run utPLSQL code coverage reports
 * generate utPLSQL unit tests (skeletons)
 * provide utPLSQL annotations and expectations as snippets
 
@@ -18,7 +18,7 @@ In the Connections window, select a connection or one or more packages or packag
 
 ### Debug utPLSQL test
 
-Select the tests to debug, the same way you would if you were just running them, but select `Debug utPLSQL test...` in the context menu. 
+Select the tests to debug, the same way you would if you were just running them, but select `Debug utPLSQL test...` in the context menu.
 
 And then the PL/SQL Debugger is called for the generated, anonymous PL/SQL block.
 
@@ -32,11 +32,11 @@ The initialization timeout for the realtime reporter is increased to 1 hour. The
 
 In the Connections window, select a connection or one or more packages for a code coverage report.
 
-In the dialog you can set some parameters. If you run code coverage for a few chosen packages or from the PL/SQL editor the objects to be included are determined according the object dependencies in the Oracle data dictionary. 
+In the dialog you can set some parameters. If you run code coverage for a few chosen packages or from the PL/SQL editor the objects to be included are determined according the object dependencies in the Oracle data dictionary.
 
 ![Code coverage dialog](images/code_coverage_dialog.png)
 
-Press `Run` to produce the code coverage process in the background. You may minimize or close the dialog. To abort the process, press `Cancel`. 
+Press `Run` to produce the code coverage process in the background. You may minimize or close the dialog. To abort the process, press `Cancel`.
 
 The HTML report is shown in your default browser.
 
@@ -89,7 +89,7 @@ utPLSQL for SQL Developer implements the [OddgenGenerator2 interface](https://ww
 * run existing utPLSQL test suitepaths and test suites
 * bulk generate new utPLSQL unit tests into dedicated files
 
-The use of [oddgen for SQL Developer](https://www.oddgen.org/) is optional. 
+The use of [oddgen for SQL Developer](https://www.oddgen.org/) is optional.
 
 #### Run utPLSQL test
 
@@ -128,6 +128,7 @@ Binary releases are published [here](https://github.com/utPLSQL/utPLSQL-SQLDevel
 4. Use the ```Search Update Center``` option and select the ```salvis.com``` update center to install the lastest version of ```utPLSQL for SQL Developer```.
 
 ## Issues
+
 Please file your bug reports, enhancement requests, questions and other support requests within [Github's issue tracker](https://help.github.com/articles/about-issues/).
 
 * [Questions](https://github.com/utPLSQL/utPLSQL-SQLDeveloper/issues?q=is%3Aissue+label%3Aquestion)
@@ -143,22 +144,22 @@ Please file your bug reports, enhancement requests, questions and other support 
 4. [Create a pull request](https://help.github.com/articles/creating-a-pull-request/)
 
 ## How to Build
-## How to Build
 
-1. [Download](http://www.oracle.com/technetwork/developer-tools/sql-developer/downloads/index.html) and install SQL Developer 21.4.3
-2. [Download](https://maven.apache.org/download.cgi) and install Apache Maven 3.8.6
-3. [Download](https://git-scm.com/downloads) and install a git command line client
-4. Clone the utPLSQL-SQLDeveloper repository
-5. Open a terminal window in the utPLSQL-SQLDeveloper root folder and type
+1. [Download](http://www.oracle.com/technetwork/developer-tools/sql-developer/downloads/index.html) and install SQL Developer 24.3.1
+2. Download and install a JDK 17 or newer
+3. [Download](https://maven.apache.org/download.cgi) and install Apache Maven 3.9.16
+4. [Download](https://git-scm.com/downloads) and install a git command line client
+5. Clone the utPLSQL-SQLDeveloper repository
+6. Open a terminal window in the utPLSQL-SQLDeveloper root folder and type
 
-		cd sqldev
+        cd sqldev
 
-6. Run maven build by the following command
+7. Run maven build by the following command
 
-		mvn -Dsqldev.basedir=/Applications/SQLDeveloper21.4.3.app/Contents/Resources/sqldeveloper -DskipTests=true clean package
+        mvn -Dsqldev.basedir=/Applications/SQLDeveloper24.3.1.app/Contents/Resources/sqldeveloper -DskipTests=true clean package
 
-	Amend the parameter sqldev.basedir to match the path of your SQL Developer installation. This folder is used to reference Oracle jar files which are not available in public Maven repositories
-7. The resulting file ```utplsql_for_SQLDev_x.x.x-SNAPSHOT.zip``` in the ```target``` directory can be installed within SQL Developer
+    Amend the parameter sqldev.basedir to match the path of your SQL Developer installation. This folder is used to reference Oracle jar files which are not available in public Maven repositories
+8. The resulting file ```utplsql_for_SQLDev_x.x.x-SNAPSHOT.zip``` in the ```target``` directory can be installed within SQL Developer
 
 ## License
 
