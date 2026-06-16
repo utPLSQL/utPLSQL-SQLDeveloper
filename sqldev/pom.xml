@@ -6,19 +6,15 @@
 	<!-- The Basics -->
 	<groupId>org.utplsql</groupId>
 	<artifactId>org.utplsql.sqldev</artifactId>
-	<version>1.4.2-SNAPSHOT</version>
+	<version>2.0.0-SNAPSHOT</version>
 	<packaging>bundle</packaging>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<jdk.version>8</jdk.version>
-		<jdk.test.version>17</jdk.test.version>
-		<!-- requires SQL Developer 4.1.0 or higher (first version based on JDK 1.8) -->
-		<!-- last version of SQL Developer that uses JDK 8 is 21.4.3 -->
-		<sqldev.basedir>/Applications/SQLDeveloper21.4.3.app/Contents/Resources/sqldeveloper</sqldev.basedir>
+		<jdk.version>17</jdk.version>
+		<sqldev.version>24.3.1</sqldev.version>
+		<!-- requires SQL Developer 23.3.1, which requires JDK 17 -->
+		<sqldev.basedir>/Applications/SQLDeveloper${sqldev.version}.app/Contents/Resources/sqldeveloper</sqldev.basedir>
 		<final.name>utplsql_for_SQLDev_${project.version}</final.name>
-		<!-- arguments to by added by jacoco plugin for test runs with coverage -->
-		<!-- -noverify is required in some environments to avoid java.lang.VerifyError -->
-		<argLine>-noverify -Djava.util.logging.config.file=${project.basedir}/src/test/resources/logging.conf</argLine>
 	</properties>
 	<dependencies>
 		<!-- SQL Developer specific dependencies part 1 (not available in public Maven repositories) -->
@@ -28,140 +24,147 @@
 		<dependency>
 			<groupId>oracle</groupId>
 			<artifactId>idert</artifactId>
-			<version>12.2.1</version>
+			<version>${sqldev.version}</version>
 			<scope>system</scope>
 			<systemPath>${sqldev.basedir}/ide/lib/idert.jar</systemPath>
 		</dependency>
 		<dependency>
 			<groupId>oracle</groupId>
 			<artifactId>oracle.javatools-nodeps</artifactId>
-			<version>12.2.1</version>
+			<version>${sqldev.version}</version>
 			<scope>system</scope>
 			<systemPath>${sqldev.basedir}/external/oracle.javatools-nodeps.jar</systemPath>
 		</dependency>
 		<dependency>
 			<groupId>oracle</groupId>
 			<artifactId>javatools</artifactId>
-			<version>12.2.1</version>
+			<version>${sqldev.version}</version>
 			<scope>system</scope>
 			<systemPath>${sqldev.basedir}/ide/lib/javatools.jar</systemPath>
 		</dependency>
 		<dependency>
 			<groupId>oracle</groupId>
 			<artifactId>oracle.ide.ceditor</artifactId>
-			<version>12.2.1</version>
+			<version>${sqldev.version}</version>
 			<scope>system</scope>
 			<systemPath>${sqldev.basedir}/ide/extensions/oracle.ide.ceditor.jar</systemPath>
 		</dependency>
 		<dependency>
 			<groupId>oracle</groupId>
 			<artifactId>oracle.ide</artifactId>
-			<version>12.2.1</version>
+			<version>${sqldev.version}</version>
 			<scope>system</scope>
 			<systemPath>${sqldev.basedir}/ide/extensions/oracle.ide.jar</systemPath>
 		</dependency>
 		<dependency>
 			<groupId>oracle</groupId>
 			<artifactId>uic</artifactId>
-			<version>12.2.1</version>
+			<version>${sqldev.version}</version>
 			<scope>system</scope>
 			<systemPath>${sqldev.basedir}/ide/lib/uic.jar</systemPath>
 		</dependency>
 		<dependency>
 			<groupId>oracle</groupId>
 			<artifactId>oracle.ide.navigator</artifactId>
-			<version>12.2.1</version>
+			<version>${sqldev.version}</version>
 			<scope>system</scope>
 			<systemPath>${sqldev.basedir}/ide/extensions/oracle.ide.navigator.jar</systemPath>
 		</dependency>
 		<dependency>
 			<groupId>oracle</groupId>
 			<artifactId>javax-ide</artifactId>
-			<version>12.2.1</version>
+			<version>${sqldev.version}</version>
 			<scope>system</scope>
 			<systemPath>${sqldev.basedir}/ide/lib/javax-ide.jar</systemPath>
 		</dependency>
 		<dependency>
 			<groupId>oracle</groupId>
 			<artifactId>oracle.dbtools-common</artifactId>
-			<version>21.4.1</version>
+			<version>${sqldev.version}</version>
 			<scope>system</scope>
 			<systemPath>${sqldev.basedir}/sqldeveloper/lib/dbtools-common.jar</systemPath>
 		</dependency>
 		<dependency>
 			<groupId>oracle</groupId>
+			<artifactId>oracle.dbtools-arbori</artifactId>
+			<version>${sqldev.version}</version>
+			<scope>system</scope>
+			<systemPath>${sqldev.basedir}/sqldeveloper/lib/dbtools-arbori.jar</systemPath>
+		</dependency>
+		<dependency>
+			<groupId>oracle</groupId>
 			<artifactId>oracle.sqldeveloper</artifactId>
-			<version>21.4.2</version>
+			<version>${sqldev.version}</version>
 			<scope>system</scope>
 			<systemPath>${sqldev.basedir}/sqldeveloper/extensions/oracle.sqldeveloper.jar</systemPath>
 		</dependency>
 		<dependency>
 			<groupId>oracle</groupId>
 			<artifactId>oracle.sqldeveloper.utils</artifactId>
-			<version>21.4.2</version>
+			<version>${sqldev.version}</version>
 			<scope>system</scope>
 			<systemPath>${sqldev.basedir}/sqldeveloper/extensions/oracle.sqldeveloper.utils.jar</systemPath>
 		</dependency>
 		<dependency>
 			<groupId>oracle</groupId>
 			<artifactId>oracle.sqldeveloper.worksheet</artifactId>
-			<version>21.4.2</version>
+			<version>${sqldev.version}</version>
 			<scope>system</scope>
 			<systemPath>${sqldev.basedir}/sqldeveloper/extensions/oracle.sqldeveloper.worksheet.jar</systemPath>
 		</dependency>
 		<dependency>
 			<groupId>oracle</groupId>
 			<artifactId>oracle.sqldeveloper.schemabrowser</artifactId>
-			<version>21.4.2</version>
+			<version>${sqldev.version}</version>
 			<scope>system</scope>
 			<systemPath>${sqldev.basedir}/sqldeveloper/extensions/oracle.sqldeveloper.schemabrowser.jar</systemPath>
 		</dependency>
 		<dependency>
 			<groupId>oracle</groupId>
-			<artifactId>ojdbc8</artifactId>
-			<version>21.4.0</version>
+			<artifactId>ojdbc11</artifactId>
+			<version>${sqldev.version}</version>
 			<scope>system</scope>
-			<systemPath>${sqldev.basedir}/jdbc/lib/ojdbc8.jar</systemPath>
+			<systemPath>${sqldev.basedir}/jdbc/lib/ojdbc11.jar</systemPath>
 		</dependency>
 		<dependency>
 			<groupId>oracle</groupId>
 			<artifactId>dbapi</artifactId>
-			<version>21.4.2</version>
+			<version>${sqldev.version}</version>
 			<scope>system</scope>
 			<systemPath>${sqldev.basedir}/ide/lib/dbapi.jar</systemPath>
 		</dependency>
 		<dependency>
 			<groupId>oracle</groupId>
 			<artifactId>oracle.ide.db</artifactId>
-			<version>21.4.2</version>
+			<version>${sqldev.version}</version>
 			<scope>system</scope>
 			<systemPath>${sqldev.basedir}/ide/extensions/oracle.ide.db.jar</systemPath>
 		</dependency>
 		<dependency>
 			<groupId>oracle</groupId>
 			<artifactId>oracle.jdeveloper.db.connection</artifactId>
-			<version>21.4.2</version>
+			<version>${sqldev.version}</version>
 			<scope>system</scope>
 			<systemPath>${sqldev.basedir}/jdev/extensions/oracle.jdeveloper.db.connection.jar</systemPath>
 		</dependency>
 		<dependency>
 			<groupId>oracle</groupId>
 			<artifactId>oracle.jdeveloper.java.core.jar</artifactId>
-			<version>12.2.1</version>
+			<version>${sqldev.version}</version>
 			<scope>system</scope>
 			<systemPath>${sqldev.basedir}/jdev/extensions/oracle.jdeveloper.java.core.jar</systemPath>
 		</dependency>
 		<dependency>
 			<groupId>oracle</groupId>
 			<artifactId>oracle.jdeveloper.runner.jar</artifactId>
-			<version>12.2.1</version>
+			<version>${sqldev.version}</version>
 			<scope>system</scope>
 			<systemPath>${sqldev.basedir}/jdev/extensions/oracle.jdeveloper.runner.jar</systemPath>
 		</dependency>
 		<dependency>
 			<groupId>oracle</groupId>
 			<artifactId>oracle.ide.runner</artifactId>
-			<version>12.2.1</version>
+			<version>${sqldev.version}</version>
 			<scope>system</scope>
 			<systemPath>${sqldev.basedir}/ide/extensions/oracle.ide.runner.jar</systemPath>
 		</dependency>
@@ -169,7 +172,7 @@
 			<!-- overriding oddgen dependency -->
 			<groupId>oracle</groupId>
 			<artifactId>javatools-nodeps</artifactId>
-			<version>12.2.1</version>
+			<version>${sqldev.version}</version>
 			<scope>system</scope>
 			<systemPath>${sqldev.basedir}/modules/oracle.javatools/javatools-nodeps.jar</systemPath>
 		</dependency>
@@ -177,14 +180,14 @@
 		<dependency>
 			<groupId>oracle</groupId>
 			<artifactId>jewt4.jar</artifactId>
-			<version>12.2.1</version>
+			<version>${sqldev.version}</version>
 			<scope>system</scope>
 			<systemPath>${sqldev.basedir}/modules/oracle.bali.jewt/jewt4.jar</systemPath>
 		</dependency>		
 		<dependency>
 			<groupId>oracle</groupId>
 			<artifactId>share.jar</artifactId>
-			<version>12.2.1</version> <!-- original version is JEWT_MAIN_GENERIC_210114.0102.S, that's basically a date -->
+			<version>${sqldev.version}</version> <!-- original version is JEWT_MAIN_GENERIC_210114.0102.S, that's basically a date -->
 			<scope>system</scope>
 			<systemPath>${sqldev.basedir}/modules/oracle.bali.share/share.jar</systemPath>
 		</dependency>		
@@ -199,7 +202,7 @@
 			<!-- SQL Developer is using this older version, osgi.core-5.0.0.jar -->
 			<groupId>org.osgi</groupId>
 			<artifactId>org.osgi.core</artifactId>
-			<version>5.0.0</version>
+			<version>6.0.0</version>
 			<scope>provided</scope>
 		</dependency>
 		<!-- other dependencies -->
@@ -207,19 +210,19 @@
 			<!-- used mainly to access the database via JdbcTemplate -->
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-jdbc</artifactId>
-			<version>5.3.22</version>
+			<version>7.0.8</version>
 		</dependency>
 		<dependency>
 			<!-- transitive reference, but IntelliJ wants to have it explicit (to avoid warnings) -->
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-core</artifactId>
-			<version>5.3.22</version>
+			<version>7.0.8</version>
 		</dependency>
 		<dependency>
 			<!-- used for HtmlUtils.htmlEscape in RunnerPanel -->
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-web</artifactId>
-			<version>5.3.22</version>
+			<version>7.0.8</version>
 		</dependency>
 		<dependency>
 			<!-- optional, for RunGenerator and TestGenerator -->
@@ -237,7 +240,7 @@
         <dependency>
             <groupId>org.jetbrains</groupId>
             <artifactId>annotations</artifactId>
-            <version>23.0.0</version>
+            <version>26.1.0</version>
             <scope>compile</scope>
         </dependency>
     </dependencies>
@@ -265,8 +268,31 @@
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
+				<version>3.15.0</version>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<release>${jdk.version}</release>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-resources-plugin</artifactId>
+				<version>3.5.0</version>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-install-plugin</artifactId>
+				<version>3.1.4</version>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-deploy-plugin</artifactId>
+				<version>3.1.4</version>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
-				<version>2.22.2</version>
+				<version>3.5.6</version>
 				<configuration>
 					<!-- argline moved to properties, to make it work with jacoco plugin -->
 					<includes>
@@ -407,7 +433,7 @@
 				<!--   - Error:osgi: [org.utplsql.sqldev] Invalid value for Bundle-Version, ${parsedVersion.majorVersion}.${parsedVersion.minorVersion}.${parsedVersion.incrementalVersion} does not match \d{1,9}(\.\d{1,9}(\.\d{1,9}(\.[-\w]+)?)?)? -->
 				<groupId>org.apache.felix</groupId>
 				<artifactId>maven-bundle-plugin</artifactId>
-				<version>5.1.7</version> <!-- Classes found in the wrong director warning with 5.1.7, TODO: find solution to remove it -->
+				<version>6.0.2</version> <!-- Classes found in the wrong director warning with 5.1.7, TODO: find solution to remove it -->
 				<extensions>true</extensions>
 				<configuration>
 					<finalName>${project.name}</finalName>
@@ -450,7 +476,8 @@
 							org.aspectj.runtime,
 							org.aspectj.lang.reflect,
 							org.springframework.core.style,
-							org.springframework.lang
+							org.springframework.lang,
+							org.jspecify.annotations
 						</_exportcontents>
 						<_noee>true</_noee>
 						<Require-Bundle>
@@ -477,7 +504,7 @@
 			</plugin>
 			<plugin>
 				<artifactId>maven-assembly-plugin</artifactId>
-				<version>3.4.1</version><!--$NO-MVN-MAN-VER$-->
+				<version>3.8.0</version><!--$NO-MVN-MAN-VER$-->
 				<configuration>
 					<finalName>${final.name}</finalName>
 					<appendAssemblyId>false</appendAssemblyId>
@@ -513,7 +540,7 @@
 			<plugin>
 				<groupId>org.jacoco</groupId>
 				<artifactId>jacoco-maven-plugin</artifactId>
-				<version>0.8.8</version>
+				<version>0.8.15</version>
 				<executions>
 					<execution>
 						<goals>
@@ -579,12 +606,21 @@
 				<plugin>
 					<groupId>org.codehaus.mojo</groupId>
 					<artifactId>buildnumber-maven-plugin</artifactId>
-					<version>3.0.0</version>
+					<version>3.3.0</version>
 				</plugin>
 			</plugins>
 		</pluginManagement>
 	</build>
-
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<!-- explicitly override old version of javassist by oddgen.org.sqldev to avoid warning -->
+				<groupId>org.javassist</groupId>
+				<artifactId>javassist</artifactId>
+				<version>3.30.2-GA</version>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
 	<!-- More Project Information -->
 	<name>org.utplsql.sqldev</name>
 	<description>Extension for running unit tests in SQL Developer.</description>
@@ -625,54 +661,4 @@
 		<tag>master</tag>
 		<url>https://github.com/utPLSQL/utPLSQL-SQLDeveloper</url>
 	</scm>
-
-	<!-- Profiles as workaround for https://youtrack.jetbrains.com/issue/IDEA-85478 as described in -->
-	<!-- https://intellij-support.jetbrains.com/hc/en-us/community/posts/360009767720-I-want-to-run-tests-with-different-java-version-than-my-source-java-version -->
-	<profiles>
-		<profile>
-			<id>default</id>
-			<activation>
-				<activeByDefault>true</activeByDefault>
-			</activation>
-			<build>
-				<plugins>
-					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<version>3.10.1</version>
-						<artifactId>maven-compiler-plugin</artifactId>
-						<configuration>
-							<!-- different Java version for main and test -->
-							<!-- works with Maven builder from IDE or command line -->
-							<release>${jdk.version}</release>
-							<testRelease>${jdk.test.version}</testRelease>
-						</configuration>
-					</plugin>
-				</plugins>
-			</build>
-		</profile>
-		<profile>
-			<id>idea</id>
-			<activation>
-				<activeByDefault>false</activeByDefault>
-				<property>
-					<name>idea.maven.embedder.version</name>
-				</property>
-			</activation>
-			<build>
-				<plugins>
-					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<version>3.10.1</version>
-						<artifactId>maven-compiler-plugin</artifactId>
-						<configuration>
-							<!-- IDEA requires same Java version for main and test -->
-							<!-- see https://youtrack.jetbrains.com/issue/IDEA-85478 -->
-							<release>${jdk.test.version}</release>
-							<testRelease>${jdk.test.version}</testRelease>
-						</configuration>
-					</plugin>
-				</plugins>
-			</build>
-		</profile>
-	</profiles>
 </project>

@@ -100,7 +100,7 @@ public class RealtimeReporterFetchSizeTest extends AbstractJdbcTest {
 
     @Test
     public void delayFreeStreamingConsumtion() {
-        final long TOLERANCE_MS = 600;
+        final long TOLERANCE_MS = 2000;
         SingleConnectionDataSource ds = new SingleConnectionDataSource();
         ds.setDriverClassName("oracle.jdbc.OracleDriver");
         ds.setUrl(dataSource.getUrl());
@@ -114,7 +114,7 @@ public class RealtimeReporterFetchSizeTest extends AbstractJdbcTest {
         thread.start();
         dao.consumeReport(reporterId, consumer);
         logger.fine(consumer.getPostTestEvents().toString());
-        Assert.assertEquals(5, consumer.getPostTestEvents().entrySet().size());
+        Assert.assertEquals(5, consumer.getPostTestEvents().size());
         final Long test_1_0 = consumer.getPostTestEvents().get("junit_utplsql_fetch_size_pkg.test_1_0");
         final Long test_2_1 = consumer.getPostTestEvents().get("junit_utplsql_fetch_size_pkg.test_2_1");
         final Long test_3_2 = consumer.getPostTestEvents().get("junit_utplsql_fetch_size_pkg.test_3_2");

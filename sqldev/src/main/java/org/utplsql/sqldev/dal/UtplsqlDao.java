@@ -241,7 +241,8 @@ public class UtplsqlDao {
                 sb.append("   AND (item_name = upper(?) or ? IS NULL)\n");
                 final String sql = sb.toString();
                 final Object[] binds = new Object[] {owner, objectName, subobjectName, subobjectName};
-                final Integer found = jdbcTemplate.queryForObject(sql, Integer.class, binds);
+                final int[] types = new int[] {Types.VARCHAR, Types.VARCHAR, Types.VARCHAR, Types.VARCHAR};
+                final Integer found = jdbcTemplate.queryForObject(sql, binds, types, Integer.class);
                 return found != null && found > 0;
             } else {
                 // using internal API (deprecated, not accessible in latest version)
