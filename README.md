@@ -14,7 +14,7 @@ utPLSQL for SQL Developer extends Oracle's SQL Developer to
 
 In the Connections window, select a connection or one or more packages or package procedures to run utPLSQL tests. Or you can run utPLSQL tests directly from the PL/SQL editor. The test procedures are determined according to the cursor position in the PL/SQL editor.
 
-![Run utPLSQL test](/images/run_utplsql_test.png)
+![Run utPLSQL test](https://raw.githubusercontent.com/utPLSQL/utPLSQL-SQLDeveloper/main/images/run_utplsql_test.png)
 
 ### Debug utPLSQL test
 
@@ -22,11 +22,11 @@ Select the tests to debug, the same way you would if you were just running them,
 
 And then the PL/SQL Debugger is called for the generated, anonymous PL/SQL block.
 
-![Anonymous PL/SQL block to debug utPLSQL test](/images/debug_utplsql_test_anonymous_block.png)
+![Anonymous PL/SQL block to debug utPLSQL test](https://raw.githubusercontent.com/utPLSQL/utPLSQL-SQLDeveloper/main/images/debug_utplsql_test_anonymous_block.png)
 
 The initialization timeout for the realtime reporter is increased to 1 hour. The overall timeout is left to the default value of 4 hours. So you have enough time to step through the PL/SQL code and analyse it. Press the `Stop` button at any time to cancel the test run.
 
-![Stop utPLSQL test run](/images/debug_utplsql_test_stop.png)
+![Stop utPLSQL test run](https://raw.githubusercontent.com/utPLSQL/utPLSQL-SQLDeveloper/main/images/debug_utplsql_test_stop.png)
 
 ### Code coverage...
 
@@ -34,13 +34,13 @@ In the Connections window, select a connection or one or more packages for a cod
 
 In the dialog you can set some parameters. If you run code coverage for a few chosen packages or from the PL/SQL editor the objects to be included are determined according the object dependencies in the Oracle data dictionary.
 
-![Code coverage dialog](/images/code_coverage_dialog.png)
+![Code coverage dialog](https://raw.githubusercontent.com/utPLSQL/utPLSQL-SQLDeveloper/main/images/code_coverage_dialog.png)
 
 Press `Run` to produce the code coverage process in the background. You may minimize or close the dialog. To abort the process, press `Cancel`.
 
 The HTML report is shown in your default browser.
 
-![Code coverage report](/images/code_coverage_report_all_files.png)
+![Code coverage report](https://raw.githubusercontent.com/utPLSQL/utPLSQL-SQLDeveloper/main/images/code_coverage_report_all_files.png)
 
 ### Generate utPLSQL test
 
@@ -48,7 +48,7 @@ The HTML report is shown in your default browser.
 
 Select a package, type, function or procedure to build a utPLSQL test package skeleton. The generated package compiles and executes, but still needs some rework.
 
-![Generate utPLSQL test](/images/generate_utplsql_test.png)
+![Generate utPLSQL test](https://raw.githubusercontent.com/utPLSQL/utPLSQL-SQLDeveloper/main/images/generate_utplsql_test.png)
 
 #### From scratch
 
@@ -56,7 +56,7 @@ Select a package, type, function or procedure to build a utPLSQL test package sk
 2. Type `ut_` in the Worksheet or a PL/SQL editor and press `Ctrl-Space` to get the list of a utPLSQL code templates
 3. Press `Return` to paste a code template at the current cursor position
 
-![Generate utPLSQL test](/images/generate_utplsql_test_from_template.png)
+![Generate utPLSQL test](https://raw.githubusercontent.com/utPLSQL/utPLSQL-SQLDeveloper/main/images/generate_utplsql_test_from_template.png)
 
 ### Snippets
 
@@ -68,19 +68,19 @@ Insert the snippets by drag & drop into your code.
 
 Annotations are used in the package specification for various test configurations.
 
-![utPLSQL Annotations](/images/snippets_annotations.png)
+![utPLSQL Annotations](https://raw.githubusercontent.com/utPLSQL/utPLSQL-SQLDeveloper/main/images/snippets_annotations.png)
 
 #### Expectations
 
 Expectations are used in the package body to compare actual with expected results.
 
-![utPLSQL Expectations](/images/snippets_expectations.png)
+![utPLSQL Expectations](https://raw.githubusercontent.com/utPLSQL/utPLSQL-SQLDeveloper/main/images/snippets_expectations.png)
 
 ### Preferences
 
 Set your preferences to change the behaviour of utPLSQL within SQL Developer.
 
-![Preferences](/images/preferences.png)
+![Preferences](https://raw.githubusercontent.com/utPLSQL/utPLSQL-SQLDeveloper/main/images/preferences.png)
 
 ### oddgen integration
 
@@ -95,13 +95,13 @@ The use of [oddgen for SQL Developer](https://www.oddgen.org/) is optional.
 
 utPLSQL can run tests based on suitepaths and suites. The next screenshot shows the generated run command for two selected suitepaths.
 
-![Generate utPLSQL test](/images/oddgen_run_utplsql_test.png)
+![Generate utPLSQL test](https://raw.githubusercontent.com/utPLSQL/utPLSQL-SQLDeveloper/main/images/oddgen_run_utplsql_test.png)
 
 #### Generate utPLSQL test
 
 Use oddgen to generate utPLSQL test package skeletons. When generating to files, a file for each package specification and package body is created.
 
-![Generate utPLSQL test](/images/oddgen_generate_utplsql_test.png)
+![Generate utPLSQL test](https://raw.githubusercontent.com/utPLSQL/utPLSQL-SQLDeveloper/main/images/oddgen_generate_utplsql_test.png)
 
 ## Releases
 
